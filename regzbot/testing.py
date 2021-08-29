@@ -1,0 +1,1018 @@
+#! /usr/bin/python3
+# -*- coding: utf-8 -*-
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (C) 2021 by Thorsten Leemhuis
+__author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
+#
+# FIXMELATER:
+# * import commits and emails from files
+# * maybe: use more of pathlib and less of os and glob (or nothing at all)
+# * directly retrieve some mails from lore to see if everything works, once there are some on the list
+
+import datetime
+import difflib
+import email.message
+import email.generator
+import glob
+import os
+import pathlib
+import string
+import shutil
+import sys
+
+import git
+import regzbot
+import regzbot.mailin
+
+logger = regzbot.logger
+
+gittrees_testing = dict()
+emaildirs = dict()
+
+MAIL_TEMPLATE = string.Template(
+    '''Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce commodo
+justo ac mi ornare mollis id rutrum felis.
+
+${tag}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce commodo
+justo ac mi ornare mollis id rutrum felis.''')
+
+
+class Emaildir:
+    _count = 0
+    _startdate = 1546300800
+
+    def __init__(self, repsrcid, tmpdirectory, name):
+        self.repsrcid = repsrcid
+        self._directory = os.path.join(tmpdirectory, name)
+        os.mkdir(self._directory)
+
+    def create_email(self, funcname, tag, subject=None, messageid=None, replyto=None, references=None,):
+        if messageid is None:
+            messageid = '<regzbot-testing-%s@example.com>' % funcname
+        if replyto:
+            replyto = '<regzbot-testing-%s@example.com>' % replyto
+        if references:
+            new_references = list()
+            for reference in references:
+                new_references.append(
+                    '<regzbot-testing-%s@example.com>' % reference)
+            references = new_references
+
+        file = os.path.join(self._directory, "emailtesting-" +
+                            str(Emaildir._count) + ".regzbot")
+
+        msg = email.message.EmailMessage()
+        if subject:
+            msg['Subject'] = subject
+        else:
+            msg['Subject'] = "%s: Lorem ipsum dolor sit amet" % funcname
+        msg.set_content(MAIL_TEMPLATE.substitute(tag=tag))
+        msg['From'] = 'nobody@example.com'
+        msg['To'] = 'nobody@example.com'
+        msg['Date'] = email.utils.formatdate(
+            timeval=(self._startdate + (Emaildir._count * 86400)))
+        msg['Message-Id'] = messageid
+
+        if replyto:
+            msg['In-Reply-To'] = replyto
+            if references:
+                msg['References'] = "%s %s" % (replyto, ' '.join(references))
+            else:
+                msg['References'] = replyto
+
+        with open(file, 'w') as out:
+            gen = email.generator.Generator(out)
+            gen.flatten(msg)
+
+        Emaildir._count += 1
+
+    def clear(self):
+        for emailtestingfile in pathlib.Path(self._directory).glob("emailtesting-*.regzbot"):
+            emailtestingfile.unlink()
+
+    def process(self):
+        _, _, filenames = next(os.walk(self._directory))
+        filenames.sort()
+        for file in filenames:
+            regzbot.mailin.processmsg_file(
+                self.repsrcid, os.path.join(self._directory, file))
+
+    def reset(self):
+        Emaildir._count = 0
+
+
+class TestingGitTree:
+    def __init__(self, testdata_path, repopath, reponame, startdate, branchname='master'):
+        self._count = 0
+        self._branchname = branchname
+        self._description = reponame + '_' + branchname
+        self._startdate = startdate
+
+        # disabled: this is for a infra that can check if the commits have the expected
+        # sha1sum; turned out that's unneeded, at least for now; leave the code around in
+        # case things change again.
+        #
+        # self._filename_hashes_known = os.path.join(
+        #    testdata_path, 'expected/commitids-' + self._description)
+        self.hashes_known = self.__init_repo_hashes()
+
+        self.repo = self.__init_repo(repopath, reponame, self._startdate)
+        self._count_afterinit = self._hashes_afterinit = None
+
+    def __init_repo(self, repopath, reponame, startdate):
+        repodir = os.path.join(repopath, reponame)
+
+        if os.path.isdir(repodir):
+            if not os.path.isdir(os.path.join(repodir, '.git')):
+                logger.critical(
+                    "Directory %s exist, but does not contain .git/. Aborting." % repodir)
+                sys.exit(1)
+        else:
+            os.mkdir(repodir)
+
+        self.repo = git.Repo.init(repodir)
+
+        # make sure the global git config doesn't interfer
+        with self.repo.config_writer() as gitcw:
+            gitcw.set_value("user", "name", "Regzbot Testing")
+            gitcw.set_value("user", "email", "nobody@example.com")
+
+        # is this a brand new repo?
+        try:
+            _ = self.repo.head.commit
+        except ValueError:
+            self.__init_branch()
+            return self.repo
+
+        # make sure our branch is checked out
+        self.__checkout_branch()
+
+        # is this a brand new branch?
+        if len(glob.glob(os.path.join(repodir, self._description + '-*'))) == 0:
+            self.__init_branch()
+
+        return self.repo
+
+    def __init_repo_hashes(self):
+        # see comment in __init() for why this is disabled
+        #
+        # if os.path.isfile(self._filename_hashes_known):
+        #    with open(self._filename_hashes_known, 'r') as input_file:
+        #        return input_file.read().splitlines()
+        # else:
+        return list()
+
+    def __check_sha1sum(self, commit, commitnr):
+        if commitnr >= len(self.hashes_known):
+            self.__add_unkown_hash(str(self.repo.head.commit))
+        elif str(commit) != self.hashes_known[commitnr]:
+            logger.critical("Sha1 for the latest commit (%s) to %s doesn't match expected sha1 (%s)." % (
+                commit, self._branchname, self.hashes_known[commitnr]))
+            logger.critical("Aborting")
+            sys.exit(1)
+
+    def __commit(self, commitmsg_tag):
+        commitmsg = "This is a %s commit for testing regzbot, the content doesn't matter." % self._description
+        if commitmsg_tag is not None:
+            commitmsg += '\n\n' + commitmsg_tag + '\n'
+
+        commitdate = datetime.datetime.fromtimestamp(
+            self._startdate + self._count, tz=datetime.timezone.utc)
+        self.repo.index.commit(
+            commitmsg, author_date=commitdate, commit_date=commitdate)
+        self.__check_sha1sum(self.repo.head.commit, self._count)
+        self._count += 1
+
+    def __add_unkown_hash(self, sha1sum):
+        # see comment in __init() for why this is disabled
+        #
+        # with open(self._filename_hashes_known, 'a') as file:
+        #    file.write(sha1sum + '\n')
+        #
+        self.hashes_known.append(sha1sum)
+
+    def __init_branch(self):
+        filename = os.path.join(self.repo.working_dir,
+                                self._description + '-' + str(self._count))
+        file = open(filename, "x")
+        file.write(
+            "This is a file for testing regzbot, the content doesn't matter.\n")
+        file.close()
+        self.repo.index.add([filename])
+        self.__commit(None)
+
+    def create_remote(self, name, url):
+        return self.repo.create_remote(name, url)
+
+    def __checkout_branch(self):
+        if not self.repo.active_branch == self._branchname:
+            self.repo.branches[self._branchname].checkout()
+
+    def clone(self, repopath, name):
+        return self.repo.clone(os.path.join(repopath, name))
+
+    def mv(self, commitmsg=None):
+        # make sure our branch is checked out
+        self.__checkout_branch()
+
+        fileold = os.path.join(self.repo.working_dir,
+                               self._description + '-' + str(self._count - 1))
+        filenew = os.path.join(self.repo.working_dir,
+                               self._description + '-' + str(self._count))
+        self.repo.git.mv(fileold, filenew)
+        self.__commit(commitmsg)
+
+    def process(self):
+        self.__checkout_branch()
+
+    def tag(self, tag, message="This is a tag for testing regzbot, the content doesn't matter."):
+        # make sure our branch is checked out
+        self.__checkout_branch()
+
+        # self.repo.create_tag(tag, message=message)
+        commitdate = "%s" % datetime.datetime.fromtimestamp(
+            self._startdate + self._count, tz=datetime.timezone.utc)
+        with self.repo.git.custom_environment(GIT_COMMITTER_DATE=commitdate):
+            self.repo.create_tag(tag, message=message)
+
+    def init_done(self):
+        self._count_afterinit = self._count
+        self._hashes_afterinit = self.hashes_known.copy()
+
+    def reset(self):
+        self._count = self._count_afterinit
+        self.hashes_known = self._hashes_afterinit.copy()
+
+        self.__checkout_branch()
+        self.repo.git.reset('--hard', self._hashes_afterinit[-1])
+
+
+def populatetree_linux(gittree_testing):
+    gittree_testing.mv()
+    gittree_testing.tag("v1.8")
+    gittree_testing.mv()
+    gittree_testing.tag("v1.9-rc1")
+    gittree_testing.mv()
+    gittree_testing.tag("v1.9-rc2")
+    gittree_testing.mv()
+    gittree_testing.tag("v1.9")
+    gittree_testing.mv()
+    gittree_testing.tag("v1.10-rc1")
+    gittree_testing.mv()
+    gittree_testing.tag("v1.10-rc2")
+    gittree_testing.mv()
+    gittree_testing.tag("v1.10")
+    gittree_testing.mv()
+    gittree_testing.tag("v1.11-rc1")
+    gittree_testing.mv()
+    gittree_testing.tag("v1.11-rc2")
+    gittree_testing.mv()
+
+
+def gittree_testing_prep_linux_next(repo):
+    # yes, this is how mainline repo is called in linux-next:
+    repo.heads['master'].rename('stable')
+
+    # these branches might interfer in parsing, so create them, even if we don't use them
+    repo.create_head('akpm')
+    repo.create_head('akpm-base')
+    repo.create_head('pending-fixes')
+
+    # this is to one we care about
+    masterref = repo.create_head('master')
+    masterref.checkout()
+
+
+def populatetree_linux_next(gittree_testing):
+    gittree_testing.mv()
+    gittree_testing.tag("next-20190101")
+    gittree_testing.mv()
+    gittree_testing.tag("next-20190102")
+
+
+def gittree_testing_prep_linux_stable(repo):
+    # these branches might interfer in parsing, so create them, even if we don't use them
+    repo.create_head('linux-rolling-lts')
+    repo.create_head('linux-rolling-stable')
+
+    # these are the one we care about
+    repo.create_head('linux-1.8.y', commit="v1.8")
+    repo.create_head('linux-1.10.y', commit="v1.10")
+
+
+def populatetree_linux_stable18(gittree_testing):
+    gittree_testing.mv()
+    gittree_testing.tag("v1.8.1")
+    gittree_testing.mv()
+    gittree_testing.tag("v1.8.2")
+
+
+def populatetree_linux_stable110(gittree_testing):
+    gittree_testing.mv()
+    gittree_testing.tag("v1.10.1")
+    gittree_testing.mv()
+    gittree_testing.tag("v1.10.2")
+
+
+def update_gittrees():
+    for gittree in regzbot.GitTree.getall():
+        gittree.update()
+
+
+def init_repodir(testdata_path, repopath):
+    # prep
+    upstream_repopath = os.path.join(repopath, 'upstream')
+    os.mkdir(repopath)
+    os.mkdir(upstream_repopath)
+
+    # create linux-mainline repo
+    regzbot.GitTree.add('mainline', 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/',
+                        'cgit', 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/',  'master')
+    gittrees_testing['mainline'] = TestingGitTree(
+        testdata_path, upstream_repopath, 'mainline', 1546300800)
+    gittrees_testing['mainline'].repo.clone(os.path.join(repopath, 'mainline'))
+    update_gittrees()
+    populatetree_linux(gittrees_testing['mainline'])
+
+    # create linux-next repo
+    regzbot.GitTree.add('next', 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/',
+                        'cgit', 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/', 'master')
+    gittree_testing_prep_linux_next(
+        gittrees_testing['mainline'].clone(upstream_repopath, 'next'))
+    gittrees_testing['next'] = TestingGitTree(
+        testdata_path, upstream_repopath, 'next', 1577836800)
+    gittrees_testing['next'].repo.clone(os.path.join(repopath, 'next'))
+    update_gittrees()
+    populatetree_linux_next(gittrees_testing['next'])
+
+    # create linux-stable repo with two branches
+    gittree_testing_prep_linux_stable(
+        gittrees_testing['mainline'].clone(upstream_repopath, 'stable'))
+    regzbot.GitTree.add('stable', 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git', 'cgit',
+                        'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/', r'linux-[0-9][0-9]*.[0-9][0-9]*\.y')
+    gittrees_testing['linux-1.8.y'] = TestingGitTree(
+        testdata_path, upstream_repopath, 'stable', 1609459200, 'linux-1.8.y')
+    gittrees_testing['linux-1.8.y'].repo.clone(
+        os.path.join(repopath, 'stable'))
+    gittrees_testing['linux-1.10.y'] = TestingGitTree(
+        testdata_path, upstream_repopath, 'stable', 1609459200, 'linux-1.10.y')
+    update_gittrees()
+    populatetree_linux_stable110(gittrees_testing['linux-1.10.y'])
+    populatetree_linux_stable18(gittrees_testing['linux-1.8.y'])
+    update_gittrees()
+
+
+def email_process():
+    emaildirs['primary'].process()
+    emaildirs['secondary'].process()
+
+
+def init_emaildir(mails_path):
+    os.mkdir(mails_path)
+
+    repsrcid = regzbot.ReportSource.add('Nonexistand primary mailinglist for regzbot testing', True, 1,
+                                        'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
+                                        'lore', 'https://lore.kernel.org/regressions/')
+    emaildirs['primary'] = Emaildir(
+        regzbot.ReportSource.get_by_id(repsrcid), mails_path, 'primary')
+
+    repsrcid = regzbot.ReportSource.add('Nonexistand secondary mailinglist for regzbot testing', False, 2,
+                                        'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-kernel',
+                                        'lore', 'https://lore.kernel.org/lkml/')
+    emaildirs['secondary'] = Emaildir(
+        regzbot.ReportSource.get_by_id(repsrcid), mails_path, 'secondary')
+
+
+def result_linecompare(result, reference):
+    if not reference == result:
+        logger.critical('-%s \n+%s', reference, result)
+
+
+def emaildirs_clear():
+    emaildirs['primary'].clear()
+    emaildirs['secondary'].clear()
+
+
+def init(testdata_path, tmpdir, reposdir):
+    if not os.path.isdir(testdata_path):
+        logger.critical("Template and results directory %s doesn't exist. Aborting.",
+                        testdata_path)
+        sys.exit(1)
+
+    mailsdir = os.path.join(tmpdir, 'mails')
+    results_propfile = os.path.join(testdata_path, 'expected/testresults')
+    results_tempfile = os.path.join(os.path.join(tmpdir, 'testresults'))
+
+    init_repodir(testdata_path, reposdir)
+    init_emaildir(mailsdir)
+    regzbot.db_commit()
+
+    for gittree_testing in gittrees_testing:
+        gittrees_testing[gittree_testing].init_done()
+
+    return mailsdir, results_propfile, results_tempfile
+
+
+def run(testdata_path, tmpdir, reposdir):
+    regzbot.run_testing()
+
+    mailsdir, results_propfile, results_tempfile = init(
+        testdata_path, tmpdir, reposdir)
+    results_temphandle = open(results_tempfile, 'a')
+
+    # call all test#-functions
+    this = sys.modules[__name__]
+    outercount = 0
+    while 'test_%s_0' % outercount in dir(this):
+        # get rid of the db from the last run
+        regzbot.db_rollback()
+
+        innercount = 0
+        while 'test_%s_%s' % (outercount, innercount) in dir(this):
+            # remove mails from the last round
+            emaildirs_clear()
+
+            # create testdata
+            callfunction = getattr(this, 'test_%s_%s' %
+                                   (outercount, innercount))
+            chk_mail, chk_git, wait = callfunction(
+                'test_%s_%s' % (outercount, innercount))
+
+            # process created testdata
+            if chk_mail:
+                email_process()
+            if chk_git:
+                update_gittrees()
+
+            # write results
+            results_temphandle.write('[test_%s_%s]\n' %
+                                     (outercount, innercount))
+            for entry in regzbot.RegressionFull.dumpall_csv():
+                for line in entry:
+                    results_temphandle.write('%s\n' % line)
+            for line in regzbot.UnhandledEvent.dumpall_csv():
+                results_temphandle.write('UNHANDLED: %s\n' % line)
+            results_temphandle.write('\n')
+
+            regzbot.RegressionWeb.create_htmlpages(tmpdir)
+            # FIXME: UNHANDLED
+
+            if wait:
+                # regzbot.db_commit()
+                os.system('read -p "Press any key to continue"')
+
+            # finish this up
+            innercount += 1
+        reset()
+        outercount += 1
+
+    # commit, in case someone wants to inspect the da
+    regzbot.db_commit()
+    results_temphandle.close()
+
+    with open(results_propfile, 'r') as proper:
+        with open(results_tempfile, 'r') as temp:
+            diff = difflib.unified_diff(
+                proper.readlines(),
+                temp.readlines(),
+                fromfile="%s" % results_propfile,
+                tofile="%s" % results_tempfile,
+                n=1,
+            )
+            generator_data = False
+            for line in diff:
+                if generator_data is False:
+                    generator_data = True
+                    sys.stdout.write(
+                        'The results from this run differ from the expected results:\n')
+                    sys.stdout.write('#######\n')
+                sys.stdout.write(line)
+            if generator_data is True:
+                sys.stdout.write('#######\n')
+                answer = input(
+                    "Enter 'a' or 'y' to accept them, any other resonse to move on: ")
+                if answer.lower() == 'a' or answer.lower() == 'y':
+                    shutil.copyfile(results_tempfile, results_propfile)
+
+
+def reset():
+    for gittree_testing in gittrees_testing:
+        gittrees_testing[gittree_testing].reset()
+    for emaildir in emaildirs:
+        emaildirs[emaildir].reset()
+
+
+def test_0_0(funcname):
+    logger.info('%s: creating a mainline regression' % funcname)
+    emaildirs['primary'].create_email(
+        funcname, "#regzb introduced: v1.8..v1.9-rc1")
+    return True, False, False
+
+
+def test_0_1(funcname):
+    replyto = 'test_0_0'
+    logger.info('%s: specifying the culprit for the regression created in %s' % (
+        funcname, replyto))
+    emaildirs['primary'].create_email(funcname, "#regzb introduced: %s" % gittrees_testing['mainline'].hashes_known[5],
+                                      replyto=replyto)
+    return True, False, False
+
+
+def test_0_2(funcname):
+    replyto = 'test_0_0'
+    logger.info('%s: update title for the regression created in %s' %
+                (funcname, replyto))
+    emaildirs['primary'].create_email(funcname, "#regzb title: test_0_0: updated title (set by %s)" % funcname,
+                                      replyto=replyto)
+    return True, False, False
+
+
+def test_0_3(funcname):
+    logger.info(
+        '%s: create a second mainline regression and mark it immediately as duplicate' % funcname)
+    emaildirs['primary'].create_email(
+        funcname, "#regzb introduced: v1.8..v1.9-rc1")
+    replyto = funcname
+    emaildirs['primary'].create_email("%s_1" % funcname, "#regzb dupof: https://lore.kernel.org/regressions/regzbot-testing-test_0_0@example.com",
+                                      replyto=replyto)
+    return True, False, False
+
+
+def test_0_4(funcname):
+    replyto = 'test_0_0'
+    logger.info('%s: mark regression created in %s as fixed with a non-existing commit which has a comment' %
+                (funcname, replyto))
+    #
+    emaildirs['primary'].create_email(funcname, "#regzb fixed-by: 4169881b9e0781b2286dc94e4cb731982c5371aa Testcomment to fixed-by",
+                                      replyto=replyto)
+    return True, False, False
+
+
+def test_0_5(funcname):
+    replyto = 'test_0_0'
+    logger.info('%s: mark regression created in %s as fixed with with a commit that is actually existing' % (
+        funcname, replyto))
+    emaildirs['primary'].create_email(funcname, "#regzb fixed-by: %s" % gittrees_testing['mainline'].hashes_known[6],
+                                      replyto=replyto)
+    return True, False, False
+
+
+def test_0_6(funcname):
+    replyto = funcname
+    logger.info(
+        '%s: send a mail which serves as report for a regression created by a reply later using ^introduced' % funcname)
+    emaildirs['primary'].create_email(
+        funcname, "Nothing to see here, move along")
+    emaildirs['primary'].create_email("%s_1" % funcname, "#regzb ^introduced: v1.8..v1.9-rc1",
+                                      replyto=replyto)
+    return True, False, False
+
+
+def test_0_7(funcname):
+    replyto = 'test_0_6'
+    logger.info('%s: mark the regression created in %s as invalid' %
+                (funcname, replyto))
+    emaildirs['primary'].create_email(funcname, "#regzb invalid: some reason",
+                                      replyto=replyto)
+    return True, False, False
+
+
+# create a mainline regression
+def test_1_0(funcname):
+    logger.info('%s: creating a mainline regression' % funcname)
+    emaildirs['primary'].create_email(
+        funcname, '#regzb introduced: v1.8..v1.9-rc1 ("foo: bar baz")')
+    return True, False, False
+
+
+def test_1_1(funcname):
+    replyto = 'test_1_0'
+    logger.info('%s: creating a git commit that links to the regression created in %s, which should mark is as fixed' % (
+        funcname, replyto))
+    gittrees_testing['mainline'].mv(
+        'Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com' % replyto)
+    return False, True, False
+
+
+def test_1_2(funcname):
+    logger.info('%s: creating a mainline regression and mark it as "fixed-by" by a commit that has not reached the repos yet' % funcname)
+
+    subcounter = 0
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+
+    gittrees_testing['mainline'].mv()
+
+    subcounter += 1
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb fixed-by: %s" %
+                                      gittrees_testing['mainline'].hashes_known[-1], replyto="%s_%s" % (funcname, subcounter - 1))
+
+    # this ensure that the tree is not check yet:
+    return True, False, False
+
+
+def test_1_3(funcname):
+    logger.info(
+        '%s: land the commit to fix the regression created in ' % funcname)
+    return False, True, False
+
+
+def test_1_4(funcname):
+    logger.info(
+        '%s: create a mainline regression that will be fixed by a commit that will shows up in next' % funcname)
+    emaildirs['primary'].create_email(
+        funcname, "#regzb introduced: v1.8..v1.9-rc1")
+    return True, False, False
+
+
+def test_1_5(funcname):
+    replyto = 'test_1_4'
+    logger.info(
+        '%s: create a mainline regression that will be fixed by a commit that will shows up in next' % funcname)
+    gittrees_testing['next'].mv(
+        'Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com' % replyto)
+    return False, True, False
+
+
+def test_2_0(funcname):
+    logger.info(
+        '%s: creating a mainline regression and add a link to it ' % funcname)
+    emaildirs['primary'].create_email(
+        funcname, "#regzb introduced: v1.8..v1.9-rc1")
+
+    subcounter = 1
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb link https://www.kernel.org/releases.html Linktitle",
+                                      replyto=funcname)
+    return True, False, False
+
+
+def test_2_1(funcname):
+    replyto = 'test_2_0'
+    logger.info('%s: update the title of the link just added to the regression created in %s' % (
+        funcname, replyto))
+    emaildirs['primary'].create_email(funcname, "#regzb link https://www.kernel.org/releases.html Updated linktitle",
+                                      replyto=replyto)
+    return True, False, False
+
+
+def test_2_2(funcname):
+    replyto = 'test_2_0'
+    logger.info('%s: remove the link to the regression created in %s' %
+                (funcname, replyto))
+    emaildirs['primary'].create_email(funcname, "#regzb unlink https://www.kernel.org/releases.html ",
+                                      replyto=replyto)
+    return True, False, False
+
+
+def test_2_3(funcname):
+    replyto = 'test_2_0'
+    logger.info('%s: refer to the regression created in %s on another mainling list (will only show up in the history)' % (
+        funcname, replyto))
+    emaildirs['secondary'].create_email(funcname, "https://lore.kernel.org/regressions/regzbot-testing-%s@example.com" % replyto,
+                                        subject="%s: refer to this regression on another mainling list" % funcname)
+    return True, False, False
+
+
+def test_2_4(funcname):
+    replyto = 'test_2_0'
+    referencedmail = 'test_2_3'
+    logger.info('%s: in the regression created by %s, start to monitor the thread created in %s' % (
+        funcname, replyto, referencedmail))
+    emaildirs['primary'].create_email(funcname, "#regzb monitor https://lore.kernel.org/lkml/regzbot-testing-%s@example.com" % referencedmail,
+                                      replyto=replyto)
+    return True, False, False
+
+
+def test_2_5(funcname):
+    replyto = 'test_2_3'
+    logger.info('%s: add a reply to the thread %s that is now monitored' %
+                (funcname, replyto))
+    emaildirs['secondary'].create_email(funcname, "Lorem ipsum dolor sit amet",
+                                        subject="%s: reply to the thread now monitored" % funcname,
+                                        replyto=replyto)
+    return True, False, False
+
+
+def test_2_6(funcname):
+    replyto = 'test_2_0'
+    referencedmail = 'test_2_3'
+    logger.info('%s: in the regression created by %s, stop monitoring the thread created in %s' % (
+        funcname, replyto, referencedmail))
+    emaildirs['primary'].create_email(funcname, "#regzb unmonitor https://lore.kernel.org/lkml/regzbot-testing-%s@example.com" % referencedmail,
+                                      replyto=replyto)
+    return True, False, False
+
+
+def test_2_7(funcname):
+    replyto = 'test_2_3'
+    logger.info('%s: add a reply to the thread %s that is now unmonitored' % (
+        funcname, replyto))
+    emaildirs['secondary'].create_email(funcname, "Lorem ipsum dolor sit amet",
+                                        subject="%s: reply to the thread now monitored" % funcname,
+                                        replyto=replyto)
+    return True, False, False
+
+
+def test_2_8(funcname):
+    replyto = 'test_2_0'
+    logger.info('%s: on another mainling list, refer to the regression created in %s with a link tag (will be monitored)' % (
+        funcname, replyto))
+    emaildirs['secondary'].create_email(funcname, "Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com" % replyto,
+                                        subject="%s: refer to this regression on another mainling list" % funcname)
+    return True, False, False
+
+
+def test_2_9(funcname):
+    replyto = 'test_2_8'
+    logger.info('%s: on another mainling list, add a reply to the thread %s that should be monitored now' % (
+        funcname, replyto))
+    emaildirs['secondary'].create_email(funcname, "Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com" % replyto,
+                                        subject="%s: reply to the thread now monitored" % funcname,
+                                        replyto=replyto)
+    return True, False, False
+
+
+def test_3_0(funcname):
+    logger.info('%s: create a regression in next' % funcname)
+    emaildirs['primary'].create_email(
+        funcname, "#regzb introduced: next-20190101..next-20190102")
+    return True, False, False
+
+
+#
+def test_3_1(funcname):
+    replyto = 'test_3_0'
+    logger.info('%s: specify the culprit for the regression created in %s' % (
+        funcname, replyto))
+    emaildirs['primary'].create_email(funcname, "#regzb introduced: %s" % gittrees_testing['next'].hashes_known[1],
+                                      replyto=replyto)
+    return True, False, False
+
+
+# mark regression as fixed by an existing commit
+def test_3_2(funcname):
+    replyto = 'test_3_0'
+    logger.info('%s: mark regression created in %s as fixed by and exiting commit' % (
+        funcname, replyto))
+    emaildirs['primary'].create_email(funcname, "#regzb fixed-by: %s" % gittrees_testing['next'].hashes_known[2],
+                                      replyto=replyto)
+    return True, False, False
+
+
+def test_3_3(funcname):
+    logger.info('%s: create a regression in stable' % funcname)
+    emaildirs['primary'].create_email(
+        funcname, "#regzb introduced: v1.8.1..v1.8.2")
+    return True, False, False
+
+
+def test_3_4(funcname):
+    replyto = 'test_3_3'
+    logger.info('%s: specify the culprit for the regression created in %s' % (
+        funcname, replyto))
+    emaildirs['primary'].create_email(funcname, "#regzb introduced: %s" % gittrees_testing['linux-1.8.y'].hashes_known[1][0:11],
+                                      replyto=replyto)
+    return True, False, False
+
+
+def test_3_5(funcname):
+    replyto = 'test_3_3'
+    logger.info('%s: mark regression created in %s as fixed by and exiting commit' % (
+        funcname, replyto))
+    emaildirs['primary'].create_email(funcname, "#regzb fixed-by: %s" % gittrees_testing['linux-1.8.y'].hashes_known[2],
+                                      replyto=replyto)
+    return True, False, False
+
+
+def test_4_0(funcname):
+    subcounter = 0
+    logger.info(
+        '%s: creating a mainline regression in the current cycle (range)' % funcname)
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10..v1.11-rc1")
+
+    subcounter += 1
+    logger.info(
+        '%s: creating a mainline regression in the current cycle (bisected)' % funcname)
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: %s" % gittrees_testing['mainline'].hashes_known[-1])
+
+    subcounter += 1
+    logger.info(
+        '%s: creating a mainline regression in the previous cycle (range)' % funcname)
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.9..v1.10-rc2")
+
+    subcounter += 1
+    logger.info(
+        '%s: creating a mainline regression in the current cycle (bisected)' % funcname)
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: %s" % gittrees_testing['mainline'].hashes_known[-4])
+
+    subcounter += 1
+    logger.info(
+        '%s: creating a mainline regression in an older cycle (range)' % funcname)
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+
+    subcounter += 1
+    logger.info(
+        '%s: creating a mainline regression bisected in an older tree' % funcname)
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: %s" % gittrees_testing['mainline'].hashes_known[-8])
+
+    subcounter += 1
+    logger.info(
+        '%s: creating a mainline regression where the range spans two releases' % funcname)
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.9..v1.11-rc1")
+
+    return True, False, False
+
+
+def test_4_1(funcname):
+    subcounter = 0
+    logger.info('%s: creating a linux-next regression (range)' % funcname)
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: next-20190101..next-20190102")
+
+    subcounter += 1
+    logger.info('%s: creating a linux-next regression (bisected)' % funcname)
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: %s" % gittrees_testing['next'].hashes_known[1])
+
+    subcounter += 1
+    logger.info(
+        '%s: creating a linux-next regression (range starting with mainline)' % funcname)
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..next-20190102")
+
+    return True, False, False
+
+
+def test_4_2(funcname):
+    subcounter = 0
+    logger.info('%s: creating a linux-stable regression (range)' % funcname)
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8.1..v1.8.2")
+
+    subcounter += 1
+    logger.info('%s: creating a linux-stable regression (bisected)' % funcname)
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: %s" % gittrees_testing['linux-1.8.y'].hashes_known[1][0:11])
+
+    subcounter += 1
+    logger.info(
+        '%s: creating a linux-stable regression (range starting with mainline)' % funcname)
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.8.1")
+
+    subcounter += 1
+    logger.info(
+        '%s: creating a regression with a range starting with a stable release and ending in mainline)' % funcname)
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10.2..v1.11-rc1")
+
+    subcounter += 1
+    logger.info(
+        '%s: creating a regression with a range starting with an earlier stable release and ending in mainline)' % funcname)
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.9.2..v1.10")
+
+    return True, False, False
+
+
+def test_4_3(funcname):
+    subcounter = 0
+    logger.info(
+        '%s_%s: creating a regressions that refers to non-existant tag' % (funcname, subcounter))
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v0.10..v0.11")
+
+    subcounter += 1
+    logger.info(
+        '%s_%s: creating a regressions that refers to non-existant tag' % (funcname, subcounter))
+    # as a side effect, the following mail will also make code fail that misses a str(foo), as something might put 123456789012 into an int instead of a string:
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: 123456789012")
+
+    return True, False,  False
+
+
+def test_4_4(funcname):
+    logger.info(
+        '%s: creating a bunch of regressions and solve them in various ways to show everything in the webui' % funcname)
+
+    subcounter = 0
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: %s" % gittrees_testing['mainline'].hashes_known[-1])
+    subcounter += 1
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb link https://www.kernel.org/releases.html Link somewhere",
+                                      replyto="%s_%s" % (funcname, subcounter-1))
+
+    subcounter += 1
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10..v1.11-rc1")
+    subcounter += 1
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb fixed-by: %s" % gittrees_testing['mainline'].hashes_known[-2],
+                                      replyto="%s_%s" % (funcname, subcounter-1))
+
+    subcounter += 1
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10..v1.11-rc1")
+    subcounter += 1
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb fixed-by: 1234567890abcdef1234567890abcdef",
+                                      replyto="%s_%s" % (funcname, subcounter-1))
+
+    subcounter += 1
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10..v1.11-rc1")
+    subcounter += 1
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
+                                      "#regzb dupof: https://lore.kernel.org/regressions/regzbot-testing-%s_%s@example.com" % (
+                                          funcname, subcounter - 3),
+                                      replyto="%s_%s" % (funcname, subcounter-1))
+    subcounter += 1
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10..v1.11-rc1")
+    subcounter += 1
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb invalid: some reason",
+                                      replyto="%s_%s" % (funcname, subcounter-1))
+
+    subcounter += 1
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10..v1.11-rc1")
+    gittrees_testing['next'].mv(
+        'Link: https://lore.kernel.org/regressions/regzbot-testing-%s_%s@example.com' % (funcname, subcounter))
+
+    return True, True, False
+
+
+# a regzbot command for a regression/ml thread that is not yet tracked
+def test_5_0(funcname):
+    logger.info(
+        '%s: create a regression as base for other tests' % funcname)
+    emaildirs['primary'].create_email(
+        "%s" % funcname, "#regzb introduced: v1.10..v1.11-rc1")
+    return True, False, False
+
+
+def test_5_1(funcname):
+    replyto = 'test_5_0'
+
+    subcounter = 0
+    logger.info(
+        '%s_%s: use a unkown regzbot command' % (funcname, subcounter))
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb foobar: 123456789",
+                                      replyto=replyto)
+
+    subcounter += 1
+    logger.info(
+        '%s_%s: use a regzbot command in a thread not associated with a regression' % (funcname, subcounter))
+    emaildirs['primary'].create_email("%s_%s" % (
+        funcname, subcounter), "#regzb fixed-by: 123456789")
+
+    subcounter += 1
+    logger.info('%s_%s: use a regzbot command on a mailinglist that is not allowed to use them' % (funcname, subcounter))
+    emaildirs['secondary'].create_email(funcname, "#regzb introduced: v1.10..v1.11-rc1",
+                                        subject="%s_%s: this report should be ignored" % (funcname, subcounter))
+
+    return True, False, False
+
+
+def test_5_2(funcname):
+    replyto = 'test_5_0'
+
+    subcounter = 0
+    logger.info(
+        '%s_%s: try regzb monitor with a typo in the url' % (funcname, subcounter))
+    emaildirs['primary'].create_email("%s_%s" % (
+        funcname, subcounter), "#regzb monitor: http://lore.kernel.org/somelist_somemsgid/", replyto=replyto)
+
+    subcounter += 1
+    logger.info(
+        '%s_%s: try regzb monitor with a unkown mailing list ' % (funcname, subcounter))
+    emaildirs['primary'].create_email("%s_%s" % (
+        funcname, subcounter), "#regzb monitor: http://lore.kernel.org/somelist/somemsgid/", replyto=replyto)
+
+    subcounter += 1
+    logger.info(
+        '%s_%s: try regzb unmonitor with a typo a unkown mailing list ' % (funcname, subcounter))
+    emaildirs['primary'].create_email("%s_%s" % (
+        funcname, subcounter), "#regzb unmonitor: http://lore.kernel.org/somelist_somemsgid/", replyto=replyto)
+
+    subcounter += 1
+    logger.info(
+        '%s_%s: try regzb unmonitor with a typo in the url' % (funcname, subcounter))
+    emaildirs['primary'].create_email("%s_%s" % (
+        funcname, subcounter), "#regzb unmonitor: http://lore.kernel.org/somelist/somemsgid/", replyto=replyto)
+
+    subcounter += 1
+    logger.info(
+        '%s_%s: try regzb unmonitor with a unkown mailing list ' % (funcname, subcounter))
+    emaildirs['primary'].create_email("%s_%s" % (
+        funcname, subcounter), "#regzb unmonitor: http://lore.kernel.org/regressions/some_fake_msgid/", replyto=replyto)
+
+    return True, False, False
