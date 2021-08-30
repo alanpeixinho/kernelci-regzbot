@@ -253,6 +253,7 @@ class GitTree():
             # if the commit exists in the tree, but in another branch :-/
             result = repo.git.describe('--contains', identifier)
             if result:
+                result = result.split('~')[0]
                 return result, True
         except git.exc.GitCommandError as err:
             output = err.args[2].decode("utf-8")
@@ -708,13 +709,12 @@ class RegHistory():
         return "%s, %s, %s" % (self.subject, self.url(), self.gmtime)
 
     def html(self, yattagdoc):
-        with yattagdoc.tag('li', style="list-style-position: inside;"):
-            if self.regzbotcmd:
-                with yattagdoc.tag('a', href=self.url()):
-                    yattagdoc.text("%s" % self.regzbotcmd)
-            else:
-                with yattagdoc.tag('a', href=self.url()):
-                    yattagdoc.text("%s" % self.subject)
+        if self.regzbotcmd:
+            with yattagdoc.tag('a', href=self.url()):
+                yattagdoc.text("%s" % self.regzbotcmd)
+        else:
+            with yattagdoc.tag('a', href=self.url()):
+                yattagdoc.text("%s" % self.subject)
 
 
 class RegLink():
@@ -1439,104 +1439,137 @@ class RegressionFull(RegressionBasic):
     # this should be moved to RegressionWeb class
     def html(self):
         def cell1(yattagdoc):
-            if self._introduced_url:
-                with yattagdoc.tag('a', href=self._introduced_url):
-                    yattagdoc.text(self._introduced_short)
-                if self._introduced_presentable:
-                    with yattagdoc.tag('div'):
-                        yattagdoc.text("(%s)" % self._introduced_presentable)
-            else:
-                yattagdoc.text(self._introduced_short)
+            with yattagdoc.tag('div', style="padding-left: 1em;"):
+                with yattagdoc.tag('li'):
+                    if self._introduced_url:
+                        with yattagdoc.tag('a', href=self._introduced_url):
+                            yattagdoc.text(self._introduced_short)
+                        if self._introduced_presentable:
+                            with yattagdoc.tag('div'):
+                                yattagdoc.text("(%s)" %
+                                               self._introduced_presentable)
+                    else:
+                        yattagdoc.text(self._introduced_short)
 
         def cell2(yattagdoc):
             def add_introduced(yattagdoc):
                 yattagdoc.text(self._introduced_short)
 
-            with yattagdoc_line.tag('details'):
-                with yattagdoc_line.tag('summary'):
+            with yattagdoc_line.tag('details', style="padding-left: 1em;"):
+                with yattagdoc_line.tag('summary', style="list-style-position: outside;"):
                     yattagdoc.text('Report: ')
                     with yattagdoc.tag('i'):
                         with yattagdoc.tag('a', href=self._report_url):
                             yattagdoc.text(self.subject)
+                    yattagdoc.text(' (%s days old)' % days_delta(self.gmtime))
 
-                    yattagdoc.text(' (%s days ago)' % days_delta(self.gmtime))
+                    if self.solved_reason:
+                        yattagdoc.text(' ')
+                        with yattagdoc.tag('mark', style='background-color: #D0D0D0;'):
+                            yattagdoc.text('[ ')
+                            if self.solved_reason == 'fixed':
+                                yattagdoc.text('Fixed')
+                            elif self.solved_reason == 'to_be_fixed':
+                                yattagdoc.text('To be fixed')
+                            elif self.solved_reason == 'duplicateof':
+                                yattagdoc.text('Duplicate')
+                            elif self.solved_reason == 'invalid':
+                                yattagdoc.text('Invalid')
+                            elif self.solved_reason is not None:
+                                yattagdoc.text('%s' % self.solved_reason)
+                            yattagdoc.text(' ]')
+                        yattagdoc.text(' ')
 
-                    for regressionlink in RegLink.get_all(self.regid):
-                        yattagdoc.text('; Related: ')
+                    with yattagdoc.tag('div'):
+                        if len(self._actievents) < 2:
+                            yattagdoc.text('No further activity yet')
+                        else:
+                            yattagdoc.text('Latest activity: ')
+                            with yattagdoc.tag('a', href=self._actievents[-1].url()):
+                                yattagdoc.text('%s days ago' % days_delta(
+                                    self._actievents[-1].gmtime))
+                            yattagdoc.text('.')
+
+                        entered_loop = False
+                        for counter, regressionlink in enumerate(RegLink.get_all(self.regid)):
+                            if counter == 0:
+                                entered_loop = True
+                                yattagdoc.text(' Related issues: ')
+                            else:
+                                yattagdoc.text(', ')
+                            with yattagdoc.tag('a', href=regressionlink.link):
+                                yattagdoc.text("[%s]" % counter)
+                        if entered_loop:
+                            yattagdoc.text('.')
+
+                for counter, regressionlink in enumerate(RegLink.get_all(self.regid)):
+                    with yattagdoc.tag('div'):
+                        yattagdoc.text('Related[%s]: ' % counter)
                         with yattagdoc.tag('i'):
                             regressionlink.html(yattagdoc)
 
-                    with yattagdoc.tag('div', style='padding-left: 1em;'):
-                        if not self.solved_reason:
-                            if len(self._actievents) < 2:
-                                yattagdoc.text('No further activity yet')
-                            else:
-                                yattagdoc.text('Latest activity: ')
-                                with yattagdoc.tag('i'):
-                                    self._actievents[-1].html(yattagdoc)
-                                yattagdoc.text(' (%s days ago)' % days_delta(
-                                    self._actievents[-1].gmtime))
+                if self.solved_reason:
+                    with yattagdoc.tag('div'):
+                        yattagdoc.text(' ')
+                        with yattagdoc.tag('strong'):
+                            if self.solved_reason == 'fixed':
+                                yattagdoc.text('Fixed: ')
+                            elif self.solved_reason == 'to_be_fixed':
+                                yattagdoc.text('To be fixed by: ')
+                            elif self.solved_reason == 'duplicateof':
+                                yattagdoc.text('Duplicate of: ')
+                            elif self.solved_reason == 'invalid':
+                                yattagdoc.text('Invalid: ')
+                            elif self.solved_reason is not None:
+                                yattagdoc.text('%s ' % self.solved_reason)
+
+                        if self.solved_entry and self._solved_entry_presentable and not self._solved_entry_presentable == self.solved_entry[:12]:
+                            yattagdoc.text('In %s by ' %
+                                           self._solved_entry_presentable)
+
+                        def solved_explanation(yattagdoc):
+                            with yattagdoc.tag('i'):
+                                if self.solved_reason == 'fixed' or self.solved_reason == 'to_be_fixed':
+                                    yattagdoc.text('%s' %
+                                                   self.solved_entry[:12])
+                                    if self.solved_subject:
+                                        yattagdoc.text(' ("%s")' %
+                                                       self.solved_subject)
+                                elif self.solved_subject:
+                                    yattagdoc.text(self.solved_subject)
+                        if self.solved_url is None:
+                            solved_explanation(yattagdoc)
                         else:
-                            with yattagdoc.tag('strong'):
-                                if self.solved_reason == 'fixed':
-                                    yattagdoc.text('Fixed: ')
-                                elif self.solved_reason == 'to_be_fixed':
-                                    yattagdoc.text('To be fixed by: ')
-                                elif self.solved_reason == 'duplicateof':
-                                    yattagdoc.text('Duplicate of: ')
-                                elif self.solved_reason == 'invalid':
-                                    yattagdoc.text('Invalid: ')
-                                elif self.solved_reason is not None:
-                                    yattagdoc.text('%s ' % self.solved_reason)
-
-                            if self.solved_entry and self._solved_entry_presentable and not self._solved_entry_presentable == self.solved_entry[:12]:
-                                yattagdoc.text('In %s by ' %
-                                               self._solved_entry_presentable)
-
-                            def solved_explanation(yattagdoc):
-                                with yattagdoc.tag('i'):
-                                    if self.solved_reason == 'fixed' or self.solved_reason == 'to_be_fixed':
-                                        yattagdoc.text('%s' %
-                                                       self.solved_entry[:12])
-                                        if self.solved_subject:
-                                            yattagdoc.text(' ("%s")' %
-                                                           self.solved_subject)
-                                    elif self.solved_subject:
-                                        yattagdoc.text(self.solved_subject)
-                            if self.solved_url is None:
+                            with yattagdoc.tag('a', href=self.solved_url):
                                 solved_explanation(yattagdoc)
-                            else:
-                                with yattagdoc.tag('a', href=self.solved_url):
-                                    solved_explanation(yattagdoc)
 
-                            yattagdoc.text(' (%s days ago)' % days_delta(
-                                self._actievents[-1].gmtime))
+                        yattagdoc.text(' (%s days ago)' % days_delta(
+                            self.solved_gmtime))
 
-                with yattagdoc.tag('table', style="table-layout:fixed; width:100%; word-break:break-all; "):
-                    with yattagdoc.tag('tr'):
-                        with yattagdoc.tag('td', style="width:50%; vertical-align:top;"):
-                            with yattagdoc_line.tag('p', style='padding-left: 1em;'):
-                                yattagdoc.text("Latest known activities")
-                                with yattagdoc_line.tag('ul'):
-                                    for actievent in reversed(self._actievents[-5:]):
-                                        with yattagdoc.tag('li', style="list-style-position: inside;"):
-                                            actievent.html(yattagdoc)
-                                            yattagdoc.text(" (%s days ago)" % days_delta(
-                                                actievent.gmtime))
+                with yattagdoc_line.tag('p'):
+                    yattagdoc.text("Latest known activities")
+                    with yattagdoc_line.tag('ul'):
+                        for actievent in reversed(self._actievents[-5:]):
+                            with yattagdoc.tag('li', style="list-style-position: inside;"):
+                                actievent.html(yattagdoc)
+                                yattagdoc.text(" (%s days ago)" % days_delta(
+                                    actievent.gmtime))
 
-                        with yattagdoc.tag('td', style="width:50%; vertical-align:top;"):
-                            with yattagdoc_line.tag('p', style='padding-left: 1em;'):
-                                yattagdoc.text("Regression history")
-                                with yattagdoc_line.tag('ul'):
-                                    for histevent in reversed(self._histevents):
-                                        with yattagdoc.tag('i'):
-                                            histevent.html(yattagdoc)
-                                        yattagdoc.text(" (%s days ago)" % days_delta(
-                                                       histevent.gmtime))
-                with yattagdoc.tag('div', style='padding-left: 1em;'):
-                    yattagdoc.text(
-                        "When fixing this, include this in the commit message to automatically resolve this entry in the regression tracking database:")
-                    with yattagdoc.tag('div', style='padding-left: 1em;'):
+                with yattagdoc_line.tag('p'):
+                    yattagdoc.text("Regression history")
+                    with yattagdoc_line.tag('ul'):
+                        for histevent in reversed(self._histevents):
+                            with yattagdoc.tag('li', style="list-style-position: inside;"):
+                                with yattagdoc.tag('i'):
+                                    histevent.html(yattagdoc)
+                                yattagdoc.text(" (%s days ago)" % days_delta(
+                                               histevent.gmtime))
+
+                with yattagdoc.tag('p'):
+                    with yattagdoc.tag('div'):
+                        yattagdoc.text(
+                            "When fixing this, include this in the commit message to automatically resolve this entry in the regression tracking database:")
+                    with yattagdoc.tag('div', style="padding-left: 1em;"):
                         with yattagdoc.tag('div', style='font-style: italic;'):
                             yattagdoc.text(
                                 "Link: https://lore.kernel.org/regressions/%s" % self.entry)
@@ -1548,7 +1581,7 @@ class RegressionFull(RegressionBasic):
                                     self.introduced[0:12], commitsummary))
 
         yattagdoc_line = yattag.Doc()
-        with yattagdoc_line.tag('td', style="width: 175px;"):
+        with yattagdoc_line.tag('td', style="width: 200px;"):
             cell1(yattagdoc_line)
         with yattagdoc_line.tag('td'):
             cell2(yattagdoc_line)
