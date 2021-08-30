@@ -177,10 +177,14 @@ def process_link(link):
 
 
 def process_msg(repsrc, msg):
-    msg_simplest = msg.get_body(preferencelist=('plain'))
     msgid = email_get_msgid(msg)
     subject = email_get_subject(msg)
     gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(msg['Date']))
+
+    msg_simplest = msg.get_body(preferencelist=('plain'))
+    if msg_simplest is None:
+        logger.warning('Skipping msg %s, could not find any content', msgid)
+        return
 
     # process messages with tags:
     matches = list()
