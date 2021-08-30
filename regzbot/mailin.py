@@ -187,13 +187,13 @@ def process_msg(repsrc, msg):
         return
 
     # process messages with tags:
-    matches = list()
     try:
         msgcontent = msg_simplest.get_content()
     except LookupError as err:
         logger.warning('Skipping msg %s due to error: "%s"', msgid, err)
         return
 
+    matches = list()
     for match in regzbot_tag_re.finditer(msgcontent):
         matches.append('#regzbot ' + match.group(2))
     if len(matches) > 0:
@@ -202,7 +202,7 @@ def process_msg(repsrc, msg):
                 process_tag(repsrc, match, msg)
         else:
             regzbot.UnhandledEvent.add(
-                repsrc.url(msgid), "regzbot cmd on a mainling list where they are not allowed to be used", gmtime=gmtime, subject=subject)
+                repsrc.url(msgid), "regzbot cmd on a mailing list where they are not allowed to be used", gmtime=gmtime, subject=subject)
 
     # record this activety, if this thread is tracked
     def add_actimon(reference, msgid, gmtime, subject):
