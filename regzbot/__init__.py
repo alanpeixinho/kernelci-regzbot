@@ -1904,11 +1904,6 @@ class ReportSource():
         self.lastchked = lastchked
         self.priority = priority
 
-        if priority <= 16:
-            self.acceptcommands = True
-        else:
-            self.acceptcommands = False
-
     def db_create(dbcursor, version):
         logger.debug('Initializing new dbtable "reportsources"')
         dbcursor.execute('''
@@ -1927,10 +1922,7 @@ class ReportSource():
             )''')
 
     @staticmethod
-    def add(name, acceptcommands, priority, serverurl, kind, weburl, alturls=None, lastchked=None):
-        if acceptcommands is not True:
-            priority = priority + 16
-
+    def add(name, priority, serverurl, kind, weburl, alturls=None, lastchked=None):
         dbcursor = DBCON.cursor()
         dbcursor.execute('''INSERT INTO reportsources
             (name, serverurl, kind, priority, weburl, alturls,  lastchked)
@@ -1959,14 +1951,9 @@ class ReportSource():
         return None
 
     @staticmethod
-    def getall_bykind(kind, decedending=False):
-        if decedending:
-            sortorder = 'DESC'
-        else:
-            sortorder = 'ASC'
-
+    def getall_bykind(kind):
         dbcursor = DBCON.cursor()
-        for dbresult in dbcursor.execute('SELECT * FROM reportsources WHERE kind=(?) ORDER BY priority %s' % sortorder, (kind, )):
+        for dbresult in dbcursor.execute('SELECT * FROM reportsources WHERE kind=(?) ORDER BY priority ASC', (kind, )):
             yield ReportSource(*dbresult)
 
     @staticmethod
@@ -2164,93 +2151,93 @@ def basicressources_setup(directory=None):
             sys.exit(1)
 
     # hardcoded for now
-    ReportSource.add('Mailinglist for regresssions in the Linux kernel', True, 1,
+    ReportSource.add('Mailinglist for regresssions in the Linux kernel', 1,
                      'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
                      'lore', 'https://lore.kernel.org/regressions/',
                      lastchked=190)
-    ReportSource.add('LKML', False, 2,
+    ReportSource.add('LKML', 2,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-kernel',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/lkml/',
                      lastchked=4097114)
-    ReportSource.add('netdev', False, 3,
+    ReportSource.add('netdev', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.netdev',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/netdev/',
                      lastchked=799255)
-    ReportSource.add('wireless', False, 4,
+    ReportSource.add('wireless', 4,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-wireless',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/linux-wireless/',
                      lastchked=214156)
-    ReportSource.add('arm', False, 3,
+    ReportSource.add('arm', 3,
                      'nntp://nntp.lore.kernel.org/org.infradead.lists.linux-arm-kernel',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/linux-arm-kernel/',
                      lastchked=844111)
-    ReportSource.add('dri', False, 3,
+    ReportSource.add('dri', 3,
                      'nntp://nntp.lore.kernel.org/org.freedesktop.lists.dri-devel',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/dri-devel/',
                      lastchked=329247)
-    ReportSource.add('fsdevel', False, 3,
+    ReportSource.add('fsdevel', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-fsdevel',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/linux-fsdevel/',
                      lastchked=213946)
-    ReportSource.add('scsi', False, 3,
+    ReportSource.add('scsi', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-scsi',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/linux-scsi/',
                      lastchked=172549)
-    ReportSource.add('pm', False, 5,
+    ReportSource.add('pm', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-pm',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/linux-pm/',
                      lastchked=152570)
-    ReportSource.add('pci', False, 5,
+    ReportSource.add('pci', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-pci',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/linux-pci/',
                      lastchked=100908)
-    ReportSource.add('mips', False, 3,
+    ReportSource.add('mips', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-mips',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/linux-mips/',
                      lastchked=110188)
-    ReportSource.add('ppc-dev', False, 3,
+    ReportSource.add('ppc-dev', 3,
                      'nntp://nntp.lore.kernel.org/org.ozlabs.lists.linuxppc-dev',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/linuxppc-dev/',
                      lastchked=263995)
-    ReportSource.add('alsa', False, 5,
+    ReportSource.add('alsa', 5,
                      'nntp://nntp.lore.kernel.org/org.alsa-project.alsa-devel',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/alsa-devel/',
                      lastchked=232899)
-    ReportSource.add('usb', False, 5,
+    ReportSource.add('usb', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-usb',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/linux-usb/',
                      lastchked=51156)
-    ReportSource.add('media', False, 5,
+    ReportSource.add('media', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-media',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/linux-media/',
                      lastchked=209904)
-    ReportSource.add('i2c', False, 5,
+    ReportSource.add('i2c', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-i2c',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/linux-i2c/',
                      lastchked=53681)
-    ReportSource.add('platform-driver-x86', False, 5,
+    ReportSource.add('platform-driver-x86', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.platform-driver-x86',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/platform-driver-x86/',
                      lastchked=27184)
-    ReportSource.add('hwmon', False, 6,
+    ReportSource.add('hwmon', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-hwmon',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/linux-hwmon/',
                      lastchked=12573)
-    ReportSource.add('input', False, 6,
+    ReportSource.add('input', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-input',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/linux-input/',
                      lastchked=77074)
-    ReportSource.add('edac', False, 6,
+    ReportSource.add('edac', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-edac',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/linux-edac/',
                      lastchked=6764)
-    ReportSource.add('crypto', False, 6,
+    ReportSource.add('crypto', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-crypto',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/linux-crypto/',
                      lastchked=58684)
-    ReportSource.add('iio', False, 6,
+    ReportSource.add('iio', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-iio',
-                     'lore', 'https://x-lore.kernel.org/all/',
+                     'lore', 'https://lore.kernel.org/linux-iio/',
                      lastchked=63102)
 
     # hardcoded for now, too

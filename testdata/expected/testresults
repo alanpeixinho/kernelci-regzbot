@@ -813,30 +813,28 @@ HISTORY: test_5_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressio
 LATEST: test_5_1_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_1_0@example.com, 1546387200
 UNHANDLED: 1, https://lore.kernel.org/regressions/regzbot-testing-test_5_1_0@example.com, unkown regzbot command: foobar, 1546387200, None, test_5_1_0: Lorem ipsum dolor sit amet, None, None, None
 UNHANDLED: 2, https://lore.kernel.org/regressions/regzbot-testing-test_5_1_1@example.com, regzbot tag in a thread not associated with a regression, 1546473600, None, test_5_1_1: Lorem ipsum dolor sit amet, None, None, None
-UNHANDLED: 3, https://lore.kernel.org/lkml/regzbot-testing-test_5_1@example.com, regzbot cmd on a mainling list where they are not allowed to be used, 1546560000, None, test_5_1_2: this report should be ignored, None, None, None
 
 [test_5_2]
 REGRESSION: test_5_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_0@example.com, v1.10..v1.11-rc1 (None), None, 1546300800, mainline, master, currrange
 ACTIVITY: test_5_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_0@example.com, 1546300800
 ACTIVITY: test_5_1_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_1_0@example.com, 1546387200
-ACTIVITY: test_5_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_0@example.com, 1546646400
-ACTIVITY: test_5_2_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_1@example.com, 1546732800
-ACTIVITY: test_5_2_2: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_2@example.com, 1546819200
-ACTIVITY: test_5_2_3: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_3@example.com, 1546905600
-ACTIVITY: test_5_2_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_4@example.com, 1546992000
+ACTIVITY: test_5_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_0@example.com, 1546560000
+ACTIVITY: test_5_2_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_1@example.com, 1546646400
+ACTIVITY: test_5_2_2: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_2@example.com, 1546732800
+ACTIVITY: test_5_2_3: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_3@example.com, 1546819200
+ACTIVITY: test_5_2_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_4@example.com, 1546905600
 HISTORY: test_5_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_0@example.com, 1546300800, introduced: v1.10..v1.11-rc1
-HISTORY: test_5_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_0@example.com, 1546646400, monitor: http://lore.kernel.org/somelist_somemsgid/
-HISTORY: test_5_2_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_1@example.com, 1546732800, monitor: http://lore.kernel.org/somelist/somemsgid/
-HISTORY: test_5_2_2: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_2@example.com, 1546819200, unmonitor: http://lore.kernel.org/somelist_somemsgid/
-HISTORY: test_5_2_3: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_3@example.com, 1546905600, unmonitor: http://lore.kernel.org/somelist/somemsgid/
-HISTORY: test_5_2_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_4@example.com, 1546992000, unmonitor: http://lore.kernel.org/regressions/some_fake_msgid/
-LATEST: test_5_2_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_4@example.com, 1546992000
+HISTORY: test_5_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_0@example.com, 1546560000, monitor: http://lore.kernel.org/somelist_somemsgid/
+HISTORY: test_5_2_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_1@example.com, 1546646400, monitor: http://lore.kernel.org/somelist/somemsgid/
+HISTORY: test_5_2_2: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_2@example.com, 1546732800, unmonitor: http://lore.kernel.org/somelist_somemsgid/
+HISTORY: test_5_2_3: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_3@example.com, 1546819200, unmonitor: http://lore.kernel.org/somelist/somemsgid/
+HISTORY: test_5_2_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_4@example.com, 1546905600, unmonitor: http://lore.kernel.org/regressions/some_fake_msgid/
+LATEST: test_5_2_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_4@example.com, 1546905600
 UNHANDLED: 1, https://lore.kernel.org/regressions/regzbot-testing-test_5_1_0@example.com, unkown regzbot command: foobar, 1546387200, None, test_5_1_0: Lorem ipsum dolor sit amet, None, None, None
 UNHANDLED: 2, https://lore.kernel.org/regressions/regzbot-testing-test_5_1_1@example.com, regzbot tag in a thread not associated with a regression, 1546473600, None, test_5_1_1: Lorem ipsum dolor sit amet, None, None, None
-UNHANDLED: 3, https://lore.kernel.org/lkml/regzbot-testing-test_5_1@example.com, regzbot cmd on a mainling list where they are not allowed to be used, 1546560000, None, test_5_1_2: this report should be ignored, None, None, None
-UNHANDLED: 4, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_0@example.com, unable to monitor thread http://lore.kernel.org/somelist_somemsgid/ as URL could not be parsed, 1546646400, None, test_5_2_0: Lorem ipsum dolor sit amet, None, None, None
-UNHANDLED: 5, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_1@example.com, unable to monitor thread http://lore.kernel.org/somelist/somemsgid/, mailinglist unkown, 1546732800, None, test_5_2_1: Lorem ipsum dolor sit amet, None, None, None
-UNHANDLED: 6, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_2@example.com, unable to unmonitor thread http://lore.kernel.org/somelist_somemsgid/ as URL could not be parsed, 1546819200, None, test_5_2_2: Lorem ipsum dolor sit amet, None, None, None
-UNHANDLED: 7, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_3@example.com, unable to unmonitor thread http://lore.kernel.org/somelist/somemsgid/, mailinglist unkown, 1546905600, None, test_5_2_3: Lorem ipsum dolor sit amet, None, None, None
-UNHANDLED: 8, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_4@example.com, thread http://lore.kernel.org/regressions/some_fake_msgid/ is not monitored, thus unable to unmonitor it, 1546992000, None, test_5_2_4: Lorem ipsum dolor sit amet, None, None, None
+UNHANDLED: 3, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_0@example.com, unable to monitor thread http://lore.kernel.org/somelist_somemsgid/ as URL could not be parsed, 1546560000, None, test_5_2_0: Lorem ipsum dolor sit amet, None, None, None
+UNHANDLED: 4, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_1@example.com, unable to monitor thread http://lore.kernel.org/somelist/somemsgid/, mailinglist unkown, 1546646400, None, test_5_2_1: Lorem ipsum dolor sit amet, None, None, None
+UNHANDLED: 5, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_2@example.com, unable to unmonitor thread http://lore.kernel.org/somelist_somemsgid/ as URL could not be parsed, 1546732800, None, test_5_2_2: Lorem ipsum dolor sit amet, None, None, None
+UNHANDLED: 6, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_3@example.com, unable to unmonitor thread http://lore.kernel.org/somelist/somemsgid/, mailinglist unkown, 1546819200, None, test_5_2_3: Lorem ipsum dolor sit amet, None, None, None
+UNHANDLED: 7, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_4@example.com, thread http://lore.kernel.org/regressions/some_fake_msgid/ is not monitored, thus unable to unmonitor it, 1546905600, None, test_5_2_4: Lorem ipsum dolor sit amet, None, None, None
 

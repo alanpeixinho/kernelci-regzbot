@@ -13,7 +13,10 @@ logger = regzbot.logger
 
 
 def run():
-    def connect(nntp_connection, repsrc):
+    nntp_connection = None
+
+    # retrieve the number of msg for all groups first to avoid races
+    for repsrc in regzbot.ReportSource.getall_bykind('lore'):
         _, _, nntp_server, nntp_group = repsrc.serverurl.split('/', maxsplit=3)
 
         # open connection or reuse it
@@ -22,22 +25,7 @@ def run():
             logger.debug('connecting to "%s"' % nntp_server)
             nntp_connection = nntplib.NNTP(nntp_server)
 
-        _, _, group_firstid, group_lastid, _ = nntp_connection.group(
-            nntp_group)
-
-        return nntp_connection, group_firstid, group_lastid
-
-    nntp_connection = None
-
-    # retrieve the number of msg for all groups first to avoid races
-    groupstats = {}
-    for repsrc in regzbot.ReportSource.getall_bykind('lore', decedending=True):
-        nntp_connection, group_firstid, group_lastid = connect(nntp_connection, repsrc)
-        groupstats[repsrc.serverurl] = (group_firstid, group_lastid)
-
-    for repsrc in regzbot.ReportSource.getall_bykind('lore'):
-        nntp_connection, _, _ = connect(nntp_connection, repsrc)
-        group_firstid, group_lastid = groupstats[repsrc.serverurl]
+        _, _, group_firstid, group_lastid, _ = nntp_connection.group(nntp_group)
 
         # is there something new to check?
         if not repsrc.lastchked:

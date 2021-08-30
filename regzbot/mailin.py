@@ -197,12 +197,8 @@ def process_msg(repsrc, msg):
     for match in regzbot_tag_re.finditer(msgcontent):
         matches.append('#regzbot ' + match.group(2))
     if len(matches) > 0:
-        if repsrc.acceptcommands:
-            for match in email_process_tagmatches(matches):
-                process_tag(repsrc, match, msg)
-        else:
-            regzbot.UnhandledEvent.add(
-                repsrc.url(msgid), "regzbot cmd on a mailing list where they are not allowed to be used", gmtime=gmtime, subject=subject)
+        for match in email_process_tagmatches(matches):
+            process_tag(repsrc, match, msg)
 
     # record this activety, if this thread is tracked
     def add_actimon(reference, msgid, gmtime, subject):

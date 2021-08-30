@@ -372,13 +372,13 @@ def email_process():
 def init_emaildir(mails_path):
     os.mkdir(mails_path)
 
-    repsrcid = regzbot.ReportSource.add('Nonexistand primary mailinglist for regzbot testing', True, 1,
+    repsrcid = regzbot.ReportSource.add('Nonexistand primary mailinglist for regzbot testing', 1,
                                         'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
                                         'lore', 'https://lore.kernel.org/regressions/')
     emaildirs['primary'] = Emaildir(
         regzbot.ReportSource.get_by_id(repsrcid), mails_path, 'primary')
 
-    repsrcid = regzbot.ReportSource.add('Nonexistand secondary mailinglist for regzbot testing', False, 2,
+    repsrcid = regzbot.ReportSource.add('Nonexistand secondary mailinglist for regzbot testing', 2,
                                         'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-kernel',
                                         'lore', 'https://lore.kernel.org/lkml/')
     emaildirs['secondary'] = Emaildir(
@@ -973,11 +973,6 @@ def test_5_1(funcname):
         '%s_%s: use a regzbot command in a thread not associated with a regression' % (funcname, subcounter))
     emaildirs['primary'].create_email("%s_%s" % (
         funcname, subcounter), "#regzb fixed-by: 123456789")
-
-    subcounter += 1
-    logger.info('%s_%s: use a regzbot command on a mailinglist that is not allowed to use them' % (funcname, subcounter))
-    emaildirs['secondary'].create_email(funcname, "#regzb introduced: v1.10..v1.11-rc1",
-                                        subject="%s_%s: this report should be ignored" % (funcname, subcounter))
 
     return True, False, False
 
