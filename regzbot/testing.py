@@ -415,58 +415,62 @@ def init(testdata_path, tmpdir, reposdir):
     return mailsdir, results_propfile, results_tempfile
 
 
-def run(testdata_path, tmpdir, reposdir):
+def run(testdata_path, tmpdir, reposdir, onlinetests):
+    def runnow(testdata_path, tmpdir, reposdir, testfuncprefix):
+        # call all test#-functions
+        this = sys.modules[__name__]
+        outercount = 0
+        while '%s_%s_0' % (testfuncprefix, outercount) in dir(this):
+            # get rid of the db from the last run
+            regzbot.db_rollback()
+
+            innercount = 0
+            while '%s_%s_%s' % (testfuncprefix, outercount, innercount) in dir(this):
+                # remove mails from the last round
+                emaildirs_clear()
+
+                # create testdata
+                callfunction = getattr(this, '%s_%s_%s' %
+                                       (testfuncprefix, outercount, innercount))
+                chk_mail, chk_git, wait = callfunction(
+                    'test_%s_%s' % (outercount, innercount))
+
+                # process created testdata
+                if chk_mail:
+                    email_process()
+                if chk_git:
+                    update_gittrees()
+
+                # write results
+                results_temphandle.write('[%s_%s_%s]\n' %
+                                         (testfuncprefix, outercount, innercount))
+                for entry in regzbot.RegressionFull.dumpall_csv():
+                    for line in entry:
+                        results_temphandle.write('%s\n' % line)
+                for line in regzbot.UnhandledEvent.dumpall_csv():
+                    results_temphandle.write('UNHANDLED: %s\n' % line)
+                results_temphandle.write('\n')
+
+                regzbot.RegressionWeb.create_htmlpages(tmpdir)
+
+                if wait:
+                    # regzbot.db_commit()
+                    os.system('read -p "Press any key to continue"')
+
+                # finish this up
+                innercount += 1
+            reset()
+            outercount += 1
+
     regzbot.run_testing()
 
     mailsdir, results_propfile, results_tempfile = init(
         testdata_path, tmpdir, reposdir)
     results_temphandle = open(results_tempfile, 'a')
 
-    # call all test#-functions
-    this = sys.modules[__name__]
-    outercount = 0
-    while 'test_%s_0' % outercount in dir(this):
-        # get rid of the db from the last run
-        regzbot.db_rollback()
-
-        innercount = 0
-        while 'test_%s_%s' % (outercount, innercount) in dir(this):
-            # remove mails from the last round
-            emaildirs_clear()
-
-            # create testdata
-            callfunction = getattr(this, 'test_%s_%s' %
-                                   (outercount, innercount))
-            chk_mail, chk_git, wait = callfunction(
-                'test_%s_%s' % (outercount, innercount))
-
-            # process created testdata
-            if chk_mail:
-                email_process()
-            if chk_git:
-                update_gittrees()
-
-            # write results
-            results_temphandle.write('[test_%s_%s]\n' %
-                                     (outercount, innercount))
-            for entry in regzbot.RegressionFull.dumpall_csv():
-                for line in entry:
-                    results_temphandle.write('%s\n' % line)
-            for line in regzbot.UnhandledEvent.dumpall_csv():
-                results_temphandle.write('UNHANDLED: %s\n' % line)
-            results_temphandle.write('\n')
-
-            regzbot.RegressionWeb.create_htmlpages(tmpdir)
-            # FIXME: UNHANDLED
-
-            if wait:
-                # regzbot.db_commit()
-                os.system('read -p "Press any key to continue"')
-
-            # finish this up
-            innercount += 1
-        reset()
-        outercount += 1
+    runnow(testdata_path, tmpdir, reposdir, 'offltest')
+    if onlinetests:
+        runnow(testdata_path, tmpdir, reposdir, 'onlntest')
 
     # commit, in case someone wants to inspect the da
     regzbot.db_commit()
@@ -504,14 +508,14 @@ def reset():
         emaildirs[emaildir].reset()
 
 
-def test_0_0(funcname):
+def offltest_0_0(funcname):
     logger.info('%s: creating a mainline regression' % funcname)
     emaildirs['primary'].create_email(
         funcname, "#regzb introduced: v1.8..v1.9-rc1")
     return True, False, False
 
 
-def test_0_1(funcname):
+def offltest_0_1(funcname):
     replyto = 'test_0_0'
     logger.info('%s: specifying the culprit for the regression created in %s' % (
         funcname, replyto))
@@ -520,7 +524,7 @@ def test_0_1(funcname):
     return True, False, False
 
 
-def test_0_2(funcname):
+def offltest_0_2(funcname):
     replyto = 'test_0_0'
     logger.info('%s: update title for the regression created in %s' %
                 (funcname, replyto))
@@ -529,7 +533,7 @@ def test_0_2(funcname):
     return True, False, False
 
 
-def test_0_3(funcname):
+def offltest_0_3(funcname):
     logger.info(
         '%s: create a second mainline regression and mark it immediately as duplicate' % funcname)
     emaildirs['primary'].create_email(
@@ -540,7 +544,7 @@ def test_0_3(funcname):
     return True, False, False
 
 
-def test_0_4(funcname):
+def offltest_0_4(funcname):
     replyto = 'test_0_0'
     logger.info('%s: mark regression created in %s as fixed with a non-existing commit which has a comment' %
                 (funcname, replyto))
@@ -550,7 +554,7 @@ def test_0_4(funcname):
     return True, False, False
 
 
-def test_0_5(funcname):
+def offltest_0_5(funcname):
     replyto = 'test_0_0'
     logger.info('%s: mark regression created in %s as fixed with with a commit that is actually existing' % (
         funcname, replyto))
@@ -559,7 +563,7 @@ def test_0_5(funcname):
     return True, False, False
 
 
-def test_0_6(funcname):
+def offltest_0_6(funcname):
     replyto = funcname
     logger.info(
         '%s: send a mail which serves as report for a regression created by a reply later using ^introduced' % funcname)
@@ -570,7 +574,7 @@ def test_0_6(funcname):
     return True, False, False
 
 
-def test_0_7(funcname):
+def offltest_0_7(funcname):
     replyto = 'test_0_6'
     logger.info('%s: mark the regression created in %s as invalid' %
                 (funcname, replyto))
@@ -580,14 +584,14 @@ def test_0_7(funcname):
 
 
 # create a mainline regression
-def test_1_0(funcname):
+def offltest_1_0(funcname):
     logger.info('%s: creating a mainline regression' % funcname)
     emaildirs['primary'].create_email(
         funcname, '#regzb introduced: v1.8..v1.9-rc1 ("foo: bar baz")')
     return True, False, False
 
 
-def test_1_1(funcname):
+def offltest_1_1(funcname):
     replyto = 'test_1_0'
     logger.info('%s: creating a git commit that links to the regression created in %s, which should mark is as fixed' % (
         funcname, replyto))
@@ -596,7 +600,7 @@ def test_1_1(funcname):
     return False, True, False
 
 
-def test_1_2(funcname):
+def offltest_1_2(funcname):
     logger.info('%s: creating a mainline regression and mark it as "fixed-by" by a commit that has not reached the repos yet' % funcname)
 
     subcounter = 0
@@ -613,13 +617,13 @@ def test_1_2(funcname):
     return True, False, False
 
 
-def test_1_3(funcname):
+def offltest_1_3(funcname):
     logger.info(
         '%s: land the commit to fix the regression created in ' % funcname)
     return False, True, False
 
 
-def test_1_4(funcname):
+def offltest_1_4(funcname):
     logger.info(
         '%s: create a mainline regression that will be fixed by a commit that will shows up in next' % funcname)
     emaildirs['primary'].create_email(
@@ -627,7 +631,7 @@ def test_1_4(funcname):
     return True, False, False
 
 
-def test_1_5(funcname):
+def offltest_1_5(funcname):
     replyto = 'test_1_4'
     logger.info(
         '%s: create a mainline regression that will be fixed by a commit that will shows up in next' % funcname)
@@ -636,7 +640,7 @@ def test_1_5(funcname):
     return False, True, False
 
 
-def test_2_0(funcname):
+def offltest_2_0(funcname):
     logger.info(
         '%s: creating a mainline regression and add a link to it ' % funcname)
     emaildirs['primary'].create_email(
@@ -648,7 +652,7 @@ def test_2_0(funcname):
     return True, False, False
 
 
-def test_2_1(funcname):
+def offltest_2_1(funcname):
     replyto = 'test_2_0'
     logger.info('%s: update the title of the link just added to the regression created in %s' % (
         funcname, replyto))
@@ -657,7 +661,7 @@ def test_2_1(funcname):
     return True, False, False
 
 
-def test_2_2(funcname):
+def offltest_2_2(funcname):
     replyto = 'test_2_0'
     logger.info('%s: remove the link to the regression created in %s' %
                 (funcname, replyto))
@@ -666,7 +670,7 @@ def test_2_2(funcname):
     return True, False, False
 
 
-def test_2_3(funcname):
+def offltest_2_3(funcname):
     replyto = 'test_2_0'
     logger.info('%s: refer to the regression created in %s on another mainling list (will only show up in the history)' % (
         funcname, replyto))
@@ -675,7 +679,7 @@ def test_2_3(funcname):
     return True, False, False
 
 
-def test_2_4(funcname):
+def offltest_2_4(funcname):
     replyto = 'test_2_0'
     referencedmail = 'test_2_3'
     logger.info('%s: in the regression created by %s, start to monitor the thread created in %s' % (
@@ -685,7 +689,7 @@ def test_2_4(funcname):
     return True, False, False
 
 
-def test_2_5(funcname):
+def offltest_2_5(funcname):
     replyto = 'test_2_3'
     logger.info('%s: add a reply to the thread %s that is now monitored' %
                 (funcname, replyto))
@@ -695,7 +699,7 @@ def test_2_5(funcname):
     return True, False, False
 
 
-def test_2_6(funcname):
+def offltest_2_6(funcname):
     replyto = 'test_2_0'
     referencedmail = 'test_2_3'
     logger.info('%s: in the regression created by %s, stop monitoring the thread created in %s' % (
@@ -705,7 +709,7 @@ def test_2_6(funcname):
     return True, False, False
 
 
-def test_2_7(funcname):
+def offltest_2_7(funcname):
     replyto = 'test_2_3'
     logger.info('%s: add a reply to the thread %s that is now unmonitored' % (
         funcname, replyto))
@@ -715,7 +719,7 @@ def test_2_7(funcname):
     return True, False, False
 
 
-def test_2_8(funcname):
+def offltest_2_8(funcname):
     replyto = 'test_2_0'
     logger.info('%s: on another mainling list, refer to the regression created in %s with a link tag (will be monitored)' % (
         funcname, replyto))
@@ -724,7 +728,7 @@ def test_2_8(funcname):
     return True, False, False
 
 
-def test_2_9(funcname):
+def offltest_2_9(funcname):
     replyto = 'test_2_8'
     logger.info('%s: on another mainling list, add a reply to the thread %s that should be monitored now' % (
         funcname, replyto))
@@ -734,7 +738,7 @@ def test_2_9(funcname):
     return True, False, False
 
 
-def test_3_0(funcname):
+def offltest_3_0(funcname):
     logger.info('%s: create a regression in next' % funcname)
     emaildirs['primary'].create_email(
         funcname, "#regzb introduced: next-20190101..next-20190102")
@@ -742,7 +746,7 @@ def test_3_0(funcname):
 
 
 #
-def test_3_1(funcname):
+def offltest_3_1(funcname):
     replyto = 'test_3_0'
     logger.info('%s: specify the culprit for the regression created in %s' % (
         funcname, replyto))
@@ -752,7 +756,7 @@ def test_3_1(funcname):
 
 
 # mark regression as fixed by an existing commit
-def test_3_2(funcname):
+def offltest_3_2(funcname):
     replyto = 'test_3_0'
     logger.info('%s: mark regression created in %s as fixed by and exiting commit' % (
         funcname, replyto))
@@ -761,14 +765,14 @@ def test_3_2(funcname):
     return True, False, False
 
 
-def test_3_3(funcname):
+def offltest_3_3(funcname):
     logger.info('%s: create a regression in stable' % funcname)
     emaildirs['primary'].create_email(
         funcname, "#regzb introduced: v1.8.1..v1.8.2")
     return True, False, False
 
 
-def test_3_4(funcname):
+def offltest_3_4(funcname):
     replyto = 'test_3_3'
     logger.info('%s: specify the culprit for the regression created in %s' % (
         funcname, replyto))
@@ -777,7 +781,7 @@ def test_3_4(funcname):
     return True, False, False
 
 
-def test_3_5(funcname):
+def offltest_3_5(funcname):
     replyto = 'test_3_3'
     logger.info('%s: mark regression created in %s as fixed by and exiting commit' % (
         funcname, replyto))
@@ -786,7 +790,7 @@ def test_3_5(funcname):
     return True, False, False
 
 
-def test_4_0(funcname):
+def offltest_4_0(funcname):
     subcounter = 0
     logger.info(
         '%s: creating a mainline regression in the current cycle (range)' % funcname)
@@ -832,7 +836,7 @@ def test_4_0(funcname):
     return True, False, False
 
 
-def test_4_1(funcname):
+def offltest_4_1(funcname):
     subcounter = 0
     logger.info('%s: creating a linux-next regression (range)' % funcname)
     emaildirs['primary'].create_email(
@@ -852,7 +856,7 @@ def test_4_1(funcname):
     return True, False, False
 
 
-def test_4_2(funcname):
+def offltest_4_2(funcname):
     subcounter = 0
     logger.info('%s: creating a linux-stable regression (range)' % funcname)
     emaildirs['primary'].create_email(
@@ -884,7 +888,7 @@ def test_4_2(funcname):
     return True, False, False
 
 
-def test_4_3(funcname):
+def offltest_4_3(funcname):
     subcounter = 0
     logger.info(
         '%s_%s: creating a regressions that refers to non-existant tag' % (funcname, subcounter))
@@ -901,7 +905,7 @@ def test_4_3(funcname):
     return True, False,  False
 
 
-def test_4_4(funcname):
+def offltest_4_4(funcname):
     logger.info(
         '%s: creating a bunch of regressions and solve them in various ways to show everything in the webui' % funcname)
 
@@ -951,7 +955,7 @@ def test_4_4(funcname):
 
 
 # a regzbot command for a regression/ml thread that is not yet tracked
-def test_5_0(funcname):
+def offltest_5_0(funcname):
     logger.info(
         '%s: create a regression as base for other tests' % funcname)
     emaildirs['primary'].create_email(
@@ -959,7 +963,7 @@ def test_5_0(funcname):
     return True, False, False
 
 
-def test_5_1(funcname):
+def offltest_5_1(funcname):
     replyto = 'test_5_0'
 
     subcounter = 0
@@ -977,7 +981,7 @@ def test_5_1(funcname):
     return True, False, False
 
 
-def test_5_2(funcname):
+def offltest_5_2(funcname):
     replyto = 'test_5_0'
 
     subcounter = 0
@@ -1011,3 +1015,7 @@ def test_5_2(funcname):
         funcname, subcounter), "#regzb unmonitor: http://lore.kernel.org/regressions/some_fake_msgid/", replyto=replyto)
 
     return True, False, False
+
+
+def onlntest_0_0(funcname):
+    return False, False, False

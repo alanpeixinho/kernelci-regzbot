@@ -37,23 +37,27 @@ def cmd_run(cmdargs):
 
 
 def cmd_test(cmdargs):
-    def tests_run(tmpdir):
+    def tests_run(tmpdir, onlinetests):
         regzbot.basicressources_setup(tmpdir)
         regzbot.basicressources_init(tmpdir)
 
         _, gittreesdir, _ = regzbot.basicressources_get_dirs(tmpdir)
-        regzbot.testing.run(get_testdatadir(), tmpdir, gittreesdir)
+        regzbot.testing.run(get_testdatadir(), tmpdir, gittreesdir, onlinetests)
 
         regzbot.db_close()
+
+    onlinetests = True
+    if cmdargs.offline:
+        onlinetests = False
 
     if cmdargs.tmpdir:
         if len(glob.glob(os.path.join(cmdargs.tmpdir, '*'))) > 0:
             logger.critical("aborting, the directory %s is not empty", cmdargs.tmpdir)
             sys.exit(1)
-        tests_run(cmdargs.tmpdir)
+        tests_run(cmdargs.tmpdir, onlinetests)
     else:
         with tempfile.TemporaryDirectory() as tmpdir:
-            tests_run(tmpdir)
+            tests_run(tmpdir, onlinetests)
 
 
 def cmd():
@@ -87,6 +91,8 @@ def cmd():
         sparser_test = subparsers.add_parser('test', help='run tests')
         sparser_test.add_argument(
             '--tmpdir', dest='tmpdir', default=None, help='Create repos and mails for testing here')
+        sparser_test.add_argument(
+            '--offline', action='store_true', default=False, help='Run only test that work without internet connection')
         sparser_test.set_defaults(func=cmd_test)
 
     # parse
