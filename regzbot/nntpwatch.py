@@ -11,6 +11,10 @@ import regzbot
 
 logger = regzbot.logger
 
+# without this, we occationally [as on 20210831] run into
+# "nntplib.NNTPDataError: line too long" errors
+# might be a bug in the public-inbox code behind lore
+nntplib._MAXLINE = 65536
 
 def run():
     nntp_connection = None
