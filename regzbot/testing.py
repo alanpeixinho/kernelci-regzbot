@@ -23,6 +23,8 @@ import sys
 import git
 import regzbot
 import regzbot.mailin
+import regzbot.nntpwatch
+
 
 logger = regzbot.logger
 
@@ -43,8 +45,10 @@ class Emaildir:
     _count = 0
     _startdate = 1546300800
 
-    def __init__(self, repsrcid, tmpdirectory, name):
-        self.repsrcid = repsrcid
+    def __init__(self, repsrc, tmpdirectory, name):
+        self.repsrc = repsrc
+        print('Emaildir: %s %s' % (name, type(repsrc)))
+
         self._directory = os.path.join(tmpdirectory, name)
         os.mkdir(self._directory)
 
@@ -97,7 +101,7 @@ class Emaildir:
         filenames.sort()
         for file in filenames:
             regzbot.mailin.processmsg_file(
-                self.repsrcid, os.path.join(self._directory, file))
+                self.repsrc, os.path.join(self._directory, file))
 
     def reset(self):
         Emaildir._count = 0
@@ -369,7 +373,7 @@ def email_process():
     emaildirs['secondary'].process()
 
 
-def init_emaildir(mails_path):
+def init_offline_repsources(mails_path):
     os.mkdir(mails_path)
 
     repsrcid = regzbot.ReportSource.add('Nonexistand primary mailinglist for regzbot testing', 1,
@@ -383,6 +387,23 @@ def init_emaildir(mails_path):
                                         'lore', 'https://lore.kernel.org/lkml/')
     emaildirs['secondary'] = Emaildir(
         regzbot.ReportSource.get_by_id(repsrcid), mails_path, 'secondary')
+
+
+def teardown_offline_repsources():
+    repsrc = regzbot.ReportSource.get_by_id(emaildirs['primary'].repsrc.repsrcid)
+    repsrc.delete()
+
+    repsrc = regzbot.ReportSource.get_by_id(emaildirs['secondary'].repsrc.repsrcid)
+    repsrc.delete()
+
+
+def init_online_repsources():
+    regzbot.ReportSource.add('Mailinglist for regressions in the Linux kernel', 1,
+                             'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
+                             'lore', 'https://lore.kernel.org/regressions/')
+    regzbot.ReportSource.add('LKML', 2,
+                             'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-kernel',
+                             'lore', 'https://lore.kernel.org/lkml/')
 
 
 def result_linecompare(result, reference):
@@ -406,7 +427,7 @@ def init(testdata_path, tmpdir, reposdir):
     results_tempfile = os.path.join(os.path.join(tmpdir, 'testresults'))
 
     init_repodir(testdata_path, reposdir)
-    init_emaildir(mailsdir)
+    init_offline_repsources(mailsdir)
     regzbot.db_commit()
 
     for gittree_testing in gittrees_testing:
@@ -469,7 +490,12 @@ def run(testdata_path, tmpdir, reposdir, onlinetests):
     results_temphandle = open(results_tempfile, 'a')
 
     runnow(testdata_path, tmpdir, reposdir, 'offltest')
+
     if onlinetests:
+        teardown_offline_repsources()
+        init_online_repsources()
+        regzbot.db_commit()
+
         runnow(testdata_path, tmpdir, reposdir, 'onlntest')
 
     # commit, in case someone wants to inspect the da
@@ -1020,4 +1046,6 @@ def offltest_5_2(funcname):
 
 
 def onlntest_0_0(funcname):
+    repsrc, article = regzbot.nntpwatch.article('a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info')
+    regzbot.mailin.processmsg_nntp(repsrc, article)
     return False, False, False

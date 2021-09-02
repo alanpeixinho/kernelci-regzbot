@@ -1965,6 +1965,14 @@ class ReportSource():
             dbcursor.lastrowid, name, serverurl, kind, priority, weburl, alturls, lastchked))
         return dbcursor.lastrowid
 
+    def delete(self):
+        dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute('''DELETE FROM reportsources
+                                    WHERE repsrcid=(?)''',
+                                    (self.repsrcid, ))
+        logger.debug('[db reportsources] deleted entry (%s)', dbresult)
+        return True
+
     @staticmethod
     def get_by_id(repsrcid):
         dbcursor = DBCON.cursor()
@@ -1995,6 +2003,15 @@ class ReportSource():
         dbresult = dbcursor.execute(
             'SELECT repsrcid FROM reportsources WHERE name=(?)', (name, )).fetchone()
         return dbresult[0]
+
+    @staticmethod
+    def get_by_serverurl(serverurl):
+        dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute(
+            'SELECT * FROM reportsources WHERE serverurl LIKE (?)', (serverurl, )).fetchone()
+        if dbresult:
+            return ReportSource(*dbresult)
+        return None
 
     @staticmethod
     def url_by_id(repsrcid, entry):
@@ -2184,14 +2201,14 @@ def basicressources_setup(directory=None):
             sys.exit(1)
 
     # hardcoded for now
-    ReportSource.add('Mailinglist for regresssions in the Linux kernel', 1,
-                     'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
-                     'lore', 'https://lore.kernel.org/regressions/',
-                     lastchked=190)
-    ReportSource.add('LKML', 2,
+    ReportSource.add('lkml', 1,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-kernel',
                      'lore', 'https://lore.kernel.org/lkml/',
                      lastchked=4097114)
+    ReportSource.add('regressions', 2,
+                     'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
+                     'lore', 'https://lore.kernel.org/regressions/',
+                     lastchked=190)
     ReportSource.add('netdev', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.netdev',
                      'lore', 'https://lore.kernel.org/netdev/',
