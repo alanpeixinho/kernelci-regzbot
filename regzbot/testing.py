@@ -601,25 +601,27 @@ def offltest_1_1(funcname):
 
 
 def offltest_1_2(funcname):
-    logger.info('%s: creating a mainline regression and mark it as "fixed-by" by a commit that has not reached the repos yet' % funcname)
+    logger.info('%s: create a mainline regression and mark it as "fixed-by" by a commit that has not reached the repos yet' % funcname)
 
     subcounter = 0
     emaildirs['primary'].create_email(
         "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
 
+    # create the commit here, but don't check the repo yet (see below) as we have the commitid at hand here
     gittrees_testing['mainline'].mv()
 
     subcounter += 1
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb fixed-by: %s" %
                                       gittrees_testing['mainline'].hashes_known[-1], replyto="%s_%s" % (funcname, subcounter - 1))
 
-    # this ensure that the tree is not check yet:
+    # the second False ensure that the tree is not check yet:
     return True, False, False
 
 
 def offltest_1_3(funcname):
     logger.info(
         '%s: land the commit to fix the regression created in ' % funcname)
+    # in truth: now check the commit created in the last function
     return False, True, False
 
 
