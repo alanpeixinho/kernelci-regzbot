@@ -45,14 +45,14 @@ class Emaildir:
     _count = 0
     _startdate = 1546300800
 
-    def __init__(self, repsrc, tmpdirectory, name):
+    def __init__(self, repsrc, recipient, tmpdirectory, name):
         self.repsrc = repsrc
-        print('Emaildir: %s %s' % (name, type(repsrc)))
+        self.recipient = recipient
 
         self._directory = os.path.join(tmpdirectory, name)
         os.mkdir(self._directory)
 
-    def create_email(self, funcname, tag, subject=None, messageid=None, replyto=None, references=None,):
+    def create_email(self, funcname, tag, *, cc=None, subject=None, messageid=None, replyto=None, references=None,):
         if messageid is None:
             messageid = '<regzbot-testing-%s@example.com>' % funcname
         if replyto:
@@ -74,7 +74,9 @@ class Emaildir:
             msg['Subject'] = "%s: Lorem ipsum dolor sit amet" % funcname
         msg.set_content(MAIL_TEMPLATE.substitute(tag=tag))
         msg['From'] = 'nobody@example.com'
-        msg['To'] = 'nobody@example.com'
+        msg['To'] = self.recipient
+        if cc:
+             msg['Cc'] = cc
         msg['Date'] = email.utils.formatdate(
             timeval=(self._startdate + (Emaildir._count * 86400)))
         msg['Message-Id'] = messageid
@@ -376,17 +378,17 @@ def email_process():
 def init_offline_repsources(mails_path):
     os.mkdir(mails_path)
 
-    repsrcid = regzbot.ReportSource.add('Nonexistand primary mailinglist for regzbot testing', 1,
+    repsrcid = regzbot.ReportSource.add('Nonexistand primary mailinglist for regzbot testing', 2,
                                         'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
-                                        'lore', 'https://lore.kernel.org/regressions/')
+                                        'lore', 'https://lore.kernel.org/regressions/', identifiers='regressions@example.com')
     emaildirs['primary'] = Emaildir(
-        regzbot.ReportSource.get_by_id(repsrcid), mails_path, 'primary')
+        regzbot.ReportSource.get_by_id(repsrcid), 'regressions@example.com', mails_path, 'primary')
 
-    repsrcid = regzbot.ReportSource.add('Nonexistand secondary mailinglist for regzbot testing', 2,
+    repsrcid = regzbot.ReportSource.add('Nonexistand secondary mailinglist for regzbot testing', 1,
                                         'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-kernel',
-                                        'lore', 'https://lore.kernel.org/lkml/')
+                                        'lore', 'https://lore.kernel.org/lkml/', identifiers='linux-kernel@example.com')
     emaildirs['secondary'] = Emaildir(
-        regzbot.ReportSource.get_by_id(repsrcid), mails_path, 'secondary')
+        regzbot.ReportSource.get_by_id(repsrcid), 'linux-kernel@example.com', mails_path, 'secondary')
 
 
 def teardown_offline_repsources():
@@ -607,6 +609,17 @@ def offltest_0_7(funcname):
     emaildirs['primary'].create_email(funcname, "#regzb invalid: some reason",
                                       replyto=replyto)
     return True, False, False
+
+
+def offltest_0_8(funcname):
+    logger.info(
+        '%s: create a fourth mainline regression CCed to the secondary list' % funcname)
+    emaildirs['primary'].create_email(
+        funcname, "#regzb introduced: v1.8..v1.9-rc1", cc=emaildirs['secondary'].recipient)
+    return True, False, False
+
+
+
 
 
 # create a mainline regression

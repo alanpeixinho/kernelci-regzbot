@@ -1927,13 +1927,13 @@ class UnhandledEvent():
 
 
 class ReportSource():
-    def __init__(self, repsrcid, priority, name, serverurl, kind, weburl, alturls, lastchked):
+    def __init__(self, repsrcid, priority, name, serverurl, kind, weburl, identifiers, lastchked):
         self.repsrcid = repsrcid
         self.name = name
         self.serverurl = serverurl
         self.kind = kind
         self.weburl = weburl
-        self.alturls = alturls
+        self.identifiers = identifiers
         self.lastchked = lastchked
         self.priority = priority
 
@@ -1950,19 +1950,19 @@ class ReportSource():
                 serverurl   STRING   NOT NULL,
                 kind        STRING   NOT NULL,
                 weburl      STRING   NOT NULL,
-                alturls     STRING,
+                identifiers STRING,
                 lastchked   STRING
             )''')
 
     @staticmethod
-    def add(name, priority, serverurl, kind, weburl, alturls=None, lastchked=None):
+    def add(name, priority, serverurl, kind, weburl, identifiers=None, lastchked=None):
         dbcursor = DBCON.cursor()
         dbcursor.execute('''INSERT INTO reportsources
-            (name, serverurl, kind, priority, weburl, alturls,  lastchked)
+            (name, serverurl, kind, priority, weburl, identifiers,  lastchked)
             VALUES (?, ?, ?, ?, ?, ?, ?)''',
-                         (name, serverurl, kind, priority, weburl, alturls, lastchked))
-        logger.debug('[db reportsources] insert (repsrcid:%s, name:%s, serverurl:%s, kind:%s, priority:%s, weburl:%s, alturls:%s, lastchked:%s)' % (
-            dbcursor.lastrowid, name, serverurl, kind, priority, weburl, alturls, lastchked))
+                         (name, serverurl, kind, priority, weburl, identifiers, lastchked))
+        logger.debug('[db reportsources] insert (repsrcid:%s, name:%s, serverurl:%s, kind:%s, priority:%s, weburl:%s, identifiers:%s, lastchked:%s)' % (
+            dbcursor.lastrowid, name, serverurl, kind, priority, weburl, identifiers, lastchked))
         return dbcursor.lastrowid
 
     def delete(self):
@@ -2003,6 +2003,15 @@ class ReportSource():
         dbresult = dbcursor.execute(
             'SELECT repsrcid FROM reportsources WHERE name=(?)', (name, )).fetchone()
         return dbresult[0]
+
+    @staticmethod
+    def get_by_identifier(identifier):
+        dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute(
+            'SELECT * FROM reportsources WHERE identifiers LIKE (?)', ('%%%s%%' % identifier, )).fetchone()
+        if dbresult:
+            return ReportSource(*dbresult)
+        return None
 
     @staticmethod
     def get_by_serverurl(serverurl):
