@@ -34,7 +34,7 @@ def adjust_repsrc(repsrc, msg):
         tmprepsrc = regzbot.ReportSource.get_by_identifier(adress)
         if tmprepsrc is None:
             continue
-        elif tmprepsrc.priority < repsrc.priority:
+        elif repsrc is None or tmprepsrc.priority < repsrc.priority:
             repsrc = tmprepsrc
 
     return repsrc
@@ -193,6 +193,9 @@ def process_link(link):
 
 
 def process_msg(repsrc, msg):
+    logger.info("processing mail: subject:'%s'; from:%s';",
+                msg['Subject'], msg['From'])
+
     msgid = email_get_msgid(msg)
     subject = email_get_subject(msg)
     gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(msg['Date']))
@@ -287,14 +290,6 @@ def process_msg(repsrc, msg):
                 repsrc.repsrcid, gmtime, msgid, subject, regid=regressionb.regid)
             regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject,
                                      repsrcid=repsrc.repsrcid, regzbotcmd='linked: "%s" mentioned this regression' % subject)
-
-
-def processmsg_nntp(repsrc, article):
-    msg = email.message_from_bytes(b'\n'.join(
-        article.lines), policy=policy.default)
-    logger.info("processing mail: subject:'%s'; from:%s'; article %s on %s",
-                msg['Subject'], msg['From'],  article.number, repsrc.serverurl)
-    process_msg(repsrc, msg)
 
 
 def processmsg_file(repsrc, file):

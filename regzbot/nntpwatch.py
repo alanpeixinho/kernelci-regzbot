@@ -5,7 +5,13 @@
 __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
 import email
+from email import policy
 import nntplib
+import gzip
+import mailbox
+import urllib.request
+import tempfile
+import shutil
 
 import regzbot
 
@@ -63,13 +69,27 @@ def run():
                 logger.debug('skipping "%s", we already encountered it it', msgid)
             else:
                 _, article = nntp_connection.article(art_num)
-                regzbot.mailin.processmsg_nntp(repsrc, article)
+                msg = email.message_from_bytes(b'\n'.join(article.lines), policy=policy.default)
+                regzbot.mailin.process_msg(repsrc, msg)
 
         # update database
         repsrc.set_lastchked(group_lastid)
 
+def retrieve_thread(msgid):
+   with tempfile.NamedTemporaryFile() as tmpfile:
+       try:
+           url = 'https://lore.kernel.org/all/%s/t.mbox.gz' % msgid
+           with urllib.request.urlopen(url) as response:
+               with gzip.open(response) as uncompressed:
+                   shutil.copyfileobj(uncompressed, tmpfile)
+           pass
+           for message in mailbox.mbox(tmpfile.name):
+               yield email.message_from_bytes(message.as_bytes(), policy=policy.default)
+       except urllib.error.HTTPError as err:
+           print('Failed to download thread %s: %s"', msgid, err)
 
-def article(msgid):
+
+def _article_vianntp(msgid):
     nntp_connection = None
 
     # at least currently on lore, it seems stat() returns a result with article number as "1",
@@ -112,5 +132,20 @@ def article(msgid):
 
     nntp_connection, _, _ = _group(nntp_connection, repsrc.serverurl)
     _, article = nntp_connection.article('<%s>' % msgid)
+    msg = email.message_from_bytes(b'\n'.join(article.lines), policy=policy.default)
 
-    return(repsrc, article)
+    return(repsrc, msg)
+
+
+def article(msgid):
+    for msg in retrieve_thread(msgid):
+        if msg is None:
+           # something went from when retrieving that thread
+           return None
+        elif msgid == regzbot.mailin.email_get_msgid(msg):
+           repsrc = regzbot.mailin.adjust_repsrc(None, msg)
+           if repsrc:
+               return (repsrc, msg)
+           else:
+               logger.warning('Found msg %s in the webarchives, but seems none of the sources for reports match; trying via NNTP instead', msgid)
+               return _article_vianntp(msgid)

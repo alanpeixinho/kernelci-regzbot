@@ -400,12 +400,12 @@ def teardown_offline_repsources():
 
 
 def init_online_repsources():
-    regzbot.ReportSource.add('Mailinglist for regressions in the Linux kernel', 1,
+    regzbot.ReportSource.add('Mailinglist for regressions in the Linux kernel', 2,
                              'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
-                             'lore', 'https://lore.kernel.org/regressions/')
-    regzbot.ReportSource.add('LKML', 2,
+                             'lore', 'https://lore.kernel.org/regressions/', identifiers='regressions@lists.linux.dev')
+    regzbot.ReportSource.add('LKML', 1,
                              'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-kernel',
-                             'lore', 'https://lore.kernel.org/lkml/')
+                             'lore', 'https://lore.kernel.org/lkml/', identifiers='linux-kernel@vger.kernel.org')
 
 
 def result_linecompare(result, reference):
@@ -1059,6 +1059,6 @@ def offltest_5_2(funcname):
 
 
 def onlntest_0_0(funcname):
-    repsrc, article = regzbot.nntpwatch.article('a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info')
-    regzbot.mailin.processmsg_nntp(repsrc, article)
+    repsrc, msg = regzbot.nntpwatch.article('a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info')
+    regzbot.mailin.process_msg(repsrc, msg)
     return False, False, False
