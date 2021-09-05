@@ -45,11 +45,11 @@ class Emaildir:
     _count = 0
     _startdate = 1546300800
 
-    def __init__(self, repsrc, recipient, tmpdirectory, name):
+    def __init__(self, repsrc, recipient, path_tmpdirectory, name):
         self.repsrc = repsrc
         self.recipient = recipient
 
-        self._directory = os.path.join(tmpdirectory, name)
+        self._directory = os.path.join(path_tmpdirectory, name)
         os.mkdir(self._directory)
 
     def create_email(self, funcname, tag, *, cc=None, subject=None, messageid=None, replyto=None, references=None,):
@@ -110,7 +110,7 @@ class Emaildir:
 
 
 class TestingGitTree:
-    def __init__(self, testdata_path, repopath, reponame, startdate, branchname='master'):
+    def __init__(self, path_testdata, path_tmprepos, reponame, startdate, branchname='master'):
         self._count = 0
         self._branchname = branchname
         self._description = reponame + '_' + branchname
@@ -121,14 +121,14 @@ class TestingGitTree:
         # case things change again.
         #
         # self._filename_hashes_known = os.path.join(
-        #    testdata_path, 'expected/commitids-' + self._description)
+        #    path_testdata, 'expected/commitids-' + self._description)
         self.hashes_known = self.__init_repo_hashes()
 
-        self.repo = self.__init_repo(repopath, reponame, self._startdate)
+        self.repo = self.__init_repo(path_tmprepos, reponame, self._startdate)
         self._count_afterinit = self._hashes_afterinit = None
 
-    def __init_repo(self, repopath, reponame, startdate):
-        repodir = os.path.join(repopath, reponame)
+    def __init_repo(self, path_tmprepos, reponame, startdate):
+        repodir = os.path.join(path_tmprepos, reponame)
 
         if os.path.isdir(repodir):
             if not os.path.isdir(os.path.join(repodir, '.git')):
@@ -216,8 +216,8 @@ class TestingGitTree:
         if not self.repo.active_branch == self._branchname:
             self.repo.branches[self._branchname].checkout()
 
-    def clone(self, repopath, name):
-        return self.repo.clone(os.path.join(repopath, name))
+    def clone(self, path_tmprepos, name):
+        return self.repo.clone(os.path.join(path_tmprepos, name))
 
     def mv(self, commitmsg=None):
         # make sure our branch is checked out
@@ -327,18 +327,19 @@ def update_gittrees():
         gittree.update()
 
 
-def init_repodir(testdata_path, repopath):
+def init_offline_repodir(path_tmprepos, path_testdata):
     # prep
-    upstream_repopath = os.path.join(repopath, 'upstream')
-    os.mkdir(repopath)
-    os.mkdir(upstream_repopath)
+    path_upstream_tmprepos = os.path.join(path_tmprepos, 'upstream')
+    logger.debug("Creating git repos in %s and pulling them to %s", path_upstream_tmprepos, path_tmprepos)
+    os.mkdir(path_tmprepos)
+    os.mkdir(path_upstream_tmprepos)
 
     # create linux-mainline repo
     regzbot.GitTree.add('mainline', 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/',
                         'cgit', 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/',  'master')
     gittrees_testing['mainline'] = TestingGitTree(
-        testdata_path, upstream_repopath, 'mainline', 1546300800)
-    gittrees_testing['mainline'].repo.clone(os.path.join(repopath, 'mainline'))
+        path_testdata, path_upstream_tmprepos, 'mainline', 1546300800)
+    gittrees_testing['mainline'].repo.clone(os.path.join(path_tmprepos, 'mainline'))
     update_gittrees()
     populatetree_linux(gittrees_testing['mainline'])
 
@@ -346,24 +347,24 @@ def init_repodir(testdata_path, repopath):
     regzbot.GitTree.add('next', 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/',
                         'cgit', 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/', 'master')
     gittree_testing_prep_linux_next(
-        gittrees_testing['mainline'].clone(upstream_repopath, 'next'))
+        gittrees_testing['mainline'].clone(path_upstream_tmprepos, 'next'))
     gittrees_testing['next'] = TestingGitTree(
-        testdata_path, upstream_repopath, 'next', 1577836800)
-    gittrees_testing['next'].repo.clone(os.path.join(repopath, 'next'))
+        path_testdata, path_upstream_tmprepos, 'next', 1577836800)
+    gittrees_testing['next'].repo.clone(os.path.join(path_tmprepos, 'next'))
     update_gittrees()
     populatetree_linux_next(gittrees_testing['next'])
 
     # create linux-stable repo with two branches
     gittree_testing_prep_linux_stable(
-        gittrees_testing['mainline'].clone(upstream_repopath, 'stable'))
+        gittrees_testing['mainline'].clone(path_upstream_tmprepos, 'stable'))
     regzbot.GitTree.add('stable', 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git', 'cgit',
                         'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/', r'linux-[0-9][0-9]*.[0-9][0-9]*\.y')
     gittrees_testing['linux-1.8.y'] = TestingGitTree(
-        testdata_path, upstream_repopath, 'stable', 1609459200, 'linux-1.8.y')
+        path_testdata, path_upstream_tmprepos, 'stable', 1609459200, 'linux-1.8.y')
     gittrees_testing['linux-1.8.y'].repo.clone(
-        os.path.join(repopath, 'stable'))
+        os.path.join(path_tmprepos, 'stable'))
     gittrees_testing['linux-1.10.y'] = TestingGitTree(
-        testdata_path, upstream_repopath, 'stable', 1609459200, 'linux-1.10.y')
+        path_testdata, path_upstream_tmprepos, 'stable', 1609459200, 'linux-1.10.y')
     update_gittrees()
     populatetree_linux_stable110(gittrees_testing['linux-1.10.y'])
     populatetree_linux_stable18(gittrees_testing['linux-1.8.y'])
@@ -375,23 +376,33 @@ def email_process():
     emaildirs['secondary'].process()
 
 
-def init_offline_repsources(mails_path):
-    os.mkdir(mails_path)
+def init_offline_mailsdir(path_tmpmail):
+    logger.debug("Creating directory for holfing files with emails", path_tmpmail)
 
+    os.mkdir(path_tmpmail)
     repsrcid = regzbot.ReportSource.add('Nonexistand primary mailinglist for regzbot testing', 2,
                                         'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
                                         'lore', 'https://lore.kernel.org/regressions/', identifiers='regressions@example.com')
     emaildirs['primary'] = Emaildir(
-        regzbot.ReportSource.get_by_id(repsrcid), 'regressions@example.com', mails_path, 'primary')
+        regzbot.ReportSource.get_by_id(repsrcid), 'regressions@example.com', path_tmpmail, 'primary')
 
     repsrcid = regzbot.ReportSource.add('Nonexistand secondary mailinglist for regzbot testing', 1,
                                         'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-kernel',
                                         'lore', 'https://lore.kernel.org/lkml/', identifiers='linux-kernel@example.com')
     emaildirs['secondary'] = Emaildir(
-        regzbot.ReportSource.get_by_id(repsrcid), 'linux-kernel@example.com', mails_path, 'secondary')
+        regzbot.ReportSource.get_by_id(repsrcid), 'linux-kernel@example.com', path_tmpmail, 'secondary')
 
 
-def teardown_offline_repsources():
+def init_offline_ressources(path_testdata, path_repos, path_tmpmail):
+    init_offline_repodir(path_repos, path_testdata)
+    init_offline_mailsdir(path_tmpmail)
+    regzbot.db_commit()
+
+    for gittree_testing in gittrees_testing:
+        gittrees_testing[gittree_testing].init_done()
+
+
+def teardown_offline_ressources():
     repsrc = regzbot.ReportSource.get_by_id(emaildirs['primary'].repsrc.repsrcid)
     repsrc.delete()
 
@@ -399,7 +410,7 @@ def teardown_offline_repsources():
     repsrc.delete()
 
 
-def init_online_repsources():
+def init_online_ressources():
     regzbot.ReportSource.add('Mailinglist for regressions in the Linux kernel', 2,
                              'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
                              'lore', 'https://lore.kernel.org/regressions/', identifiers='regressions@lists.linux.dev')
@@ -414,32 +425,29 @@ def result_linecompare(result, reference):
 
 
 def emaildirs_clear():
-    emaildirs['primary'].clear()
-    emaildirs['secondary'].clear()
+    for emaildir in emaildirs.keys():
+        emaildirs[emaildir].clear()
 
 
-def init(testdata_path, tmpdir, reposdir):
-    if not os.path.isdir(testdata_path):
-        logger.critical("Template and results directory %s doesn't exist. Aborting.",
-                        testdata_path)
-        sys.exit(1)
+def run(path_testdata, path_tmpdir, path_repos, testmodes):
+    def init_paths(path_testdata, path_tmpdir, path_repos):
+        if not os.path.isdir(path_testdata):
+            logger.critical("Directory for expexted results and template %s doesn't exist. Aborting.",
+                            path_testdata)
+            sys.exit(1)
 
-    mailsdir = os.path.join(tmpdir, 'mails')
-    results_propfile = os.path.join(testdata_path, 'expected/testresults')
-    results_tempfile = os.path.join(os.path.join(tmpdir, 'testresults'))
+        mailsdir = os.path.join(path_tmpdir, 'mails')
+        results_expected = {
+            'offline': os.path.join(path_testdata, 'expected/results-offline.csv'),
+            'online': os.path.join(path_testdata, 'expected/results-online.csv'),
+            }
+        results_generated = {
+            'offline': os.path.join(os.path.join(path_tmpdir, 'testresults-offline.csv')),
+            'online': os.path.join(os.path.join(path_tmpdir, 'testresults-online.csv')),
+            }
+        return mailsdir, results_expected, results_generated
 
-    init_repodir(testdata_path, reposdir)
-    init_offline_repsources(mailsdir)
-    regzbot.db_commit()
-
-    for gittree_testing in gittrees_testing:
-        gittrees_testing[gittree_testing].init_done()
-
-    return mailsdir, results_propfile, results_tempfile
-
-
-def run(testdata_path, tmpdir, reposdir, onlinetests):
-    def runnow(testdata_path, tmpdir, reposdir, testfuncprefix):
+    def runnow(path_testdata, path_tmpdir, path_repos, testfuncprefix, results_temphandle):
         # call all test#-functions
         this = sys.modules[__name__]
         outercount = 0
@@ -474,7 +482,7 @@ def run(testdata_path, tmpdir, reposdir, onlinetests):
                     results_temphandle.write('UNHANDLED: %s\n' % line)
                 results_temphandle.write('\n')
 
-                regzbot.RegressionWeb.create_htmlpages(tmpdir)
+                regzbot.RegressionWeb.create_htmlpages(path_tmpdir)
 
                 if wait:
                     # regzbot.db_commit()
@@ -485,48 +493,59 @@ def run(testdata_path, tmpdir, reposdir, onlinetests):
             reset()
             outercount += 1
 
+    def check_results(results_expected, results_generated):
+        with open(results_expected, 'r') as proper:
+            with open(results_generated, 'r') as temp:
+                diff = difflib.unified_diff(
+                    proper.readlines(),
+                    temp.readlines(),
+                    fromfile="%s" % results_expected,
+                    tofile="%s" % results_generated,
+                    n=1,
+                )
+                generator_data = False
+                for line in diff:
+                    if generator_data is False:
+                        generator_data = True
+                        sys.stdout.write(
+                            'The results from this run differ from the expected results:\n')
+                        sys.stdout.write('#######\n')
+                    sys.stdout.write(line)
+                if generator_data is True:
+                    sys.stdout.write('#######\n')
+                    answer = input(
+                        "Enter 'a' or 'y' to accept them, any other resonse to move on: ")
+                    if answer.lower() == 'a' or answer.lower() == 'y':
+                        shutil.copyfile(results_generated, results_expected)
+
     regzbot.run_testing()
 
-    mailsdir, results_propfile, results_tempfile = init(
-        testdata_path, tmpdir, reposdir)
-    results_temphandle = open(results_tempfile, 'a')
+    path_mails, results_expected, results_generated = init_paths(
+        path_testdata, path_tmpdir, path_repos)
 
-    runnow(testdata_path, tmpdir, reposdir, 'offltest')
+    if testmodes['offline']:
+        init_offline_ressources(path_testdata, path_repos, path_mails)
+        results_temphandle = open(results_generated['offline'], 'a')
+        runnow(path_testdata, path_tmpdir, path_repos, 'offltest', results_temphandle)
+        results_temphandle.close()
+        if testmodes['online']:
+            regzbot.db_rollback()
+            teardown_offline_ressources()
 
-    if onlinetests:
-        teardown_offline_repsources()
-        init_online_repsources()
+    if testmodes['online']:
+        init_online_ressources()
+        results_temphandle = open(results_generated['online'], 'a')
         regzbot.db_commit()
+        runnow(path_testdata, path_tmpdir, path_repos, 'onlntest', results_temphandle)
+        results_temphandle.close()
 
-        runnow(testdata_path, tmpdir, reposdir, 'onlntest')
-
-    # commit, in case someone wants to inspect the da
+    # commit, in case the developer wants to inspect the database
     regzbot.db_commit()
-    results_temphandle.close()
 
-    with open(results_propfile, 'r') as proper:
-        with open(results_tempfile, 'r') as temp:
-            diff = difflib.unified_diff(
-                proper.readlines(),
-                temp.readlines(),
-                fromfile="%s" % results_propfile,
-                tofile="%s" % results_tempfile,
-                n=1,
-            )
-            generator_data = False
-            for line in diff:
-                if generator_data is False:
-                    generator_data = True
-                    sys.stdout.write(
-                        'The results from this run differ from the expected results:\n')
-                    sys.stdout.write('#######\n')
-                sys.stdout.write(line)
-            if generator_data is True:
-                sys.stdout.write('#######\n')
-                answer = input(
-                    "Enter 'a' or 'y' to accept them, any other resonse to move on: ")
-                if answer.lower() == 'a' or answer.lower() == 'y':
-                    shutil.copyfile(results_tempfile, results_propfile)
+    if testmodes['offline']:
+        check_results(results_expected['offline'], results_generated['offline'])
+    if testmodes['online']:
+        check_results(results_expected['online'], results_generated['online'])
 
 
 def reset():

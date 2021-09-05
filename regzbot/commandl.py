@@ -37,27 +37,33 @@ def cmd_run(cmdargs):
 
 
 def cmd_test(cmdargs):
-    def tests_run(tmpdir, onlinetests):
+    def tests_run(tmpdir, testmodes):
         regzbot.basicressources_setup(tmpdir)
         regzbot.basicressources_init(tmpdir)
 
         _, gittreesdir, _ = regzbot.basicressources_get_dirs(tmpdir)
-        regzbot.testing.run(get_testdatadir(), tmpdir, gittreesdir, onlinetests)
+        regzbot.testing.run(get_testdatadir(), tmpdir, gittreesdir, testmodes)
 
         regzbot.db_close()
 
-    onlinetests = True
+    # which tests to run
+    testmodes = {
+        'offline': True,
+        'online': True,
+        }
     if cmdargs.offline:
-        onlinetests = False
+        testmodes['online'] = False
+    if cmdargs.online:
+        testmodes['offline'] = False
 
     if cmdargs.tmpdir:
         if len(glob.glob(os.path.join(cmdargs.tmpdir, '*'))) > 0:
             logger.critical("aborting, the directory %s is not empty", cmdargs.tmpdir)
             sys.exit(1)
-        tests_run(cmdargs.tmpdir, onlinetests)
+        tests_run(cmdargs.tmpdir, testmodes)
     else:
         with tempfile.TemporaryDirectory() as tmpdir:
-            tests_run(tmpdir, onlinetests)
+            tests_run(tmpdir, testmodes)
 
 
 def cmd():
@@ -90,9 +96,11 @@ def cmd():
     if get_testdatadir():
         sparser_test = subparsers.add_parser('test', help='run tests')
         sparser_test.add_argument(
-            '--tmpdir', dest='tmpdir', default=None, help='Create repos and mails for testing here')
+            '--tmpdir', dest='tmpdir', default=None, help='Directory for creating repos and mails for testing')
         sparser_test.add_argument(
-            '--offline', action='store_true', default=False, help='Run only test that work without internet connection')
+            '--offline', action='store_true', default=False, help='Run only offline tests')
+        sparser_test.add_argument(
+            '--online', action='store_true', default=False, help='Run only online tests')
         sparser_test.set_defaults(func=cmd_test)
 
     # parse
