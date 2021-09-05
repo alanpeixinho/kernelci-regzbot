@@ -62,7 +62,7 @@ def run():
         _, overviews = nntp_connection.over((startwith, group_lastid))
 
         for art_num, over in overviews:
-            msgid = over['message-id'][1:-1]
+            msgid = regzbot.mailin.email_get_msgid(over['message-id'])
             gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(over['date']))
 
             if regzbot.RecordProcessedMsgids.check_presence(msgid, gmtime):
@@ -75,18 +75,19 @@ def run():
         # update database
         repsrc.set_lastchked(group_lastid)
 
+
 def retrieve_thread(msgid):
-   with tempfile.NamedTemporaryFile() as tmpfile:
-       try:
-           url = 'https://lore.kernel.org/all/%s/t.mbox.gz' % msgid
-           with urllib.request.urlopen(url) as response:
-               with gzip.open(response) as uncompressed:
-                   shutil.copyfileobj(uncompressed, tmpfile)
-           pass
-           for message in mailbox.mbox(tmpfile.name):
-               yield email.message_from_bytes(message.as_bytes(), policy=policy.default)
-       except urllib.error.HTTPError as err:
-           print('Failed to download thread %s: %s"', msgid, err)
+    with tempfile.NamedTemporaryFile() as tmpfile:
+        try:
+            url = 'https://lore.kernel.org/all/%s/t.mbox.gz' % msgid
+            with urllib.request.urlopen(url) as response:
+                with gzip.open(response) as uncompressed:
+                    shutil.copyfileobj(uncompressed, tmpfile)
+            pass
+            for message in mailbox.mbox(tmpfile.name):
+                yield email.message_from_bytes(message.as_bytes(), policy=policy.default)
+        except urllib.error.HTTPError as err:
+            print('Failed to download thread %s: %s"', msgid, err)
 
 
 def _article_vianntp(msgid):
@@ -137,15 +138,32 @@ def _article_vianntp(msgid):
     return(repsrc, msg)
 
 
-def article(msgid):
-    for msg in retrieve_thread(msgid):
+def checksource(msgid_sought, *, checkreplies=True):
+    def find_repsrc(msg, repsrc=None):
+        repsrc = regzbot.mailin.adjust_repsrc(repsrc, msg)
+        if repsrc is None:
+            repsrc, msg = _article_vianntp(msgid_sought)
+            if repsrc is None:
+                logger.critical("Found msg %s in the webarchives, but was unable to assign it to any of the sources we know about", msgid_sought)
+                return None
+
+    for msg in retrieve_thread(msgid_sought):
         if msg is None:
-           # something went from when retrieving that thread
-           return None
-        elif msgid == regzbot.mailin.email_get_msgid(msg):
-           repsrc = regzbot.mailin.adjust_repsrc(None, msg)
-           if repsrc:
-               return (repsrc, msg)
-           else:
-               logger.warning('Found msg %s in the webarchives, but seems none of the sources for reports match; trying via NNTP instead', msgid)
-               return _article_vianntp(msgid)
+            # something went totally wrong when retrieving that thread :-/
+            return None
+
+        if regzbot.mailin.email_get_msgid(msg) == msgid_sought:
+            # it's the message we are looking for, but to handle it we need to known where it went to
+            repsrc = find_repsrc(msg)
+
+            # process the msg and see if there is anything else todo
+            regzbot.mailin.process_msg(repsrc, msg)
+            if checkreplies is False:
+                return True
+
+        if checkreplies:
+            if msg['References'] is not None:
+                for reference in msg['References'].split(" "):
+                    if regzbot.mailin.email_get_msgid(reference) == msgid_sought:
+                        repsrc = find_repsrc(msg)
+                        regzbot.mailin.process_msg(repsrc, msg)

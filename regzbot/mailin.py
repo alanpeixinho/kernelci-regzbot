@@ -22,14 +22,15 @@ regzbot_tag2_re = re.compile(
 link_re = re.compile(
     r'^(.)*?(\#regzb.*|Link:\s*)?((http://|https://)(.*))(\s)*', re.MULTILINE | re.IGNORECASE)
 
+
 def adjust_repsrc(repsrc, msg):
     def get_email_adresses(recipients):
-       return re.findall(r'[\w\.-]+@[\w\.-]+', recipients)
+        return re.findall(r'[\w\.-]+@[\w\.-]+', recipients)
 
     adresses = get_email_adresses(msg['To'])
     if msg['CC']:
-         adresses.extend(get_email_adresses(msg['CC']))
- 
+        adresses.extend(get_email_adresses(msg['CC']))
+
     for adress in adresses:
         tmprepsrc = regzbot.ReportSource.get_by_identifier(adress)
         if tmprepsrc is None:
@@ -38,6 +39,7 @@ def adjust_repsrc(repsrc, msg):
             repsrc = tmprepsrc
 
     return repsrc
+
 
 def process_tag(repsrc, tag, msg):
     def spilttag_first_word(tagload):
@@ -117,19 +119,23 @@ def process_tag(repsrc, tag, msg):
         regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid, regzbotcmd=tagcmd + ": " + tagload)
 
 
-def email_get_msgid(msg):
-    # strip the < and > at the start and the end
-    return msg['message-id'].strip(' <>')
+def email_get_msgid(msg_or_msgid):
+    if isinstance(msg_or_msgid, email.message.EmailMessage):
+        msgid = msg_or_msgid['message-id']
+    else:
+        msgid = msg_or_msgid
+
+    return msgid.strip(' <>')
 
 
 def email_get_msgid_parent(msg):
     if 'In-Reply-To' in msg:
-        return msg['In-Reply-To'][1:-1]
+        return email_get_msgid(msg['In-Reply-To'])
     else:
         logger.info(
             "The tag in the email %s refers uses a ^ to refer to its parent, but the mail's header does not specify a 'In-Reply-To'; skipping reference.",
             msg['message-id'])
-        return msg['message-id'][1:-1]
+        return email_get_msgid(msg)
 
 
 def email_get_subject(msg, remove_retag=False):
@@ -230,7 +236,7 @@ def process_msg(repsrc, msg):
     add_actimon(msgid, msgid, gmtime, subject)
     if msg['References'] is not None:
         for reference in msg['References'].split(" "):
-            add_actimon(reference[1:-1], msgid, gmtime, subject)
+            add_actimon(email_get_msgid(reference), msgid, gmtime, subject)
 
     # check this mail for links that point to tracked regressions
     for match in link_re.finditer(msgcontent):

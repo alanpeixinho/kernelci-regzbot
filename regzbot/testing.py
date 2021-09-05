@@ -76,7 +76,7 @@ class Emaildir:
         msg['From'] = 'nobody@example.com'
         msg['To'] = self.recipient
         if cc:
-             msg['Cc'] = cc
+            msg['Cc'] = cc
         msg['Date'] = email.utils.formatdate(
             timeval=(self._startdate + (Emaildir._count * 86400)))
         msg['Message-Id'] = messageid
@@ -619,9 +619,6 @@ def offltest_0_8(funcname):
     return True, False, False
 
 
-
-
-
 # create a mainline regression
 def offltest_1_0(funcname):
     logger.info('%s: creating a mainline regression' % funcname)
@@ -1059,6 +1056,5 @@ def offltest_5_2(funcname):
 
 
 def onlntest_0_0(funcname):
-    repsrc, msg = regzbot.nntpwatch.article('a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info')
-    regzbot.mailin.process_msg(repsrc, msg)
+    regzbot.checksource('a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info')
     return False, False, False

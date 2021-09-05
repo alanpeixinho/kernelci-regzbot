@@ -14,6 +14,7 @@ import sys
 import git
 import yattag
 
+
 __VERSION__ = '0.0.1-dev'
 __CITESTING__ = False
 DBCON = None
@@ -2378,6 +2379,10 @@ def run():
 
     db_close()
     logger.info("The End")
+
+
+def checksource(identifier):
+    nntpwatch.checksource(identifier)
 
 
 def inspectobj(obj):
