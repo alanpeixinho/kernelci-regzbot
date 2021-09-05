@@ -23,7 +23,7 @@ import sys
 import git
 import regzbot
 import regzbot.mailin
-import regzbot.nntpwatch
+import regzbot.lore
 
 
 logger = regzbot.logger

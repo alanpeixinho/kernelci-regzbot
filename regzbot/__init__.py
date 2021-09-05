@@ -2368,8 +2368,8 @@ def run_testing():
 
 def run():
     # check for new mails
-    import nntpwatch
-    nntpwatch.run()
+    import lore
+    lore.run()
     db_commit()
 
     GitTree.updateall()
@@ -2382,7 +2382,7 @@ def run():
 
 
 def checksource(identifier):
-    nntpwatch.checksource(identifier)
+    lore.checksource(identifier)
 
 
 def inspectobj(obj):
