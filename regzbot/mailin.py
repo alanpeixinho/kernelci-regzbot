@@ -62,14 +62,9 @@ def process_tag(repsrc, tag, msg):
 
     # get all the other data we need
     subject = email_get_subject(msg)
-    gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(msg['Date']))
+    gmtime = email_get_gmtime(msg)
 
     msgid = email_get_msgid(msg)
-    if tagcmd == "^introduced":
-        # the report is about the parent
-        msgid_parent = email_get_msgid_parent(msg)
-    else:
-        True
 
     # get the regression id, in case there is one already
     regressionb = regzbot.RegressionBasic.get_by_msgreferences(
@@ -79,8 +74,25 @@ def process_tag(repsrc, tag, msg):
             regressionb = regzbot.RegressionBasic.introduced_create(
                 repsrc.repsrcid, msgid, subject, tagload)
         elif tagcmd == "^introduced":
+            parent_msgid = email_get_msgid_parent(msg)
+            if not regzbot.is_running_citesting_offline():
+                parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid)
+                parent_gmtime = email_get_gmtime(parent_msg)
+                parent_subject = email_get_subject(parent_msg)
+            else:
+                parent_repsrc = repsrc
+                parent_gmtime = gmtime
+                parent_subject = subject
+
             regressionb = regzbot.RegressionBasic.introduced_create(
-                repsrc.repsrcid, msgid_parent, subject, tagload)
+                parent_repsrc.repsrcid, parent_msgid, parent_subject, tagload)
+            # we need to add the entries for the parent manually
+            actimon = regzbot.RegActivityMonitor.get_by_regid_repsrcid_n_entry(regressionb.regid, parent_repsrc.repsrcid, parent_msgid)
+            regzbot.RegressionBasic.activity_event_monitored(
+                parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, actimon)
+            regzbot.RegHistory.event(
+                regressionb.regid, parent_gmtime, parent_msgid, parent_subject, repsrcid=parent_repsrc.repsrcid,
+                regzbotcmd="report: automatically added due to later ^introduced")
         else:
             urltoreport = repsrc.url(msgid)
             regzbot.UnhandledEvent.add(
@@ -117,6 +129,10 @@ def process_tag(repsrc, tag, msg):
     # create entry in the reghistory
     regzbot.RegHistory.event(
         regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid, regzbotcmd=tagcmd + ": " + tagload)
+
+
+def email_get_gmtime(msg):
+    return email.utils.mktime_tz(email.utils.parsedate_tz(msg['Date']))
 
 
 def email_get_msgid(msg_or_msgid):

@@ -518,12 +518,11 @@ def run(path_testdata, path_tmpdir, path_repos, testmodes):
                     if answer.lower() == 'a' or answer.lower() == 'y':
                         shutil.copyfile(results_generated, results_expected)
 
-    regzbot.run_testing()
-
     path_mails, results_expected, results_generated = init_paths(
         path_testdata, path_tmpdir, path_repos)
 
     if testmodes['offline']:
+        regzbot.set_citesting('offline')
         init_offline_ressources(path_testdata, path_repos, path_mails)
         results_temphandle = open(results_generated['offline'], 'a')
         runnow(path_testdata, path_tmpdir, path_repos, 'offltest', results_temphandle)
@@ -533,6 +532,7 @@ def run(path_testdata, path_tmpdir, path_repos, testmodes):
             teardown_offline_ressources()
 
     if testmodes['online']:
+        regzbot.set_citesting('online')
         init_online_ressources()
         results_temphandle = open(results_generated['online'], 'a')
         regzbot.db_commit()
@@ -1075,5 +1075,5 @@ def offltest_5_2(funcname):
 
 
 def onlntest_0_0(funcname):
-    regzbot.checksource('a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info')
+    regzbot.process_msg('a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info')
     return False, False, False

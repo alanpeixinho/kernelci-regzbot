@@ -529,6 +529,16 @@ class RegActivityMonitor():
             yield RegActivityMonitor(*dbresult)
 
     @staticmethod
+    def get_by_regid_repsrcid_n_entry(regid, repsrcid, entry):
+        dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute(
+            'SELECT * FROM actmonitor WHERE regid=(?) AND repsrcid=(?) AND entry=(?)', (regid, repsrcid, entry, )).fetchone()
+        if dbresult is not None:
+            return RegActivityMonitor(*dbresult)
+        else:
+            return False
+
+    @staticmethod
     def ismonitored(entry, regid=None, repsrcid=None):
         dbcursor = DBCON.cursor()
         if regid and repsrcid:
@@ -1132,23 +1142,36 @@ class RegressionBasic():
         return False
 
     def monitoradd(self, tagload, gmtime, report_repsrc, report_msg):
+        def get_msg(target_msgid):
+            if not is_running_citesting_offline():
+                return download_msg(target_msgid)
+            return None, None
+
         link, description = self.linkparse(tagload)
 
-        domain, mailinglist, msgid = parse_link(link)
-        if not domain or not mailinglist or not msgid:
+        domain, mailinglist, target_msgid = parse_link(link)
+        if not domain or not mailinglist or not target_msgid:
             errormsg = "unable to monitor thread %s as URL could not be parsed" % link
             logger.critical('regression[%s, "%s"]: %s' % (
                 self.regid, self.subject, errormsg))
             return self.monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime)
 
-        repsrc = ReportSource.get_byweburl('%%%s/%s%%' % (domain, mailinglist))
-        if repsrc is None:
-            errormsg = "unable to monitor thread %s, mailinglist unkown" % link
-            logger.critical('regression[%s, "%s"]: %s' % (
-                self.regid, self.subject, errormsg))
-            return self.monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime)
+        target_repsrc, target_msg = get_msg(target_msgid)
+        if target_repsrc and target_msg:
+            target_gmtime = mailin.email_get_gmtime(target_msg)
+            target_subject = mailin.email_get_subject(target_msg)
+            self.monitoradd_direct(target_repsrc.repsrcid, target_gmtime, target_msgid, target_subject)
+        else:
+            repsrc = ReportSource.get_byweburl('%%%s/%s%%' % (domain, mailinglist))
+            if repsrc is None:
+                errormsg = "unable to monitor thread %s, mailinglist unkown" % link
+                logger.critical('regression[%s, "%s"]: %s' % (
+                    self.regid, self.subject, errormsg))
+                return self.monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime)
+            self.monitoradd_direct(repsrc.repsrcid, gmtime, target_msgid, description)
 
-        self.monitoradd_direct(repsrc.repsrcid, gmtime, msgid, description)
+        if not is_running_citesting_offline():
+            lore.process_replies(target_msgid)
 
     def monitorremove(self, tagload, gmtime, report_repsrc, report_msg):
         link, _ = self.linkparse(tagload)
@@ -2360,10 +2383,19 @@ def basicressources_init(directory=None):
     WEBPAGEDIR = websitesdir
 
 
-def run_testing():
+def set_citesting(kind):
+    # needed for:
+    # * webui testing, otherwise everything lands on the dormant page...
+    # * monitor commands, as they otherwise try to download things from the web
+
     global __CITESTING__
-    # mainly needed for the webui testing, otherwise everything lands on the dormant page...
-    __CITESTING__ = True
+    __CITESTING__ = kind
+
+
+def is_running_citesting_offline():
+    if __CITESTING__ == "offline":
+        return True
+    return False
 
 
 def run():
@@ -2381,8 +2413,17 @@ def run():
     logger.info("The End")
 
 
+def download_msg(msgid):
+    return lore.download_msg(msgid)
+
+
+def process_msg(msgid):
+    repsrc, msg = download_msg(msgid)
+    return mailin.process_msg(repsrc, msg)
+
+
 def checksource(identifier):
-    lore.checksource(identifier)
+    return lore.checksource(identifier)
 
 
 def inspectobj(obj):

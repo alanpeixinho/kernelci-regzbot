@@ -111,7 +111,9 @@ HISTORY: test_0_3: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressio
 HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com, 1546646400, dupof: https://lore.kernel.org/regressions/regzbot-testing-test_0_0@example.com
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com, 1546646400
 REGRESSION: test_0_6_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com, v1.8..v1.9-rc1 (None), None, 1546992000, mainline, master, default
+ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com, 1546992000
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com, 1546992000
+HISTORY: test_0_6_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com, 1546992000, report: automatically added due to later ^introduced
 HISTORY: test_0_6_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com, 1546992000, ^introduced: v1.8..v1.9-rc1
 LATEST: test_0_6_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com, 1546992000
 
@@ -140,8 +142,10 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regress
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com, 1546646400
 REGRESSION: test_0_6_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com, v1.8..v1.9-rc1 (None), None, 1546992000, mainline, master, resolved
 SOLVED: invalid, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com, some reason
+ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com, 1546992000
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com, 1546992000
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com, 1547078400
+HISTORY: test_0_6_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com, 1546992000, report: automatically added due to later ^introduced
 HISTORY: test_0_6_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com, 1546992000, ^introduced: v1.8..v1.9-rc1
 HISTORY: test_0_7: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com, 1547078400, invalid: some reason
 LATEST: test_0_7: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com, 1547078400
@@ -171,8 +175,10 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regress
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com, 1546646400
 REGRESSION: test_0_6_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com, v1.8..v1.9-rc1 (None), None, 1546992000, mainline, master, resolved
 SOLVED: invalid, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com, some reason
+ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com, 1546992000
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com, 1546992000
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com, 1547078400
+HISTORY: test_0_6_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com, 1546992000, report: automatically added due to later ^introduced
 HISTORY: test_0_6_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com, 1546992000, ^introduced: v1.8..v1.9-rc1
 HISTORY: test_0_7: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com, 1547078400, invalid: some reason
 LATEST: test_0_7: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com, 1547078400

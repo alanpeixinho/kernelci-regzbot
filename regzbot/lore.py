@@ -76,7 +76,7 @@ def run():
         repsrc.set_lastchked(group_lastid)
 
 
-def retrieve_thread(msgid):
+def download_thread(msgid):
     with tempfile.NamedTemporaryFile() as tmpfile:
         try:
             url = 'https://lore.kernel.org/all/%s/t.mbox.gz' % msgid
@@ -90,80 +90,35 @@ def retrieve_thread(msgid):
             print('Failed to download thread %s: %s"', msgid, err)
 
 
-def _article_vianntp(msgid):
-    nntp_connection = None
-
-    # at least currently on lore, it seems stat() returns a result with article number as "1",
-    # even if the message was not sent to the list/group in question; we reply on this for now
-
-    # simply take group and server from first repsource seen
-    for repsrc in regzbot.ReportSource.getall_bykind('lore'):
-        nntp_connection, _, _ = _group(nntp_connection, repsrc.serverurl)
-        break
-
+def download_msg(msgid):
     try:
-        resp, number, message_id = nntp_connection.stat('<%s>' % msgid)
-    except nntplib.NNTPTemporaryError:
-        # looks like the article does not exist
-        return False
+        url = 'https://lore.kernel.org/all/%s/raw' % msgid
+        with urllib.request.urlopen(url) as response:
+            msg = email.message_from_string(response.read().decode('utf-8'), policy=policy.default)
+    except urllib.error.HTTPError as err:
+        print('Failed to download msg %s: %s"', msgid, err)
+        return None, None
 
-    repsrc = None
-    try:
-        _, overviews = nntp_connection.over('<%s>' % msgid)
-        _, over = overviews[0]
-
-        xrefs = over['xref'].split()
-        servername = xrefs[0]
-        for xref in xrefs[1:]:
-            groupname, acticlenr = xref.split(':')
-            serverurl = 'nntp://%s/%s' % (servername, groupname)
-
-            tmprepsrc = regzbot.ReportSource.get_by_serverurl(serverurl)
-            if tmprepsrc is None:
-                logger.debug('failed to find a RepSource() where servername is nntp://%s/%s' % (servername, groupname))
-                continue
-            if repsrc is None or repsrc.priority > tmprepsrc.priority:
-                repsrc = tmprepsrc
-
-        if repsrc is None:
-            return None
-    except nntplib.NNTPTemporaryError:
-        # looks like the article does not exist on that list
-        return False
-
-    nntp_connection, _, _ = _group(nntp_connection, repsrc.serverurl)
-    _, article = nntp_connection.article('<%s>' % msgid)
-    msg = email.message_from_bytes(b'\n'.join(article.lines), policy=policy.default)
-
-    return(repsrc, msg)
+    repsrc = regzbot.mailin.adjust_repsrc(None, msg)
+    return repsrc, msg
 
 
-def checksource(msgid_sought, *, checkreplies=True):
+def process_replies(msgid):
     def find_repsrc(msg, repsrc=None):
         repsrc = regzbot.mailin.adjust_repsrc(repsrc, msg)
         if repsrc is None:
-            repsrc, msg = _article_vianntp(msgid_sought)
+            repsrc, msg = download_msg(msgid)
             if repsrc is None:
-                logger.critical("Found msg %s in the webarchives, but was unable to assign it to any of the sources we know about", msgid_sought)
-                return None
+                logger.critical("Found msg %s in the webarchives, but was unable to assign it to any of the sources we know about", msgid)
+                return False
 
-    for msg in retrieve_thread(msgid_sought):
+    for msg in download_thread(msgid):
         if msg is None:
-            # something went totally wrong when retrieving that thread :-/
+            logger.critical("Downloading the thread %s failed", msgid)
             return None
 
-        if regzbot.mailin.email_get_msgid(msg) == msgid_sought:
-            # it's the message we are looking for, but to handle it we need to known where it went to
-            repsrc = find_repsrc(msg)
-
-            # process the msg and see if there is anything else todo
-            regzbot.mailin.process_msg(repsrc, msg)
-            if checkreplies is False:
-                return True
-
-        if checkreplies:
-            if msg['References'] is not None:
-                for reference in msg['References'].split(" "):
-                    if regzbot.mailin.email_get_msgid(reference) == msgid_sought:
-                        repsrc = find_repsrc(msg)
-                        regzbot.mailin.process_msg(repsrc, msg)
+        if msg['References'] is not None:
+            for reference in msg['References'].split(" "):
+                if regzbot.mailin.email_get_msgid(reference) == msgid:
+                    repsrc = find_repsrc(msg)
+                    regzbot.mailin.process_msg(repsrc, msg)
