@@ -73,7 +73,7 @@ def process_tag(repsrc, tag, msg):
 
     # don't process mails a second time (can happen if a mail higher in a thread gets added by the monitor cmd)
     if regressionb and regzbot.RegHistory.already_processed(regressionb.regid, msgid, regzbotcmd):
-        logger.debug("Ignoring %s command in %s, as it was already processed for regression , ", tagcmd, msgid, regressionb.regid)
+        logger.debug("Ignoring %s command in %s, as it was already processed for regression %s", tagcmd, msgid, regressionb.regid)
         return True
 
     if not regressionb:

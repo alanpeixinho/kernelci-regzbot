@@ -745,7 +745,7 @@ class RegHistory():
 class RegLink():
     def __init__(self, regid, gmtime, repsrcid, entry, link, subject):
         self.regid = regid
-        self.gmlime = gmtime
+        self.gmtime = gmtime
         self.repsrcid = repsrcid
         self.entry = entry
         self.subject = subject
@@ -827,7 +827,7 @@ class RegLink():
     @staticmethod
     def get_all(regid):
         dbcursor = DBCON.cursor()
-        for dbresult in dbcursor.execute('SELECT * FROM reglinks WHERE regid=(?)', (regid,)):
+        for dbresult in dbcursor.execute('SELECT * FROM reglinks WHERE regid=(?) ORDER BY gmtime', (regid,)):
             yield RegLink(*dbresult)
 
     def csv(self):
@@ -841,6 +841,8 @@ class RegLink():
     def html(self, yattagdoc):
         with yattagdoc.tag('a', href=self.link):
             yattagdoc.text(self.subject)
+
+        yattagdoc.text(' (%s days ago)' % days_delta(self.gmtime))
         if self.repsrcid and self.entry and RegActivityMonitor.ismonitored(self.entry, self.regid, self.repsrcid):
             yattagdoc.text(" [monitored]")
 
@@ -1246,7 +1248,7 @@ class RegressionFull(RegressionBasic):
         self._histevents = self._init_histdata(self.regid)
         self._actievents = self._init_actidata(self.regid)
 
-        self.gmtime = self._actievents[0].gmtime
+        self.gmtime = self._histevents[0].gmtime
 
         self._report_url = ReportSource.get_by_id(
             self.repsrcid).url(self.entry)
@@ -1499,7 +1501,7 @@ class RegressionFull(RegressionBasic):
                     with yattagdoc.tag('i'):
                         with yattagdoc.tag('a', href=self._report_url):
                             yattagdoc.text(self.subject)
-                    yattagdoc.text(' (%s days old)' % days_delta(self.gmtime))
+                    yattagdoc.text(' (%s days ago)' % days_delta(self.gmtime))
 
                     if self.solved_reason:
                         yattagdoc.text(' ')
@@ -1522,11 +1524,16 @@ class RegressionFull(RegressionBasic):
                         if len(self._actievents) < 2:
                             yattagdoc.text('No further activity yet')
                         else:
-                            yattagdoc.text('Latest activity: ')
-                            with yattagdoc.tag('a', href=self._actievents[-1].url()):
-                                yattagdoc.text('%s days ago' % days_delta(
-                                    self._actievents[-1].gmtime))
-                            yattagdoc.text('.')
+                            yattagdoc.text('Oldest and latest activity: ')
+                            with yattagdoc.tag('a', href=self._actievents[0].url()):
+                                yattagdoc.text('%s' % days_delta(
+                                    self._actievents[0].gmtime))
+                            if self._actievents[0] is not self._actievents[-1]:
+                                yattagdoc.text(' and ')
+                                with yattagdoc.tag('a', href=self._actievents[-1].url()):
+                                    yattagdoc.text('%s' % days_delta(
+                                        self._actievents[-1].gmtime))
+                            yattagdoc.text(' days ago.')
 
                         entered_loop = False
                         for counter, regressionlink in enumerate(RegLink.get_all(self.regid)):
