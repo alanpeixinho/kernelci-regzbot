@@ -691,6 +691,20 @@ class RegHistory():
         RegHistory._event(
             regid, gmtime, entry, subject, repsrcid=repsrcid, gitbranchid=gitbranchid, regzbotcmd=regzbotcmd)
 
+    def already_processed(regid, entry, regzbotcmd, repsrcid=None):
+        dbcursor = DBCON.cursor()
+        if repsrcid:
+            dbresult = dbcursor.execute(
+                'SELECT * FROM reghistory WHERE regid=(?) AND entry=(?) AND regzbotcmd=(?) AND repsrcid=(?)', (regid, entry, regzbotcmd, repsrcid)).fetchone()
+        else:
+            dbresult = dbcursor.execute(
+                'SELECT * FROM reghistory WHERE regid=(?) AND entry=(?) AND regzbotcmd=(?)', (regid, entry, regzbotcmd)).fetchone()
+
+        if dbresult is None:
+            return False
+        else:
+            return True
+
     @staticmethod
     def get_all(regid, order="gmtime"):
         dbcursor = DBCON.cursor()
