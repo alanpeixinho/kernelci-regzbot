@@ -493,6 +493,20 @@ class RegActivityMonitor():
             dbcursor.lastrowid, regid, repsrcid, entry))
         return dbcursor.lastrowid
 
+    def present(self, entry, repsrcid=None):
+        dbcursor = DBCON.cursor()
+        if repsrcid:
+            dbresult = dbcursor.execute(
+                'SELECT * FROM actmonitor WHERE actimonid=(?) AND entry=(?) AND repsrcid=(?)', (self.actimonid, entry, repsrcid)).fetchone()
+        else:
+            dbresult = dbcursor.execute(
+                'SELECT * FROM actmonitor WHERE actimonid=(?) AND entry=(?)', (self.actimonid, entry)).fetchone()
+
+        if dbresult is None:
+            return False
+        else:
+            return True
+
     @staticmethod
     def remove(regid, repsrcid, entry):
         dbcursor = DBCON.cursor()
@@ -552,7 +566,7 @@ class RegActivityMonitor():
 
 
 class RegActivityEvent():
-    def __init__(self, gmtime, entry, subject, repsrcid, gitbranchid, actimonid, regid):
+    def __init__(self, gmtime, entry, subject, repsrcid, gitbranchid, actimonid=None, regid=None):
         self.gmtime = gmtime
         self.entry = entry
         self.subject = subject
@@ -609,7 +623,7 @@ class RegActivityEvent():
             gmtime, entry, subject, repsrcid, gitbranchid, actimonid, regid))
 
     @staticmethod
-    def getall_by_regid(regid):
+    def getall_by_regid(regid, onlyonce=False):
         def _getall_actimonids(regid):
             actimonids = list()
             for actimon in RegActivityMonitor.getall_by_regid(regid):
@@ -622,8 +636,12 @@ class RegActivityEvent():
         replacements.append(regid)
 
         dbcursor = DBCON.cursor()
-        for dbresult in dbcursor.execute('SELECT * FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % placeholders, replacements):
-            yield RegActivityEvent(*dbresult)
+        if onlyonce:
+            for dbresult in dbcursor.execute('SELECT DISTINCT gmtime, entry, subject, repsrcid, gitbranchid FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % placeholders, replacements):
+                yield RegActivityEvent(*dbresult)
+        else:
+            for dbresult in dbcursor.execute('SELECT * FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % placeholders, replacements):
+                yield RegActivityEvent(*dbresult)
 
     def url(self):
         if self.repsrcid is None:
@@ -673,7 +691,7 @@ class RegHistory():
                         VALUES (?, ?, ?, ?, ?, ?, ?)''',
                          (regid, gmtime, entry, subject, regzbotcmd, gitbranchid, repsrcid))
         logger.debug('[db reghistory] insert (regid:%s, gmtime:%s, entry:%s, subject:"%s", regzbotcmd:"%s", gitbranchid:%s, repsrcid:%s)' % (
-            dbcursor.lastrowid, gmtime, entry, subject, regzbotcmd, gitbranchid, repsrcid))
+            regid, gmtime, entry, subject, regzbotcmd, gitbranchid, repsrcid))
         return dbcursor.lastrowid
 
     @staticmethod
@@ -1307,7 +1325,7 @@ class RegressionFull(RegressionBasic):
     @staticmethod
     def _init_actidata(regid):
         actievents = list()
-        for actievent in RegActivityEvent.getall_by_regid(regid):
+        for actievent in RegActivityEvent.getall_by_regid(regid, onlyonce=True):
             actievents.append(actievent)
         return actievents
 
