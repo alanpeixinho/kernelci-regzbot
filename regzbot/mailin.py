@@ -93,7 +93,7 @@ def process_tag(repsrc, tag, msg):
             regressionb = regzbot.RegressionBasic.introduced_create(
                 parent_repsrc.repsrcid, parent_msgid, parent_subject, tagload)
             # we need to add the entries for the parent manually
-            actimon = regzbot.RegActivityMonitor.get_by_regid_repsrcid_n_entry(regressionb.regid, parent_repsrc.repsrcid, parent_msgid)
+            actimon = regzbot.RegActivityMonitor.get_by_regid_n_entry(regressionb.regid, parent_msgid)
             regzbot.RegressionBasic.activity_event_monitored(
                 parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, actimon)
             regzbot.RegHistory.event(
