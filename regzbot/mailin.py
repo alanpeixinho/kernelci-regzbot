@@ -70,7 +70,6 @@ def process_tag(repsrc, tag, msg):
     regressionb = regzbot.RegressionBasic.get_by_msgreferences(
         msg['References'])
 
-
     # don't process mails a second time (can happen if a mail higher in a thread gets added by the monitor cmd)
     if regressionb and regzbot.RegHistory.already_processed(regressionb.regid, msgid, regzbotcmd):
         logger.debug("Ignoring %s command in %s, as it was already processed for regression %s", tagcmd, msgid, regressionb.regid)
@@ -82,14 +81,14 @@ def process_tag(repsrc, tag, msg):
                 repsrc.repsrcid, msgid, subject, tagload)
         elif tagcmd == "^introduced":
             parent_msgid = email_get_msgid_parent(msg)
-            if not regzbot.is_running_citesting_offline():
-                parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid)
-                parent_gmtime = email_get_gmtime(parent_msg)
-                parent_subject = email_get_subject(parent_msg)
-            else:
+            if regzbot.is_running_citesting('offline'):
                 parent_repsrc = repsrc
                 parent_gmtime = gmtime
                 parent_subject = subject
+            else:
+                parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid)
+                parent_gmtime = email_get_gmtime(parent_msg)
+                parent_subject = email_get_subject(parent_msg)
 
             regressionb = regzbot.RegressionBasic.introduced_create(
                 parent_repsrc.repsrcid, parent_msgid, parent_subject, tagload)
@@ -254,7 +253,7 @@ def process_msg(repsrc, msg):
     # record this activety, if this thread is tracked
     def add_actimon(reference, msgid, gmtime, subject):
         for actimon in regzbot.RegActivityMonitor.getall_by_repsrcid_n_entry(repsrc.repsrcid, reference):
-            if not actimon.present(msgid):
+            if True or not actimon.present(msgid):
                 regzbot.RegressionBasic.activity_event_monitored(
                     repsrc.repsrcid, gmtime, msgid, subject, actimon)
     add_actimon(msgid, msgid, gmtime, subject)
@@ -312,7 +311,7 @@ def process_msg(repsrc, msg):
                                      % subject)
         elif actimon is not None:
             # already monitored, so make sure this get tracked
-            if not actimon.present(msgid):
+            if True or not actimon.present(msgid):
                 regzbot.RegressionBasic.activity_event_monitored(
                     repsrc.repsrcid, gmtime, msgid, subject, actimonid=actimon.actimonid)
         else:

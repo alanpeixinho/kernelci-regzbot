@@ -18,7 +18,7 @@ import regzbot.testing
 logger = regzbot.logger
 
 
-def get_testdatadir():
+def get_testresults_datadir():
     # check if we are running from git
     basedir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     testingdir = os.path.join(basedir, 'testdata')
@@ -32,20 +32,10 @@ def cmd_setup(cmdargs):
 
 
 def cmd_run(cmdargs):
-    regzbot.basicressources_init()
     regzbot.run()
 
 
 def cmd_test(cmdargs):
-    def tests_run(tmpdir, testmodes):
-        regzbot.basicressources_setup(tmpdir)
-        regzbot.basicressources_init(tmpdir)
-
-        _, gittreesdir, _ = regzbot.basicressources_get_dirs(tmpdir)
-        regzbot.testing.run(get_testdatadir(), tmpdir, gittreesdir, testmodes)
-
-        regzbot.db_close()
-
     # which tests to run
     testmodes = {
         'offline': True,
@@ -56,14 +46,12 @@ def cmd_test(cmdargs):
     if cmdargs.online:
         testmodes['offline'] = False
 
+    # run
     if cmdargs.tmpdir:
-        if len(glob.glob(os.path.join(cmdargs.tmpdir, '*'))) > 0:
-            logger.critical("aborting, the directory %s is not empty", cmdargs.tmpdir)
-            sys.exit(1)
-        tests_run(cmdargs.tmpdir, testmodes)
+        regzbot.testing.run(testmodes, get_testresults_datadir(), cmdargs.tmpdir)
     else:
         with tempfile.TemporaryDirectory() as tmpdir:
-            tests_run(tmpdir, testmodes)
+            regzbot.testing.run(testmodes, get_testresults_datadir(), tmpdir)
 
 
 def cmd():
@@ -93,7 +81,7 @@ def cmd():
     sparser_run.set_defaults(func=cmd_run)
 
     # test
-    if get_testdatadir():
+    if get_testresults_datadir():
         sparser_test = subparsers.add_parser('test', help='run tests')
         sparser_test.add_argument(
             '--tmpdir', dest='tmpdir', default=None, help='Directory for creating repos and mails for testing')

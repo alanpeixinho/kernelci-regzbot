@@ -380,8 +380,9 @@ class GitTree():
 
         # update
         repo = self.repo()
-        for remote in repo.remotes:
-            remote.fetch()
+        if not is_running_citesting('online'):
+            for remote in repo.remotes:
+                remote.fetch()
 
         # check for new branches
         for repobranch in repo.remote().refs:
@@ -1177,7 +1178,7 @@ class RegressionBasic():
 
     def monitoradd(self, tagload, gmtime, report_repsrc, report_msg):
         def get_msg(target_msgid):
-            if not is_running_citesting_offline():
+            if not is_running_citesting('offline'):
                 return download_msg(target_msgid)
             return None, None
 
@@ -1194,17 +1195,20 @@ class RegressionBasic():
         if target_repsrc and target_msg:
             target_gmtime = mailin.email_get_gmtime(target_msg)
             target_subject = mailin.email_get_subject(target_msg)
-            self.monitoradd_direct(target_repsrc.repsrcid, target_gmtime, target_msgid, target_subject)
+            self.monitoradd_direct(
+                target_repsrc.repsrcid, target_gmtime, target_msgid, target_subject)
         else:
-            repsrc = ReportSource.get_byweburl('%%%s/%s%%' % (domain, mailinglist))
+            repsrc = ReportSource.get_byweburl(
+                '%%%s/%s%%' % (domain, mailinglist))
             if repsrc is None:
                 errormsg = "unable to monitor thread %s, mailinglist unkown" % link
                 logger.critical('regression[%s, "%s"]: %s' % (
                     self.regid, self.subject, errormsg))
                 return self.monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime)
-            self.monitoradd_direct(repsrc.repsrcid, gmtime, target_msgid, description)
+            self.monitoradd_direct(
+                repsrc.repsrcid, gmtime, target_msgid, description)
 
-        if not is_running_citesting_offline():
+        if not is_running_citesting('offline'):
             lore.process_replies(target_msgid)
 
     def monitorremove(self, tagload, gmtime, report_repsrc, report_msg):
@@ -1662,7 +1666,7 @@ class RegressionWeb():
         self.htmlsnippet = htmlsnippet
 
     @staticmethod
-    def create_htmlpages(directory):
+    def create_htmlpages():
         def outpage_header(yattagdoc, htmlpages, pagename):
             with yattagdoc.tag('h1'):
                 yattagdoc.text('Linux kernel regression status')
@@ -1796,7 +1800,7 @@ class RegressionWeb():
 
         htmlpages = ('next', 'mainline', 'stable',
                      'unassociated', 'dormant', 'resolved', 'all')
-        unhandled_count = create_page_unhandled(directory, htmlpages)
+        unhandled_count = create_page_unhandled(WEBPAGEDIR, htmlpages)
         regressionslist = RegressionFull.getall_html()
 
         # all
@@ -1808,7 +1812,7 @@ class RegressionWeb():
             }
         }
         create_page_regressions(
-            directory, 'all', categories, htmlpages, regressionslist, unhandled_count)
+            WEBPAGEDIR, 'all', categories, htmlpages, regressionslist, unhandled_count)
 
         # all the other pages are sorted by activity
         regressionslist.sort(key=lambda x: x.gmtime_activity, reverse=True)
@@ -1825,7 +1829,7 @@ class RegressionWeb():
             },
         }
         create_page_regressions(
-            directory, 'next', categories, htmlpages, regressionslist, unhandled_count)
+            WEBPAGEDIR, 'next', categories, htmlpages, regressionslist, unhandled_count)
 
         # mainline
         categories = {
@@ -1855,7 +1859,7 @@ class RegressionWeb():
             },
         }
         create_page_regressions(
-            directory, 'mainline', categories, htmlpages, regressionslist, unhandled_count)
+            WEBPAGEDIR, 'mainline', categories, htmlpages, regressionslist, unhandled_count)
 
         # next
         categories = {
@@ -1869,7 +1873,7 @@ class RegressionWeb():
             },
         }
         create_page_regressions(
-            directory, 'stable', categories, htmlpages, regressionslist, unhandled_count)
+            WEBPAGEDIR, 'stable', categories, htmlpages, regressionslist, unhandled_count)
 
         categories = {
             'default': {
@@ -1878,7 +1882,7 @@ class RegressionWeb():
             }
         }
         create_page_regressions(
-            directory, 'unassociated', categories, htmlpages, regressionslist, unhandled_count)
+            WEBPAGEDIR, 'unassociated', categories, htmlpages, regressionslist, unhandled_count)
 
         categories = {
             'default': {
@@ -1887,7 +1891,7 @@ class RegressionWeb():
             },
         }
         create_page_regressions(
-            directory, 'dormant', categories, htmlpages, regressionslist, unhandled_count)
+            WEBPAGEDIR, 'dormant', categories, htmlpages, regressionslist, unhandled_count)
 
         categories = {
             'default': {
@@ -1896,7 +1900,7 @@ class RegressionWeb():
             },
         }
         create_page_regressions(
-            directory, 'resolved', categories, htmlpages, regressionslist, unhandled_count)
+            WEBPAGEDIR, 'resolved', categories, htmlpages, regressionslist, unhandled_count)
 
         logger.debug("webpages regenerated")
 
@@ -2104,6 +2108,16 @@ class ReportSource():
                          (self.lastchked, self.repsrcid))
 
 
+def db_close():
+    global DBCON
+    DBCON.close()
+    DBCON = None
+
+
+def db_commit():
+    DBCON.commit()
+
+
 def db_create(directory):
     def db_create_meta(dbcursor):
         logger.debug('Initializing new dbtable "meta"')
@@ -2126,18 +2140,20 @@ def db_create(directory):
         ReportSource.db_create(dbcursor, 1)
         UnhandledEvent.db_create(dbcursor, 1)
 
+    if not basicressource_checkdir_exists(directory, create=True):
+        logger.error("Aborting, directory '%s' exist already." % directory)
+        sys.exit(1)
+
+    logger.info("Creating database in %s" % directory)
     dbcon = db_init(directory, create=True)
     if not dbcon:
-        return dbcon
+        logger.error("Aborting, failed creating database.")
+        sys.exit(1)
 
     dbcursor = DBCON.cursor()
     db_create_all(dbcursor)
     db_commit()
     return True
-
-
-def db_commit():
-    DBCON.commit()
 
 
 def db_init(directory, create=False):
@@ -2156,12 +2172,6 @@ def db_init(directory, create=False):
         DBCON = sqlite3.connect(dbfile, sqlite3.PARSE_DECLTYPES)
 
     return DBCON
-
-
-def db_close():
-    global DBCON
-    DBCON.close()
-    DBCON = None
 
 
 def db_rollback():
@@ -2212,21 +2222,6 @@ def parse_link(url):
     return kind, mlist, msgid
 
 
-def basicressources_get_dirs(directory):
-    if directory:
-        databasedir = os.path.join(directory, 'database')
-        gittreesdir = os.path.join(directory, 'gittrees')
-        websitesdir = os.path.join(directory, 'websites')
-    else:
-        homedir = pathlib.Path.home()
-        databasedir = os.path.join(homedir, '.local/share/regzbot/')
-
-        cachedir = os.path.join(homedir, '.cache/regzbot/')
-        gittreesdir = os.path.join(cachedir, 'gittrees')
-        websitesdir = os.path.join(cachedir, 'websites')
-    return databasedir, gittreesdir, websitesdir
-
-
 def basicressource_checkdir_exists(directory, create=False):
     try:
         if os.path.exists(directory):
@@ -2240,22 +2235,7 @@ def basicressource_checkdir_exists(directory, create=False):
         return None
 
 
-def basicressources_setup(directory=None):
-    databasedir, gittreesdir, websitesdir = basicressources_get_dirs(directory)
-    if not basicressource_checkdir_exists(databasedir, create=True):
-        logger.error("Aborting, directory '%s' exist already." % databasedir)
-        sys.exit(1)
-
-    if db_create(databasedir):
-        logger.info("Database created in %s" % databasedir)
-    else:
-        sys.exit(1)
-
-    if directory:
-        # until below hardcoding is solved, return here if a directory is specified, as that is only possible
-        # when testing – and the testing code will handle all this properly
-        return
-
+def basicressources_gittrees_setup(gittreesdir):
     # FIXMELATER: we should clone these ourselves, but for now leave that task to the user
     for gittreedir in (os.path.join(gittreesdir, 'mainline'),
                        os.path.join(gittreesdir, 'next'),
@@ -2272,129 +2252,126 @@ def basicressources_setup(directory=None):
                 "Aborting, as the directory '%s' appears to not contain a git tree." % gittreedir)
             sys.exit(1)
 
+    # hardcoded for now, too
+    GitTree.add('mainline', 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/', 'cgit',
+                'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/', 'master')
+    GitTree.add('next', 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/', 'cgit',
+                'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/', 'master')
+    GitTree.add('stable', 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git', 'cgit',
+                'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/', r'linux-[0-9][0-9]*.[0-9][0-9]*\.y')
+
+
+def basicressources_repsrces_setup():
     # hardcoded for now
     ReportSource.add('lkml', 1,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-kernel',
-                     'lore', 'https://lore.kernel.org/lkml/',
-                     lastchked=4097114)
-    ReportSource.add('regressions', 2,
-                     'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
-                     'lore', 'https://lore.kernel.org/regressions/',
-                     lastchked=190)
+                     'lore', 'https://lore.kernel.org/lkml/', identifiers='linux-kernel@vger.kernel.org')
+    if is_running_citesting():
+        ReportSource.add('regressions', 2,
+                         'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
+                         'lore', 'https://lore.kernel.org/regressions/', identifiers='regressions@lists.linux.dev')
+        # two lists are enough for testing
+        return
+    else:
+        ReportSource.add('regressions', 2,
+                         'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
+                         'lore', 'https://lore.kernel.org/regressions/', identifiers='regressions@lists.linux.dev',
+                         lastchked=190)
     ReportSource.add('netdev', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.netdev',
-                     'lore', 'https://lore.kernel.org/netdev/',
-                     lastchked=799255)
+                     'lore', 'https://lore.kernel.org/netdev/')
     ReportSource.add('wireless', 4,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-wireless',
-                     'lore', 'https://lore.kernel.org/linux-wireless/',
-                     lastchked=214156)
+                     'lore', 'https://lore.kernel.org/linux-wireless/')
     ReportSource.add('arm', 3,
                      'nntp://nntp.lore.kernel.org/org.infradead.lists.linux-arm-kernel',
-                     'lore', 'https://lore.kernel.org/linux-arm-kernel/',
-                     lastchked=844111)
+                     'lore', 'https://lore.kernel.org/linux-arm-kernel/')
     ReportSource.add('dri', 3,
                      'nntp://nntp.lore.kernel.org/org.freedesktop.lists.dri-devel',
-                     'lore', 'https://lore.kernel.org/dri-devel/',
-                     lastchked=329247)
+                     'lore', 'https://lore.kernel.org/dri-devel/')
     ReportSource.add('fsdevel', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-fsdevel',
-                     'lore', 'https://lore.kernel.org/linux-fsdevel/',
-                     lastchked=213946)
+                     'lore', 'https://lore.kernel.org/linux-fsdevel/')
     ReportSource.add('scsi', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-scsi',
-                     'lore', 'https://lore.kernel.org/linux-scsi/',
-                     lastchked=172549)
+                     'lore', 'https://lore.kernel.org/linux-scsi/')
     ReportSource.add('pm', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-pm',
-                     'lore', 'https://lore.kernel.org/linux-pm/',
-                     lastchked=152570)
+                     'lore', 'https://lore.kernel.org/linux-pm/')
     ReportSource.add('pci', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-pci',
-                     'lore', 'https://lore.kernel.org/linux-pci/',
-                     lastchked=100908)
+                     'lore', 'https://lore.kernel.org/linux-pci/')
     ReportSource.add('mips', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-mips',
-                     'lore', 'https://lore.kernel.org/linux-mips/',
-                     lastchked=110188)
+                     'lore', 'https://lore.kernel.org/linux-mips/')
     ReportSource.add('ppc-dev', 3,
                      'nntp://nntp.lore.kernel.org/org.ozlabs.lists.linuxppc-dev',
-                     'lore', 'https://lore.kernel.org/linuxppc-dev/',
-                     lastchked=263995)
+                     'lore', 'https://lore.kernel.org/linuxppc-dev/')
     ReportSource.add('alsa', 5,
                      'nntp://nntp.lore.kernel.org/org.alsa-project.alsa-devel',
-                     'lore', 'https://lore.kernel.org/alsa-devel/',
-                     lastchked=232899)
+                     'lore', 'https://lore.kernel.org/alsa-devel/')
     ReportSource.add('usb', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-usb',
-                     'lore', 'https://lore.kernel.org/linux-usb/',
-                     lastchked=51156)
+                     'lore', 'https://lore.kernel.org/linux-usb/')
     ReportSource.add('media', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-media',
-                     'lore', 'https://lore.kernel.org/linux-media/',
-                     lastchked=209904)
+                     'lore', 'https://lore.kernel.org/linux-media/')
     ReportSource.add('i2c', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-i2c',
-                     'lore', 'https://lore.kernel.org/linux-i2c/',
-                     lastchked=53681)
+                     'lore', 'https://lore.kernel.org/linux-i2c/')
     ReportSource.add('platform-driver-x86', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.platform-driver-x86',
-                     'lore', 'https://lore.kernel.org/platform-driver-x86/',
-                     lastchked=27184)
+                     'lore', 'https://lore.kernel.org/platform-driver-x86/')
     ReportSource.add('hwmon', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-hwmon',
-                     'lore', 'https://lore.kernel.org/linux-hwmon/',
-                     lastchked=12573)
+                     'lore', 'https://lore.kernel.org/linux-hwmon/')
     ReportSource.add('input', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-input',
-                     'lore', 'https://lore.kernel.org/linux-input/',
-                     lastchked=77074)
+                     'lore', 'https://lore.kernel.org/linux-input/')
     ReportSource.add('edac', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-edac',
-                     'lore', 'https://lore.kernel.org/linux-edac/',
-                     lastchked=6764)
+                     'lore', 'https://lore.kernel.org/linux-edac/')
     ReportSource.add('crypto', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-crypto',
-                     'lore', 'https://lore.kernel.org/linux-crypto/',
-                     lastchked=58684)
+                     'lore', 'https://lore.kernel.org/linux-crypto/')
     ReportSource.add('iio', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-iio',
-                     'lore', 'https://lore.kernel.org/linux-iio/',
-                     lastchked=63102)
+                     'lore', 'https://lore.kernel.org/linux-iio/')
 
-    # hardcoded for now, too
-    GitTree.add('mainline', 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/',
-                'cgit', 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/',  'master')
-    GitTree.add('next', 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/',
-                        'cgit', 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/', 'master')
-    GitTree.add('stable', 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git', 'cgit',
-                'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/', r'linux-[0-9][0-9]*.[0-9][0-9]*\.y')
-    GitTree.add('stable', 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git', 'cgit',
-                'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/', r'linux-[0-9][0-9]*.[0-9][0-9]*\.y')
 
-    gittree = GitTree.get_by_name('mainline')
-    GitBranch.add(gittree, 'master',
-                  '73f3af7b4611d77bdaea303fb639333eb28e37d7')
+def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
+    # constructs the directory paths
+    # use default path, unless tmpdir if given; but even then use the default, if the variable is set to 'True'
 
-    gittree = GitTree.get_by_name('next')
-    GitBranch.add(gittree, 'master',
-                  '7636510f976d75b860848884169ba985c8f844d8')
+    homedir = pathlib.Path.home()
+    cachedir = os.path.join(homedir, '.cache/regzbot/')
 
-    gittree = GitTree.get_by_name('stable')
-    GitBranch.add(gittree, 'linux-4.4.y',
-                  'c13f051b7fc041d3163a96b10441b421ddecd123')
-    GitBranch.add(gittree, 'linux-4.9.y',
-                  '89a3a5a52bc58d04109f03011e8164ce24e94b01')
-    GitBranch.add(gittree, 'linux-4.14.y',
-                  '162b95d01320370b80cb2d5724cea4ae538ac740')
-    GitBranch.add(gittree, 'linux-4.19.y',
-                  '59456c9cc40c8f75b5a7efa0fe1f211d9c6fcaf1')
-    GitBranch.add(gittree, 'linux-5.4.y',
-                  'c15b830f7c1cafd34035a46485716933f66ab753')
-    GitBranch.add(gittree, 'linux-5.10.y',
-                  '2c5bd949b1df3f9fb109107b3d766e2ebabd7238')
-    GitBranch.add(gittree, 'linux-5.13.y',
-                  'f428e49b8cb1fbd9b4b4b29ea31b6991d2ff7de1')
+    if not databasedir and tmpdir:
+        databasedir = os.path.join(tmpdir, 'database')
+    elif not databasedir or databasedir is True:
+        databasedir = os.path.join(homedir, '.local/share/regzbot/')
+
+    if not gittreesdir and tmpdir:
+        gittreesdir = os.path.join(tmpdir, 'gittrees')
+    elif not gittreesdir or gittreesdir is True:
+        gittreesdir = os.path.join(cachedir, 'gittrees')
+
+    if not websitesdir and tmpdir:
+        websitesdir = os.path.join(tmpdir, 'websites')
+    elif not websitesdir or websitesdir is True:
+        websitesdir = os.path.join(cachedir, 'websites')
+
+    return databasedir, gittreesdir, websitesdir
+
+
+def basicressources_setup(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
+    databasedir, gittreesdir, websitesdir = basicressources_get_dirs(
+        databasedir, gittreesdir, websitesdir, tmpdir)
+
+    db_create(databasedir)
+
+    basicressources_repsrces_setup()
+    basicressources_gittrees_setup(gittreesdir)
 
     # run this once, to make sure all gitbraches db entries get created
     basicressources_init()
@@ -2403,8 +2380,9 @@ def basicressources_setup(directory=None):
     db_commit()
 
 
-def basicressources_init(directory=None):
-    databasedir, gittreesdir, websitesdir = basicressources_get_dirs(directory)
+def basicressources_init(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
+    databasedir, gittreesdir, websitesdir = basicressources_get_dirs(
+        databasedir, gittreesdir, websitesdir, tmpdir)
 
     dbconnection = db_init(databasedir)
     if not dbconnection:
@@ -2431,25 +2409,31 @@ def set_citesting(kind):
     __CITESTING__ = kind
 
 
-def is_running_citesting_offline():
-    if __CITESTING__ == "offline":
+def is_running_citesting(kind=None):
+    if not kind and __CITESTING__:
+        return True
+    elif __CITESTING__ == kind:
         return True
     return False
 
 
 def run():
+    regzbot.basicressources_init()
+
     # check for new mails
     import lore
     lore.run()
     db_commit()
 
+    # check for new commits
     GitTree.updateall()
     db_commit()
 
-    RegressionWeb.create_htmlpages(WEBPAGEDIR)
+    # update webpages
+    RegressionWeb.create_htmlpages()
 
+    # we are done
     db_close()
-    logger.info("The End")
 
 
 def download_msg(msgid):

@@ -93,10 +93,11 @@ def download_thread(msgid):
 def download_msg(msgid):
     try:
         url = 'https://lore.kernel.org/all/%s/raw' % msgid
+        logger.debug("Downloading %s", url)
         with urllib.request.urlopen(url) as response:
             msg = email.message_from_string(response.read().decode('utf-8'), policy=policy.default)
     except urllib.error.HTTPError as err:
-        print('Failed to download msg %s: %s"', msgid, err)
+        logger.critical('Failed to download msg %s: %s"', msgid, err)
         return None, None
 
     repsrc = regzbot.mailin.adjust_repsrc(None, msg)
