@@ -2199,8 +2199,7 @@ def db_rollback():
 
 def init_reposdir(directory):
     global REPOSDIR
-    if REPOSDIR is None:
-        REPOSDIR = os.path.join(directory)
+    REPOSDIR = os.path.join(directory)
     GitTree.check_latest_versions()
     return REPOSDIR
 
