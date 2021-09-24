@@ -2437,7 +2437,7 @@ def is_running_citesting(kind=None):
 
 
 def run():
-    regzbot.basicressources_init()
+    basicressources_init()
 
     # check for new mails
     import lore
