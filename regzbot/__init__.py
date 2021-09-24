@@ -362,6 +362,17 @@ class GitTree():
             return GitTree(*dbresult)
         return None
 
+    def greplogmsgs(self, pattern):
+        repo = self.repo()
+
+        try:
+            result = repo.git.log('--pretty=%H', '--since=365 days ago', '--grep=%s' % pattern).splitlines()[0]
+            if len(result) > 12:
+                return result
+        except Exception:
+            return False
+        return None
+
     def repo(self):
         # hidden even within the class, to only initialize it when actually needed
         if self.__repo is None:
@@ -1210,6 +1221,14 @@ class RegressionBasic():
 
         if not is_running_citesting('offline'):
             lore.process_replies(target_msgid)
+
+        # check if a reference to this was mentioned in the git logs
+        for gittree in GitTree.getall():
+            commit_hexsha = gittree.greplogmsgs("Link:.*%s" % target_msgid)
+            if commit_hexsha:
+                commit = gittree.commit(commit_hexsha)
+                self.fixedby(gmtime, commit.hexsha, commit.summary)
+                break
 
     def monitorremove(self, tagload, gmtime, report_repsrc, report_msg):
         link, _ = self.linkparse(tagload)
