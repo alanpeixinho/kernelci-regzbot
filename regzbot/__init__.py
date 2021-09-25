@@ -366,7 +366,7 @@ class GitTree():
         repo = self.repo()
 
         try:
-            result = repo.git.log('--pretty=%H', '--since=365 days ago', '--grep=%s' % pattern).splitlines()[0]
+            result = repo.git.log('--pretty=%H', '--since=365 days ago', '--grep=%s' % pattern, 'origin').splitlines()[0]
             if len(result) > 12:
                 return result
         except Exception:
@@ -1222,8 +1222,11 @@ class RegressionBasic():
 
         # check if a reference to this was mentioned in the git logs
         for gittree in GitTree.getall():
-            commit_hexsha = gittree.greplogmsgs("Link:.*%s" % target_msgid)
+            searchstring = "Link:.*%s" % target_msgid
+            logger.debug("Trying to find %s in gittree %s", searchstring, gittree.name)
+            commit_hexsha = gittree.greplogmsgs(searchstring)
             if commit_hexsha:
+                logger.debug("Found it in %s", commit_hexsha)
                 commit = gittree.commit(commit_hexsha)
                 self.fixedby(gmtime, commit.hexsha, commit.summary)
                 break
