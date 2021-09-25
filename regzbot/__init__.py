@@ -505,20 +505,6 @@ class RegActivityMonitor():
             dbcursor.lastrowid, regid, repsrcid, entry))
         return dbcursor.lastrowid
 
-    def present(self, entry, repsrcid=None):
-        dbcursor = DBCON.cursor()
-        if repsrcid:
-            dbresult = dbcursor.execute(
-                'SELECT * FROM actmonitor WHERE actimonid=(?) AND entry=(?) AND repsrcid=(?)', (self.actimonid, entry, repsrcid)).fetchone()
-        else:
-            dbresult = dbcursor.execute(
-                'SELECT * FROM actmonitor WHERE actimonid=(?) AND entry=(?)', (self.actimonid, entry)).fetchone()
-
-        if dbresult is None:
-            return False
-        else:
-            return True
-
     @staticmethod
     def remove(regid, repsrcid, entry):
         dbcursor = DBCON.cursor()
@@ -549,10 +535,11 @@ class RegActivityMonitor():
             yield RegActivityMonitor(*dbresult)
 
     @staticmethod
-    def getall_by_repsrcid_n_entry(repsrcid, entry):
+    def getall_by_entry(entry):
         dbcursor = DBCON.cursor()
-        for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE repsrcid=(?) AND entry=(?)', (repsrcid, entry)):
+        for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE entry=(?)', (entry, )):
             yield RegActivityMonitor(*dbresult)
+
 
     @staticmethod
     def get_by_regid_n_entry(regid, entry):
@@ -655,6 +642,17 @@ class RegActivityEvent():
             for dbresult in dbcursor.execute('SELECT * FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % placeholders, replacements):
                 yield RegActivityEvent(*dbresult)
 
+    @staticmethod
+    def present(actimon, entry):
+        dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute(
+            'SELECT * FROM regactivity WHERE actimonid=(?) AND entry=(?)', (actimon.actimonid, entry)).fetchone()
+
+        if dbresult is None:
+            return False
+        else:
+            return True
+
     def url(self):
         if self.repsrcid is None:
             return GitBranch.url_by_id(self.gitbranchid, self.entry)
@@ -721,14 +719,14 @@ class RegHistory():
         RegHistory._event(
             regid, gmtime, entry, subject, repsrcid=repsrcid, gitbranchid=gitbranchid, regzbotcmd=regzbotcmd)
 
-    def already_processed(regid, entry, regzbotcmd, repsrcid=None):
+    def present(entry, repsrcid=None):
         dbcursor = DBCON.cursor()
         if repsrcid:
             dbresult = dbcursor.execute(
-                'SELECT * FROM reghistory WHERE regid=(?) AND entry=(?) AND regzbotcmd=(?) AND repsrcid=(?)', (regid, entry, regzbotcmd, repsrcid)).fetchone()
+                'SELECT * FROM reghistory WHERE entry=(?) AND repsrcid=(?)', (entry, repsrcid)).fetchone()
         else:
             dbresult = dbcursor.execute(
-                'SELECT * FROM reghistory WHERE regid=(?) AND entry=(?) AND regzbotcmd=(?)', (regid, entry, regzbotcmd)).fetchone()
+                'SELECT * FROM reghistory WHERE entry=(?)', (entry, )).fetchone()
 
         if dbresult is None:
             return False
@@ -2297,64 +2295,67 @@ def basicressources_repsrces_setup():
                          lastchked=190)
     ReportSource.add('netdev', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.netdev',
-                     'lore', 'https://lore.kernel.org/netdev/')
+                     'lore', 'https://lore.kernel.org/netdev/', identifiers='netdev@vger.kernel.org')
     ReportSource.add('wireless', 4,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-wireless',
-                     'lore', 'https://lore.kernel.org/linux-wireless/')
+                     'lore', 'https://lore.kernel.org/linux-wireless/', identifiers='linux-wireless@vger.kernel.org')
     ReportSource.add('arm', 3,
                      'nntp://nntp.lore.kernel.org/org.infradead.lists.linux-arm-kernel',
-                     'lore', 'https://lore.kernel.org/linux-arm-kernel/')
+                     'lore', 'https://lore.kernel.org/linux-arm-kernel/', identifiers='linux-arm-kernel@lists.infradead.org')
     ReportSource.add('dri', 3,
                      'nntp://nntp.lore.kernel.org/org.freedesktop.lists.dri-devel',
-                     'lore', 'https://lore.kernel.org/dri-devel/')
+                     'lore', 'https://lore.kernel.org/dri-devel/', identifiers='dri-devel@lists.freedesktop.org')
     ReportSource.add('fsdevel', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-fsdevel',
-                     'lore', 'https://lore.kernel.org/linux-fsdevel/')
+                     'lore', 'https://lore.kernel.org/linux-fsdevel/', identifiers='linux-f2fs-devel@lists.sourceforge.net')
     ReportSource.add('scsi', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-scsi',
-                     'lore', 'https://lore.kernel.org/linux-scsi/')
+                     'lore', 'https://lore.kernel.org/linux-scsi/', identifiers='linux-scsi@vger.kernel.org')
     ReportSource.add('pm', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-pm',
-                     'lore', 'https://lore.kernel.org/linux-pm/')
+                     'lore', 'https://lore.kernel.org/linux-pm/', identifiers='linux-pm@vger.kernel.org')
     ReportSource.add('pci', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-pci',
-                     'lore', 'https://lore.kernel.org/linux-pci/')
+                     'lore', 'https://lore.kernel.org/linux-pci/', identifiers='linux-pci@vger.kernel.org')
     ReportSource.add('mips', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-mips',
-                     'lore', 'https://lore.kernel.org/linux-mips/')
+                     'lore', 'https://lore.kernel.org/linux-mips/', identifiers='linux-mips@vger.kernel.org')
     ReportSource.add('ppc-dev', 3,
                      'nntp://nntp.lore.kernel.org/org.ozlabs.lists.linuxppc-dev',
-                     'lore', 'https://lore.kernel.org/linuxppc-dev/')
+                     'lore', 'https://lore.kernel.org/linuxppc-dev/', identifiers='linuxppc-dev@lists.ozlabs.org')
     ReportSource.add('alsa', 5,
                      'nntp://nntp.lore.kernel.org/org.alsa-project.alsa-devel',
-                     'lore', 'https://lore.kernel.org/alsa-devel/')
+                     'lore', 'https://lore.kernel.org/alsa-devel/', identifiers='alsa-devel@alsa-project.org')
     ReportSource.add('usb', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-usb',
-                     'lore', 'https://lore.kernel.org/linux-usb/')
+                     'lore', 'https://lore.kernel.org/linux-usb/', identifiers='linux-usb@vger.kernel.org')
     ReportSource.add('media', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-media',
-                     'lore', 'https://lore.kernel.org/linux-media/')
+                     'lore', 'https://lore.kernel.org/linux-media/', identifiers='linux-media@vger.kernel.org')
     ReportSource.add('i2c', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-i2c',
-                     'lore', 'https://lore.kernel.org/linux-i2c/')
+                     'lore', 'https://lore.kernel.org/linux-i2c/', identifiers='linux-i2c@vger.kernel.org')
     ReportSource.add('platform-driver-x86', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.platform-driver-x86',
-                     'lore', 'https://lore.kernel.org/platform-driver-x86/')
+                     'lore', 'https://lore.kernel.org/platform-driver-x86/', identifiers='platform-driver-x86@vger.kernel.org')
     ReportSource.add('hwmon', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-hwmon',
-                     'lore', 'https://lore.kernel.org/linux-hwmon/')
+                     'lore', 'https://lore.kernel.org/linux-hwmon/', identifiers='linux-hwmon@vger.kernel.org')
     ReportSource.add('input', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-input',
-                     'lore', 'https://lore.kernel.org/linux-input/')
+                     'lore', 'https://lore.kernel.org/linux-input/', identifiers='linux-input@vger.kernel.org')
     ReportSource.add('edac', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-edac',
-                     'lore', 'https://lore.kernel.org/linux-edac/')
+                     'lore', 'https://lore.kernel.org/linux-edac/', identifiers='linux-edac@vger.kernel.org')
     ReportSource.add('crypto', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-crypto',
-                     'lore', 'https://lore.kernel.org/linux-crypto/')
+                     'lore', 'https://lore.kernel.org/linux-crypto/', identifiers='linux-crypto@vger.kernel.org')
     ReportSource.add('iio', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-iio',
-                     'lore', 'https://lore.kernel.org/linux-iio/')
+                     'lore', 'https://lore.kernel.org/linux-iio/', identifiers='linux-iio@vger.kernel.org')
+    ReportSource.add('staging', 6,
+                     'nntp://nntp.lore.kernel.org/dev.linux.lists.linux-staging',
+                     'lore', 'https://lore.kernel.org/linux-staging/', identifiers='linux-staging@lists.linux.dev')
 
 
 def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
@@ -2461,6 +2462,12 @@ def download_msg(msgid):
 def process_msg(msgid):
     repsrc, msg = download_msg(msgid)
     return mailin.process_msg(repsrc, msg)
+
+
+def process_thread(msgid):
+    for msg in lore.download_thread(msgid):
+        repsrc = mailin.adjust_repsrc(None, msg)
+        mailin.process_msg(repsrc, msg)
 
 
 def checksource(identifier):

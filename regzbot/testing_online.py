@@ -64,6 +64,7 @@ def run(resultfilename, tmpdir):
 
 
 def onlntest_0_0(funcname):
-    regzbot.process_msg('a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info')
-    regzbot.process_msg('8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info')
+#    regzbot.process_msg('a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info')
+#    regzbot.process_msg('8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info')
+    regzbot.process_thread('a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info')
     return False, False, False

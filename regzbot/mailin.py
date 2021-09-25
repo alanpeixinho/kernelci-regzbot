@@ -70,11 +70,6 @@ def process_tag(repsrc, tag, msg):
     regressionb = regzbot.RegressionBasic.get_by_msgreferences(
         msg['References'])
 
-    # don't process mails a second time (can happen if a mail higher in a thread gets added by the monitor cmd)
-    if regressionb and regzbot.RegHistory.already_processed(regressionb.regid, msgid, regzbotcmd):
-        logger.debug("Ignoring %s command in %s, as it was already processed for regression %s", tagcmd, msgid, regressionb.regid)
-        return True
-
     if not regressionb:
         if tagcmd == "introduced":
             regressionb = regzbot.RegressionBasic.introduced_create(
@@ -104,7 +99,16 @@ def process_tag(repsrc, tag, msg):
             regzbot.UnhandledEvent.add(
                 urltoreport, "regzbot tag in a thread not associated with a regression", gmtime=gmtime, subject=subject)
             return False
+
+        # create entry in the reghistory now that we know the regid
+        regzbot.RegHistory.event(
+            regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid, regzbotcmd=regzbotcmd)
     else:
+        # create entry in the reghistory before processing the tag, otherwise loops will happen
+        # if a monitor commands points to a mail higher up in the same thread
+        regzbot.RegHistory.event(
+            regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid, regzbotcmd=regzbotcmd)
+
         if tagcmd == "dupof" or tagcmd == "dup-of":
             regressionb.dupof(tagload, gmtime, msgid, subject, repsrc.repsrcid)
         elif tagcmd == "fixed-by" or tagcmd == "fixedby:":
@@ -132,9 +136,6 @@ def process_tag(repsrc, tag, msg):
                 urltoreport, "unkown regzbot command: %s" % tagcmd, gmtime=gmtime, subject=subject)
             return
 
-    # create entry in the reghistory
-    regzbot.RegHistory.event(
-        regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid, regzbotcmd=regzbotcmd)
 
 
 def email_get_gmtime(msg):
@@ -221,12 +222,12 @@ def process_link(link):
 
 
 def process_msg(repsrc, msg):
-    logger.info("processing mail: subject:'%s'; from:%s';",
-                msg['Subject'], msg['From'])
-
     msgid = email_get_msgid(msg)
     subject = email_get_subject(msg)
     gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(msg['Date']))
+
+    logger.info("processing mail(%s): subject:'%s'; from:%s'; :",
+                msgid, msg['Subject'], msg['From'])
 
     msg_simplest = msg.get_body(preferencelist=('plain'))
     if msg_simplest is None:
@@ -243,23 +244,32 @@ def process_msg(repsrc, msg):
         logger.warning('Skipping msg %s due to error: "%s"', msgid, err)
         return
 
-    matches = list()
-    for match in regzbot_tag_re.finditer(msgcontent):
-        matches.append('#regzbot ' + match.group(2))
-    if len(matches) > 0:
-        for match in email_process_tagmatches(matches):
-            process_tag(repsrc, match, msg)
+    # check for commands
+    if regzbot.RegHistory.present(msgid):
+        logger.debug("Ignoring tags and links in %s, as it was already processed", msgid)
+    else:
+        matches = list()
+        # add a newline here to make the regex catch msgs where it's missing
+        for match in regzbot_tag_re.finditer(msgcontent + '\n'):
+            matches.append('#regzbot ' + match.group(2))
+        if len(matches) > 0:
+            for match in email_process_tagmatches(matches):
+                process_tag(repsrc, match, msg)
 
     # record this activety, if this thread is tracked
     def add_actimon(reference, msgid, gmtime, subject):
-        for actimon in regzbot.RegActivityMonitor.getall_by_repsrcid_n_entry(repsrc.repsrcid, reference):
-            if True or not actimon.present(msgid):
+        for actimon in regzbot.RegActivityMonitor.getall_by_entry(reference):
+            if not regzbot.RegActivityEvent.present(actimon, msgid):
                 regzbot.RegressionBasic.activity_event_monitored(
                     repsrc.repsrcid, gmtime, msgid, subject, actimon)
     add_actimon(msgid, msgid, gmtime, subject)
     if msg['References'] is not None:
         for reference in msg['References'].split(" "):
             add_actimon(email_get_msgid(reference), msgid, gmtime, subject)
+
+    if regzbot.RegHistory.present(msgid):
+       # we are done here
+       return
 
     # check this mail for links that point to tracked regressions
     for match in link_re.finditer(msgcontent):
@@ -311,9 +321,9 @@ def process_msg(repsrc, msg):
                                      % subject)
         elif actimon is not None:
             # already monitored, so make sure this get tracked
-            if True or not actimon.present(msgid):
+            if not regzbot.RegActivityEvent.present(actimon, msgid):
                 regzbot.RegressionBasic.activity_event_monitored(
-                    repsrc.repsrcid, gmtime, msgid, subject, actimonid=actimon.actimonid)
+                    repsrc.repsrcid, gmtime, msgid, subject, actimon)
         else:
             # just add the event to the regression
             regzbot.RegressionBasic.activity_event_linked(

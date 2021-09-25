@@ -851,6 +851,7 @@ REGRESSION: test_5_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regres
 ACTIVITY: test_5_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_0@example.com, 1546300800
 ACTIVITY: test_5_1_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_1_0@example.com, 1546387200
 HISTORY: test_5_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_0@example.com, 1546300800, introduced: v1.10..v1.11-rc1
+HISTORY: test_5_1_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_1_0@example.com, 1546387200, foobar: 123456789
 LATEST: test_5_1_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_1_0@example.com, 1546387200
 UNHANDLED: 1, https://lore.kernel.org/regressions/regzbot-testing-test_5_1_0@example.com, unkown regzbot command: foobar, 1546387200, None, test_5_1_0: Lorem ipsum dolor sit amet, None, None, None
 UNHANDLED: 2, https://lore.kernel.org/regressions/regzbot-testing-test_5_1_1@example.com, regzbot tag in a thread not associated with a regression, 1546473600, None, test_5_1_1: Lorem ipsum dolor sit amet, None, None, None
@@ -865,6 +866,7 @@ ACTIVITY: test_5_2_2: Lorem ipsum dolor sit amet, https://lore.kernel.org/regres
 ACTIVITY: test_5_2_3: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_3@example.com, 1546819200
 ACTIVITY: test_5_2_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_4@example.com, 1546905600
 HISTORY: test_5_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_0@example.com, 1546300800, introduced: v1.10..v1.11-rc1
+HISTORY: test_5_1_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_1_0@example.com, 1546387200, foobar: 123456789
 HISTORY: test_5_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_0@example.com, 1546560000, monitor: http://lore.kernel.org/somelist_somemsgid/
 HISTORY: test_5_2_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_1@example.com, 1546646400, monitor: http://lore.kernel.org/somelist/somemsgid/
 HISTORY: test_5_2_2: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_2_2@example.com, 1546732800, unmonitor: http://lore.kernel.org/somelist_somemsgid/
