@@ -258,8 +258,8 @@ def process_msg(repsrc, msg):
         logger.debug("Ignoring tags and links in %s, as it was already processed", msgid)
     else:
         matches = list()
-        # add a newline here to make the regex catch msgs where it's missing
-        for match in regzbot_tag_re.finditer(msgcontent + '\n'):
+        # add two newlines here to make the regex catch msgs where they are missing
+        for match in regzbot_tag_re.finditer(msgcontent + '\n\n'):
             matches.append('#regzbot ' + match.group(2))
         if len(matches) > 0:
             for match in email_process_tagmatches(matches):

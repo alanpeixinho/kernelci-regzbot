@@ -2439,6 +2439,16 @@ def is_running_citesting(kind=None):
 def run():
     basicressources_init()
 
+    # process_msg('8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info')
+
+    #dbcursor = DBCON.cursor()
+    #dbcursor.execute('''DELETE FROM msgidrecord
+    #                     WHERE msgid=(?)''',
+    #                     ('8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info', ))
+    #dbcursor.execute('''UPDATE reportsources SET lastchked = (?) WHERE serverurl=(?)''',
+    #                         (200, 'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions'))
+    #dbcursor = None
+
     # check for new mails
     import lore
     lore.run()
