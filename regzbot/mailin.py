@@ -27,8 +27,17 @@ def adjust_repsrc(repsrc, msg):
     def get_email_adresses(recipients):
         return re.findall(r'[\w\.-]+@[\w\.-]+', recipients)
 
-    adresses = get_email_adresses(msg['To'])
-    if msg['CC']:
+    adresses = []
+    if 'To' in msg:
+        # try/except needed here to handle mails without To:
+        # https://lore.kernel.org/all/20210925074531.10446-1-tomm.merciai@gmail.com/raw
+        # https://bugs.python.org/issue39100
+        try:
+            adresses.extend(get_email_adresses(msg['To']))
+        except AttributeError:
+            pass
+
+    if 'CC' in msg:
         adresses.extend(get_email_adresses(msg['CC']))
 
     for adress in adresses:
