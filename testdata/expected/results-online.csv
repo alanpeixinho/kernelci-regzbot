@@ -42,8 +42,8 @@ ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.ke
 ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
 HISTORY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566, report: automatically added due to later ^introduced
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, ^introduced: 8a0c014cd20516ade9654fc13b51345ec58e7be8
+HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352, monitor: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, monitor: https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com/
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, monitor: https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com/
-HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352, monitor: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
 LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
 

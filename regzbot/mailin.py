@@ -112,6 +112,10 @@ def process_tag(repsrc, tag, msg):
         # create entry in the reghistory now that we know the regid
         regzbot.RegHistory.event(
             regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid, regzbotcmd=regzbotcmd)
+
+        # we might need to recheck the thread, as it can contain msgs we have seen earlier and ignored earlier
+        if tagcmd == "^introduced" and not regzbot.is_running_citesting('offline'):
+             regzbot.process_thread(parent_msgid)
     else:
         # create entry in the reghistory before processing the tag, otherwise loops will happen
         # if a monitor commands points to a mail higher up in the same thread
