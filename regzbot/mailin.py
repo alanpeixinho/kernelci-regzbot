@@ -174,13 +174,9 @@ def email_get_msgid_parent(msg):
         return email_get_msgid(msg)
 
 
-def email_get_subject(msg, remove_retag=False):
-    if (remove_retag
-            and msg['subject'].startswith('Re: ')
-            or msg['subject'].startswith('RE: ')):
-        return msg['subject'][4:]
-    else:
-        return msg['subject']
+def email_get_subject(msg):
+    subject = re.sub(' *\[ *regression *\] *', '', msg['subject'], flags=re.IGNORECASE)
+    return subject
 
 
 def email_process_tagmatches(matches):
