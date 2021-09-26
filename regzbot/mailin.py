@@ -314,25 +314,26 @@ def process_msg(repsrc, msg):
         def thread_already_monitored():
             if msg['References'] is not None:
                 for reference in msg['References'].split(" "):
-                    actimon = regzbot.RegActivityMonitor.get_by_msgid(
+                    actimongen = regzbot.RegActivityMonitor.getall_by_entry(
                         reference)
-                    if actimon is not None:
-                        return actimon
+                    if actimongen is not None:
+                        return actimongen
             return None
-        actimon = thread_already_monitored()
+        actimongen = thread_already_monitored()
 
-        if actimon is None and linktag is True:
+        if actimongen is None and linktag is True:
             # start monitoring this thread
             regressionb.monitoradd_direct(
                 repsrc.repsrcid, gmtime, msgid, subject)
             regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid,
                                      regzbotcmd='monitor: automatically started monitoring "%s", as it referred to this this regression with a "Link:"'
                                      % subject)
-        elif actimon is not None:
+        elif actimongen is not None:
             # already monitored, so make sure this get tracked
-            if not regzbot.RegActivityEvent.present(actimon, msgid):
-                regzbot.RegressionBasic.activity_event_monitored(
-                    repsrc.repsrcid, gmtime, msgid, subject, actimon)
+            for actimon in actimongen:
+                if not regzbot.RegActivityEvent.present(actimon, msgid):
+                    regzbot.RegressionBasic.activity_event_monitored(
+                        repsrc.repsrcid, gmtime, msgid, subject, actimon)
         else:
             # just add the event to the regression
             regzbot.RegressionBasic.activity_event_linked(
