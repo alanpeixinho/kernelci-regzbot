@@ -193,7 +193,7 @@ def email_get_msgid_parent(msg):
 
 
 def email_get_subject(msg):
-    subject = re.sub(' *\[ *regression *\] *', '', msg['subject'], flags=re.IGNORECASE)
+    subject = re.sub(' *\[ *(regression|patch) *\] *', '', msg['subject'], flags=re.IGNORECASE)
     return subject
 
 
