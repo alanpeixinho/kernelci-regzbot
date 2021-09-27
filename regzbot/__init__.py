@@ -2365,6 +2365,9 @@ def basicressources_repsrces_setup():
     ReportSource.add('staging', 6,
                      'nntp://nntp.lore.kernel.org/dev.linux.lists.linux-staging',
                      'lore', 'https://lore.kernel.org/linux-staging/', identifiers='linux-staging@lists.linux.dev')
+    ReportSource.add('ath10k', 7,
+                     'nntp://nntp.lore.kernel.org/org.infradead.lists.ath10k',
+                     'lore', 'https://lore.kernel.org/ath10k/', identifiers='ath10k@lists.infradead.org')
 
 
 def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
