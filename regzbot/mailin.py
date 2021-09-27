@@ -83,13 +83,28 @@ def process_tag(repsrc, tag, msg):
         if tagcmd == "introduced":
             regressionb = regzbot.RegressionBasic.introduced_create(
                 repsrc.repsrcid, msgid, subject, tagload)
-        elif tagcmd == "^introduced":
+        elif tagcmd == "^introduced" or tagcmd == "^^introduced":
             parent_msgid = email_get_msgid_parent(msg)
+
             if regzbot.is_running_citesting('offline'):
+                if tagcmd == "^^introduced":
+                    if msg['References'] is None:
+                        urltoreport = repsrc.url(msgid)
+                        regzbot.UnhandledEvent.add(
+                            urltoreport, "^^introduced in a thread that has to references tag", gmtime=gmtime, subject=subject)
+                        return False
+                    for reference in msg['References'].split(" "):
+                        tmpmsgid = email_get_msgid(reference)
+                        if tmpmsgid != parent_msgid:
+                            parent_msgid = tmpmsgid
+                            break
                 parent_repsrc = repsrc
                 parent_gmtime = gmtime
                 parent_subject = subject
             else:
+                if tagcmd == "^^introduced":
+                    parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid)
+                    parent_msgid = email_get_msgid_parent(parent_msg)
                 parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid)
                 parent_gmtime = email_get_gmtime(parent_msg)
                 parent_subject = email_get_subject(parent_msg)
@@ -102,7 +117,7 @@ def process_tag(repsrc, tag, msg):
                 parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, actimon)
             regzbot.RegHistory.event(
                 regressionb.regid, parent_gmtime, parent_msgid, parent_subject, repsrcid=parent_repsrc.repsrcid,
-                regzbotcmd="report: automatically added due to later ^introduced")
+                regzbotcmd="report: automatically added due to later %s" % tagcmd)
         else:
             urltoreport = repsrc.url(msgid)
             regzbot.UnhandledEvent.add(
@@ -114,8 +129,9 @@ def process_tag(repsrc, tag, msg):
             regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid, regzbotcmd=regzbotcmd)
 
         # we might need to recheck the thread, as it can contain msgs we have seen earlier and ignored earlier
-        if tagcmd == "^introduced" and not regzbot.is_running_citesting('offline'):
-             regzbot.process_thread(parent_msgid)
+        if tagcmd == "^introduced" or tagcmd == "^^introduced":
+             if not regzbot.is_running_citesting('offline'):
+                 regzbot.process_thread(parent_msgid)
     else:
         # create entry in the reghistory before processing the tag, otherwise loops will happen
         # if a monitor commands points to a mail higher up in the same thread
@@ -130,7 +146,7 @@ def process_tag(repsrc, tag, msg):
                 gmtime, commit_hexsha, commit_subject, repsrcid=repsrc.repsrcid, repentry=msgid)
         elif tagcmd == "invalid":
             regressionb.invalid(tagload, gmtime, msgid, repsrc.repsrcid)
-        elif tagcmd == "introduced" or tagcmd == "^introduced":
+        elif tagcmd == "introduced" or tagcmd == "^introduced"  or tagcmd == "^^introduced":
             regressionb.introduced_update(tagload)
         elif tagcmd == "link":
             regressionb.linkadd(tagload, gmtime)
@@ -161,15 +177,17 @@ def email_get_msgid(msg_or_msgid):
     else:
         msgid = msg_or_msgid
 
-    return msgid.strip(' <>')
+    # this gets rid of everything after > (some email clients insert something there...)
+    msgid = msgid.split(">", 1)
+    return msgid[0].strip(' <>')
 
 
 def email_get_msgid_parent(msg):
     if 'In-Reply-To' in msg:
         return email_get_msgid(msg['In-Reply-To'])
     else:
-        logger.info(
-            "The tag in the email %s refers uses a ^ to refer to its parent, but the mail's header does not specify a 'In-Reply-To'; skipping reference.",
+        logger.warning(
+            "The tag in the email %s refers uses a ^ or a ^^ to refer to a (grant)parent, but the mail's header does not specify a 'In-Reply-To'; skipping reference.",
             msg['message-id'])
         return email_get_msgid(msg)
 
@@ -202,7 +220,7 @@ def email_process_tagmatches(matches):
 
     # move introduced tag to the front in case there is one
     for tagline in parsed:
-        if tagline.startswith("introduced") or tagline.startswith("^introduced"):
+        if tagline.startswith("introduced") or tagline.startswith("^introduced") or tagline.startswith("^^introduced"):
             parsed.remove(tagline)
             parsed.insert(0, tagline)
             break

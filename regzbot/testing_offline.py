@@ -48,17 +48,18 @@ class Emaildir:
         self._directory = os.path.join(path_tmpdirectory, name)
         os.mkdir(self._directory)
 
-    def create_email(self, funcname, tag, *, cc=None, subject=None, messageid=None, replyto=None, references=None,):
+    def create_email(self, funcname, tag, *, cc=None, subject=None, messageid=None, replyto=None, references=None):
         if messageid is None:
             messageid = '<regzbot-testing-%s@example.com>' % funcname
         if replyto:
             replyto = '<regzbot-testing-%s@example.com>' % replyto
+
+        new_references = [replyto, ]
         if references:
-            new_references = list()
             for reference in references:
                 new_references.append(
                     '<regzbot-testing-%s@example.com>' % reference)
-            references = new_references
+        references = new_references
 
         file = os.path.join(self._directory, "emailtesting-" +
                             str(Emaildir._count) + ".regzbot")
@@ -79,10 +80,7 @@ class Emaildir:
 
         if replyto:
             msg['In-Reply-To'] = replyto
-            if references:
-                msg['References'] = "%s %s" % (replyto, ' '.join(references))
-            else:
-                msg['References'] = replyto
+            msg['References'] = ' '.join(references)
 
         with open(file, 'w') as out:
             gen = email.generator.Generator(out)
@@ -556,6 +554,27 @@ def offltest_0_8(funcname):
         '%s: create a fourth mainline regression CCed to the secondary list' % funcname)
     emaildirs['primary'].create_email(
         funcname, "#regzb introduced: v1.8..v1.9-rc1", cc=emaildirs['secondary'].recipient)
+    return True, False, False
+
+
+# disabled, unfinished for now
+def offltest_0_9(funcname):
+    logger.info(
+        '%s: send a mail which serves as report for a regression created by a reply later using ^^introduced' % funcname)
+
+    subcounter = 0
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "Nothing to see here, move along")
+
+    subcounter += 1
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "Nothing to see here either, move along",
+        replyto="%s_0" % funcname)
+
+    subcounter += 1
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb ^^introduced: v1.8..v1.9-rc1",
+        replyto="%s_1" % funcname, references=("%s_0" % funcname, ))
     return True, False, False
 
 
