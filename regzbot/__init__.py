@@ -1652,20 +1652,26 @@ class RegressionFull(RegressionBasic):
                                 yattagdoc.text(" (%s days ago)" % days_delta(
                                                histevent.gmtime))
 
+                if self.solved_reason:
+                    return
+
                 with yattagdoc.tag('p'):
-                    with yattagdoc.tag('div'):
-                        yattagdoc.text(
-                            "When fixing this, include this in the commit message to automatically resolve this entry in the regression tracking database:")
-                    with yattagdoc.tag('div', style="padding-left: 1em;"):
-                        with yattagdoc.tag('div', style='font-style: italic;'):
-                            yattagdoc.text(
-                                "Link: https://lore.kernel.org/regressions/%s" % self.entry)
-                        if 'identified' in self.category:
-                            commitsummary = GitTree.commit_summary(
-                                self.introduced)
-                            with yattagdoc.tag('div', style='font-style: italic;'):
-                                yattagdoc.text('Fixes: %s ("%s")' % (
-                                    self.introduced[0:12], commitsummary))
+                    yattagdoc.text(
+                         "When fixing, include one of these in the commit message to automatically resolve this entry in the regression tracking database:")
+                    for actimonitor in RegActivityMonitor.getall_by_regid(self.regid):
+                        with yattagdoc.tag('div', style="padding-left: 1em; font-style: italic;"):
+                            yattagdoc.text("Link: ")
+                            link = "https://lore.kernel.org/r/%s" % actimonitor.entry
+                            with yattagdoc.tag('a', href=link):
+                                yattagdoc.text(link)
+
+                if self.introduced:
+                    commitsummary = GitTree.commit_summary(self.introduced)
+                    with yattagdoc.tag('p'):
+                        yattagdoc.text( "You likely also want to add this to the commit message:")
+                        with yattagdoc.tag('div', style='padding-left: 1em; font-style: italic;'):
+                            yattagdoc.text('Fixes: %s ("%s")' % (
+                                self.introduced[0:12], commitsummary))
 
         yattagdoc_line = yattag.Doc()
         with yattagdoc_line.tag('td', style="width: 200px;"):
