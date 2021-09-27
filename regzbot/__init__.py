@@ -1578,8 +1578,8 @@ class RegressionFull(RegressionBasic):
                             yattagdoc.text(' days ago.')
 
                         entered_loop = False
-                        for counter, regressionlink in enumerate(RegLink.get_all(self.regid)):
-                            if counter == 0:
+                        for counter, regressionlink in enumerate(RegLink.get_all(self.regid), start=1):
+                            if counter == 1:
                                 entered_loop = True
                                 yattagdoc.text(' Related issues: ')
                             else:
@@ -1589,7 +1589,7 @@ class RegressionFull(RegressionBasic):
                         if entered_loop:
                             yattagdoc.text('.')
 
-                for counter, regressionlink in enumerate(RegLink.get_all(self.regid)):
+                for counter, regressionlink in enumerate(RegLink.get_all(self.regid), start=1):
                     with yattagdoc.tag('div'):
                         yattagdoc.text('Related[%s]: ' % counter)
                         with yattagdoc.tag('i'):
