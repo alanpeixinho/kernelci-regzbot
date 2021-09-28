@@ -283,7 +283,7 @@ def process_msg(repsrc, msg):
             for match in email_process_tagmatches(matches):
                 process_tag(repsrc, match, msg)
 
-    # record this activety, if this thread is tracked
+    # record this activity, if this thread is tracked
     def add_actimon(reference, msgid, gmtime, subject):
         for actimon in regzbot.RegActivityMonitor.getall_by_entry(reference):
             if not regzbot.RegActivityEvent.present(actimon, msgid):
@@ -300,14 +300,16 @@ def process_msg(repsrc, msg):
 
     # check this mail for links that point to tracked regressions
     for match in link_re.finditer(msgcontent):
-        regbottag = False
+        skip = False
         linktag = False
         url = False
+
         for grp in match.groups():
             if grp is None:
                 continue
             elif grp.startswith("#regzb"):
-                regbottag = True
+                # avoid catching URLs we already dealt with
+                skip = True
                 break
             elif grp.startswith("Link:"):
                 linktag = True
@@ -315,9 +317,7 @@ def process_msg(repsrc, msg):
             elif grp.startswith("http"):
                 url = grp
                 break
-
-        # avoid catching URLs already dealt with
-        if regbottag:
+        if skip:
             continue
 
         mailinglist, linked_msgid = process_link(url)
@@ -328,7 +328,7 @@ def process_msg(repsrc, msg):
         if regressionb is None:
             continue
 
-        # check if the thread is already monitored
+        # so this is related to a tracked regression; check if the thread is monitored or start monitoring it
         def thread_already_monitored():
             if msg['References'] is not None:
                 for reference in msg['References'].split(" "):
@@ -346,12 +346,9 @@ def process_msg(repsrc, msg):
             regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid,
                                      regzbotcmd='monitor: automatically started monitoring "%s", as it referred to this this regression with a "Link:"'
                                      % subject)
-        elif actimongen is not None:
-            # already monitored, so make sure this get tracked
-            for actimon in actimongen:
-                if not regzbot.RegActivityEvent.present(actimon, msgid):
-                    regzbot.RegressionBasic.activity_event_monitored(
-                        repsrc.repsrcid, gmtime, msgid, subject, actimon)
+        elif actimongen:
+            # already monitored, nothing to do
+            return
         else:
             # just add the event to the regression
             regzbot.RegressionBasic.activity_event_linked(
