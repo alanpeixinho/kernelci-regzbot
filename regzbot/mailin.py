@@ -82,7 +82,7 @@ def process_tag(repsrc, tag, msg):
     if not regressionb:
         if tagcmd == "introduced":
             regressionb = regzbot.RegressionBasic.introduced_create(
-                repsrc.repsrcid, msgid, subject, tagload, gmtime)
+                repsrc.repsrcid, msgid, email_get_cleansubject(msg), tagload, gmtime)
         elif tagcmd == "^introduced" or tagcmd == "^^introduced":
             parent_msgid = email_get_msgid_parent(msg)
 
@@ -101,6 +101,7 @@ def process_tag(repsrc, tag, msg):
                 parent_repsrc = repsrc
                 parent_gmtime = gmtime
                 parent_subject = subject
+                parent_cleansubject = subject
             else:
                 if tagcmd == "^^introduced":
                     parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid)
@@ -108,9 +109,10 @@ def process_tag(repsrc, tag, msg):
                 parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid)
                 parent_gmtime = email_get_gmtime(parent_msg)
                 parent_subject = email_get_subject(parent_msg)
+                parent_cleansubject = email_get_cleansubject(parent_msg)
 
             regressionb = regzbot.RegressionBasic.introduced_create(
-                parent_repsrc.repsrcid, parent_msgid, parent_subject, tagload, parent_gmtime)
+                parent_repsrc.repsrcid, parent_msgid, parent_cleansubject, tagload, parent_gmtime)
             # we need to add the entries for the parent manually
             actimon = regzbot.RegActivityMonitor.get_by_regid_n_entry(regressionb.regid, parent_msgid)
             regzbot.RegressionBasic.activity_event_monitored(
@@ -192,8 +194,12 @@ def email_get_msgid_parent(msg):
 
 
 def email_get_subject(msg):
-    subject = re.sub(' *\[ *(regression|patch) *\] *', '', msg['subject'], flags=re.IGNORECASE)
-    return subject
+    return msg['subject']
+
+
+def email_get_cleansubject(msg):
+    return re.sub(' *\[ *(regression|patch) *\] *', '', email_get_subject(msg), flags=re.IGNORECASE)
+
 
 
 def email_process_tagmatches(matches):
