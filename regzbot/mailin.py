@@ -82,7 +82,7 @@ def process_tag(repsrc, tag, msg):
     if not regressionb:
         if tagcmd == "introduced":
             regressionb = regzbot.RegressionBasic.introduced_create(
-                repsrc.repsrcid, msgid, subject, tagload)
+                repsrc.repsrcid, msgid, subject, tagload, gmtime)
         elif tagcmd == "^introduced" or tagcmd == "^^introduced":
             parent_msgid = email_get_msgid_parent(msg)
 
@@ -110,7 +110,7 @@ def process_tag(repsrc, tag, msg):
                 parent_subject = email_get_subject(parent_msg)
 
             regressionb = regzbot.RegressionBasic.introduced_create(
-                parent_repsrc.repsrcid, parent_msgid, parent_subject, tagload)
+                parent_repsrc.repsrcid, parent_msgid, parent_subject, tagload, parent_gmtime)
             # we need to add the entries for the parent manually
             actimon = regzbot.RegActivityMonitor.get_by_regid_n_entry(regressionb.regid, parent_msgid)
             regzbot.RegressionBasic.activity_event_monitored(
@@ -164,7 +164,6 @@ def process_tag(repsrc, tag, msg):
             regzbot.UnhandledEvent.add(
                 urltoreport, "unkown regzbot command: %s" % tagcmd, gmtime=gmtime, subject=subject)
             return
-
 
 
 def email_get_gmtime(msg):
@@ -285,10 +284,10 @@ def process_msg(repsrc, msg):
 
     # record this activity, if this thread is tracked
     def add_actimon(reference, msgid, gmtime, subject):
-        for actimon in regzbot.RegActivityMonitor.getall_by_entry(reference):
-            if not regzbot.RegActivityEvent.present(actimon, msgid):
+        for actimonid in regzbot.RegActivityEvent.get_actimonid_by_entry(reference):
+            if actimonid and not regzbot.RegActivityEvent.present(actimonid, msgid):
                 regzbot.RegressionBasic.activity_event_monitored(
-                    repsrc.repsrcid, gmtime, msgid, subject, actimon)
+                    repsrc.repsrcid, gmtime, msgid, subject, regzbot.RegActivityMonitor.get(actimonid))
     add_actimon(msgid, msgid, gmtime, subject)
     if msg['References'] is not None:
         for reference in msg['References'].split(" "):

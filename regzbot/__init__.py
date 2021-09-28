@@ -511,11 +511,13 @@ class RegActivityMonitor():
         dbresult = dbcursor.execute(
             'SELECT actimonid FROM actmonitor WHERE regid=(?) AND repsrcid=(?) AND entry=(?)', (regid, repsrcid, entry)).fetchone()
         if dbresult is not None:
+            actimonid = dbresult[0]
             dbcursor.execute('''DELETE FROM actmonitor
                              WHERE regid=(?) AND repsrcid=(?) AND entry=(?)''',
                              (regid, repsrcid, entry))
             logger.debug('[db actmonitor] deleted (actimonid:%s, regid:%s, repsrcid:%s, entry:%s; %s)' % (
-                dbcursor.lastrowid, regid, repsrcid, entry, dbcursor.lastrowid))
+                actimonid, regid, repsrcid, entry, dbcursor.lastrowid))
+            RegActivityEvent.remove(actimonid=actimonid)
             return True
         return False
 
@@ -643,15 +645,37 @@ class RegActivityEvent():
                 yield RegActivityEvent(*dbresult)
 
     @staticmethod
-    def present(actimon, entry):
+    def get_actimonid_by_entry(entry):
+        dbcursor = DBCON.cursor()
+        for dbresult in dbcursor.execute('SELECT actimonid FROM regactivity WHERE entry=(?) ORDER BY gmtime', (entry, )):
+            yield dbresult[0]
+
+
+    @staticmethod
+    def present(actimonid, entry):
         dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
-            'SELECT * FROM regactivity WHERE actimonid=(?) AND entry=(?)', (actimon.actimonid, entry)).fetchone()
+            'SELECT * FROM regactivity WHERE actimonid=(?) AND entry=(?)', (actimonid, entry)).fetchone()
 
         if dbresult is None:
             return False
         else:
             return True
+
+    @staticmethod
+    def remove(actimonid=None):
+        dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute(
+            'SELECT * FROM regactivity WHERE actimonid=(?)', (actimonid, )).fetchone()
+        print(dbresult)
+        if dbresult is not None:
+            dbcursor.execute('''DELETE FROM regactivity
+                             WHERE actimonid=(?)''',
+                             (actimonid, ))
+            logger.debug('[db regactivity] deleted all lines where actimonid=%s)', actimonid)
+            RegActivityEvent.remove(actimonid=dbcursor.lastrowid)
+            return True
+        return False
 
     def url(self):
         if self.repsrcid is None:
@@ -1009,7 +1033,7 @@ class RegressionBasic():
             regid, regression.subject, subject, ReportSource.url_by_id(repsrcid, entry)))
 
     @staticmethod
-    def introduced_create(repsrcid, entry, subject, introduced):
+    def introduced_create(repsrcid, entry, subject, introduced, gmtime):
         # remove everything after the first space, in case someone wrote something like this:
         # regzbot introduced cf68fffb66d6 ("add support for Clang CFI")
         introduced = introduced.split()[0]
@@ -1029,7 +1053,10 @@ class RegressionBasic():
                             VALUES (?, ?, ?, ?, ?)''',
                          (repsrcid, entry, subject, introduced, gitbranchid))
         # create entry for monitoring
-        RegActivityMonitor.add(dbcursor.lastrowid, repsrcid, entry)
+        actimonid = RegActivityMonitor.add(dbcursor.lastrowid, repsrcid, entry)
+        RegActivityEvent.event(
+            gmtime, entry, subject, repsrcid=repsrcid, actimonid=actimonid)
+
 
         logger.debug('[db regressions] inserted (regid:%s; subject:"%s" repsrcid:%s; entry:%s; introduced:%s; gitbranchid:%s)',
                      dbcursor.lastrowid, subject, repsrcid, entry, introduced, gitbranchid)
