@@ -2295,8 +2295,6 @@ def basicressources_repsrces_setup():
         ReportSource.add('regressions', 2,
                          'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
                          'lore', 'https://lore.kernel.org/regressions/', identifiers='regressions@lists.linux.dev')
-        # two lists are enough for testing
-        return
     else:
         ReportSource.add('regressions', 2,
                          'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
