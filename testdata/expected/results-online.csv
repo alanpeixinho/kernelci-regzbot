@@ -1,5 +1,5 @@
 [onlntest_0_0]
-REGRESSION: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 8a0c014cd205 (v5.12-rc1-dontuse), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=8a0c014cd20516ade9654fc13b51345ec58e7be8, 1628408566, mainline, master, resolved
+REGRESSION: Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 8a0c014cd205 (v5.12-rc1-dontuse), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=8a0c014cd20516ade9654fc13b51345ec58e7be8, 1628408566, mainline, master, resolved
 LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net [monitored:True]
 LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com [monitored:True]
 LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com [monitored:True]
@@ -13,15 +13,15 @@ ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/1c
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/751150dd-251f-bc68-0cd0-4a10b70ab79a@linux.com, 1627317256
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/ffb8ca1c-ac8c-95c4-c05a-1269c4831b0a@linux.com, 1627622101
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/9d46f063-8d8d-95ee-e262-9300f54d527c@garloff.de, 1627816483
-ACTIVITY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/nycvar.YFH.7.76.2108160914070.8253@cbobk.fhfr.pm, 1629098250
+ACTIVITY: Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
+ACTIVITY: Re:Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/nycvar.YFH.7.76.2108160914070.8253@cbobk.fhfr.pm, 1629098250
 ACTIVITY: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com, 1629301601
 ACTIVITY: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/20210818154646.925351-2-efremov@linux.com, 1629301602
 ACTIVITY: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/20210818154646.925351-3-efremov@linux.com, 1629301603
 ACTIVITY: [RFC PATCH 3/5] selftests: floppy: add basic tests for opening an empty device, https://lore.kernel.org/lkml/20210818154646.925351-4-efremov@linux.com, 1629301604
 ACTIVITY: [RFC PATCH 4/5] selftests: floppy: add basic tests for a readonly disk, https://lore.kernel.org/lkml/20210818154646.925351-5-efremov@linux.com, 1629301605
 ACTIVITY: [RFC PATCH 5/5] selftests: floppy: add basic rdwr tests, https://lore.kernel.org/lkml/20210818154646.925351-6-efremov@linux.com, 1629301606
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/5ca95b90-c6e0-99b3-b129-75dc05cfb1d4@linux.com, 1629302038
+ACTIVITY: Re:Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/5ca95b90-c6e0-99b3-b129-75dc05cfb1d4@linux.com, 1629302038
 ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/cc5801790fea258e20fa6b7e26de7806ae8e0dda.camel@perches.com, 1629302434
 ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/3d347d4b-1576-754f-8633-ba6084cc0661@linux.com, 1629303679
 ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/71535d629266751273c15cc05dd7c987cb9c43b6.camel@perches.com, 1629318076
@@ -38,12 +38,12 @@ ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, ht
 ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/17ee07ea-d768-0099-cad7-43b5b5c75560@linux.com, 1629531311
 ACTIVITY: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com, 1630231710
 ACTIVITY: Re: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/0d3e8324-18ee-32c4-f666-21971bd8f334@kernel.dk, 1630241547
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
-HISTORY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566, report: automatically added due to later ^introduced
-HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, ^introduced: 8a0c014cd20516ade9654fc13b51345ec58e7be8
-HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352, monitor: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
-HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, monitor: https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com/
-HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, monitor: https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com/
-LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
+ACTIVITY: Re:Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204
+ACTIVITY: Re:Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
+HISTORY: Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566, report: automatically added due to later ^introduced
+HISTORY: Re:Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, ^introduced: 8a0c014cd20516ade9654fc13b51345ec58e7be8
+HISTORY: Re:Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352, monitor: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
+HISTORY: Re:Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, monitor: https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com/
+HISTORY: Re:Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, monitor: https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com/
+LATEST: Re:Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
 
