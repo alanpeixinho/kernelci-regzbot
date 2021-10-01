@@ -557,7 +557,6 @@ def offltest_0_8(funcname):
     return True, False, False
 
 
-# disabled, unfinished for now
 def offltest_0_9(funcname):
     logger.info(
         '%s: send a mail which serves as report for a regression created by a reply later using ^^introduced' % funcname)
@@ -577,6 +576,17 @@ def offltest_0_9(funcname):
         replyto="%s_1" % funcname, references=("%s_0" % funcname, ))
     return True, False, False
 
+
+def offltest_0_10(funcname):
+    replyto = 'test_0_9_0'
+    logger.info(
+        "%s: send a mail with a regzbot command, but is not added as an activity due to #regzbot ignore-activitiy" % funcname)
+
+    subcounter = 0
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb title: updated title, set by %s_%s\n\n#regzb ignore-activitiy"
+        % (funcname, subcounter),  replyto=replyto)
+    return True, False, False
 
 # create a mainline regression
 def offltest_1_0(funcname):

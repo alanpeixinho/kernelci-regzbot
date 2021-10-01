@@ -63,7 +63,10 @@ def process_tag(repsrc, tag, msg):
     # split #regzbot (which gets ignored), tagcmd and it payload
     tag = tag.split(' ', 2)
     tagcmd = tag[1].lower()
-    tagload = tag[2]
+    if len(tag) > 2:
+       tagload = tag[2]
+    else:
+       tagload = ''
 
     # tagcmds work with and without colon at the end
     if tagcmd[-1] == ':':
@@ -257,6 +260,7 @@ def process_msg(repsrc, msg):
     msgid = email_get_msgid(msg)
     subject = email_get_subject(msg)
     gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(msg['Date']))
+    ignoreactivity = False
 
     logger.info("processing mail(%s): subject:'%s'; from:%s'; :",
                 msgid, msg['Subject'], msg['From'])
@@ -286,10 +290,16 @@ def process_msg(repsrc, msg):
             matches.append('#regzbot ' + match.group(2))
         if len(matches) > 0:
             for match in email_process_tagmatches(matches):
-                process_tag(repsrc, match, msg)
+                if 'ignore-activitiy' in match or \
+                       'ignoreact' in match:
+                     ignoreactivity = True
+                else:
+                     process_tag(repsrc, match, msg)
 
     # record this activity, if this thread is tracked
     def add_actimon(reference, msgid, gmtime, subject):
+        if ignoreactivity:
+            return
         for actimonid in regzbot.RegActivityEvent.get_actimonid_by_entry(reference):
             if actimonid and not regzbot.RegActivityEvent.present(actimonid, msgid):
                 regzbot.RegressionBasic.activity_event_monitored(
