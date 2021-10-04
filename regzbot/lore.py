@@ -76,7 +76,7 @@ def run():
         repsrc.set_lastchked(group_lastid)
 
 
-def download_thread(msgid):
+def download_thread_old(msgid, repsrcid = None):
     with tempfile.NamedTemporaryFile() as tmpfile:
         try:
             url = 'https://lore.kernel.org/all/%s/t.mbox.gz' % msgid
@@ -90,17 +90,48 @@ def download_thread(msgid):
             print('Failed to download thread %s: %s"', msgid, err)
 
 
-def download_msg(msgid):
-    try:
-        url = 'https://lore.kernel.org/all/%s/raw' % msgid
-        logger.debug("Downloading %s", url)
-        with urllib.request.urlopen(url) as response:
-            msg = email.message_from_string(response.read().decode('utf-8'), policy=policy.default)
-    except urllib.error.HTTPError as err:
-        logger.critical('Failed to download msg %s: %s"', msgid, err)
-        return None, None
+def download_thread(msgid, repsrcid = None):
+    def download_extract(url, file):
+            try:
+                logger.debug("Downloading %s", url)
+                with urllib.request.urlopen(url) as response:
+                    with gzip.open(response) as uncompressed:
+                        shutil.copyfileobj(uncompressed, tmpfile)
+                return True
+            except urllib.error.HTTPError as err:
+                logger.critical('Failed to download thread from %s: %s', url, err)
+                return False
 
-    repsrc = regzbot.mailin.adjust_repsrc(None, msg)
+    with tempfile.NamedTemporaryFile() as tmpfile:
+        downloaded = download_extract('https://lore.kernel.org/all/%s/t.mbox.gz' % msgid, tmpfile)
+        if not downloaded and repsrcid:
+            # work around https://twitter.com/kernellogger/status/1443863850722410496
+            repsrc = regzbot.ReportSource.get_by_id(repsrcid)
+            download_extract('%s/%s/t.mbox.gz' % (repsrc.weburl.rstrip('/'), msgid), tmpfile)
+
+        for message in mailbox.mbox(tmpfile.name):
+            yield email.message_from_bytes(message.as_bytes(), policy=policy.default)
+
+
+def download_msg(msgid, repsrcid):
+    def download_this(url):
+        try:
+            logger.debug("Downloading %s", url)
+            with urllib.request.urlopen(url) as response:
+                msg = email.message_from_string(response.read().decode('utf-8'), policy=policy.default)
+                return msg
+        except urllib.error.HTTPError as err:
+            logger.critical('Failed to download msg %s: %s"', msgid, err)
+            return None
+
+    repsrc = None
+    msg = download_this('https://lore.kernel.org/all/%s/raw' % msgid)
+    if not msg and repsrcid:
+        # work around https://twitter.com/kernellogger/status/1443863850722410496
+        repsrc = regzbot.ReportSource.get_by_id(repsrcid)
+        msg = download_this('%s/%s/raw' % (repsrc.weburl.rstrip('/'), msgid))
+
+    repsrc = regzbot.mailin.adjust_repsrc(repsrc, msg)
     return repsrc, msg
 
 

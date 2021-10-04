@@ -2503,17 +2503,17 @@ def run():
     db_close()
 
 
-def download_msg(msgid):
-    return lore.download_msg(msgid)
+def download_msg(msgid, repsrcid=None):
+    return lore.download_msg(msgid, repsrcid)
 
 
-def process_msg(msgid):
-    repsrc, msg = download_msg(msgid)
+def process_msg(msgid, repsrcid=None):
+    repsrc, msg = download_msg(msgid, repsrcid)
     return mailin.process_msg(repsrc, msg)
 
 
-def process_thread(msgid):
-    for msg in lore.download_thread(msgid):
+def process_thread(msgid, repsrcid=None):
+    for msg in lore.download_thread(msgid, repsrcid):
         repsrc = mailin.adjust_repsrc(None, msg)
         mailin.process_msg(repsrc, msg)
 

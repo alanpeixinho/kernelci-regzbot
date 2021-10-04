@@ -109,7 +109,7 @@ def process_tag(repsrc, tag, msg):
                 if tagcmd == "^^introduced":
                     parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid)
                     parent_msgid = email_get_msgid_parent(parent_msg)
-                parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid)
+                parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid, repsrc.repsrcid)
                 parent_gmtime = email_get_gmtime(parent_msg)
                 parent_subject = email_get_subject(parent_msg)
                 parent_cleansubject = email_get_cleansubject(parent_msg)
@@ -136,7 +136,7 @@ def process_tag(repsrc, tag, msg):
         # we might need to recheck the thread, as it can contain msgs we have seen earlier and ignored earlier
         if tagcmd == "^introduced" or tagcmd == "^^introduced":
              if not regzbot.is_running_citesting('offline'):
-                 regzbot.process_thread(parent_msgid)
+                 regzbot.process_thread(parent_msgid, repsrc.repsrcid)
     else:
         # create entry in the reghistory before processing the tag, otherwise loops will happen
         # if a monitor commands points to a mail higher up in the same thread
