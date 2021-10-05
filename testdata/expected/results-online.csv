@@ -4,49 +4,49 @@ LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-3
 LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com [monitored:True]
 LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com [monitored:True]
 SOLVED: fixed, 1630375306, v5.15-rc1, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=c7e9d0020361f4308a70cdfd6d5335e273eb8717, Revert "floppy: reintroduce O_NDELAY fix"
-ACTIVITY: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net, 1627066070
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/e49603c2-ac36-12b0-57cf-ff5ab30115bc@linux.com, 1627286265
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/2f4037b6-7ab3-9592-aaf0-dfcda19d61bc@cfl.rr.com, 1627298131
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/f5501a7c-4387-259d-66d2-f10db0cf36ff@cfl.rr.com, 1627298254
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/f1277dcb-6bf8-b149-ad4e-68a4109d4e67@linux.com, 1627299429
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/1cf8e751-db77-441e-53b4-d6e979bbe046@compro.net, 1627302228
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/751150dd-251f-bc68-0cd0-4a10b70ab79a@linux.com, 1627317256
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/ffb8ca1c-ac8c-95c4-c05a-1269c4831b0a@linux.com, 1627622101
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/9d46f063-8d8d-95ee-e262-9300f54d527c@garloff.de, 1627816483
-ACTIVITY: Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
-ACTIVITY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/nycvar.YFH.7.76.2108160914070.8253@cbobk.fhfr.pm, 1629098250
-ACTIVITY: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com, 1629301601
-ACTIVITY: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/20210818154646.925351-2-efremov@linux.com, 1629301602
-ACTIVITY: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/20210818154646.925351-3-efremov@linux.com, 1629301603
-ACTIVITY: [RFC PATCH 3/5] selftests: floppy: add basic tests for opening an empty device, https://lore.kernel.org/lkml/20210818154646.925351-4-efremov@linux.com, 1629301604
-ACTIVITY: [RFC PATCH 4/5] selftests: floppy: add basic tests for a readonly disk, https://lore.kernel.org/lkml/20210818154646.925351-5-efremov@linux.com, 1629301605
-ACTIVITY: [RFC PATCH 5/5] selftests: floppy: add basic rdwr tests, https://lore.kernel.org/lkml/20210818154646.925351-6-efremov@linux.com, 1629301606
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/5ca95b90-c6e0-99b3-b129-75dc05cfb1d4@linux.com, 1629302038
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/cc5801790fea258e20fa6b7e26de7806ae8e0dda.camel@perches.com, 1629302434
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/3d347d4b-1576-754f-8633-ba6084cc0661@linux.com, 1629303679
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/71535d629266751273c15cc05dd7c987cb9c43b6.camel@perches.com, 1629318076
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/20210818133551.3287f097f4c70742ab6b762f@linux-foundation.org, 1629318951
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/23c8ebaa0921d5597df9fc1d6cbbcc4f354f80c5.camel@perches.com, 1629321743
-ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/CAK7LNASTa+_d17wF6NW6GHC7Y+_RrXYZuo0MzzbsNnaRn8KJuQ@mail.gmail.com, 1629332663
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/c31b2007-26a9-34e0-8c9a-8e11a00ce69f@linux.com, 1629402749
-ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/e90603ee-61e0-4530-34dc-087e40c94aa1@linux.com, 1629406303
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/8db9a7d938b2b1a1bdbd0224246e047c83581334.camel@perches.com, 1629409457
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/ac2587d3d4b7ce87e8922380e36d7864bfb54262.camel@perches.com, 1629411435
-ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/CAK7LNARKDO1-g7At8q+ivCHm2aDNGupHWoqAt3NRwNTShggeFQ@mail.gmail.com, 1629425997
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/7eda27d1-9e9f-dfd6-3a54-6c592a797ea5@linux.com, 1629528431
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/4bf2c7360206025731928fa1c8ad95faa9e65ab8.camel@perches.com, 1629529958
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/17ee07ea-d768-0099-cad7-43b5b5c75560@linux.com, 1629531311
-ACTIVITY: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com, 1630231710
-ACTIVITY: Re: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/0d3e8324-18ee-32c4-f666-21971bd8f334@kernel.dk, 1630241547
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
+ACTIVITY: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net, 1627066070
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/e49603c2-ac36-12b0-57cf-ff5ab30115bc@linux.com, 1627286265
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/2f4037b6-7ab3-9592-aaf0-dfcda19d61bc@cfl.rr.com, 1627298131
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/f5501a7c-4387-259d-66d2-f10db0cf36ff@cfl.rr.com, 1627298254
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/f1277dcb-6bf8-b149-ad4e-68a4109d4e67@linux.com, 1627299429
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/1cf8e751-db77-441e-53b4-d6e979bbe046@compro.net, 1627302228
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/751150dd-251f-bc68-0cd0-4a10b70ab79a@linux.com, 1627317256
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/ffb8ca1c-ac8c-95c4-c05a-1269c4831b0a@linux.com, 1627622101
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Kurt Garloff, https://lore.kernel.org/lkml/9d46f063-8d8d-95ee-e262-9300f54d527c@garloff.de, 1627816483
+ACTIVITY: Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
+ACTIVITY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
+ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Jiri Kosina, https://lore.kernel.org/lkml/nycvar.YFH.7.76.2108160914070.8253@cbobk.fhfr.pm, 1629098250
+ACTIVITY: [RFC PATCH 0/5] selftests: floppy: basic tests, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com, 1629301601
+ACTIVITY: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-2-efremov@linux.com, 1629301602
+ACTIVITY: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-3-efremov@linux.com, 1629301603
+ACTIVITY: [RFC PATCH 3/5] selftests: floppy: add basic tests for opening an empty device, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-4-efremov@linux.com, 1629301604
+ACTIVITY: [RFC PATCH 4/5] selftests: floppy: add basic tests for a readonly disk, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-5-efremov@linux.com, 1629301605
+ACTIVITY: [RFC PATCH 5/5] selftests: floppy: add basic rdwr tests, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-6-efremov@linux.com, 1629301606
+ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/5ca95b90-c6e0-99b3-b129-75dc05cfb1d4@linux.com, 1629302038
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/cc5801790fea258e20fa6b7e26de7806ae8e0dda.camel@perches.com, 1629302434
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/3d347d4b-1576-754f-8633-ba6084cc0661@linux.com, 1629303679
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/71535d629266751273c15cc05dd7c987cb9c43b6.camel@perches.com, 1629318076
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Andrew Morton, https://lore.kernel.org/lkml/20210818133551.3287f097f4c70742ab6b762f@linux-foundation.org, 1629318951
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/23c8ebaa0921d5597df9fc1d6cbbcc4f354f80c5.camel@perches.com, 1629321743
+ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, Masahiro Yamada, https://lore.kernel.org/lkml/CAK7LNASTa+_d17wF6NW6GHC7Y+_RrXYZuo0MzzbsNnaRn8KJuQ@mail.gmail.com, 1629332663
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/c31b2007-26a9-34e0-8c9a-8e11a00ce69f@linux.com, 1629402749
+ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, Denis Efremov, https://lore.kernel.org/lkml/e90603ee-61e0-4530-34dc-087e40c94aa1@linux.com, 1629406303
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/8db9a7d938b2b1a1bdbd0224246e047c83581334.camel@perches.com, 1629409457
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/ac2587d3d4b7ce87e8922380e36d7864bfb54262.camel@perches.com, 1629411435
+ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, Masahiro Yamada, https://lore.kernel.org/lkml/CAK7LNARKDO1-g7At8q+ivCHm2aDNGupHWoqAt3NRwNTShggeFQ@mail.gmail.com, 1629425997
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/7eda27d1-9e9f-dfd6-3a54-6c592a797ea5@linux.com, 1629528431
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/4bf2c7360206025731928fa1c8ad95faa9e65ab8.camel@perches.com, 1629529958
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/17ee07ea-d768-0099-cad7-43b5b5c75560@linux.com, 1629531311
+ACTIVITY: [GIT PULL] Floppy patch for 5.15, Denis Efremov, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com, 1630231710
+ACTIVITY: Re: [GIT PULL] Floppy patch for 5.15, Jens Axboe, https://lore.kernel.org/lkml/0d3e8324-18ee-32c4-f666-21971bd8f334@kernel.dk, 1630241547
+ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204
+ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
 HISTORY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566, report: automatically added due to later ^introduced
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, ^introduced: 8a0c014cd20516ade9654fc13b51345ec58e7be8
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352, monitor: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, monitor: https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com/
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, monitor: https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com/
-LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
+LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
 
 [onlntest_0_1]
 REGRESSION: Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 8a0c014cd205 (v5.12-rc1-dontuse), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=8a0c014cd20516ade9654fc13b51345ec58e7be8, 1628408566, mainline, master, resolved
@@ -54,70 +54,70 @@ LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-3
 LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com [monitored:True]
 LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com [monitored:True]
 SOLVED: fixed, 1630375306, v5.15-rc1, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=c7e9d0020361f4308a70cdfd6d5335e273eb8717, Revert "floppy: reintroduce O_NDELAY fix"
-ACTIVITY: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net, 1627066070
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/e49603c2-ac36-12b0-57cf-ff5ab30115bc@linux.com, 1627286265
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/2f4037b6-7ab3-9592-aaf0-dfcda19d61bc@cfl.rr.com, 1627298131
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/f5501a7c-4387-259d-66d2-f10db0cf36ff@cfl.rr.com, 1627298254
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/f1277dcb-6bf8-b149-ad4e-68a4109d4e67@linux.com, 1627299429
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/1cf8e751-db77-441e-53b4-d6e979bbe046@compro.net, 1627302228
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/751150dd-251f-bc68-0cd0-4a10b70ab79a@linux.com, 1627317256
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/ffb8ca1c-ac8c-95c4-c05a-1269c4831b0a@linux.com, 1627622101
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/9d46f063-8d8d-95ee-e262-9300f54d527c@garloff.de, 1627816483
-ACTIVITY: Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
-ACTIVITY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/nycvar.YFH.7.76.2108160914070.8253@cbobk.fhfr.pm, 1629098250
-ACTIVITY: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com, 1629301601
-ACTIVITY: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/20210818154646.925351-2-efremov@linux.com, 1629301602
-ACTIVITY: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/20210818154646.925351-3-efremov@linux.com, 1629301603
-ACTIVITY: [RFC PATCH 3/5] selftests: floppy: add basic tests for opening an empty device, https://lore.kernel.org/lkml/20210818154646.925351-4-efremov@linux.com, 1629301604
-ACTIVITY: [RFC PATCH 4/5] selftests: floppy: add basic tests for a readonly disk, https://lore.kernel.org/lkml/20210818154646.925351-5-efremov@linux.com, 1629301605
-ACTIVITY: [RFC PATCH 5/5] selftests: floppy: add basic rdwr tests, https://lore.kernel.org/lkml/20210818154646.925351-6-efremov@linux.com, 1629301606
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/5ca95b90-c6e0-99b3-b129-75dc05cfb1d4@linux.com, 1629302038
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/cc5801790fea258e20fa6b7e26de7806ae8e0dda.camel@perches.com, 1629302434
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/3d347d4b-1576-754f-8633-ba6084cc0661@linux.com, 1629303679
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/71535d629266751273c15cc05dd7c987cb9c43b6.camel@perches.com, 1629318076
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/20210818133551.3287f097f4c70742ab6b762f@linux-foundation.org, 1629318951
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/23c8ebaa0921d5597df9fc1d6cbbcc4f354f80c5.camel@perches.com, 1629321743
-ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/CAK7LNASTa+_d17wF6NW6GHC7Y+_RrXYZuo0MzzbsNnaRn8KJuQ@mail.gmail.com, 1629332663
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/c31b2007-26a9-34e0-8c9a-8e11a00ce69f@linux.com, 1629402749
-ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/e90603ee-61e0-4530-34dc-087e40c94aa1@linux.com, 1629406303
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/8db9a7d938b2b1a1bdbd0224246e047c83581334.camel@perches.com, 1629409457
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/ac2587d3d4b7ce87e8922380e36d7864bfb54262.camel@perches.com, 1629411435
-ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/CAK7LNARKDO1-g7At8q+ivCHm2aDNGupHWoqAt3NRwNTShggeFQ@mail.gmail.com, 1629425997
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/7eda27d1-9e9f-dfd6-3a54-6c592a797ea5@linux.com, 1629528431
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/4bf2c7360206025731928fa1c8ad95faa9e65ab8.camel@perches.com, 1629529958
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/17ee07ea-d768-0099-cad7-43b5b5c75560@linux.com, 1629531311
-ACTIVITY: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com, 1630231710
-ACTIVITY: Re: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/0d3e8324-18ee-32c4-f666-21971bd8f334@kernel.dk, 1630241547
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
+ACTIVITY: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net, 1627066070
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/e49603c2-ac36-12b0-57cf-ff5ab30115bc@linux.com, 1627286265
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/2f4037b6-7ab3-9592-aaf0-dfcda19d61bc@cfl.rr.com, 1627298131
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/f5501a7c-4387-259d-66d2-f10db0cf36ff@cfl.rr.com, 1627298254
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/f1277dcb-6bf8-b149-ad4e-68a4109d4e67@linux.com, 1627299429
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/1cf8e751-db77-441e-53b4-d6e979bbe046@compro.net, 1627302228
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/751150dd-251f-bc68-0cd0-4a10b70ab79a@linux.com, 1627317256
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/ffb8ca1c-ac8c-95c4-c05a-1269c4831b0a@linux.com, 1627622101
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Kurt Garloff, https://lore.kernel.org/lkml/9d46f063-8d8d-95ee-e262-9300f54d527c@garloff.de, 1627816483
+ACTIVITY: Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
+ACTIVITY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
+ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Jiri Kosina, https://lore.kernel.org/lkml/nycvar.YFH.7.76.2108160914070.8253@cbobk.fhfr.pm, 1629098250
+ACTIVITY: [RFC PATCH 0/5] selftests: floppy: basic tests, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com, 1629301601
+ACTIVITY: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-2-efremov@linux.com, 1629301602
+ACTIVITY: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-3-efremov@linux.com, 1629301603
+ACTIVITY: [RFC PATCH 3/5] selftests: floppy: add basic tests for opening an empty device, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-4-efremov@linux.com, 1629301604
+ACTIVITY: [RFC PATCH 4/5] selftests: floppy: add basic tests for a readonly disk, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-5-efremov@linux.com, 1629301605
+ACTIVITY: [RFC PATCH 5/5] selftests: floppy: add basic rdwr tests, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-6-efremov@linux.com, 1629301606
+ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/5ca95b90-c6e0-99b3-b129-75dc05cfb1d4@linux.com, 1629302038
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/cc5801790fea258e20fa6b7e26de7806ae8e0dda.camel@perches.com, 1629302434
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/3d347d4b-1576-754f-8633-ba6084cc0661@linux.com, 1629303679
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/71535d629266751273c15cc05dd7c987cb9c43b6.camel@perches.com, 1629318076
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Andrew Morton, https://lore.kernel.org/lkml/20210818133551.3287f097f4c70742ab6b762f@linux-foundation.org, 1629318951
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/23c8ebaa0921d5597df9fc1d6cbbcc4f354f80c5.camel@perches.com, 1629321743
+ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, Masahiro Yamada, https://lore.kernel.org/lkml/CAK7LNASTa+_d17wF6NW6GHC7Y+_RrXYZuo0MzzbsNnaRn8KJuQ@mail.gmail.com, 1629332663
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/c31b2007-26a9-34e0-8c9a-8e11a00ce69f@linux.com, 1629402749
+ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, Denis Efremov, https://lore.kernel.org/lkml/e90603ee-61e0-4530-34dc-087e40c94aa1@linux.com, 1629406303
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/8db9a7d938b2b1a1bdbd0224246e047c83581334.camel@perches.com, 1629409457
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/ac2587d3d4b7ce87e8922380e36d7864bfb54262.camel@perches.com, 1629411435
+ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, Masahiro Yamada, https://lore.kernel.org/lkml/CAK7LNARKDO1-g7At8q+ivCHm2aDNGupHWoqAt3NRwNTShggeFQ@mail.gmail.com, 1629425997
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/7eda27d1-9e9f-dfd6-3a54-6c592a797ea5@linux.com, 1629528431
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/4bf2c7360206025731928fa1c8ad95faa9e65ab8.camel@perches.com, 1629529958
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/17ee07ea-d768-0099-cad7-43b5b5c75560@linux.com, 1629531311
+ACTIVITY: [GIT PULL] Floppy patch for 5.15, Denis Efremov, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com, 1630231710
+ACTIVITY: Re: [GIT PULL] Floppy patch for 5.15, Jens Axboe, https://lore.kernel.org/lkml/0d3e8324-18ee-32c4-f666-21971bd8f334@kernel.dk, 1630241547
+ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204
+ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
 HISTORY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566, report: automatically added due to later ^introduced
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, ^introduced: 8a0c014cd20516ade9654fc13b51345ec58e7be8
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352, monitor: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, monitor: https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com/
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, monitor: https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com/
-LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
+LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
 REGRESSION: mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 020d3b26c07a (v5.13-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=020d3b26c07abe274ac17f64999bbd3bf3342195, 1631779209, mainline, master, identified
-ACTIVITY: mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209
-ACTIVITY: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/CAMZdPi8UJLvBFQd8-nf-iHAQh8cEuihq97PUFfZ7Q=rxRQoPsg@mail.gmail.com, 1631787490
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210916111218.GA12918@thinkpad, 1631790738
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210916163529.GA9027@thinkpad, 1631810129
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/87k0jgxyjp.fsf@codeaurora.org, 1631810522
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210916171927.GB9027@thinkpad, 1631812767
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/b7c0906041dcafb43be215bd4f55326a@codeaurora.org, 1632386083
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210923085926.GD6083@thinkpad, 1632387566
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/6912b6840858c0554922c01a0f9c47b8@codeaurora.org, 1632389216
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/CAMZdPi-3WOj_TT7diUJJ00RaoHgKw-tu-heQJu6vDUK1yZ4CZg@mail.gmail.com, 1632394208
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/877df6tlnq.fsf@codeaurora.org, 1632472601
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/8735putk82.fsf@codeaurora.org, 1632474461
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/CAMZdPi8P7YZPhPir+WfS3cY_a7He1m2Pq2uqBhczPdEeoNRb0Q@mail.gmail.com, 1632476635
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210924095755.GB19050@workstation, 1632477475
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210924100034.GC19050@workstation, 1632477634
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631
+ACTIVITY: mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209
+ACTIVITY: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Loic Poulain, https://lore.kernel.org/regressions/CAMZdPi8UJLvBFQd8-nf-iHAQh8cEuihq97PUFfZ7Q=rxRQoPsg@mail.gmail.com, 1631787490
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210916111218.GA12918@thinkpad, 1631790738
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210916163529.GA9027@thinkpad, 1631810129
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/87k0jgxyjp.fsf@codeaurora.org, 1631810522
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210916171927.GB9027@thinkpad, 1631812767
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Carl Huang, https://lore.kernel.org/regressions/b7c0906041dcafb43be215bd4f55326a@codeaurora.org, 1632386083
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210923085926.GD6083@thinkpad, 1632387566
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Carl Huang, https://lore.kernel.org/regressions/6912b6840858c0554922c01a0f9c47b8@codeaurora.org, 1632389216
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Loic Poulain, https://lore.kernel.org/regressions/CAMZdPi-3WOj_TT7diUJJ00RaoHgKw-tu-heQJu6vDUK1yZ4CZg@mail.gmail.com, 1632394208
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/877df6tlnq.fsf@codeaurora.org, 1632472601
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/8735putk82.fsf@codeaurora.org, 1632474461
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Loic Poulain, https://lore.kernel.org/regressions/CAMZdPi8P7YZPhPir+WfS3cY_a7He1m2Pq2uqBhczPdEeoNRb0Q@mail.gmail.com, 1632476635
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210924095755.GB19050@workstation, 1632477475
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210924100034.GC19050@workstation, 1632477634
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Thorsten Leemhuis, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631
 HISTORY: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209, report: automatically added due to later ^introduced
 HISTORY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631, ^introduced: 020d3b26c07abe274ac17f64999bbd3bf3342195
-LATEST: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631
+LATEST: Re: [regression] mhi: ath11k resume fails on some devices, Thorsten Leemhuis, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631
 
 [onlntest_0_2]
 REGRESSION: Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 8a0c014cd205 (v5.12-rc1-dontuse), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=8a0c014cd20516ade9654fc13b51345ec58e7be8, 1628408566, mainline, master, resolved
@@ -125,98 +125,112 @@ LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-3
 LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com [monitored:True]
 LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com [monitored:True]
 SOLVED: fixed, 1630375306, v5.15-rc1, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=c7e9d0020361f4308a70cdfd6d5335e273eb8717, Revert "floppy: reintroduce O_NDELAY fix"
-ACTIVITY: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net, 1627066070
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/e49603c2-ac36-12b0-57cf-ff5ab30115bc@linux.com, 1627286265
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/2f4037b6-7ab3-9592-aaf0-dfcda19d61bc@cfl.rr.com, 1627298131
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/f5501a7c-4387-259d-66d2-f10db0cf36ff@cfl.rr.com, 1627298254
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/f1277dcb-6bf8-b149-ad4e-68a4109d4e67@linux.com, 1627299429
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/1cf8e751-db77-441e-53b4-d6e979bbe046@compro.net, 1627302228
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/751150dd-251f-bc68-0cd0-4a10b70ab79a@linux.com, 1627317256
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/ffb8ca1c-ac8c-95c4-c05a-1269c4831b0a@linux.com, 1627622101
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/9d46f063-8d8d-95ee-e262-9300f54d527c@garloff.de, 1627816483
-ACTIVITY: Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
-ACTIVITY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/nycvar.YFH.7.76.2108160914070.8253@cbobk.fhfr.pm, 1629098250
-ACTIVITY: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com, 1629301601
-ACTIVITY: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/20210818154646.925351-2-efremov@linux.com, 1629301602
-ACTIVITY: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/20210818154646.925351-3-efremov@linux.com, 1629301603
-ACTIVITY: [RFC PATCH 3/5] selftests: floppy: add basic tests for opening an empty device, https://lore.kernel.org/lkml/20210818154646.925351-4-efremov@linux.com, 1629301604
-ACTIVITY: [RFC PATCH 4/5] selftests: floppy: add basic tests for a readonly disk, https://lore.kernel.org/lkml/20210818154646.925351-5-efremov@linux.com, 1629301605
-ACTIVITY: [RFC PATCH 5/5] selftests: floppy: add basic rdwr tests, https://lore.kernel.org/lkml/20210818154646.925351-6-efremov@linux.com, 1629301606
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/5ca95b90-c6e0-99b3-b129-75dc05cfb1d4@linux.com, 1629302038
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/cc5801790fea258e20fa6b7e26de7806ae8e0dda.camel@perches.com, 1629302434
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/3d347d4b-1576-754f-8633-ba6084cc0661@linux.com, 1629303679
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/71535d629266751273c15cc05dd7c987cb9c43b6.camel@perches.com, 1629318076
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/20210818133551.3287f097f4c70742ab6b762f@linux-foundation.org, 1629318951
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/23c8ebaa0921d5597df9fc1d6cbbcc4f354f80c5.camel@perches.com, 1629321743
-ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/CAK7LNASTa+_d17wF6NW6GHC7Y+_RrXYZuo0MzzbsNnaRn8KJuQ@mail.gmail.com, 1629332663
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/c31b2007-26a9-34e0-8c9a-8e11a00ce69f@linux.com, 1629402749
-ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/e90603ee-61e0-4530-34dc-087e40c94aa1@linux.com, 1629406303
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/8db9a7d938b2b1a1bdbd0224246e047c83581334.camel@perches.com, 1629409457
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/ac2587d3d4b7ce87e8922380e36d7864bfb54262.camel@perches.com, 1629411435
-ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/CAK7LNARKDO1-g7At8q+ivCHm2aDNGupHWoqAt3NRwNTShggeFQ@mail.gmail.com, 1629425997
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/7eda27d1-9e9f-dfd6-3a54-6c592a797ea5@linux.com, 1629528431
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/4bf2c7360206025731928fa1c8ad95faa9e65ab8.camel@perches.com, 1629529958
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/17ee07ea-d768-0099-cad7-43b5b5c75560@linux.com, 1629531311
-ACTIVITY: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com, 1630231710
-ACTIVITY: Re: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/0d3e8324-18ee-32c4-f666-21971bd8f334@kernel.dk, 1630241547
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
+ACTIVITY: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net, 1627066070
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/e49603c2-ac36-12b0-57cf-ff5ab30115bc@linux.com, 1627286265
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/2f4037b6-7ab3-9592-aaf0-dfcda19d61bc@cfl.rr.com, 1627298131
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/f5501a7c-4387-259d-66d2-f10db0cf36ff@cfl.rr.com, 1627298254
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/f1277dcb-6bf8-b149-ad4e-68a4109d4e67@linux.com, 1627299429
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/1cf8e751-db77-441e-53b4-d6e979bbe046@compro.net, 1627302228
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/751150dd-251f-bc68-0cd0-4a10b70ab79a@linux.com, 1627317256
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/ffb8ca1c-ac8c-95c4-c05a-1269c4831b0a@linux.com, 1627622101
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Kurt Garloff, https://lore.kernel.org/lkml/9d46f063-8d8d-95ee-e262-9300f54d527c@garloff.de, 1627816483
+ACTIVITY: Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
+ACTIVITY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
+ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Jiri Kosina, https://lore.kernel.org/lkml/nycvar.YFH.7.76.2108160914070.8253@cbobk.fhfr.pm, 1629098250
+ACTIVITY: [RFC PATCH 0/5] selftests: floppy: basic tests, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com, 1629301601
+ACTIVITY: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-2-efremov@linux.com, 1629301602
+ACTIVITY: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-3-efremov@linux.com, 1629301603
+ACTIVITY: [RFC PATCH 3/5] selftests: floppy: add basic tests for opening an empty device, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-4-efremov@linux.com, 1629301604
+ACTIVITY: [RFC PATCH 4/5] selftests: floppy: add basic tests for a readonly disk, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-5-efremov@linux.com, 1629301605
+ACTIVITY: [RFC PATCH 5/5] selftests: floppy: add basic rdwr tests, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-6-efremov@linux.com, 1629301606
+ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/5ca95b90-c6e0-99b3-b129-75dc05cfb1d4@linux.com, 1629302038
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/cc5801790fea258e20fa6b7e26de7806ae8e0dda.camel@perches.com, 1629302434
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/3d347d4b-1576-754f-8633-ba6084cc0661@linux.com, 1629303679
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/71535d629266751273c15cc05dd7c987cb9c43b6.camel@perches.com, 1629318076
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Andrew Morton, https://lore.kernel.org/lkml/20210818133551.3287f097f4c70742ab6b762f@linux-foundation.org, 1629318951
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/23c8ebaa0921d5597df9fc1d6cbbcc4f354f80c5.camel@perches.com, 1629321743
+ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, Masahiro Yamada, https://lore.kernel.org/lkml/CAK7LNASTa+_d17wF6NW6GHC7Y+_RrXYZuo0MzzbsNnaRn8KJuQ@mail.gmail.com, 1629332663
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/c31b2007-26a9-34e0-8c9a-8e11a00ce69f@linux.com, 1629402749
+ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, Denis Efremov, https://lore.kernel.org/lkml/e90603ee-61e0-4530-34dc-087e40c94aa1@linux.com, 1629406303
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/8db9a7d938b2b1a1bdbd0224246e047c83581334.camel@perches.com, 1629409457
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/ac2587d3d4b7ce87e8922380e36d7864bfb54262.camel@perches.com, 1629411435
+ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, Masahiro Yamada, https://lore.kernel.org/lkml/CAK7LNARKDO1-g7At8q+ivCHm2aDNGupHWoqAt3NRwNTShggeFQ@mail.gmail.com, 1629425997
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/7eda27d1-9e9f-dfd6-3a54-6c592a797ea5@linux.com, 1629528431
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/4bf2c7360206025731928fa1c8ad95faa9e65ab8.camel@perches.com, 1629529958
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/17ee07ea-d768-0099-cad7-43b5b5c75560@linux.com, 1629531311
+ACTIVITY: [GIT PULL] Floppy patch for 5.15, Denis Efremov, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com, 1630231710
+ACTIVITY: Re: [GIT PULL] Floppy patch for 5.15, Jens Axboe, https://lore.kernel.org/lkml/0d3e8324-18ee-32c4-f666-21971bd8f334@kernel.dk, 1630241547
+ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204
+ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
 HISTORY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566, report: automatically added due to later ^introduced
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, ^introduced: 8a0c014cd20516ade9654fc13b51345ec58e7be8
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352, monitor: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, monitor: https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com/
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, monitor: https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com/
-LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
+LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
 REGRESSION: mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 020d3b26c07a (v5.13-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=020d3b26c07abe274ac17f64999bbd3bf3342195, 1631779209, mainline, master, identified
-ACTIVITY: mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209
-ACTIVITY: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/CAMZdPi8UJLvBFQd8-nf-iHAQh8cEuihq97PUFfZ7Q=rxRQoPsg@mail.gmail.com, 1631787490
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210916111218.GA12918@thinkpad, 1631790738
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210916163529.GA9027@thinkpad, 1631810129
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/87k0jgxyjp.fsf@codeaurora.org, 1631810522
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210916171927.GB9027@thinkpad, 1631812767
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/b7c0906041dcafb43be215bd4f55326a@codeaurora.org, 1632386083
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210923085926.GD6083@thinkpad, 1632387566
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/6912b6840858c0554922c01a0f9c47b8@codeaurora.org, 1632389216
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/CAMZdPi-3WOj_TT7diUJJ00RaoHgKw-tu-heQJu6vDUK1yZ4CZg@mail.gmail.com, 1632394208
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/877df6tlnq.fsf@codeaurora.org, 1632472601
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/8735putk82.fsf@codeaurora.org, 1632474461
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/CAMZdPi8P7YZPhPir+WfS3cY_a7He1m2Pq2uqBhczPdEeoNRb0Q@mail.gmail.com, 1632476635
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210924095755.GB19050@workstation, 1632477475
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210924100034.GC19050@workstation, 1632477634
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631
+ACTIVITY: mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209
+ACTIVITY: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Loic Poulain, https://lore.kernel.org/regressions/CAMZdPi8UJLvBFQd8-nf-iHAQh8cEuihq97PUFfZ7Q=rxRQoPsg@mail.gmail.com, 1631787490
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210916111218.GA12918@thinkpad, 1631790738
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210916163529.GA9027@thinkpad, 1631810129
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/87k0jgxyjp.fsf@codeaurora.org, 1631810522
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210916171927.GB9027@thinkpad, 1631812767
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Carl Huang, https://lore.kernel.org/regressions/b7c0906041dcafb43be215bd4f55326a@codeaurora.org, 1632386083
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210923085926.GD6083@thinkpad, 1632387566
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Carl Huang, https://lore.kernel.org/regressions/6912b6840858c0554922c01a0f9c47b8@codeaurora.org, 1632389216
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Loic Poulain, https://lore.kernel.org/regressions/CAMZdPi-3WOj_TT7diUJJ00RaoHgKw-tu-heQJu6vDUK1yZ4CZg@mail.gmail.com, 1632394208
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/877df6tlnq.fsf@codeaurora.org, 1632472601
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/8735putk82.fsf@codeaurora.org, 1632474461
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Loic Poulain, https://lore.kernel.org/regressions/CAMZdPi8P7YZPhPir+WfS3cY_a7He1m2Pq2uqBhczPdEeoNRb0Q@mail.gmail.com, 1632476635
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210924095755.GB19050@workstation, 1632477475
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210924100034.GC19050@workstation, 1632477634
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Thorsten Leemhuis, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631
 HISTORY: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209, report: automatically added due to later ^introduced
 HISTORY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631, ^introduced: 020d3b26c07abe274ac17f64999bbd3bf3342195
-LATEST: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631
-REGRESSION: nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, e7006de6c238 (v5.15-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e7006de6c23803799be000a5dcce4d916a36541a, 1632575442, mainline, master, curridentified
+LATEST: Re: [regression] mhi: ath11k resume fails on some devices, Thorsten Leemhuis, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631
+REGRESSION: nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, e7006de6c238 (v5.15-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e7006de6c23803799be000a5dcce4d916a36541a, 1632575442, mainline, master, resolved
 LINK: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX+i7OfMA0Vd4FWA@mail.gmail.com [monitored:True]
-ACTIVITY: nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442
-ACTIVITY: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/20210925171618.GA116968@dhcp-10-100-145-180.wdc.com, 1632590178
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX+i7OfMA0Vd4FWA@mail.gmail.com, 1632595628
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/20210925195425.GB116968@dhcp-10-100-145-180.wdc.com, 1632599665
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/4849f3d3-4abd-49b7-b053-d7965daa7138@www.fastmail.com, 1632600533
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/7e75e292-3073-f1f9-287a-badf92c8e4e8@grimberg.me, 1632602071
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/20210925203857.GC116968@dhcp-10-100-145-180.wdc.com, 1632602337
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/08930bdf-6a3a-4d49-b366-8029b88b25b4@www.fastmail.com, 1632602919
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/20210925204842.GD116968@dhcp-10-100-145-180.wdc.com, 1632602922
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/fa9de055-c3b8-20d3-41e0-12e43d0c336a@protonmail.com, 1632613219
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/20210926020839.GA96176@C02WT3WMHTD6, 1632622119
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/1a6f5030-27d9-d1ae-aff4-0ed2a10dce6b@protonmail.com, 1632628408
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/1b5d6bef-db6f-073f-8d24-4963f0df82ab@protonmail.com, 1632630930
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/438d711b-094b-fcfd-79e3-69f03a14df21@leemhuis.info, 1632635948
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/d65ecc69-35c9-4400-8fb0-95aa04360b03@grimberg.me, 1632645843
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/4dae80c3-034c-617b-c766-1858d6ee1220@protonmail.com, 1632645896
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/31c4dc69-5d10-cc6a-4295-e42bbc0993d0@protonmail.com, 1632716525
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/PNZPR01MB4415FE077EAA0C094A8EE6DAB8A79@PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM, 1632717300
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/lkml/PNZPR01MB4415F35759F136E812A8F91DB8A79@PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM, 1632718300
-ACTIVITY:  Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/lkml/d4fb602c-43ab-4b5d-93ad-fa9116462dec@www.fastmail.com, 1632722700
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/lkml/20210927150249.GA148020@dhcp-10-100-145-180.wdc.com, 1632754969
+LINK: [PATCHv2] nvme: add command id quirk for apple controllers, https://lore.kernel.org/lkml/20210927154306.387437-1-kbusch@kernel.org [monitored:True]
+SOLVED: fixed, 1633197636, v5.15-rc4, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=a2941f6aa71a72be2c82c0a168523a492d093530, nvme: add command id quirk for apple controllers
+ACTIVITY: nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442
+ACTIVITY: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Keith Busch, https://lore.kernel.org/regressions/20210925171618.GA116968@dhcp-10-100-145-180.wdc.com, 1632590178
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Linus Torvalds, https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX+i7OfMA0Vd4FWA@mail.gmail.com, 1632595628
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Keith Busch, https://lore.kernel.org/lkml/20210925195425.GB116968@dhcp-10-100-145-180.wdc.com, 1632599665
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Sven Peter, https://lore.kernel.org/lkml/4849f3d3-4abd-49b7-b053-d7965daa7138@www.fastmail.com, 1632600533
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Sagi Grimberg, https://lore.kernel.org/lkml/7e75e292-3073-f1f9-287a-badf92c8e4e8@grimberg.me, 1632602071
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Keith Busch, https://lore.kernel.org/lkml/20210925203857.GC116968@dhcp-10-100-145-180.wdc.com, 1632602337
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Sven Peter, https://lore.kernel.org/lkml/08930bdf-6a3a-4d49-b366-8029b88b25b4@www.fastmail.com, 1632602919
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Keith Busch, https://lore.kernel.org/lkml/20210925204842.GD116968@dhcp-10-100-145-180.wdc.com, 1632602922
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/fa9de055-c3b8-20d3-41e0-12e43d0c336a@protonmail.com, 1632613219
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Keith Busch, https://lore.kernel.org/regressions/20210926020839.GA96176@C02WT3WMHTD6, 1632622119
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/1a6f5030-27d9-d1ae-aff4-0ed2a10dce6b@protonmail.com, 1632628408
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/1b5d6bef-db6f-073f-8d24-4963f0df82ab@protonmail.com, 1632630930
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Thorsten Leemhuis, https://lore.kernel.org/regressions/438d711b-094b-fcfd-79e3-69f03a14df21@leemhuis.info, 1632635948
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Sagi Grimberg, https://lore.kernel.org/regressions/d65ecc69-35c9-4400-8fb0-95aa04360b03@grimberg.me, 1632645843
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Orlando Chamberlain, https://lore.kernel.org/lkml/4dae80c3-034c-617b-c766-1858d6ee1220@protonmail.com, 1632645896
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/31c4dc69-5d10-cc6a-4295-e42bbc0993d0@protonmail.com, 1632716525
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Aditya Garg, https://lore.kernel.org/lkml/PNZPR01MB4415FE077EAA0C094A8EE6DAB8A79@PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM, 1632717300
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Aditya Garg, https://lore.kernel.org/lkml/PNZPR01MB4415F35759F136E812A8F91DB8A79@PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM, 1632718300
+ACTIVITY:  Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Sven Peter, https://lore.kernel.org/lkml/d4fb602c-43ab-4b5d-93ad-fa9116462dec@www.fastmail.com, 1632722700
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Keith Busch, https://lore.kernel.org/lkml/20210927150249.GA148020@dhcp-10-100-145-180.wdc.com, 1632754969
+ACTIVITY: [PATCHv2] nvme: add command id quirk for apple controllers, Keith Busch, https://lore.kernel.org/lkml/20210927154306.387437-1-kbusch@kernel.org, 1632757386
+ACTIVITY: Re: [PATCHv2] nvme: add command id quirk for apple controllers, Christoph Hellwig, https://lore.kernel.org/lkml/20210927154812.GA9730@lst.de, 1632757692
+ACTIVITY: Re: [PATCHv2] nvme: add command id quirk for apple controllers, Sven Peter, https://lore.kernel.org/lkml/df160284-55cb-4642-abc5-65f6aa61b48d@www.fastmail.com, 1632758380
+ACTIVITY: Re: [PATCHv2] nvme: add command id quirk for apple controllers, Jens Axboe, https://lore.kernel.org/lkml/31eb3b40-d3e9-d35e-5a3d-1a2199ef2dc5@kernel.dk, 1632758506
+ACTIVITY: Re: [PATCHv2] nvme: add command id quirk for apple controllers, Orlando Chamberlain, https://lore.kernel.org/lkml/38101793-e0b9-ecf4-d235-465cb8e334b3@protonmail.com, 1632801348
+ACTIVITY: Re: [PATCHv2] nvme: add command id quirk for apple controllers, Aditya Garg, https://lore.kernel.org/lkml/PNZPR01MB441530003CAF17304C0B3329B8A89@PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM, 1632807490
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Thorsten Leemhuis, https://lore.kernel.org/regressions/637b0f3f-ac23-1e32-db7f-c696a04c1c73@leemhuis.info, 1633339041
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Greg KH, https://lore.kernel.org/regressions/YVrI9rb4mnIs6RnF@kroah.com, 1633339638
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Thorsten Leemhuis, https://lore.kernel.org/regressions/a5349810-aed0-3f35-654c-bfd89b2fc285@leemhuis.info, 1633342303
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Greg KH, https://lore.kernel.org/regressions/YVrnN3pnmr/MOx/v@kroah.com, 1633347383
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Thorsten Leemhuis, https://lore.kernel.org/regressions/33e3bba4-309a-23d7-64be-03c863723457@leemhuis.info, 1633413002
 HISTORY: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442, report: automatically added due to later ^introduced
 HISTORY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/438d711b-094b-fcfd-79e3-69f03a14df21@leemhuis.info, 1632635948, ^introduced: e7006de6c23803799be000a5dcce4d916a36541a
+HISTORY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/637b0f3f-ac23-1e32-db7f-c696a04c1c73@leemhuis.info, 1633339041, monitor: https://lore.kernel.org/all/20210927154306.387437-1-kbusch@kernel.org/
 HISTORY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/438d711b-094b-fcfd-79e3-69f03a14df21@leemhuis.info, 1632635948, monitor: https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX+i7OfMA0Vd4FWA@mail.gmail.com/
-LATEST: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/lkml/20210927150249.GA148020@dhcp-10-100-145-180.wdc.com, 1632754969
+LATEST: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Thorsten Leemhuis, https://lore.kernel.org/regressions/33e3bba4-309a-23d7-64be-03c863723457@leemhuis.info, 1633413002
 
 [onlntest_0_3]
 REGRESSION: Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 8a0c014cd205 (v5.12-rc1-dontuse), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=8a0c014cd20516ade9654fc13b51345ec58e7be8, 1628408566, mainline, master, resolved
@@ -224,103 +238,117 @@ LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-3
 LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com [monitored:True]
 LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com [monitored:True]
 SOLVED: fixed, 1630375306, v5.15-rc1, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=c7e9d0020361f4308a70cdfd6d5335e273eb8717, Revert "floppy: reintroduce O_NDELAY fix"
-ACTIVITY: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net, 1627066070
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/e49603c2-ac36-12b0-57cf-ff5ab30115bc@linux.com, 1627286265
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/2f4037b6-7ab3-9592-aaf0-dfcda19d61bc@cfl.rr.com, 1627298131
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/f5501a7c-4387-259d-66d2-f10db0cf36ff@cfl.rr.com, 1627298254
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/f1277dcb-6bf8-b149-ad4e-68a4109d4e67@linux.com, 1627299429
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/1cf8e751-db77-441e-53b4-d6e979bbe046@compro.net, 1627302228
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/751150dd-251f-bc68-0cd0-4a10b70ab79a@linux.com, 1627317256
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/ffb8ca1c-ac8c-95c4-c05a-1269c4831b0a@linux.com, 1627622101
-ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/9d46f063-8d8d-95ee-e262-9300f54d527c@garloff.de, 1627816483
-ACTIVITY: Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
-ACTIVITY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/nycvar.YFH.7.76.2108160914070.8253@cbobk.fhfr.pm, 1629098250
-ACTIVITY: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com, 1629301601
-ACTIVITY: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/20210818154646.925351-2-efremov@linux.com, 1629301602
-ACTIVITY: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/20210818154646.925351-3-efremov@linux.com, 1629301603
-ACTIVITY: [RFC PATCH 3/5] selftests: floppy: add basic tests for opening an empty device, https://lore.kernel.org/lkml/20210818154646.925351-4-efremov@linux.com, 1629301604
-ACTIVITY: [RFC PATCH 4/5] selftests: floppy: add basic tests for a readonly disk, https://lore.kernel.org/lkml/20210818154646.925351-5-efremov@linux.com, 1629301605
-ACTIVITY: [RFC PATCH 5/5] selftests: floppy: add basic rdwr tests, https://lore.kernel.org/lkml/20210818154646.925351-6-efremov@linux.com, 1629301606
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/5ca95b90-c6e0-99b3-b129-75dc05cfb1d4@linux.com, 1629302038
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/cc5801790fea258e20fa6b7e26de7806ae8e0dda.camel@perches.com, 1629302434
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/3d347d4b-1576-754f-8633-ba6084cc0661@linux.com, 1629303679
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/71535d629266751273c15cc05dd7c987cb9c43b6.camel@perches.com, 1629318076
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/20210818133551.3287f097f4c70742ab6b762f@linux-foundation.org, 1629318951
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/23c8ebaa0921d5597df9fc1d6cbbcc4f354f80c5.camel@perches.com, 1629321743
-ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/CAK7LNASTa+_d17wF6NW6GHC7Y+_RrXYZuo0MzzbsNnaRn8KJuQ@mail.gmail.com, 1629332663
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/c31b2007-26a9-34e0-8c9a-8e11a00ce69f@linux.com, 1629402749
-ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/e90603ee-61e0-4530-34dc-087e40c94aa1@linux.com, 1629406303
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/8db9a7d938b2b1a1bdbd0224246e047c83581334.camel@perches.com, 1629409457
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/ac2587d3d4b7ce87e8922380e36d7864bfb54262.camel@perches.com, 1629411435
-ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, https://lore.kernel.org/lkml/CAK7LNARKDO1-g7At8q+ivCHm2aDNGupHWoqAt3NRwNTShggeFQ@mail.gmail.com, 1629425997
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/7eda27d1-9e9f-dfd6-3a54-6c592a797ea5@linux.com, 1629528431
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/4bf2c7360206025731928fa1c8ad95faa9e65ab8.camel@perches.com, 1629529958
-ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, https://lore.kernel.org/lkml/17ee07ea-d768-0099-cad7-43b5b5c75560@linux.com, 1629531311
-ACTIVITY: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com, 1630231710
-ACTIVITY: Re: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/0d3e8324-18ee-32c4-f666-21971bd8f334@kernel.dk, 1630241547
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204
-ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
+ACTIVITY: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net, 1627066070
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/e49603c2-ac36-12b0-57cf-ff5ab30115bc@linux.com, 1627286265
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/2f4037b6-7ab3-9592-aaf0-dfcda19d61bc@cfl.rr.com, 1627298131
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/f5501a7c-4387-259d-66d2-f10db0cf36ff@cfl.rr.com, 1627298254
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/f1277dcb-6bf8-b149-ad4e-68a4109d4e67@linux.com, 1627299429
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/1cf8e751-db77-441e-53b4-d6e979bbe046@compro.net, 1627302228
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/751150dd-251f-bc68-0cd0-4a10b70ab79a@linux.com, 1627317256
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/ffb8ca1c-ac8c-95c4-c05a-1269c4831b0a@linux.com, 1627622101
+ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Kurt Garloff, https://lore.kernel.org/lkml/9d46f063-8d8d-95ee-e262-9300f54d527c@garloff.de, 1627816483
+ACTIVITY: Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
+ACTIVITY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566
+ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Jiri Kosina, https://lore.kernel.org/lkml/nycvar.YFH.7.76.2108160914070.8253@cbobk.fhfr.pm, 1629098250
+ACTIVITY: [RFC PATCH 0/5] selftests: floppy: basic tests, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com, 1629301601
+ACTIVITY: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-2-efremov@linux.com, 1629301602
+ACTIVITY: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-3-efremov@linux.com, 1629301603
+ACTIVITY: [RFC PATCH 3/5] selftests: floppy: add basic tests for opening an empty device, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-4-efremov@linux.com, 1629301604
+ACTIVITY: [RFC PATCH 4/5] selftests: floppy: add basic tests for a readonly disk, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-5-efremov@linux.com, 1629301605
+ACTIVITY: [RFC PATCH 5/5] selftests: floppy: add basic rdwr tests, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-6-efremov@linux.com, 1629301606
+ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/5ca95b90-c6e0-99b3-b129-75dc05cfb1d4@linux.com, 1629302038
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/cc5801790fea258e20fa6b7e26de7806ae8e0dda.camel@perches.com, 1629302434
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/3d347d4b-1576-754f-8633-ba6084cc0661@linux.com, 1629303679
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/71535d629266751273c15cc05dd7c987cb9c43b6.camel@perches.com, 1629318076
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Andrew Morton, https://lore.kernel.org/lkml/20210818133551.3287f097f4c70742ab6b762f@linux-foundation.org, 1629318951
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/23c8ebaa0921d5597df9fc1d6cbbcc4f354f80c5.camel@perches.com, 1629321743
+ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, Masahiro Yamada, https://lore.kernel.org/lkml/CAK7LNASTa+_d17wF6NW6GHC7Y+_RrXYZuo0MzzbsNnaRn8KJuQ@mail.gmail.com, 1629332663
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/c31b2007-26a9-34e0-8c9a-8e11a00ce69f@linux.com, 1629402749
+ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, Denis Efremov, https://lore.kernel.org/lkml/e90603ee-61e0-4530-34dc-087e40c94aa1@linux.com, 1629406303
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/8db9a7d938b2b1a1bdbd0224246e047c83581334.camel@perches.com, 1629409457
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/ac2587d3d4b7ce87e8922380e36d7864bfb54262.camel@perches.com, 1629411435
+ACTIVITY: Re: [RFC PATCH 2/5] gen_initramfs.sh: use absolute path for gen_init_cpio, Masahiro Yamada, https://lore.kernel.org/lkml/CAK7LNARKDO1-g7At8q+ivCHm2aDNGupHWoqAt3NRwNTShggeFQ@mail.gmail.com, 1629425997
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/7eda27d1-9e9f-dfd6-3a54-6c592a797ea5@linux.com, 1629528431
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Joe Perches, https://lore.kernel.org/lkml/4bf2c7360206025731928fa1c8ad95faa9e65ab8.camel@perches.com, 1629529958
+ACTIVITY: Re: [RFC PATCH 1/5] checkpatch: improve handling of revert commits, Denis Efremov, https://lore.kernel.org/lkml/17ee07ea-d768-0099-cad7-43b5b5c75560@linux.com, 1629531311
+ACTIVITY: [GIT PULL] Floppy patch for 5.15, Denis Efremov, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com, 1630231710
+ACTIVITY: Re: [GIT PULL] Floppy patch for 5.15, Jens Axboe, https://lore.kernel.org/lkml/0d3e8324-18ee-32c4-f666-21971bd8f334@kernel.dk, 1630241547
+ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204
+ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
 HISTORY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566, report: automatically added due to later ^introduced
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, ^introduced: 8a0c014cd20516ade9654fc13b51345ec58e7be8
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352, monitor: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, monitor: https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com/
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info, 1630315204, monitor: https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com/
-LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
+LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352
 REGRESSION: mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 020d3b26c07a (v5.13-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=020d3b26c07abe274ac17f64999bbd3bf3342195, 1631779209, mainline, master, identified
-ACTIVITY: mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209
-ACTIVITY: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/CAMZdPi8UJLvBFQd8-nf-iHAQh8cEuihq97PUFfZ7Q=rxRQoPsg@mail.gmail.com, 1631787490
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210916111218.GA12918@thinkpad, 1631790738
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210916163529.GA9027@thinkpad, 1631810129
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/87k0jgxyjp.fsf@codeaurora.org, 1631810522
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210916171927.GB9027@thinkpad, 1631812767
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/b7c0906041dcafb43be215bd4f55326a@codeaurora.org, 1632386083
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210923085926.GD6083@thinkpad, 1632387566
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/6912b6840858c0554922c01a0f9c47b8@codeaurora.org, 1632389216
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/CAMZdPi-3WOj_TT7diUJJ00RaoHgKw-tu-heQJu6vDUK1yZ4CZg@mail.gmail.com, 1632394208
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/877df6tlnq.fsf@codeaurora.org, 1632472601
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/8735putk82.fsf@codeaurora.org, 1632474461
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/CAMZdPi8P7YZPhPir+WfS3cY_a7He1m2Pq2uqBhczPdEeoNRb0Q@mail.gmail.com, 1632476635
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210924095755.GB19050@workstation, 1632477475
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/20210924100034.GC19050@workstation, 1632477634
-ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631
+ACTIVITY: mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209
+ACTIVITY: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Loic Poulain, https://lore.kernel.org/regressions/CAMZdPi8UJLvBFQd8-nf-iHAQh8cEuihq97PUFfZ7Q=rxRQoPsg@mail.gmail.com, 1631787490
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210916111218.GA12918@thinkpad, 1631790738
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210916163529.GA9027@thinkpad, 1631810129
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/87k0jgxyjp.fsf@codeaurora.org, 1631810522
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210916171927.GB9027@thinkpad, 1631812767
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Carl Huang, https://lore.kernel.org/regressions/b7c0906041dcafb43be215bd4f55326a@codeaurora.org, 1632386083
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210923085926.GD6083@thinkpad, 1632387566
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Carl Huang, https://lore.kernel.org/regressions/6912b6840858c0554922c01a0f9c47b8@codeaurora.org, 1632389216
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Loic Poulain, https://lore.kernel.org/regressions/CAMZdPi-3WOj_TT7diUJJ00RaoHgKw-tu-heQJu6vDUK1yZ4CZg@mail.gmail.com, 1632394208
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/877df6tlnq.fsf@codeaurora.org, 1632472601
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/8735putk82.fsf@codeaurora.org, 1632474461
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Loic Poulain, https://lore.kernel.org/regressions/CAMZdPi8P7YZPhPir+WfS3cY_a7He1m2Pq2uqBhczPdEeoNRb0Q@mail.gmail.com, 1632476635
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210924095755.GB19050@workstation, 1632477475
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210924100034.GC19050@workstation, 1632477634
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Thorsten Leemhuis, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631
 HISTORY: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209, report: automatically added due to later ^introduced
 HISTORY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631, ^introduced: 020d3b26c07abe274ac17f64999bbd3bf3342195
-LATEST: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631
-REGRESSION: nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, e7006de6c238 (v5.15-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e7006de6c23803799be000a5dcce4d916a36541a, 1632575442, mainline, master, curridentified
+LATEST: Re: [regression] mhi: ath11k resume fails on some devices, Thorsten Leemhuis, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631
+REGRESSION: nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, e7006de6c238 (v5.15-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e7006de6c23803799be000a5dcce4d916a36541a, 1632575442, mainline, master, resolved
 LINK: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX+i7OfMA0Vd4FWA@mail.gmail.com [monitored:True]
-ACTIVITY: nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442
-ACTIVITY: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/20210925171618.GA116968@dhcp-10-100-145-180.wdc.com, 1632590178
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX+i7OfMA0Vd4FWA@mail.gmail.com, 1632595628
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/20210925195425.GB116968@dhcp-10-100-145-180.wdc.com, 1632599665
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/4849f3d3-4abd-49b7-b053-d7965daa7138@www.fastmail.com, 1632600533
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/7e75e292-3073-f1f9-287a-badf92c8e4e8@grimberg.me, 1632602071
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/20210925203857.GC116968@dhcp-10-100-145-180.wdc.com, 1632602337
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/08930bdf-6a3a-4d49-b366-8029b88b25b4@www.fastmail.com, 1632602919
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/20210925204842.GD116968@dhcp-10-100-145-180.wdc.com, 1632602922
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/fa9de055-c3b8-20d3-41e0-12e43d0c336a@protonmail.com, 1632613219
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/20210926020839.GA96176@C02WT3WMHTD6, 1632622119
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/1a6f5030-27d9-d1ae-aff4-0ed2a10dce6b@protonmail.com, 1632628408
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/1b5d6bef-db6f-073f-8d24-4963f0df82ab@protonmail.com, 1632630930
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/438d711b-094b-fcfd-79e3-69f03a14df21@leemhuis.info, 1632635948
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/d65ecc69-35c9-4400-8fb0-95aa04360b03@grimberg.me, 1632645843
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/4dae80c3-034c-617b-c766-1858d6ee1220@protonmail.com, 1632645896
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/31c4dc69-5d10-cc6a-4295-e42bbc0993d0@protonmail.com, 1632716525
-ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/PNZPR01MB4415FE077EAA0C094A8EE6DAB8A79@PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM, 1632717300
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/lkml/PNZPR01MB4415F35759F136E812A8F91DB8A79@PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM, 1632718300
-ACTIVITY:  Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/lkml/d4fb602c-43ab-4b5d-93ad-fa9116462dec@www.fastmail.com, 1632722700
-ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/lkml/20210927150249.GA148020@dhcp-10-100-145-180.wdc.com, 1632754969
+LINK: [PATCHv2] nvme: add command id quirk for apple controllers, https://lore.kernel.org/lkml/20210927154306.387437-1-kbusch@kernel.org [monitored:True]
+SOLVED: fixed, 1633197636, v5.15-rc4, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=a2941f6aa71a72be2c82c0a168523a492d093530, nvme: add command id quirk for apple controllers
+ACTIVITY: nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442
+ACTIVITY: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Keith Busch, https://lore.kernel.org/regressions/20210925171618.GA116968@dhcp-10-100-145-180.wdc.com, 1632590178
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Linus Torvalds, https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX+i7OfMA0Vd4FWA@mail.gmail.com, 1632595628
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Keith Busch, https://lore.kernel.org/lkml/20210925195425.GB116968@dhcp-10-100-145-180.wdc.com, 1632599665
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Sven Peter, https://lore.kernel.org/lkml/4849f3d3-4abd-49b7-b053-d7965daa7138@www.fastmail.com, 1632600533
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Sagi Grimberg, https://lore.kernel.org/lkml/7e75e292-3073-f1f9-287a-badf92c8e4e8@grimberg.me, 1632602071
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Keith Busch, https://lore.kernel.org/lkml/20210925203857.GC116968@dhcp-10-100-145-180.wdc.com, 1632602337
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Sven Peter, https://lore.kernel.org/lkml/08930bdf-6a3a-4d49-b366-8029b88b25b4@www.fastmail.com, 1632602919
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Keith Busch, https://lore.kernel.org/lkml/20210925204842.GD116968@dhcp-10-100-145-180.wdc.com, 1632602922
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/fa9de055-c3b8-20d3-41e0-12e43d0c336a@protonmail.com, 1632613219
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Keith Busch, https://lore.kernel.org/regressions/20210926020839.GA96176@C02WT3WMHTD6, 1632622119
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/1a6f5030-27d9-d1ae-aff4-0ed2a10dce6b@protonmail.com, 1632628408
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/1b5d6bef-db6f-073f-8d24-4963f0df82ab@protonmail.com, 1632630930
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Thorsten Leemhuis, https://lore.kernel.org/regressions/438d711b-094b-fcfd-79e3-69f03a14df21@leemhuis.info, 1632635948
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Sagi Grimberg, https://lore.kernel.org/regressions/d65ecc69-35c9-4400-8fb0-95aa04360b03@grimberg.me, 1632645843
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Orlando Chamberlain, https://lore.kernel.org/lkml/4dae80c3-034c-617b-c766-1858d6ee1220@protonmail.com, 1632645896
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/31c4dc69-5d10-cc6a-4295-e42bbc0993d0@protonmail.com, 1632716525
+ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Aditya Garg, https://lore.kernel.org/lkml/PNZPR01MB4415FE077EAA0C094A8EE6DAB8A79@PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM, 1632717300
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Aditya Garg, https://lore.kernel.org/lkml/PNZPR01MB4415F35759F136E812A8F91DB8A79@PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM, 1632718300
+ACTIVITY:  Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Sven Peter, https://lore.kernel.org/lkml/d4fb602c-43ab-4b5d-93ad-fa9116462dec@www.fastmail.com, 1632722700
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Keith Busch, https://lore.kernel.org/lkml/20210927150249.GA148020@dhcp-10-100-145-180.wdc.com, 1632754969
+ACTIVITY: [PATCHv2] nvme: add command id quirk for apple controllers, Keith Busch, https://lore.kernel.org/lkml/20210927154306.387437-1-kbusch@kernel.org, 1632757386
+ACTIVITY: Re: [PATCHv2] nvme: add command id quirk for apple controllers, Christoph Hellwig, https://lore.kernel.org/lkml/20210927154812.GA9730@lst.de, 1632757692
+ACTIVITY: Re: [PATCHv2] nvme: add command id quirk for apple controllers, Sven Peter, https://lore.kernel.org/lkml/df160284-55cb-4642-abc5-65f6aa61b48d@www.fastmail.com, 1632758380
+ACTIVITY: Re: [PATCHv2] nvme: add command id quirk for apple controllers, Jens Axboe, https://lore.kernel.org/lkml/31eb3b40-d3e9-d35e-5a3d-1a2199ef2dc5@kernel.dk, 1632758506
+ACTIVITY: Re: [PATCHv2] nvme: add command id quirk for apple controllers, Orlando Chamberlain, https://lore.kernel.org/lkml/38101793-e0b9-ecf4-d235-465cb8e334b3@protonmail.com, 1632801348
+ACTIVITY: Re: [PATCHv2] nvme: add command id quirk for apple controllers, Aditya Garg, https://lore.kernel.org/lkml/PNZPR01MB441530003CAF17304C0B3329B8A89@PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM, 1632807490
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Thorsten Leemhuis, https://lore.kernel.org/regressions/637b0f3f-ac23-1e32-db7f-c696a04c1c73@leemhuis.info, 1633339041
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Greg KH, https://lore.kernel.org/regressions/YVrI9rb4mnIs6RnF@kroah.com, 1633339638
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Thorsten Leemhuis, https://lore.kernel.org/regressions/a5349810-aed0-3f35-654c-bfd89b2fc285@leemhuis.info, 1633342303
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Greg KH, https://lore.kernel.org/regressions/YVrnN3pnmr/MOx/v@kroah.com, 1633347383
+ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Thorsten Leemhuis, https://lore.kernel.org/regressions/33e3bba4-309a-23d7-64be-03c863723457@leemhuis.info, 1633413002
 HISTORY: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442, report: automatically added due to later ^introduced
 HISTORY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/438d711b-094b-fcfd-79e3-69f03a14df21@leemhuis.info, 1632635948, ^introduced: e7006de6c23803799be000a5dcce4d916a36541a
+HISTORY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/637b0f3f-ac23-1e32-db7f-c696a04c1c73@leemhuis.info, 1633339041, monitor: https://lore.kernel.org/all/20210927154306.387437-1-kbusch@kernel.org/
 HISTORY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/438d711b-094b-fcfd-79e3-69f03a14df21@leemhuis.info, 1632635948, monitor: https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX+i7OfMA0Vd4FWA@mail.gmail.com/
-LATEST: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/lkml/20210927150249.GA148020@dhcp-10-100-145-180.wdc.com, 1632754969
+LATEST: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Thorsten Leemhuis, https://lore.kernel.org/regressions/33e3bba4-309a-23d7-64be-03c863723457@leemhuis.info, 1633413002
 REGRESSION: Bug in Memory Layout of rx_desc for QCA6174, https://lore.kernel.org/ath10k/CAH4F6usFu8-A6k5Z7rU9__iENcSC6Zr-NtRhh_aypR74UvN1uQ@mail.gmail.com, e3def6f7ddf8 (v4.16-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e3def6f7ddf88636febb12e1e3e86387a4ce5452, 1624001331, mainline, master, identified
-ACTIVITY: Bug in Memory Layout of rx_desc for QCA6174, https://lore.kernel.org/ath10k/CAH4F6usFu8-A6k5Z7rU9__iENcSC6Zr-NtRhh_aypR74UvN1uQ@mail.gmail.com, 1624001331
-ACTIVITY: Re: Bug in Memory Layout of rx_desc for QCA6174, https://lore.kernel.org/regressions/87o88muvvz.fsf@codeaurora.org, 1632216080
-ACTIVITY: Re: Bug in Memory Layout of rx_desc for QCA6174, https://lore.kernel.org/regressions/7a27099a-efae-be50-bc88-1ee02bf0461c@leemhuis.info, 1632741953
+ACTIVITY: Bug in Memory Layout of rx_desc for QCA6174, Francesco Magliocca, https://lore.kernel.org/ath10k/CAH4F6usFu8-A6k5Z7rU9__iENcSC6Zr-NtRhh_aypR74UvN1uQ@mail.gmail.com, 1624001331
+ACTIVITY: Re: Bug in Memory Layout of rx_desc for QCA6174, Kalle Valo, https://lore.kernel.org/regressions/87o88muvvz.fsf@codeaurora.org, 1632216080
+ACTIVITY: Re: Bug in Memory Layout of rx_desc for QCA6174, Thorsten Leemhuis, https://lore.kernel.org/regressions/7a27099a-efae-be50-bc88-1ee02bf0461c@leemhuis.info, 1632741953
 HISTORY: Bug in Memory Layout of rx_desc for QCA6174, https://lore.kernel.org/ath10k/CAH4F6usFu8-A6k5Z7rU9__iENcSC6Zr-NtRhh_aypR74UvN1uQ@mail.gmail.com, 1624001331, report: automatically added due to later ^^introduced
 HISTORY: Re: Bug in Memory Layout of rx_desc for QCA6174, https://lore.kernel.org/regressions/7a27099a-efae-be50-bc88-1ee02bf0461c@leemhuis.info, 1632741953, ^^introduced: e3def6f7ddf88636febb12e1e3e86387a4ce5452
-LATEST: Re: Bug in Memory Layout of rx_desc for QCA6174, https://lore.kernel.org/regressions/7a27099a-efae-be50-bc88-1ee02bf0461c@leemhuis.info, 1632741953
+LATEST: Re: Bug in Memory Layout of rx_desc for QCA6174, Thorsten Leemhuis, https://lore.kernel.org/regressions/7a27099a-efae-be50-bc88-1ee02bf0461c@leemhuis.info, 1632741953
 

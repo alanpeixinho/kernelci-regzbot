@@ -74,6 +74,7 @@ def process_tag(repsrc, tag, msg):
 
     # get all the other data we need
     subject = email_get_subject(msg)
+    author = email_get_from(msg)
     gmtime = email_get_gmtime(msg)
     msgid = email_get_msgid(msg)
     regzbotcmd = tagcmd + ": " + tagload
@@ -85,7 +86,7 @@ def process_tag(repsrc, tag, msg):
     if not regressionb:
         if tagcmd == "introduced":
             regressionb = regzbot.RegressionBasic.introduced_create(
-                repsrc.repsrcid, msgid, email_get_cleansubject(msg), tagload, gmtime)
+                repsrc.repsrcid, msgid, email_get_cleansubject(msg), author, tagload, gmtime)
         elif tagcmd == "^introduced" or tagcmd == "^^introduced":
             parent_msgid = email_get_msgid_parent(msg)
 
@@ -104,6 +105,7 @@ def process_tag(repsrc, tag, msg):
                 parent_repsrc = repsrc
                 parent_gmtime = gmtime
                 parent_subject = subject
+                parent_author = author
                 parent_cleansubject = subject
             else:
                 if tagcmd == "^^introduced":
@@ -112,14 +114,15 @@ def process_tag(repsrc, tag, msg):
                 parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid, repsrc.repsrcid)
                 parent_gmtime = email_get_gmtime(parent_msg)
                 parent_subject = email_get_subject(parent_msg)
+                parent_author = email_get_from(parent_msg)
                 parent_cleansubject = email_get_cleansubject(parent_msg)
 
             regressionb = regzbot.RegressionBasic.introduced_create(
-                parent_repsrc.repsrcid, parent_msgid, parent_cleansubject, tagload, parent_gmtime)
+                parent_repsrc.repsrcid, parent_msgid, parent_cleansubject, parent_author, tagload, parent_gmtime)
             # we need to add the entries for the parent manually
             actimon = regzbot.RegActivityMonitor.get_by_regid_n_entry(regressionb.regid, parent_msgid)
             regzbot.RegressionBasic.activity_event_monitored(
-                parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, actimon)
+                parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, parent_author, actimon)
             regzbot.RegHistory.event(
                 regressionb.regid, parent_gmtime, parent_msgid, parent_subject, repsrcid=parent_repsrc.repsrcid,
                 regzbotcmd="report: automatically added due to later %s" % tagcmd)
@@ -144,7 +147,7 @@ def process_tag(repsrc, tag, msg):
             regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid, regzbotcmd=regzbotcmd)
 
         if tagcmd == "dupof" or tagcmd == "dup-of":
-            regressionb.dupof(tagload, gmtime, msgid, subject, repsrc.repsrcid)
+            regressionb.dupof(tagload, gmtime, msgid, subject, author, repsrc.repsrcid)
         elif tagcmd == "fixed-by" or tagcmd == "fixedby:":
             commit_hexsha, commit_subject = spilttag_first_word(tagload)
             regressionb.fixedby(
@@ -170,6 +173,10 @@ def process_tag(repsrc, tag, msg):
                 urltoreport, "unkown regzbot command: %s" % tagcmd, gmtime=gmtime, subject=subject)
             return
 
+def email_get_from(msg):
+    stripped = re.sub(" <.*>", "", msg['From'])
+    stripped = stripped.lstrip('\'"').rstrip('\'"')
+    return stripped
 
 def email_get_gmtime(msg):
     return email.utils.mktime_tz(email.utils.parsedate_tz(msg['Date']))
@@ -259,6 +266,7 @@ def process_link(link):
 def process_msg(repsrc, msg):
     msgid = email_get_msgid(msg)
     subject = email_get_subject(msg)
+    author = email_get_from(msg)
     gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(msg['Date']))
     ignoreactivity = False
 
@@ -303,7 +311,7 @@ def process_msg(repsrc, msg):
         for actimonid in regzbot.RegActivityEvent.get_actimonid_by_entry(reference):
             if actimonid and not regzbot.RegActivityEvent.present(actimonid, msgid):
                 regzbot.RegressionBasic.activity_event_monitored(
-                    repsrc.repsrcid, gmtime, msgid, subject, regzbot.RegActivityMonitor.get(actimonid))
+                    repsrc.repsrcid, gmtime, msgid, subject, author, regzbot.RegActivityMonitor.get(actimonid))
     add_actimon(msgid, msgid, gmtime, subject)
     if msg['References'] is not None:
         for reference in msg['References'].split(" "):
@@ -357,7 +365,7 @@ def process_msg(repsrc, msg):
         if actimongen is None and linktag is True:
             # start monitoring this thread
             regressionb.monitoradd_direct(
-                repsrc.repsrcid, gmtime, msgid, subject)
+                repsrc.repsrcid, gmtime, msgid, subject, author)
             regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid,
                                      regzbotcmd='monitor: automatically started monitoring "%s", as it referred to this this regression with a "Link:"'
                                      % subject)
@@ -367,7 +375,7 @@ def process_msg(repsrc, msg):
         else:
             # just add the event to the regression
             regzbot.RegressionBasic.activity_event_linked(
-                repsrc.repsrcid, gmtime, msgid, subject, regid=regressionb.regid)
+                repsrc.repsrcid, gmtime, msgid, subject, author, regid=regressionb.regid)
             regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject,
                                      repsrcid=repsrc.repsrcid, regzbotcmd='linked: "%s" mentioned this regression' % subject)
 

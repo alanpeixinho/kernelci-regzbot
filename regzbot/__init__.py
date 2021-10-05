@@ -474,7 +474,7 @@ class GitTree():
 
 
 class RegActivityMonitor():
-    def __init__(self, actimonid, regid, repsrcid, entry, ):
+    def __init__(self, actimonid, regid, repsrcid, entry):
         self.actimonid = actimonid
         self.regid = regid
         self.repsrcid = repsrcid
@@ -567,10 +567,11 @@ class RegActivityMonitor():
 
 
 class RegActivityEvent():
-    def __init__(self, gmtime, entry, subject, repsrcid, gitbranchid, actimonid=None, regid=None):
+    def __init__(self, gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid=None, regid=None):
         self.gmtime = gmtime
         self.entry = entry
         self.subject = subject
+        self.author = author
         self.repsrcid = repsrcid
         self.gitbranchid = gitbranchid
         self._actimonid = actimonid
@@ -587,6 +588,7 @@ class RegActivityEvent():
                 gmtime       INTEGER  NOT NULL,
                 entry        STRING   NOT NULL,
                 subject      STRING   NOT NULL,
+                author       STRING,
                 repsrcid     INTEGER,
                 gitbranchid  INTEGER,
                 actimonid    INTEGER,
@@ -594,7 +596,7 @@ class RegActivityEvent():
             )''')
 
     @staticmethod
-    def event(gmtime, entry, subject, repsrcid=None, gitbranchid=None, actimonid=None, regid=None):
+    def event(gmtime, entry, subject, author=None, repsrcid=None, gitbranchid=None, actimonid=None, regid=None):
         # a few lines from the department of "this should not happen, but better ensure it doesn't":
         if repsrcid is None and gitbranchid is None:
             logger.critical(
@@ -617,11 +619,11 @@ class RegActivityEvent():
 
         dbcursor = DBCON.cursor()
         dbcursor.execute('''INSERT INTO regactivity
-                        (gmtime, entry, subject, repsrcid, gitbranchid, actimonid, regid)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)''',
-                         (gmtime, entry, subject, repsrcid, gitbranchid, actimonid, regid))
-        logger.debug('[db regactivity] insert (gmtime:%s, entry:"%s", subject:"%s", repsrcid:%s, gitbranchid:%s, actimonid:%s, regid:%s)' % (
-            gmtime, entry, subject, repsrcid, gitbranchid, actimonid, regid))
+                        (gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                         (gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid))
+        logger.debug('[db regactivity] insert (gmtime:%s, entry:"%s", subject:"%s", author:"%s", repsrcid:%s, gitbranchid:%s, actimonid:%s, regid:%s)' % (
+            gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid))
 
     @staticmethod
     def getall_by_regid(regid, onlyonce=False):
@@ -638,7 +640,7 @@ class RegActivityEvent():
 
         dbcursor = DBCON.cursor()
         if onlyonce:
-            for dbresult in dbcursor.execute('SELECT DISTINCT gmtime, entry, subject, repsrcid, gitbranchid FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % placeholders, replacements):
+            for dbresult in dbcursor.execute('SELECT DISTINCT gmtime, entry, subject, author, repsrcid, gitbranchid FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % placeholders, replacements):
                 yield RegActivityEvent(*dbresult)
         else:
             for dbresult in dbcursor.execute('SELECT * FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % placeholders, replacements):
@@ -683,11 +685,13 @@ class RegActivityEvent():
         return ReportSource.url_by_id(self.repsrcid, self.entry)
 
     def csv(self):
-        return "%s, %s, %s" % (self.subject, self.url(), self.gmtime)
+        return "%s, %s, %s, %s" % (self.subject, self.author, self.url(), self.gmtime)
 
     def html(self, yattagdoc):
         with yattagdoc.tag('a', href=self.url()):
-            yattagdoc.text("%s" % self.subject)
+                 yattagdoc.text("%s" % self.subject)
+        with yattagdoc.tag('div', style="padding-left: 1em;"):
+             yattagdoc.text("%s days ago, by %s" % (days_delta(self.gmtime), self.author))
 
 
 class RegHistory():
@@ -795,12 +799,13 @@ class RegHistory():
 
 
 class RegLink():
-    def __init__(self, regid, gmtime, repsrcid, entry, link, subject):
+    def __init__(self, regid, gmtime, repsrcid, entry, link, subject, author):
         self.regid = regid
         self.gmtime = gmtime
         self.repsrcid = repsrcid
         self.entry = entry
         self.subject = subject
+        self.author = author
 
         if link is not None:
             self.link = link
@@ -820,28 +825,29 @@ class RegLink():
                 repsrcid    INTEGER,
                 entry       STRING,
                 link        STRING,
-                subject     STRING
+                subject     STRING,
+                author      STRING
             )''')
 
     @staticmethod
-    def add_entry(regid, gmtime, description, repsrcid, entry):
+    def add_entry(regid, gmtime, description, author, repsrcid, entry):
         dbcursor = DBCON.cursor()
         dbcursor.execute('''INSERT INTO reglinks
-                            (regid, gmtime, repsrcid, entry, subject)
-                            VALUES (?, ?, ?, ?, ?)''',
-                         (regid, gmtime, repsrcid, entry, description))
-        logger.debug('[db reglinks] insert (regid:%s, gmtime:%s, repsrcid:%s, entry:%s, subject:"%s", )' % (
-            regid, gmtime, repsrcid, entry, description, ))
+                            (regid, gmtime, repsrcid, entry, subject, author)
+                            VALUES (?, ?, ?, ?, ?, ?)''',
+                         (regid, gmtime, repsrcid, entry, description, author))
+        logger.debug('[db reglinks] insert (regid:%s, gmtime:%s, repsrcid:%s, entry:%s, subject:"%s", author:"%s" )' % (
+            regid, gmtime, repsrcid, entry, description, author ))
 
     @staticmethod
-    def add_link(regid, gmtime, description, link):
+    def add_link(regid, gmtime, description, author, link):
         def add(dbcursor, regid, link, description, gmtime):
             dbcursor.execute('''INSERT INTO reglinks
-                            (regid, gmtime, link, subject)
-                            VALUES (?, ?, ?, ?)''',
-                             (regid, gmtime, link, description))
-            logger.debug('[db reglinks] insert (regid:%s, gmtime:%s, link:%s, subject:"%s")' % (
-                regid, gmtime, link, description))
+                            (regid, gmtime, link, subject, author)
+                            VALUES (?, ?, ?, ?, ?)''',
+                             (regid, gmtime, link, description, author))
+            logger.debug('[db reglinks] insert (regid:%s, gmtime:%s, link:%s, subject:"%s", author:"%s")' % (
+                regid, gmtime, link, description, author))
 
         def update(dbcursor, regid, link, description):
             dbcursor.execute('''UPDATE reglinks
@@ -894,13 +900,13 @@ class RegLink():
         with yattagdoc.tag('a', href=self.link):
             yattagdoc.text(self.subject)
 
-        yattagdoc.text(' (%s days ago)' % days_delta(self.gmtime))
+        yattagdoc.text('; %s days ago, by %s' % (days_delta(self.gmtime), self.author))
         if self.repsrcid and self.entry and RegActivityMonitor.ismonitored(self.entry, self.regid, self.repsrcid):
-            yattagdoc.text(" [monitored]")
+            yattagdoc.text(" (monitored)")
 
 
 class RegressionBasic():
-    def __init__(self, regid, repsrcid, entry, subject, introduced, gitbranchid, solved_reason=None, solved_gmtime=None,
+    def __init__(self, regid, repsrcid, entry, subject, author, introduced, gitbranchid, solved_reason=None, solved_gmtime=None,
                  solved_entry=None, solved_subject=None, solved_gitbranchid=None, solved_repsrcid=None, solved_repentry=None):
         self.regid = regid
 
@@ -909,6 +915,7 @@ class RegressionBasic():
         self.entry = entry
 
         self.subject = subject
+        self.author = author
         self.introduced = str(introduced)
         self.gitbranchid = gitbranchid
         self.solved_reason = solved_reason
@@ -931,6 +938,7 @@ class RegressionBasic():
                 repsrcid           INTEGER  NOT NULL,
                 entry              STRING   NOT NULL,
                 subject            STRING   NOT NULL,
+                author             STRING   NOT NULL,
                 introduced         STRING   NOT NULL,
                 gitbranchid        INTEGER,
                 solved_reason      STRING,
@@ -1017,23 +1025,23 @@ class RegressionBasic():
             yield RegressionBasic(*dbresult)
 
     @staticmethod
-    def activity_event_monitored(repsrcid, gmtime, entry, subject, actimon):
+    def activity_event_monitored(repsrcid, gmtime, entry, subject, author, actimon):
         regression = RegressionBasic.get_by_regid(actimon.regid)
         RegActivityEvent.event(
-            gmtime, entry, subject, repsrcid=repsrcid, actimonid=actimon.actimonid)
+            gmtime, entry, subject, author=author, repsrcid=repsrcid, actimonid=actimon.actimonid)
         logger.info('regression[%s, "%s"]: activity detected in %s")' % (
             regression.regid, regression.subject, entry))
 
     @staticmethod
-    def activity_event_linked(repsrcid, gmtime, entry, subject, regid):
+    def activity_event_linked(repsrcid, gmtime, entry, subject, author, regid):
         regression = RegressionBasic.get_by_regid(regid)
         RegActivityEvent.event(
-            gmtime, entry, subject, repsrcid=repsrcid, regid=regid)
+            gmtime, entry, subject, author=author, repsrcid=repsrcid, regid=regid)
         logger.info('regression[%s, "%s"]: link to this regression found in "%s" (%s)' % (
             regid, regression.subject, subject, ReportSource.url_by_id(repsrcid, entry)))
 
     @staticmethod
-    def introduced_create(repsrcid, entry, subject, introduced, gmtime):
+    def introduced_create(repsrcid, entry, subject, author, introduced, gmtime):
         # remove everything after the first space, in case someone wrote something like this:
         # regzbot introduced cf68fffb66d6 ("add support for Clang CFI")
         introduced = introduced.split()[0]
@@ -1049,13 +1057,13 @@ class RegressionBasic():
 
         # create regression
         dbcursor.execute('''INSERT INTO regressions
-                            (repsrcid, entry, subject, introduced, gitbranchid)
-                            VALUES (?, ?, ?, ?, ?)''',
-                         (repsrcid, entry, subject, introduced, gitbranchid))
+                            (repsrcid, entry, subject, author, introduced, gitbranchid)
+                            VALUES (?, ?, ?, ?, ?, ?)''',
+                         (repsrcid, entry, subject, author, introduced, gitbranchid))
         # create entry for monitoring
         actimonid = RegActivityMonitor.add(dbcursor.lastrowid, repsrcid, entry)
         RegActivityEvent.event(
-            gmtime, entry, subject, repsrcid=repsrcid, actimonid=actimonid)
+            gmtime, entry, subject, author, repsrcid=repsrcid, actimonid=actimonid)
 
 
         logger.debug('[db regressions] inserted (regid:%s; subject:"%s" repsrcid:%s; entry:%s; introduced:%s; gitbranchid:%s)',
@@ -1063,7 +1071,7 @@ class RegressionBasic():
 
         logger.info('regression[%s, "%s"]: created ("%s"; "%s")',
                     dbcursor.lastrowid, subject, entry, introduced)
-        return RegressionBasic(dbcursor.lastrowid, repsrcid, entry, subject, introduced, gitbranchid)
+        return RegressionBasic(dbcursor.lastrowid, repsrcid, entry, subject, author, introduced, gitbranchid)
 
     def introduced_update(self, tagload):
         self.introduced = tagload
@@ -1079,7 +1087,7 @@ class RegressionBasic():
         logger.info('regression[%s, "%s"]: setting introduced to "%s"',
                     self.regid, self.subject, self.introduced)
 
-    def dupof(self, tagload, gmtime, msgid, msgsubject, repsrcid):
+    def dupof(self, tagload, gmtime, msgid, msgsubject, author, repsrcid):
         def parse(tagload):
             tagload = tagload.split(maxsplit=1)
             url = tagload[0]
@@ -1112,7 +1120,7 @@ class RegressionBasic():
             RegHistory.event(regression_other.regid, gmtime, msgid, self.solved_subject, repsrcid=repsrcid,
                              regzbotcmd='dup: the regression "%s" was marked as duplicate of this' % (self.subject))
             RegActivityEvent.event(
-                gmtime, msgid, msgsubject, repsrcid=repsrcid, regid=regression_other.regid)
+                gmtime, msgid, msgsubject, author, repsrcid=repsrcid, regid=regression_other.regid)
         else:
             logger.warning('regression[%s, "%s"]: marked as duplicate of "%s", but could not find a regression entry for it',
                            self.regid, self.subject, self.solved_subject)
@@ -1182,7 +1190,7 @@ class RegressionBasic():
     def linkadd(self, tagload, gmtime):
         link, description = self.linkparse(tagload)
         updated = RegLink.add_link(
-            self.regid, gmtime, description, link)
+            self.regid, gmtime, description, None, link)
         if updated is False:
             logger.info('regression[%s, "%s"]: added link to %s")' % (
                 self.regid, self.subject, link))
@@ -1196,12 +1204,12 @@ class RegressionBasic():
         logger.info('regression[%s, "%s"]: removed link to %s' % (
             self.regid, self.subject, link))
 
-    def monitoradd_direct(self, repsrcid, gmtime, msgid, description):
+    def monitoradd_direct(self, repsrcid, gmtime, msgid, description, author):
         actimonid = RegActivityMonitor.add(self.regid, repsrcid, msgid)
         RegActivityEvent.event(
-            gmtime, msgid, description, repsrcid=repsrcid, actimonid=actimonid)
+            gmtime, msgid, description, author, repsrcid=repsrcid, actimonid=actimonid)
         RegLink.add_entry(
-            self.regid, gmtime, description, repsrcid, msgid)
+            self.regid, gmtime, description, author, repsrcid, msgid)
         logger.info('regression[%s, "%s"]: started to monitor %s' % (
             self.regid, self.subject, msgid))
 
@@ -1231,8 +1239,9 @@ class RegressionBasic():
         if target_repsrc and target_msg:
             target_gmtime = mailin.email_get_gmtime(target_msg)
             target_subject = mailin.email_get_subject(target_msg)
+            target_author = mailin.email_get_from(target_msg)
             self.monitoradd_direct(
-                target_repsrc.repsrcid, target_gmtime, target_msgid, target_subject)
+                target_repsrc.repsrcid, target_gmtime, target_msgid, target_subject, target_author)
         else:
             repsrc = ReportSource.get_byweburl(
                 '%%%s/%s%%' % (domain, mailinglist))
@@ -1242,7 +1251,7 @@ class RegressionBasic():
                     self.regid, self.subject, errormsg))
                 return self.monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime)
             self.monitoradd_direct(
-                repsrc.repsrcid, gmtime, target_msgid, description)
+                repsrc.repsrcid, gmtime, target_msgid, description, None)
 
         if not is_running_citesting('offline'):
             lore.process_replies(target_msgid)
@@ -1570,7 +1579,7 @@ class RegressionFull(RegressionBasic):
                     with yattagdoc.tag('i'):
                         with yattagdoc.tag('a', href=self._report_url):
                             yattagdoc.text(self.subject)
-                    yattagdoc.text(' (%s days ago)' % days_delta(self.gmtime))
+                    yattagdoc.text(' by %s' % self.author)
 
                     if self.solved_reason:
                         yattagdoc.text(' ')
@@ -1618,7 +1627,7 @@ class RegressionFull(RegressionBasic):
 
                 for counter, regressionlink in enumerate(RegLink.get_all(self.regid), start=1):
                     with yattagdoc.tag('div'):
-                        yattagdoc.text('Related[%s]: ' % counter)
+                        yattagdoc.text('[%s]: ' % counter)
                         with yattagdoc.tag('i'):
                             regressionlink.html(yattagdoc)
 
@@ -1662,16 +1671,14 @@ class RegressionFull(RegressionBasic):
 
                 with yattagdoc_line.tag('p'):
                     yattagdoc.text("Latest known activities")
-                    with yattagdoc_line.tag('ul'):
+                    with yattagdoc_line.tag('ul', style='padding-left: 5px; margin-top: -1em;'):
                         for actievent in reversed(self._actievents[-5:]):
                             with yattagdoc.tag('li', style="list-style-position: inside;"):
                                 actievent.html(yattagdoc)
-                                yattagdoc.text(" (%s days ago)" % days_delta(
-                                    actievent.gmtime))
 
                 with yattagdoc_line.tag('p'):
                     yattagdoc.text("Regression history")
-                    with yattagdoc_line.tag('ul'):
+                    with yattagdoc_line.tag('ul', style='padding-left: 5px; margin-top: -1em;'):
                         for histevent in reversed(self._histevents):
                             with yattagdoc.tag('li', style="list-style-position: inside;"):
                                 with yattagdoc.tag('i'):
@@ -1686,7 +1693,7 @@ class RegressionFull(RegressionBasic):
                     yattagdoc.text(
                          "When fixing, include one of these in the commit message to automatically resolve this entry in the regression tracking database:")
                     for actimonitor in RegActivityMonitor.getall_by_regid(self.regid):
-                        with yattagdoc.tag('div', style="padding-left: 1em; font-style: italic;"):
+                        with yattagdoc_line.tag('ul', style='padding-left: 1em; margin-top: -1em; font-style: italic; list-style-type: none;'):
                             yattagdoc.text("Link: ")
                             link = "https://lore.kernel.org/r/%s" % actimonitor.entry
                             with yattagdoc.tag('a', href=link):
@@ -1696,7 +1703,7 @@ class RegressionFull(RegressionBasic):
                     commitsummary = GitTree.commit_summary(self.introduced)
                     with yattagdoc.tag('p'):
                         yattagdoc.text( "You likely also want to add this to the commit message:")
-                        with yattagdoc.tag('div', style='padding-left: 1em; font-style: italic;'):
+                        with yattagdoc.tag('div', style='padding-left: 1em; margin-top: -1em; font-style: italic;'):
                             yattagdoc.text('Fixes: %s ("%s")' % (
                                 self.introduced[0:12], commitsummary))
 
