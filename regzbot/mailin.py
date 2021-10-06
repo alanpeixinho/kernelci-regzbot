@@ -38,7 +38,12 @@ def adjust_repsrc(repsrc, msg):
             pass
 
     if 'CC' in msg:
-        adresses.extend(get_email_adresses(msg['CC']))
+        # sane workarund as above, triggered by
+        # https://lore.kernel.org/all/20211005053239.3E8DEC4338F@smtp.codeaurora.org/raw
+        try:
+            adresses.extend(get_email_adresses(msg['CC']))
+        except AttributeError:
+            pass
 
     for adress in adresses:
         tmprepsrc = regzbot.ReportSource.get_by_identifier(adress)
