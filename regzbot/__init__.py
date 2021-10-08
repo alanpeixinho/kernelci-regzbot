@@ -1807,8 +1807,8 @@ class RegressionWeb():
 
             tablecolumns = 3
             yattagdoc = yattag.Doc()
-            yattagdoc.asis('<!DOCTYPE html>')
-            with yattagdoc.tag('html'):
+            yattagdoc.asis('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/></head>')
+            with yattagdoc.tag('body'):
                 outpage_header(yattagdoc, htmlpages, pagename)
                 with yattagdoc.tag('h3'):
                     yattagdoc.text()
