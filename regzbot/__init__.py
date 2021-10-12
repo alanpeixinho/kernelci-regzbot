@@ -1835,7 +1835,11 @@ class RegressionWeb():
                 outpage_footer(yattagdoc, unhandled_count)
 
             with open(os.path.join(directory, '%s.html' % pagename), 'w') as outputfile:
-                outputfile.write(yattagdoc.getvalue())
+                if is_running_citesting():
+                    # make this easier to read
+                    outputfile.write(yattag.indent(yattagdoc.getvalue()))
+                else:
+                    outputfile.write(yattagdoc.getvalue())
 
         def create_page_unhandled(directory, htmlpages):
             yattagdoc = yattag.Doc()
