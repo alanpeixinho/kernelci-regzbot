@@ -318,6 +318,8 @@ def process_msg(repsrc, msg):
                 regzbot.RegressionBasic.activity_event_monitored(
                     repsrc.repsrcid, gmtime, msgid, subject, author, regzbot.RegActivityMonitor.get(actimonid))
     add_actimon(msgid, msgid, gmtime, subject)
+    if msg['In-Reply-To'] is not None:
+        add_actimon(email_get_msgid(msg['In-Reply-To']), msgid, gmtime, subject)
     if msg['References'] is not None:
         for reference in msg['References'].split(" "):
             add_actimon(email_get_msgid(reference), msgid, gmtime, subject)
