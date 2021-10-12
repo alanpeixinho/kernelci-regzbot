@@ -2163,7 +2163,7 @@ class ReportSource():
 
     def url(self, entry):
         if self.kind == 'lore':
-            return '%s%s' % (self.weburl, urlencode(entry, safe=''))
+            return '%s%s' % (self.weburl, urlencode(entry, safe='@'))
         logger.critical(
             "ReportSource doesn't yet known how to return a URL for %s", self.kind)
         return None
