@@ -1701,7 +1701,8 @@ class RegressionFull(RegressionBasic):
                             with yattagdoc.tag('a', href=link):
                                 yattagdoc.text(link)
 
-                if self.introduced:
+                # use self._introduced_url here, as that will avoid ranges and commits we could not find
+                if self._introduced_url:
                     commitsummary = GitTree.commit_summary(self.introduced)
                     with yattagdoc.tag('p'):
                         yattagdoc.text( "You likely also want to add this to the commit message:")
