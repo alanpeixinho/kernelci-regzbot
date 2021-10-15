@@ -4,10 +4,12 @@
 __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
 import datetime
+import difflib
 import logging
 import os
 import pathlib
 import re
+import tempfile
 import sqlite3
 import sys
 
@@ -54,21 +56,31 @@ class RecordProcessedMsgids():
                             VALUES (?, ?)''',
                          (msgid, gmtime))
         logger.debug(
-            '[db msgidrecord] insert (msgid:%s, gmtime:%s)' % (msgid, gmtime))
+            '[db msgidrecord] insert (msgid:%s, gmtime:%s)', msgid, gmtime)
 
     @staticmethod
-    def check_presence(msgid, gmtime=None):
-        dbcursor = DBCON.cursor()
+    def check_presence(msgid, gmtime=None, dbcursor=None):
+        if dbcursor is None:
+            dbcursor = DBCON.cursor()
 
         dbresult = dbcursor.execute(
             'SELECT * FROM msgidrecord WHERE msgid=(?)', (msgid, )).fetchone()
         if dbresult:
             return True
         elif gmtime:
-            # in this case add the msgid
+            # this implies that we should add the msgid if it's missing
             RecordProcessedMsgids.add(msgid, gmtime, dbcursor)
-
         return False
+
+    @staticmethod
+    def delete(msgid):
+        dbcursor = DBCON.cursor()
+        if RecordProcessedMsgids.check_presence(msgid, dbcursor=dbcursor):
+            dbcursor.execute('''DELETE FROM msgidrecord
+                             WHERE msgid=(?)''',
+                             (msgid, ))
+            logger.debug(
+                '[db msgidrecord] removed msgid: %s', msgid)
 
 
 class GitBranch():
@@ -507,6 +519,24 @@ class RegActivityMonitor():
             dbcursor.lastrowid, regid, repsrcid, entry))
         return dbcursor.lastrowid
 
+    def delete(self, dbcursor=None):
+        if not dbcursor:
+            dbcursor = DBCON.cursor()
+
+        # delete related activities
+        for activity in RegActivityEvent.getall_by_actimonid(self.actimonid):
+            activity.delete()
+
+        dbcursor.execute('''DELETE FROM actmonitor
+                         WHERE actimonid=(?)''',
+                         (self.actimonid, ))
+        if dbcursor.rowcount > 0:
+            logger.debug('[db actmonitor] deleted (actimonid:%s, regid:%s, repsrcid:%s, entry:%s)',
+                self.actimonid, self.regid, self.repsrcid, self.entry)
+        else:
+            logger.critical('[db actmonitor] failed to deleted entry (actimonid:%s, regid:%s, repsrcid:%s, entry:%s;)',
+                self.actimonid, self.regid, self.repsrcid, self.entry)
+
     @staticmethod
     def remove(regid, repsrcid, entry):
         dbcursor = DBCON.cursor()
@@ -569,6 +599,9 @@ class RegActivityMonitor():
 
 
 class RegActivityEvent():
+    # reminder: can either get added directly or indirectly via RegActivityMonitor,
+    # hence eiher _actimonid or _regid is set
+
     def __init__(self, gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid=None, regid=None):
         self.gmtime = gmtime
         self.entry = entry
@@ -596,6 +629,32 @@ class RegActivityEvent():
                 actimonid    INTEGER,
                 regid        INTEGER
             )''')
+
+    def delete(self, dbcursor=None):
+        if not dbcursor:
+            dbcursor = DBCON.cursor()
+
+        # delete related activities
+        if self.repsrcid and ReportSource.get_by_id(self.repsrcid, dbcursor).ismail():
+            RecordProcessedMsgids.delete(self.entry)
+
+        # delete
+        if self._actimonid:
+            dbcursor.execute('''DELETE FROM regactivity
+                             WHERE gmtime=(?) AND entry=(?) AND subject=(?) AND actimonid=(?)''',
+                             (self.gmtime, self.entry, self.subject, self._actimonid ))
+        elif self._regid:
+            dbcursor.execute('''DELETE FROM regactivity
+                             WHERE gmtime=(?) AND entry=(?) AND subject=(?) AND regid=(?)''',
+                             (self.gmtime, self.entry, self.subject, self._regid, ))
+
+        if dbcursor.rowcount > 0:
+            logger.debug('[db regactivity] deleted (gmtime:%s, entry:"%s", subject:"%s", author:"%s", repsrcid:%s, gitbranchid:%s, actimonid:%s, regid:%s)',
+                self.gmtime, self.entry, self.subject, self.author, self.repsrcid, self.gitbranchid, self._actimonid, self._regid)
+        else:
+            logger.debug('[db regactivity] failed to deleted delete entry (gmtime:%s, entry:"%s", subject:"%s", author:"%s", repsrcid:%s, gitbranchid:%s, actimonid:%s, regid:%s)',
+                self.gmtime, self.entry, self.subject, self.author, self.repsrcid, self.gitbranchid, self._actimonid, self._regid)
+
 
     @staticmethod
     def event(gmtime, entry, subject, author=None, repsrcid=None, gitbranchid=None, actimonid=None, regid=None):
@@ -626,6 +685,12 @@ class RegActivityEvent():
                          (gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid))
         logger.debug('[db regactivity] insert (gmtime:%s, entry:"%s", subject:"%s", author:"%s", repsrcid:%s, gitbranchid:%s, actimonid:%s, regid:%s)' % (
             gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid))
+
+    @staticmethod
+    def getall_by_actimonid(actimonid):
+        dbcursor = DBCON.cursor()
+        for dbresult in dbcursor.execute('SELECT * FROM regactivity WHERE actimonid=(?)', (actimonid, )):
+            yield RegActivityEvent(*dbresult)
 
     @staticmethod
     def getall_by_regid(regid, onlyonce=False):
@@ -723,6 +788,26 @@ class RegHistory():
                 repsrcid    INTEGER
             )''')
 
+    def delete(self, dbcursor=None):
+        if not dbcursor:
+            dbcursor = DBCON.cursor()
+
+        if self.repsrcid and ReportSource.get_by_id(self.repsrcid, dbcursor).ismail():
+            RecordProcessedMsgids.delete(self.entry)
+
+        dbcursor.execute('''DELETE FROM reghistory
+                         WHERE regid=(?) AND gmtime=(?) AND entry=(?) AND subject=(?)''',
+                         (self.regid, self.gmtime, self.entry, self.subject,))
+
+        if dbcursor.rowcount > 0:
+            logger.debug('[db reghistory] deleted (regid:%s, gmtime:%s, entry:%s, subject:"%s", regzbotcmd:"%s", gitbranchid:%s, repsrcid:%s)',
+                self.regid, self.gmtime, self.entry, self.subject, self.regzbotcmd, self.gitbranchid, self.repsrcid)
+            return True
+        else:
+            logger.debug('[db reghistory] failed to deleted entry (regid:%s, gmtime:%s, entry:%s, subject:"%s", regzbotcmd:"%s", gitbranchid:%s, repsrcid:%s)',
+                self.regid, self.gmtime, self.entry, self.subject, self.regzbotcmd, self.gitbranchid, self.repsrcid)
+            return False
+
     @staticmethod
     def _event(regid, gmtime, entry, subject, gitbranchid=None, repsrcid=None, regzbotcmd=None):
         dbcursor = DBCON.cursor()
@@ -764,9 +849,9 @@ class RegHistory():
             return True
 
     @staticmethod
-    def get_all(regid, order="gmtime"):
+    def get_all(regid):
         dbcursor = DBCON.cursor()
-        for dbresult in dbcursor.execute('SELECT * FROM reghistory WHERE regid=(?) ORDER BY (?)', (regid, order)):
+        for dbresult in dbcursor.execute('SELECT * FROM reghistory WHERE regid=(?) ORDER BY gmtime', (regid, )):
             yield RegHistory(*dbresult)
 
     @staticmethod
@@ -898,6 +983,23 @@ class RegLink():
             monitored = False
         return "%s, %s [monitored:%s]" % (self.subject, self.link, monitored)
 
+    def delete(self, dbcursor=None):
+        if not dbcursor:
+            dbcursor = DBCON.cursor()
+
+        dbcursor.execute('''DELETE FROM reglinks
+                         WHERE regid=(?) AND gmtime=(?) AND subject=(?)''',
+                         (self.regid, self.gmtime, self.subject))
+
+        if dbcursor.rowcount > 0:
+            logger.debug('[db reglinks] deleted (regid:%s; subject:"%s" gmtime:%s)',
+                         self.regid, self.gmtime, self.subject)
+            return True
+        else:
+            logger.debug('[db reglinks] failed to deleted entry (regid:%s; subject:"%s" gmtime:%s)',
+                         self.regid, self.gmtime, self.subject)
+            return False
+
     def html(self, yattagdoc):
         with yattagdoc.tag('a', href=self.link):
             yattagdoc.text(self.subject)
@@ -964,6 +1066,36 @@ class RegressionBasic():
             '[db regressions] update solved fieds: (regid:%s; solved_reason:%s; solved_gmtime:%s; solved_entry:%s; solved_subject:"%s"; solved_gitbranchid:%s; solved_repsrcid:%s; solved_repentry:%s;  )',
             self.regid, self.solved_reason, self.solved_gmtime, self.solved_entry,
             self.solved_subject, self.solved_gitbranchid, self.solved_repsrcid, self.solved_repentry)
+
+    def delete(self, dbcursor=None):
+        if not dbcursor:
+            dbcursor = DBCON.cursor()
+
+        for actimon in RegActivityMonitor.getall_by_regid(self.regid):
+            actimon.delete(dbcursor=dbcursor)
+        for activity in RegActivityEvent.getall_by_regid(self.regid):
+            activity.delete(dbcursor=dbcursor)
+        for histevent in RegHistory.get_all(self.regid):
+            histevent.delete(dbcursor=dbcursor)
+        for link in RegLink.get_all(self.regid):
+            link.delete(dbcursor=dbcursor)
+
+        if self.repsrcid and ReportSource.get_by_id(self.repsrcid, dbcursor).ismail():
+            RecordProcessedMsgids.delete(self.entry)
+
+        dbcursor.execute('''DELETE FROM regressions
+                         WHERE regid=(?)''',
+                         (self.regid, ))
+
+        if dbcursor.rowcount > 0:
+            logger.debug('[db regressions] deleted (regid:%s; subject:"%s" repsrcid:%s; entry:%s; introduced:%s; gitbranchid:%s)',
+                         self.regid, self.subject, self.repsrcid, self.entry, self.introduced, self.gitbranchid)
+            return True
+        else:
+            logger.debug('[db regressions] failed to deleted entry (regid:%s; subject:"%s" repsrcid:%s; entry:%s; introduced:%s; gitbranchid:%s)',
+                         self.regid, self.subject, self.repsrcid, self.entry, self.introduced, self.gitbranchid)
+            return False
+
 
     @staticmethod
     def getall(order="regid"):
@@ -2099,17 +2231,30 @@ class ReportSource():
             dbcursor.lastrowid, name, serverurl, kind, priority, weburl, identifiers, lastchked))
         return dbcursor.lastrowid
 
-    def delete(self):
-        dbcursor = DBCON.cursor()
+    def delete(self, dbcursor=None):
+        if not dbcursor:
+            dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute('''DELETE FROM reportsources
                                     WHERE repsrcid=(?)''',
                                     (self.repsrcid, ))
-        logger.debug('[db reportsources] deleted entry (%s)', dbresult)
-        return True
+
+        if dbcursor.rowcount > 0:
+            logger.debug('[db reportsources] deleted entry (%s)', dbresult)
+            return True
+        logger.debug('[db reportsources] failed to deleted entry (%s)', dbresult)
+        return False
+
+
+    def ismail(self):
+        if self.kind == 'lore':
+            return True
+        return False
 
     @staticmethod
-    def get_by_id(repsrcid):
-        dbcursor = DBCON.cursor()
+    def get_by_id(repsrcid, dbcursor=None):
+        if not dbcursor:
+            dbcursor = DBCON.cursor()
+
         dbresult = dbcursor.execute(
             'SELECT * FROM reportsources WHERE repsrcid=(?)', (repsrcid, )).fetchone()
         if dbresult:
@@ -2163,7 +2308,7 @@ class ReportSource():
 
     def url(self, entry):
         if self.kind == 'lore':
-            return '%s%s' % (self.weburl, urlencode(entry, safe='@'))
+            return '%s%s' % (self.weburl, urlencode(entry, safe='@='))
         logger.critical(
             "ReportSource doesn't yet known how to return a URL for %s", self.kind)
         return None
@@ -2243,6 +2388,43 @@ def db_init(directory, create=False):
 
 def db_rollback():
     DBCON.rollback()
+
+
+def db_dump(filehdl):
+     for entry in RegressionFull.dumpall_csv():
+          for line in entry:
+              filehdl.write('%s\n' % line)
+     for line in UnhandledEvent.dumpall_csv():
+          filehdl.write('UNHANDLED: %s\n' % line)
+
+def db_diff(filehdl_old, filehdl_new, filedesc_old=None, filedesc_new=None):
+    if filedesc_old and filedesc_new:
+        diff = difflib.unified_diff(
+            filehdl_old.readlines(),
+            filehdl_new.readlines(),
+            fromfile="%s" % filedesc_old,
+            tofile="%s" % filedesc_new,
+            n=1,
+        )
+    else:
+        diff = difflib.unified_diff(
+            filehdl_old.readlines(),
+            filehdl_new.readlines(),
+            n=1,
+        )
+
+    differences = False
+    for line in diff:
+        if differences is False:
+            differences = True
+            sys.stdout.write(
+                "The results from don't match the expected results:\n")
+            sys.stdout.write('#######\n')
+        sys.stdout.write(line)
+    if differences:
+       return False
+    else:
+       return True
 
 
 def init_reposdir(directory):
@@ -2487,19 +2669,55 @@ def is_running_citesting(kind=None):
     return False
 
 
+def redo_regression(regression):
+    msgid_regression = regression.entry
+
+    with tempfile.TemporaryFile(mode='w+t') as tmpfile_before:
+        with tempfile.TemporaryFile(mode='w+t') as tmpfile_after:
+            # store everything we need later
+            db_dump(tmpfile_before)
+            msgids_to_recheck = list()
+            for histevent in RegHistory.get_all(regression.regid):
+                msgids_to_recheck.append(histevent.entry)
+
+            # remove the old regression
+            dbcursor = DBCON.cursor()
+            regression.delete(dbcursor=dbcursor)
+            del regression
+
+            # recheck all msg found that had a entry in the history
+            # to recreate the regression
+            for msgid_to_check in msgids_to_recheck:
+                process_msg(msgid_to_check)
+            db_dump(tmpfile_after)
+
+            # look out for differences, unless testing code is doing it for us
+            if not __CITESTING__:
+                if not db_diff(tmpfile_before, tmpfile_after):
+                    answer = input(
+                       "Enter 'a' to abort, anything else to move on")
+                    if answer.lower() == 'a':
+                        sys.exit(1)
+
+    regression = RegressionBasic.get_by_entry(msgid_regression)
+    if not regression:
+        logger.critical('Aborting, failed to find a redone regression with msgid %s', msgid_regression)
+        sys.exit(1)
+    return regression
+
+def recheck(msgid):
+    basicressources_init()
+    regression = RegressionBasic.get_by_entry(msgid)
+    if not regression:
+        logger.critical('Aborting, could not find any regression with msgid %s', msgid)
+        sys.exit(1)
+    regression = redo_regression(regression)
+    db_commit()
+    RegressionWeb.create_htmlpages()
+    db_close()
+
 def run():
     basicressources_init()
-
-    #rechkmsgid = '8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info'
-    #dbcursor = DBCON.cursor()
-    #dbcursor.execute('''DELETE FROM msgidrecord
-    #                     WHERE msgid=(?)''',
-    #                     (rechkmsgid, ))
-    #
-    #process_msg(rechkmsgid)
-    #dbcursor.execute('''UPDATE reportsources SET lastchked = (?) WHERE serverurl=(?)''',
-    #                         (200, 'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions'))
-    #dbcursor = None
 
     # check for new mails
     import lore

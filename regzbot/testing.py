@@ -40,29 +40,22 @@ def get_resultfiles(path_testdata, path_tmpdir):
 
 
 def check_results(results_expected, results_generated):
+    def ask_user(results_expected, results_generated):
+        answer = input(
+            "Enter 'm' to call meld; enter 'a' or 'y' to accept differences; simply hit enter to move on.")
+        if answer.lower() == 'm':
+            os.system("meld %s %s" % (results_expected, results_generated))
+            return False
+        if answer.lower() == 'a' or answer.lower() == 'y':
+            shutil.copyfile(results_generated, results_expected)
+        return True
+
     with open(results_expected, 'r') as file_expected:
         with open(results_generated, 'r') as file_generated:
-            diff = difflib.unified_diff(
-                file_expected.readlines(),
-                file_generated.readlines(),
-                fromfile="%s" % results_expected,
-                tofile="%s" % results_generated,
-                n=1,
-            )
-            generator_data = False
-            for line in diff:
-                if generator_data is False:
-                    generator_data = True
-                    sys.stdout.write(
-                        'The results from this run differ from the expected results:\n')
-                    sys.stdout.write('#######\n')
-                sys.stdout.write(line)
-            if generator_data is True:
+            if not regzbot.db_diff(file_expected, file_generated, "%s" % results_expected, "%s" % results_generated):
                 sys.stdout.write('#######\n')
-                answer = input(
-                    "Enter 'a' or 'y' to accept them, any other resonse to move on: ")
-                if answer.lower() == 'a' or answer.lower() == 'y':
-                    shutil.copyfile(results_generated, results_expected)
+                while not ask_user(results_expected, results_generated):
+                    pass
 
 
 def init(tmpdir):

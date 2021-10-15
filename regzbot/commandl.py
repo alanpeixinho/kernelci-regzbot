@@ -31,6 +31,10 @@ def cmd_setup(cmdargs):
     regzbot.basicressources_setup()
 
 
+def cmd_recheck(cmdargs):
+    regzbot.recheck(cmdargs.msgid_to_check)
+
+
 def cmd_run(cmdargs):
     regzbot.run()
 
@@ -80,6 +84,11 @@ def cmd():
     sparser_run = subparsers.add_parser('run', help='Run regzbot')
     sparser_run.set_defaults(func=cmd_run)
 
+    # recheck
+    sparser_recheck = subparsers.add_parser('recheck', help='Recheck a specific message')
+    sparser_recheck.add_argument(dest='msgid_to_check', help='msgid to recheck')
+    sparser_recheck.set_defaults(func=cmd_recheck)
+
     # test
     if get_testresults_datadir():
         sparser_test = subparsers.add_parser('test', help='run tests')
@@ -105,6 +114,7 @@ def cmd():
     else:
         loghandler.setLevel(logging.INFO)
     logger.addHandler(loghandler)
+
 
     # go
     if 'func' not in cmdargs:
