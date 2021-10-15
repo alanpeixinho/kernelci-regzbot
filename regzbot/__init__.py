@@ -1283,7 +1283,7 @@ class RegressionBasic():
         # in case the fix already showed up, let the responsible function take over
         if lookup:
             gittree, gitbranch = GitTree.commit_find(commit_hexsha)
-            if gitbranch:
+            if gitbranch and gitbranch.gitbranchid == self.gitbranchid:
                 commit = gittree.commit(commit_hexsha)
                 mergedate = gitbranch.merge_date(commit.hexsha)
 
@@ -1503,6 +1503,9 @@ class RegressionFull(RegressionBasic):
                 self.solved_entry, gittree=gittree)
             self.solved_url = GitBranch.url_by_id(
                 self.solved_gitbranchid, self.solved_entry)
+        #
+        # FIXMELATER: link to fixes in next that are supposed to fix this, but haven't reach master yet
+        #
         elif self.solved_repsrcid:
             self.solved_url = ReportSource.url_by_id(
                 self.solved_repsrcid, self.solved_repentry)

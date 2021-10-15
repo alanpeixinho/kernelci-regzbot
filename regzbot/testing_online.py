@@ -39,6 +39,10 @@ def run(resultfilename, tmpdir):
             chk_mail, chk_git, wait = callfunction(
                 'test_%s_%s' % (outercount, innercount))
 
+            if chk_git:
+                for gittree in regzbot.GitTree.getall():
+                      gittree.update()
+
             # write results
             resultfile.write('[%s_%s_%s]\n' %
                              (testfuncprefix, outercount, innercount))
