@@ -29,21 +29,29 @@ def adjust_repsrc(repsrc, msg):
 
     adresses = []
     if 'To' in msg:
-        # try/except needed here to handle mails without To:
-        # https://lore.kernel.org/all/20210925074531.10446-1-tomm.merciai@gmail.com/raw
-        # https://bugs.python.org/issue39100
         try:
             adresses.extend(get_email_adresses(msg['To']))
-        except AttributeError:
-            pass
+        except AttributeError as err:
+            # handle mails without To:, for example
+            #      https://lore.kernel.org/all/20211005053239.3E8DEC4338F@smtp.codeaurora.org/raw
+            #     https://lore.kernel.org/all/20210925074531.10446-1-tomm.merciai@gmail.com/raw
+            # related: https://bugs.python.org/issue39100
+            logger.warning('Ignoring "To" in %s due to and exception: "AttributeError: %s"', email_get_msgid(msg), err)
+        except ValueError as err:
+            # Workaround for https://lore.kernel.org/all/1634261360.fed2opbgxw.astroid@bobo.none/raw
+            #     -> "ValueError: invalid arguments; address parts cannot contain CR or LF"
+            logger.warning('Ignoring "To" in %s due to and exception: "ValueError: %s"',  email_get_msgid(msg), err)
 
     if 'CC' in msg:
         # sane workarund as above, triggered by
-        # https://lore.kernel.org/all/20211005053239.3E8DEC4338F@smtp.codeaurora.org/raw
         try:
             adresses.extend(get_email_adresses(msg['CC']))
-        except AttributeError:
-            pass
+        except AttributeError as err:
+            # see above
+            logger.warning('Ignoring "CC" in %s due to and exception: "AttributeError: %s"', email_get_msgid(msg), err)
+        except ValueError as err:
+            # see above
+            logger.warning('Ignoring "CC" in %s due to and exception: "ValueError: %s"',  email_get_msgid(msg), err)
 
     for adress in adresses:
         tmprepsrc = regzbot.ReportSource.get_by_identifier(adress)
