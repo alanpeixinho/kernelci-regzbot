@@ -38,6 +38,8 @@ def cmd_recheck(cmdargs):
 def cmd_run(cmdargs):
     regzbot.run()
 
+def cmd_report(cmdargs):
+    regzbot.report()
 
 def cmd_test(cmdargs):
     # which tests to run
@@ -88,6 +90,10 @@ def cmd():
     sparser_recheck = subparsers.add_parser('recheck', help='Recheck a specific message')
     sparser_recheck.add_argument(dest='msgid_to_check', help='msgid to recheck')
     sparser_recheck.set_defaults(func=cmd_recheck)
+
+    # status
+    sparser_report = subparsers.add_parser('report', help='Send a status report')
+    sparser_report.set_defaults(func=cmd_report)
 
     # test
     if get_testresults_datadir():

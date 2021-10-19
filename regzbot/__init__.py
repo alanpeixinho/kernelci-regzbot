@@ -10,10 +10,9 @@ import os
 import pathlib
 import re
 import tempfile
+import urllib.parse
 import sqlite3
 import sys
-
-from urllib.parse import quote as urlencode
 
 import git
 import yattag
@@ -848,11 +847,11 @@ class RegHistory():
         else:
             return True
 
-    @staticmethod
-    def get_all(regid):
+    @classmethod
+    def get_all(cls, regid):
         dbcursor = DBCON.cursor()
         for dbresult in dbcursor.execute('SELECT * FROM reghistory WHERE regid=(?) ORDER BY gmtime', (regid, )):
-            yield RegHistory(*dbresult)
+            yield cls(*dbresult)
 
     @staticmethod
     def get_latest(regid):
@@ -1098,10 +1097,15 @@ class RegressionBasic():
 
 
     @staticmethod
-    def getall(order="regid"):
+    def getall(order="regid", unsolved=True):
         dbcursor = DBCON.cursor()
-        for dbresult in dbcursor.execute('SELECT * FROM regressions ORDER BY (?)', (order, )):
-            yield dbresult
+
+        if unsolved:
+            for dbresult in dbcursor.execute('SELECT * FROM regressions ORDER BY (?)', (order, )):
+                yield dbresult
+        else:
+            for dbresult in dbcursor.execute('SELECT * FROM regressions WHERE solved_gitbranchid IS NULL ORDER BY (?)', (order, )):
+                yield dbresult
 
     @staticmethod
     def get_by_regid(regid):
@@ -1321,10 +1325,10 @@ class RegressionBasic():
             description = link.removeprefix("http://")
         return link, description
 
-    def linkadd(self, tagload, gmtime):
+    def linkadd(self, tagload, gmtime, author):
         link, description = self.linkparse(tagload)
         updated = RegLink.add_link(
-            self.regid, gmtime, description, None, link)
+            self.regid, gmtime, description, author, link)
         if updated is False:
             logger.info('regression[%s, "%s"]: added link to %s")' % (
                 self.regid, self.subject, link))
@@ -1454,6 +1458,8 @@ class RegressionBasic():
 
 
 class RegressionFull(RegressionBasic):
+    Regactivityevent = RegActivityEvent
+
     def __init__(self, *args):
         super().__init__(*args)
 
@@ -1462,7 +1468,7 @@ class RegressionFull(RegressionBasic):
 
         self.gmtime = self._histevents[0].gmtime
 
-        self._report_url = ReportSource.get_by_id(
+        self.report_url = ReportSource.get_by_id(
             self.repsrcid).url(self.entry)
         self._introduced_short, _ = self._get_presentable(self.introduced)
 
@@ -1519,10 +1525,10 @@ class RegressionFull(RegressionBasic):
             histevents.append(event)
         return histevents
 
-    @staticmethod
-    def _init_actidata(regid):
+    @classmethod
+    def _init_actidata(cls, regid):
         actievents = list()
-        for actievent in RegActivityEvent.getall_by_regid(regid, onlyonce=True):
+        for actievent in (cls.Regactivityevent).getall_by_regid(regid, onlyonce=True):
             actievents.append(actievent)
         return actievents
 
@@ -1640,10 +1646,10 @@ class RegressionFull(RegressionBasic):
             return RegressionFull(*dbresult)
         return None
 
-    @staticmethod
-    def get_all(order="regid"):
-        for dbresult in RegressionBasic.getall(order):
-            yield RegressionFull(*dbresult)
+    @classmethod
+    def get_all(cls, order="regid", unsolved=True):
+        for dbresult in RegressionBasic.getall(order, unsolved):
+            yield cls(*dbresult)
 
     @staticmethod
     def dumpall_csv():
@@ -1671,7 +1677,7 @@ class RegressionFull(RegressionBasic):
     def csv(self):
         rtntext = list()
         rtntext.append("REGRESSION: %s, %s, %s (%s), %s, %s, %s, %s, %s" %
-                       (self.subject, self._report_url, self._introduced_short, self._introduced_presentable,
+                       (self.subject, self.report_url, self._introduced_short, self._introduced_presentable,
                            self._introduced_url, self.gmtime, self.treename, self._branchname, self.category))
 
         for link in RegLink.get_all(self.regid):
@@ -1714,7 +1720,7 @@ class RegressionFull(RegressionBasic):
                 with yattagdoc_line.tag('summary', style="list-style-position: outside;"):
                     yattagdoc.text('Report: ')
                     with yattagdoc.tag('i'):
-                        with yattagdoc.tag('a', href=self._report_url):
+                        with yattagdoc.tag('a', href=self.report_url):
                             yattagdoc.text(self.subject)
                     yattagdoc.text(' by %s' % self.author)
 
@@ -2311,7 +2317,7 @@ class ReportSource():
 
     def url(self, entry):
         if self.kind == 'lore':
-            return '%s%s' % (self.weburl, urlencode(entry, safe='@='))
+            return '%s%s' % (self.weburl, urlencode(entry))
         logger.critical(
             "ReportSource doesn't yet known how to return a URL for %s", self.kind)
         return None
@@ -2738,6 +2744,13 @@ def run():
     db_close()
 
 
+def report():
+    import export_mail
+
+
+    basicressources_init()
+    return export_mail.main()
+
 def download_msg(msgid, repsrcid=None):
     return lore.download_msg(msgid, repsrcid)
 
@@ -2756,6 +2769,9 @@ def process_thread(msgid, repsrcid=None):
 def checksource(identifier):
     return lore.checksource(identifier)
 
+
+def urlencode(url):
+    return urllib.parse.quote(url, safe='@=')
 
 def inspectobj(obj):
     for att in dir(obj):

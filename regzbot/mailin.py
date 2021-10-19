@@ -170,7 +170,7 @@ def process_tag(repsrc, tag, msg):
         elif tagcmd == "introduced" or tagcmd == "^introduced"  or tagcmd == "^^introduced":
             regressionb.introduced_update(tagload)
         elif tagcmd == "link":
-            regressionb.linkadd(tagload, gmtime)
+            regressionb.linkadd(tagload, gmtime, author)
         elif tagcmd == "unlink":
             regressionb.linkremove(tagload)
         elif tagcmd == "monitor":
