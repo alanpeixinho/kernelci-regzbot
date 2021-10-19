@@ -2202,12 +2202,10 @@ def run():
 
 
 def report():
-    # import export_mail
-    import export_csv
+    import export_mail
 
     basicressources_init()
-    # return export_mail.main()
-    export_csv.main()
+    return export_mail.main()
 
 def download_msg(msgid, repsrcid=None):
     return lore.download_msg(msgid, repsrcid)
