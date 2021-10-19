@@ -19,7 +19,7 @@ class RegLinkCSV(regzbot.RegLink):
                 and regzbot.RegActivityMonitor.ismonitored(
                         self.entry, self.regid, self.repsrcid):
              return "%s, %s [monitored]" % (self.subject, self.link)
-        return "%s, %s" % (self.subject, self.link)
+        return "%s, %s, %s, %s" % (self.subject, self.link, self.author, self.gmtime)
 
 
 class RegHistoryCSV(regzbot.RegHistory):

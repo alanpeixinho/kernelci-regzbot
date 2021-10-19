@@ -363,7 +363,7 @@ LATEST: Re: Bug in Memory Layout of rx_desc for QCA6174, Thorsten Leemhuis, http
 
 [onlntest_1_0]
 REGRESSION: virtio-net: kernel panic in virtio_net.c, https://lore.kernel.org/regressions/5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com, v5.13..v5.14-rc1 (None), None, 1633608262, mainline, master, resolved
-LINK: Looks like a fix for this somehow fall through the cracks, https://lore.kernel.org/regressions/1633623446.6192446-1-xuanzhuo@linux.alibaba.com/
+LINK: Looks like a fix for this somehow fall through the cracks, https://lore.kernel.org/regressions/1633623446.6192446-1-xuanzhuo@linux.alibaba.com/, Thorsten Leemhuis, 1633679996
 SOLVED: fixed, 1634250099, 732b74d64704, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, virtio-net: fix for skb_over_panic inside big mode
 ACTIVITY: virtio-net: kernel panic in virtio_net.c, Corentin Noël, https://lore.kernel.org/regressions/5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com, 1633608262
 ACTIVITY: Re: virtio-net: kernel panic in virtio_net.c, Michael S. Tsirkin, https://lore.kernel.org/regressions/20211007090601-mutt-send-email-mst@kernel.org, 1633612259
@@ -389,7 +389,7 @@ LATEST: Re: virtio-net: kernel panic in virtio_net.c, Thorsten Leemhuis, https:/
 
 [onlntest_1_1]
 REGRESSION: virtio-net: kernel panic in virtio_net.c, https://lore.kernel.org/regressions/5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com, v5.13..v5.14-rc1 (None), None, 1633608262, mainline, master, resolved
-LINK: Looks like a fix for this somehow fall through the cracks, https://lore.kernel.org/regressions/1633623446.6192446-1-xuanzhuo@linux.alibaba.com/
+LINK: Looks like a fix for this somehow fall through the cracks, https://lore.kernel.org/regressions/1633623446.6192446-1-xuanzhuo@linux.alibaba.com/, Thorsten Leemhuis, 1633679996
 SOLVED: fixed, 1634250099, 732b74d64704, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, virtio-net: fix for skb_over_panic inside big mode
 ACTIVITY: virtio-net: kernel panic in virtio_net.c, Corentin Noël, https://lore.kernel.org/regressions/5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com, 1633608262
 ACTIVITY: Re: virtio-net: kernel panic in virtio_net.c, Michael S. Tsirkin, https://lore.kernel.org/regressions/20211007090601-mutt-send-email-mst@kernel.org, 1633612259
