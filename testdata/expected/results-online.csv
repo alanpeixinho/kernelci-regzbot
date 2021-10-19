@@ -1,8 +1,8 @@
 [onlntest_0_0]
 REGRESSION: Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 8a0c014cd205 (v5.12-rc1-dontuse), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=8a0c014cd20516ade9654fc13b51345ec58e7be8, 1628408566, mainline, master, resolved
-LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net [monitored:True]
-LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com [monitored:True]
-LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com [monitored:True]
+LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net [monitored]
+LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com [monitored]
+LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com [monitored]
 SOLVED: fixed, 1630375306, v5.15-rc1, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=c7e9d0020361f4308a70cdfd6d5335e273eb8717, Revert "floppy: reintroduce O_NDELAY fix"
 ACTIVITY: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net, 1627066070
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/e49603c2-ac36-12b0-57cf-ff5ab30115bc@linux.com, 1627286265
@@ -50,9 +50,9 @@ LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis
 
 [onlntest_0_1]
 REGRESSION: Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 8a0c014cd205 (v5.12-rc1-dontuse), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=8a0c014cd20516ade9654fc13b51345ec58e7be8, 1628408566, mainline, master, resolved
-LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net [monitored:True]
-LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com [monitored:True]
-LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com [monitored:True]
+LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net [monitored]
+LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com [monitored]
+LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com [monitored]
 SOLVED: fixed, 1630375306, v5.15-rc1, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=c7e9d0020361f4308a70cdfd6d5335e273eb8717, Revert "floppy: reintroduce O_NDELAY fix"
 ACTIVITY: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net, 1627066070
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/e49603c2-ac36-12b0-57cf-ff5ab30115bc@linux.com, 1627286265
@@ -117,15 +117,16 @@ ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan 
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Thorsten Leemhuis, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/87a6jl9ndo.fsf@codeaurora.org, 1633600099
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/874k9t9n13.fsf@codeaurora.org, 1633600552
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/87ee8hgqni.fsf@codeaurora.org, 1634645521
 HISTORY: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209, report: automatically added due to later ^introduced
 HISTORY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631, ^introduced: 020d3b26c07abe274ac17f64999bbd3bf3342195
-LATEST: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/874k9t9n13.fsf@codeaurora.org, 1633600552
+LATEST: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/87ee8hgqni.fsf@codeaurora.org, 1634645521
 
 [onlntest_0_2]
 REGRESSION: Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 8a0c014cd205 (v5.12-rc1-dontuse), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=8a0c014cd20516ade9654fc13b51345ec58e7be8, 1628408566, mainline, master, resolved
-LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net [monitored:True]
-LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com [monitored:True]
-LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com [monitored:True]
+LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net [monitored]
+LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com [monitored]
+LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com [monitored]
 SOLVED: fixed, 1630375306, v5.15-rc1, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=c7e9d0020361f4308a70cdfd6d5335e273eb8717, Revert "floppy: reintroduce O_NDELAY fix"
 ACTIVITY: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net, 1627066070
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/e49603c2-ac36-12b0-57cf-ff5ab30115bc@linux.com, 1627286265
@@ -190,12 +191,13 @@ ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan 
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Thorsten Leemhuis, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/87a6jl9ndo.fsf@codeaurora.org, 1633600099
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/874k9t9n13.fsf@codeaurora.org, 1633600552
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/87ee8hgqni.fsf@codeaurora.org, 1634645521
 HISTORY: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209, report: automatically added due to later ^introduced
 HISTORY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631, ^introduced: 020d3b26c07abe274ac17f64999bbd3bf3342195
-LATEST: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/874k9t9n13.fsf@codeaurora.org, 1633600552
+LATEST: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/87ee8hgqni.fsf@codeaurora.org, 1634645521
 REGRESSION: nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, e7006de6c238 (v5.15-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e7006de6c23803799be000a5dcce4d916a36541a, 1632575442, mainline, master, resolved
-LINK: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX%2Bi7OfMA0Vd4FWA@mail.gmail.com [monitored:True]
-LINK: [PATCHv2] nvme: add command id quirk for apple controllers, https://lore.kernel.org/lkml/20210927154306.387437-1-kbusch@kernel.org [monitored:True]
+LINK: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX%2Bi7OfMA0Vd4FWA@mail.gmail.com [monitored]
+LINK: [PATCHv2] nvme: add command id quirk for apple controllers, https://lore.kernel.org/lkml/20210927154306.387437-1-kbusch@kernel.org [monitored]
 SOLVED: fixed, 1633197636, v5.15-rc4, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=a2941f6aa71a72be2c82c0a168523a492d093530, nvme: add command id quirk for apple controllers
 ACTIVITY: nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442
 ACTIVITY: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442
@@ -238,9 +240,9 @@ LATEST: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free 
 
 [onlntest_0_3]
 REGRESSION: Revert "floppy: reintroduce O_NDELAY fix", https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 8a0c014cd205 (v5.12-rc1-dontuse), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=8a0c014cd20516ade9654fc13b51345ec58e7be8, 1628408566, mainline, master, resolved
-LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net [monitored:True]
-LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com [monitored:True]
-LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com [monitored:True]
+LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net [monitored]
+LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com [monitored]
+LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com [monitored]
 SOLVED: fixed, 1630375306, v5.15-rc1, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=c7e9d0020361f4308a70cdfd6d5335e273eb8717, Revert "floppy: reintroduce O_NDELAY fix"
 ACTIVITY: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net, 1627066070
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/e49603c2-ac36-12b0-57cf-ff5ab30115bc@linux.com, 1627286265
@@ -305,12 +307,13 @@ ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan 
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Thorsten Leemhuis, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/87a6jl9ndo.fsf@codeaurora.org, 1633600099
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/874k9t9n13.fsf@codeaurora.org, 1633600552
+ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/87ee8hgqni.fsf@codeaurora.org, 1634645521
 HISTORY: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209, report: automatically added due to later ^introduced
 HISTORY: Re: [regression] mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info, 1632591631, ^introduced: 020d3b26c07abe274ac17f64999bbd3bf3342195
-LATEST: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/874k9t9n13.fsf@codeaurora.org, 1633600552
+LATEST: Re: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/87ee8hgqni.fsf@codeaurora.org, 1634645521
 REGRESSION: nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, e7006de6c238 (v5.15-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e7006de6c23803799be000a5dcce4d916a36541a, 1632575442, mainline, master, resolved
-LINK: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX%2Bi7OfMA0Vd4FWA@mail.gmail.com [monitored:True]
-LINK: [PATCHv2] nvme: add command id quirk for apple controllers, https://lore.kernel.org/lkml/20210927154306.387437-1-kbusch@kernel.org [monitored:True]
+LINK: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX%2Bi7OfMA0Vd4FWA@mail.gmail.com [monitored]
+LINK: [PATCHv2] nvme: add command id quirk for apple controllers, https://lore.kernel.org/lkml/20210927154306.387437-1-kbusch@kernel.org [monitored]
 SOLVED: fixed, 1633197636, v5.15-rc4, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=a2941f6aa71a72be2c82c0a168523a492d093530, nvme: add command id quirk for apple controllers
 ACTIVITY: nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442
 ACTIVITY: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442
@@ -360,7 +363,7 @@ LATEST: Re: Bug in Memory Layout of rx_desc for QCA6174, Thorsten Leemhuis, http
 
 [onlntest_1_0]
 REGRESSION: virtio-net: kernel panic in virtio_net.c, https://lore.kernel.org/regressions/5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com, v5.13..v5.14-rc1 (None), None, 1633608262, mainline, master, resolved
-LINK: Looks like a fix for this somehow fall through the cracks, https://lore.kernel.org/regressions/1633623446.6192446-1-xuanzhuo@linux.alibaba.com/ [monitored:False]
+LINK: Looks like a fix for this somehow fall through the cracks, https://lore.kernel.org/regressions/1633623446.6192446-1-xuanzhuo@linux.alibaba.com/
 SOLVED: fixed, 1634250099, 732b74d64704, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, virtio-net: fix for skb_over_panic inside big mode
 ACTIVITY: virtio-net: kernel panic in virtio_net.c, Corentin Noël, https://lore.kernel.org/regressions/5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com, 1633608262
 ACTIVITY: Re: virtio-net: kernel panic in virtio_net.c, Michael S. Tsirkin, https://lore.kernel.org/regressions/20211007090601-mutt-send-email-mst@kernel.org, 1633612259
@@ -386,7 +389,7 @@ LATEST: Re: virtio-net: kernel panic in virtio_net.c, Thorsten Leemhuis, https:/
 
 [onlntest_1_1]
 REGRESSION: virtio-net: kernel panic in virtio_net.c, https://lore.kernel.org/regressions/5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com, v5.13..v5.14-rc1 (None), None, 1633608262, mainline, master, resolved
-LINK: Looks like a fix for this somehow fall through the cracks, https://lore.kernel.org/regressions/1633623446.6192446-1-xuanzhuo@linux.alibaba.com/ [monitored:False]
+LINK: Looks like a fix for this somehow fall through the cracks, https://lore.kernel.org/regressions/1633623446.6192446-1-xuanzhuo@linux.alibaba.com/
 SOLVED: fixed, 1634250099, 732b74d64704, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, virtio-net: fix for skb_over_panic inside big mode
 ACTIVITY: virtio-net: kernel panic in virtio_net.c, Corentin Noël, https://lore.kernel.org/regressions/5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com, 1633608262
 ACTIVITY: Re: virtio-net: kernel panic in virtio_net.c, Michael S. Tsirkin, https://lore.kernel.org/regressions/20211007090601-mutt-send-email-mst@kernel.org, 1633612259

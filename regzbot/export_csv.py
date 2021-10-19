@@ -14,12 +14,12 @@ class RegLinkCSV(regzbot.RegLink):
         super().__init__(*args)
 
     def csv(self):
-        if self.repsrcid and self.entry:
-            monitored = regzbot.RegActivityMonitor.ismonitored(
-                self.entry, self.regid, self.repsrcid)
-        else:
-            monitored = False
-        return "%s, %s [monitored:%s]" % (self.subject, self.link, monitored)
+        if self.repsrcid \
+                and self.entry \
+                and regzbot.RegActivityMonitor.ismonitored(
+                        self.entry, self.regid, self.repsrcid):
+             return "%s, %s [monitored]" % (self.subject, self.link)
+        return "%s, %s" % (self.subject, self.link)
 
 
 class RegHistoryCSV(regzbot.RegHistory):

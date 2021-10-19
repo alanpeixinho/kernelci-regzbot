@@ -364,7 +364,7 @@ LATEST: The commit 'next' in '7510deb6f945' linked to this regression, None, htt
 
 [offltest_2_0]
 REGRESSION: test_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, v1.8..v1.9-rc1 (None), None, 1546300800, mainline, master, default
-LINK: Linktitle, https://www.kernel.org/releases.html [monitored:False]
+LINK: Linktitle, https://www.kernel.org/releases.html
 ACTIVITY: test_2_0: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, 1546300800
 ACTIVITY: test_2_0_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0_1@example.com, 1546387200
 HISTORY: test_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, 1546300800, introduced: v1.8..v1.9-rc1
@@ -373,7 +373,7 @@ LATEST: test_2_0_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore
 
 [offltest_2_1]
 REGRESSION: test_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, v1.8..v1.9-rc1 (None), None, 1546300800, mainline, master, default
-LINK: Updated linktitle, https://www.kernel.org/releases.html [monitored:False]
+LINK: Updated linktitle, https://www.kernel.org/releases.html
 ACTIVITY: test_2_0: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, 1546300800
 ACTIVITY: test_2_0_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0_1@example.com, 1546387200
 ACTIVITY: test_2_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_1@example.com, 1546473600
@@ -410,7 +410,7 @@ LATEST: test_2_3: refer to this regression on another mainling list, nobody@exam
 
 [offltest_2_4]
 REGRESSION: test_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, v1.8..v1.9-rc1 (None), None, 1546300800, mainline, master, default
-LINK: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com [monitored:True]
+LINK: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com [monitored]
 ACTIVITY: test_2_0: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, 1546300800
 ACTIVITY: test_2_0_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0_1@example.com, 1546387200
 ACTIVITY: test_2_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_1@example.com, 1546473600
@@ -428,7 +428,7 @@ LATEST: test_2_4: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.k
 
 [offltest_2_5]
 REGRESSION: test_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, v1.8..v1.9-rc1 (None), None, 1546300800, mainline, master, default
-LINK: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com [monitored:True]
+LINK: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com [monitored]
 ACTIVITY: test_2_0: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, 1546300800
 ACTIVITY: test_2_0_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0_1@example.com, 1546387200
 ACTIVITY: test_2_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_1@example.com, 1546473600
@@ -447,7 +447,7 @@ LATEST: test_2_5: reply to the thread now monitored, nobody@example.com, https:/
 
 [offltest_2_6]
 REGRESSION: test_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, v1.8..v1.9-rc1 (None), None, 1546300800, mainline, master, default
-LINK: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com [monitored:False]
+LINK: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com
 ACTIVITY: test_2_0: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, 1546300800
 ACTIVITY: test_2_0_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0_1@example.com, 1546387200
 ACTIVITY: test_2_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_1@example.com, 1546473600
@@ -466,7 +466,7 @@ LATEST: test_2_6: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.k
 
 [offltest_2_7]
 REGRESSION: test_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, v1.8..v1.9-rc1 (None), None, 1546300800, mainline, master, default
-LINK: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com [monitored:False]
+LINK: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com
 ACTIVITY: test_2_0: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, 1546300800
 ACTIVITY: test_2_0_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0_1@example.com, 1546387200
 ACTIVITY: test_2_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_1@example.com, 1546473600
@@ -485,8 +485,8 @@ LATEST: test_2_6: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.k
 
 [offltest_2_8]
 REGRESSION: test_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, v1.8..v1.9-rc1 (None), None, 1546300800, mainline, master, default
-LINK: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com [monitored:False]
-LINK: test_2_8: refer to this regression on another mainling list, https://lore.kernel.org/lkml/regzbot-testing-test_2_8@example.com [monitored:True]
+LINK: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com
+LINK: test_2_8: refer to this regression on another mainling list, https://lore.kernel.org/lkml/regzbot-testing-test_2_8@example.com [monitored]
 ACTIVITY: test_2_0: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, 1546300800
 ACTIVITY: test_2_0_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0_1@example.com, 1546387200
 ACTIVITY: test_2_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_1@example.com, 1546473600
@@ -507,8 +507,8 @@ LATEST: test_2_8: refer to this regression on another mainling list, nobody@exam
 
 [offltest_2_9]
 REGRESSION: test_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, v1.8..v1.9-rc1 (None), None, 1546300800, mainline, master, default
-LINK: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com [monitored:False]
-LINK: test_2_8: refer to this regression on another mainling list, https://lore.kernel.org/lkml/regzbot-testing-test_2_8@example.com [monitored:True]
+LINK: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com
+LINK: test_2_8: refer to this regression on another mainling list, https://lore.kernel.org/lkml/regzbot-testing-test_2_8@example.com [monitored]
 ACTIVITY: test_2_0: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, 1546300800
 ACTIVITY: test_2_0_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0_1@example.com, 1546387200
 ACTIVITY: test_2_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_1@example.com, 1546473600
@@ -879,7 +879,7 @@ ACTIVITY: test_4_3_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lo
 HISTORY: test_4_3_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_3_1@example.com, 1547683200, introduced: 123456789012
 LATEST: test_4_3_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_3_1@example.com, 1547683200
 REGRESSION: test_4_4_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_4_0@example.com, 23bde5c338c7 (None), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=23bde5c338c7d028609c1af64173853fb1b84018, 1547769600, mainline, master, curridentified
-LINK: Link somewhere, https://www.kernel.org/releases.html [monitored:False]
+LINK: Link somewhere, https://www.kernel.org/releases.html
 ACTIVITY: test_4_4_0: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_4_0@example.com, 1547769600
 ACTIVITY: test_4_4_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_4_1@example.com, 1547856000
 HISTORY: test_4_4_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_4_0@example.com, 1547769600, introduced: 23bde5c338c7d028609c1af64173853fb1b84018
