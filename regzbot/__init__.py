@@ -691,8 +691,8 @@ class RegActivityEvent():
         for dbresult in dbcursor.execute('SELECT * FROM regactivity WHERE actimonid=(?)', (actimonid, )):
             yield RegActivityEvent(*dbresult)
 
-    @staticmethod
-    def getall_by_regid(regid, onlyonce=False):
+    @classmethod
+    def get_all(cls, regid, onlyonce=True):
         def _getall_actimonids(regid):
             actimonids = list()
             for actimon in RegActivityMonitor.getall_by_regid(regid):
@@ -707,10 +707,10 @@ class RegActivityEvent():
         dbcursor = DBCON.cursor()
         if onlyonce:
             for dbresult in dbcursor.execute('SELECT DISTINCT gmtime, entry, subject, author, repsrcid, gitbranchid FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % placeholders, replacements):
-                yield RegActivityEvent(*dbresult)
+                yield cls(*dbresult)
         else:
             for dbresult in dbcursor.execute('SELECT * FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % placeholders, replacements):
-                yield RegActivityEvent(*dbresult)
+                yield cls(*dbresult)
 
     @staticmethod
     def get_actimonid_by_entry(entry):
@@ -749,9 +749,6 @@ class RegActivityEvent():
         if self.repsrcid is None:
             return GitBranch.url_by_id(self.gitbranchid, self.entry)
         return ReportSource.url_by_id(self.repsrcid, self.entry)
-
-    def csv(self):
-        return "%s, %s, %s, %s" % (self.subject, self.author, self.url(), self.gmtime)
 
     def html(self, yattagdoc):
         with yattagdoc.tag('a', href=self.url()):
@@ -870,11 +867,6 @@ class RegHistory():
             return ReportSource.url_by_id(self.repsrcid, self.entry)
         return None
 
-    def csv(self):
-        if self.regzbotcmd:
-            return "%s, %s, %s, %s" % (self.subject, self.url(), self.gmtime, self.regzbotcmd)
-        return "%s, %s, %s" % (self.subject, self.url(), self.gmtime)
-
     def html(self, yattagdoc):
         if self.regzbotcmd:
             with yattagdoc.tag('a', href=self.url()):
@@ -968,19 +960,11 @@ class RegLink():
             return True
         return False
 
-    @staticmethod
-    def get_all(regid):
+    @classmethod
+    def get_all(cls, regid):
         dbcursor = DBCON.cursor()
         for dbresult in dbcursor.execute('SELECT * FROM reglinks WHERE regid=(?) ORDER BY gmtime', (regid,)):
-            yield RegLink(*dbresult)
-
-    def csv(self):
-        if self.repsrcid and self.entry:
-            monitored = RegActivityMonitor.ismonitored(
-                self.entry, self.regid, self.repsrcid)
-        else:
-            monitored = False
-        return "%s, %s [monitored:%s]" % (self.subject, self.link, monitored)
+            yield cls(*dbresult)
 
     def delete(self, dbcursor=None):
         if not dbcursor:
@@ -1072,7 +1056,7 @@ class RegressionBasic():
 
         for actimon in RegActivityMonitor.getall_by_regid(self.regid):
             actimon.delete(dbcursor=dbcursor)
-        for activity in RegActivityEvent.getall_by_regid(self.regid):
+        for activity in RegActivityEvent.get_all(self.regid, onlyonce=False):
             activity.delete(dbcursor=dbcursor)
         for histevent in RegHistory.get_all(self.regid):
             histevent.delete(dbcursor=dbcursor)
@@ -1458,13 +1442,17 @@ class RegressionBasic():
 
 
 class RegressionFull(RegressionBasic):
+    # define variables for other classes we rely on so subclasses can overlay them
+    Reglink = RegLink
+    Reghistory = RegHistory
     Regactivityevent = RegActivityEvent
 
     def __init__(self, *args):
         super().__init__(*args)
 
-        self._histevents = self._init_histdata(self.regid)
-        self._actievents = self._init_actidata(self.regid)
+        self._links = self._init_related_objects(list(), self.Reglink)
+        self._histevents = self._init_related_objects(list(), self.Reghistory)
+        self._actievents = self._init_related_objects(list(), self.Regactivityevent)
 
         self.gmtime = self._histevents[0].gmtime
 
@@ -1518,19 +1506,10 @@ class RegressionFull(RegressionBasic):
         else:
             self.solved_url = None
 
-    @staticmethod
-    def _init_histdata(regid):
-        histevents = list()
-        for event in RegHistory.get_all(regid):
-            histevents.append(event)
-        return histevents
-
-    @classmethod
-    def _init_actidata(cls, regid):
-        actievents = list()
-        for actievent in (cls.Regactivityevent).getall_by_regid(regid, onlyonce=True):
-            actievents.append(actievent)
-        return actievents
+    def _init_related_objects(self, datalist, cls):
+        for obj in cls.get_all(self.regid):
+            datalist.append(obj)
+        return datalist
 
     def _get_presentable(self, gitref, gittree=None, getcategory=None):
         def iscommitid(commitid):
@@ -1651,13 +1630,6 @@ class RegressionFull(RegressionBasic):
         for dbresult in RegressionBasic.getall(order, unsolved):
             yield cls(*dbresult)
 
-    @staticmethod
-    def dumpall_csv():
-        regressionlist = list()
-        for regression in RegressionFull.get_all():
-            regressionlist.append(regression.csv())
-        return regressionlist
-
     # this should be moved to RegressionWeb class
     @staticmethod
     def getall_html():
@@ -1673,29 +1645,6 @@ class RegressionFull(RegressionBasic):
                 regressionlist.append(RegressionWeb(regressionf.entry, regressionf.gmtime, regressionf._actievents[-1].gmtime,
                                                     regressionf.treename, regressionf.treename, regressionf.category, regressionf.html()))
         return regressionlist
-
-    def csv(self):
-        rtntext = list()
-        rtntext.append("REGRESSION: %s, %s, %s (%s), %s, %s, %s, %s, %s" %
-                       (self.subject, self.report_url, self._introduced_short, self._introduced_presentable,
-                           self._introduced_url, self.gmtime, self.treename, self._branchname, self.category))
-
-        for link in RegLink.get_all(self.regid):
-            rtntext.append("LINK: " + link.csv())
-
-        if self.solved_reason:
-            rtntext.append("SOLVED: %s, %s, %s, %s, %s" %
-                           (self.solved_reason, self.solved_gmtime, self._solved_entry_presentable, self.solved_url, self.solved_subject))
-
-        for actievent in self._actievents:
-            rtntext.append("ACTIVITY: " + actievent.csv())
-
-        for histevent in self._histevents:
-            rtntext.append("HISTORY: " + histevent.csv())
-
-        rtntext.append("LATEST: " + self._actievents[-1].csv())
-
-        return rtntext
 
     # this should be moved to RegressionWeb class
     def html(self):
@@ -2161,14 +2110,10 @@ class UnhandledEvent():
 
     def getall_yattag(yattagdoc):
         count = 0
-        for unhandled in UnhandledEvent.getall():
+        for unhandled in UnhandledEvent.get_all():
             unhandled.html(yattagdoc)
             count += 1
         return count, yattagdoc
-
-    def csv(self):
-        return "%s, %s, %s, %s, %s, %s, %s, %s, %s" % (self.unhanid, self.link, self.note, self.gmtime, self.regid,
-                                                       self.subject, self.solved_gmtime, self.solved_link, self.solved_subject)
 
     def html(self, yattagdoc):
         def cell1(yattagdoc):
@@ -2194,11 +2139,11 @@ class UnhandledEvent():
             with yattagdoc.tag('td'):
                 cell2(yattagdoc)
 
-    @staticmethod
-    def getall():
+    @classmethod
+    def get_all(cls):
         dbcursor = DBCON.cursor()
         for dbresult in dbcursor.execute('SELECT * FROM unhandled ORDER BY unhanid'):
-            yield UnhandledEvent(*dbresult)
+            yield cls(*dbresult)
 
 
 class ReportSource():
@@ -2400,11 +2345,11 @@ def db_rollback():
 
 
 def db_dump(filehdl):
-     for entry in RegressionFull.dumpall_csv():
-          for line in entry:
-              filehdl.write('%s\n' % line)
-     for line in UnhandledEvent.dumpall_csv():
-          filehdl.write('UNHANDLED: %s\n' % line)
+    # import export_mail
+    import export_csv
+
+    for data in export_csv.dumpall_csv():
+          filehdl.write(data)
 
 def db_diff(filehdl_old, filehdl_new, filedesc_old=None, filedesc_new=None):
     if filedesc_old and filedesc_new:
@@ -2745,11 +2690,12 @@ def run():
 
 
 def report():
-    import export_mail
-
+    # import export_mail
+    import export_csv
 
     basicressources_init()
-    return export_mail.main()
+    # return export_mail.main()
+    export_csv.main()
 
 def download_msg(msgid, repsrcid=None):
     return lore.download_msg(msgid, repsrcid)

@@ -21,6 +21,7 @@ import sys
 import git
 import regzbot
 import regzbot.mailin
+import regzbot.export_csv
 
 logger = regzbot.logger
 
@@ -453,11 +454,8 @@ def run(resultfilename, tmpdir, testdatadir):
             # write results
             resultfile.write('[%s_%s_%s]\n' %
                              (testfuncprefix, outercount, innercount))
-            for entry in regzbot.RegressionFull.dumpall_csv():
-                for line in entry:
-                    resultfile.write('%s\n' % line)
-            for line in regzbot.UnhandledEvent.dumpall_csv():
-                resultfile.write('UNHANDLED: %s\n' % line)
+            for data in regzbot.export_csv.dumpall_csv():
+                resultfile.write(data)
             resultfile.write('\n')
 
             regzbot.RegressionWeb.create_htmlpages()

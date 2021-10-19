@@ -1,0 +1,113 @@
+#! /usr/bin/python3
+# -*- coding: utf-8 -*-
+# SPDX-License-Identifier: AGPL-3.0
+# Copyright (C) 2021 by Thorsten Leemhuis
+__author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
+
+
+import regzbot
+logger = regzbot.logger
+
+
+class RegLinkCSV(regzbot.RegLink):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+    def csv(self):
+        if self.repsrcid and self.entry:
+            monitored = regzbot.RegActivityMonitor.ismonitored(
+                self.entry, self.regid, self.repsrcid)
+        else:
+            monitored = False
+        return "%s, %s [monitored:%s]" % (self.subject, self.link, monitored)
+
+
+class RegHistoryCSV(regzbot.RegHistory):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+    def csv(self):
+        if self.regzbotcmd:
+            return "%s, %s, %s, %s" % (self.subject, self.url(), self.gmtime, self.regzbotcmd)
+        return "%s, %s, %s" % (self.subject, self.url(), self.gmtime)
+
+
+class RegActivityEventCSV(regzbot.RegActivityEvent):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+    def csv(self):
+        return "%s, %s, %s, %s" % (self.subject, self.author, self.url(), self.gmtime)
+
+
+class RegressionCSV(regzbot.RegressionFull):
+    Reglink = RegLinkCSV
+    Reghistory = RegHistoryCSV
+    Regactivityevent = RegActivityEventCSV
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+    def compile(self):
+        compiled = list()
+        compiled = self.add_basics(compiled)
+        compiled = self.add_links(compiled)
+        compiled = self.add_solved(compiled)
+        compiled = self.add_activity(compiled)
+        compiled = self.add_history(compiled)
+        compiled = self.add_latest(compiled)
+        return compiled
+
+    def add_basics(self, compiled):
+        compiled.append("REGRESSION: %s, %s, %s (%s), %s, %s, %s, %s, %s" %
+                       (self.subject, self.report_url, self._introduced_short, self._introduced_presentable,
+                           self._introduced_url, self.gmtime, self.treename, self._branchname, self.category))
+        return compiled
+
+    def add_solved(self, compiled):
+        if not self.solved_reason:
+            return compiled
+        compiled.append("SOLVED: %s, %s, %s, %s, %s" %
+                           (self.solved_reason, self.solved_gmtime, self._solved_entry_presentable, self.solved_url, self.solved_subject))
+        return compiled
+
+    def add_links(self, compiled):
+        for link in self._links:
+            compiled.append('LINK: %s' % link.csv())
+        return compiled
+
+    def add_activity(self, compiled):
+        for actievent in self._actievents:
+            compiled.append('ACTIVITY: %s' % actievent.csv())
+        return compiled
+
+    def add_history(self, compiled):
+        for histevent in self._histevents:
+            compiled.append('HISTORY: %s' % histevent.csv())
+        return compiled
+
+    def add_latest(self, compiled):
+        compiled.append("LATEST: " + self._actievents[-1].csv())
+        return compiled
+
+    def dump(self):
+        return '\n'.join([*self.compile(), ''])
+
+
+class UnhandledEventCSV(regzbot.UnhandledEvent):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+    def dump(self):
+        return "UNHANDLED: %s, %s, %s, %s, %s, %s, %s, %s, %s\n" % (self.unhanid, self.link, self.note, self.gmtime, self.regid,
+                                                       self.subject, self.solved_gmtime, self.solved_link, self.solved_subject)
+
+def dumpall_csv():
+    for regression in RegressionCSV.get_all():
+        yield regression.dump()
+    for unhandled_event in UnhandledEventCSV.get_all():
+        yield unhandled_event.dump()
+
+def main():
+    for dumped_regression in dumpall_csv():
+        print(dumped_regression)
