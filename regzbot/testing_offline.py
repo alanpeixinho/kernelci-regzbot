@@ -22,6 +22,7 @@ import git
 import regzbot
 import regzbot.mailin
 import regzbot.export_csv
+import regzbot.export_web
 
 logger = regzbot.logger
 
@@ -458,7 +459,7 @@ def run(resultfilename, tmpdir, testdatadir):
                 resultfile.write(data)
             resultfile.write('\n')
 
-            regzbot.RegressionWeb.create_htmlpages()
+            regzbot.export_web.RegressionWebOld.create_htmlpages()
 
             if wait:
                 # regzbot.db_commit()

@@ -52,7 +52,7 @@ def run(resultfilename, tmpdir):
                 resultfile.write(data)
             resultfile.write('\n')
 
-            regzbot.RegressionWeb.create_htmlpages()
+            regzbot.RegressionWebOld.create_htmlpages()
 
             if wait:
                 # regzbot.db_commit()

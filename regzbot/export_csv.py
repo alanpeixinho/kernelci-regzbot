@@ -40,7 +40,7 @@ class RegActivityEventCSV(regzbot.RegActivityEvent):
         return "%s, %s, %s, %s" % (self.subject, self.author, self.url(), self.gmtime)
 
 
-class RegressionCSV(regzbot.RegressionFull):
+class RegressionFullCSV(regzbot.RegressionFull):
     Reglink = RegLinkCSV
     Reghistory = RegHistoryCSV
     Regactivityevent = RegActivityEventCSV
@@ -103,7 +103,7 @@ class UnhandledEventCSV(regzbot.UnhandledEvent):
                                                        self.subject, self.solved_gmtime, self.solved_link, self.solved_subject)
 
 def dumpall_csv():
-    for regression in RegressionCSV.get_all():
+    for regression in RegressionFullCSV.get_all():
         yield regression.dump()
     for unhandled_event in UnhandledEventCSV.get_all():
         yield unhandled_event.dump()
