@@ -56,17 +56,18 @@ class RegActivityEventWeb(regzbot.RegActivityEvent):
         return yattagdoc
 
 
-
-class RegressionFullWeb(regzbot.RegressionFull):
+class RegressionWeb(regzbot.RegressionFull):
     Reglink = RegLinkWeb
     Reghistory = RegHistoryWeb
     Regactivityevent = RegActivityEventWeb
 
     def __init__(self, *args):
         super().__init__(*args)
+        self.category = 'default'
 
     def compile(self):
         oldwebpage(self)
+
 
     @classmethod
     def oldwebgen_getall_html(cls):
@@ -282,7 +283,6 @@ class UnhandledEventWeb(regzbot.UnhandledEvent):
             with yattagdoc.tag('td'):
                 cell2(yattagdoc)
 
-
 class RegressionWebOld():
     def __init__(self, entry, gmtime_report, gmtime_activity, page, tree, category, htmlsnippet):
         self.entry = entry
@@ -433,7 +433,7 @@ class RegressionWebOld():
         htmlpages = ('next', 'mainline', 'stable',
                      'unassociated', 'dormant', 'resolved', 'all')
         unhandled_count = create_page_unhandled(regzbot.WEBPAGEDIR, htmlpages)
-        regressionslist = RegressionFullWeb.oldwebgen_getall_html()
+        regressionslist = RegressionWeb.oldwebgen_getall_html()
 
         # all
         regressionslist.sort(key=lambda x: x.gmtime_report, reverse=True)
@@ -465,16 +465,16 @@ class RegressionWebOld():
 
         # mainline
         categories = {
+            'new': {
+                'desc': "tracked by regzbot by less than a week",
+                'entries': list(),
+            },
             'curridentified': {
                 'desc': "current development cycle, culprit identified",
                 'entries': list(),
             },
             'identified': {
                 'desc': "older development cycles, culprit identified",
-                'entries': list(),
-            },
-            'new': {
-                'desc': "reported in the past week, unkown culprit",
                 'entries': list(),
             },
             'currrange': {

@@ -734,7 +734,6 @@ class RegActivityEvent():
         dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
             'SELECT * FROM regactivity WHERE actimonid=(?)', (actimonid, )).fetchone()
-        print(dbresult)
         if dbresult is not None:
             dbcursor.execute('''DELETE FROM regactivity
                              WHERE actimonid=(?)''',
@@ -836,6 +835,14 @@ class RegHistory():
             return False
         else:
             return True
+
+    @staticmethod
+    def get_age(regid):
+        dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute('SELECT gmtime FROM reghistory WHERE regzbotcmd LIKE (?) AND regid=(?) ORDER BY gmtime', ('%%introduced: %%', regid)).fetchone()
+        if not dbresult:
+            return None
+        return (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(dbresult[0], datetime.timezone.utc)).days
 
     @classmethod
     def get_all(cls, regid):
@@ -1057,16 +1064,16 @@ class RegressionBasic():
             return False
 
 
-    @staticmethod
-    def getall(order="regid", unsolved=True):
+    @classmethod
+    def get_all(cls, order="regid", only_unsolved=False):
         dbcursor = DBCON.cursor()
 
-        if unsolved:
-            for dbresult in dbcursor.execute('SELECT * FROM regressions ORDER BY (?)', (order, )):
-                yield dbresult
-        else:
+        if only_unsolved:
             for dbresult in dbcursor.execute('SELECT * FROM regressions WHERE solved_gitbranchid IS NULL ORDER BY (?)', (order, )):
-                yield dbresult
+                yield cls(*dbresult)
+        else:
+            for dbresult in dbcursor.execute('SELECT * FROM regressions ORDER BY (?)', (order, )):
+                yield cls(*dbresult)
 
     @staticmethod
     def get_by_regid(regid):
@@ -1433,13 +1440,17 @@ class RegressionFull(RegressionBasic):
 
         self.gmtime = self._histevents[0].gmtime
 
+        # provide a default for this, as this can't be None:
+        self.treename = 'unassociated'
+
         self.report_url = ReportSource.get_by_id(
             self.repsrcid).url(self.entry)
+
+        self.identified = False
         self._introduced_short, _ = self._get_presentable(self.introduced)
 
-        # provide a default for these, as this can't be None:
-        self.treename = 'unassociated'
-        self.category = 'default'
+        self.versionline = None
+        self.age = RegHistory.get_age(self.regid)
 
         self._branchname = None
         self._introduced_url = None
@@ -1460,8 +1471,8 @@ class RegressionFull(RegressionBasic):
 
             self.treename = gittree.name
             self._branchname = gitbranch.name
-            self._introduced_presentable, self.category = self._get_presentable(
-                self.introduced, gittree=gittree, getcategory=True)
+            self._introduced_presentable, self.versionline = self._get_presentable(
+                self.introduced, gittree=gittree)
             if self._introduced_short == self._introduced_presentable:
                 self._introduced_presentable = None
 
@@ -1488,7 +1499,7 @@ class RegressionFull(RegressionBasic):
             datalist.append(obj)
         return datalist
 
-    def _get_presentable(self, gitref, gittree=None, getcategory=None):
+    def _get_presentable(self, gitref, gittree=None, getversionline=None):
         def iscommitid(commitid):
             if commitid is None or commitid is False or commitid is True:
                 return False
@@ -1520,6 +1531,13 @@ class RegressionFull(RegressionBasic):
             else:
                 return "%s" % (point2)
 
+        def isdevcycle(series, version):
+            if LATEST_VERSIONS[series] and version.startswith(LATEST_VERSIONS[series]):
+                return True
+            return False
+
+        # use str() here, as a hexsha might be read as a int if we are unlucky
+
         gitref = str(gitref)
         if gitref is None:
             return None, None
@@ -1535,63 +1553,44 @@ class RegressionFull(RegressionBasic):
             if point1 is not None:
                 point1, point1pres = lookup_commit(point1)
             point2, point2pres = lookup_commit(point2)
+            # while at it, update this:
+            if point2pres:
+                 self.identified = point2pres
 
-        # we might be done here
-        if not getcategory:
+        # now find the versionline, if we need it
+        if self.treename != 'mainline':
             return combine(point1, point2), None
-
-        def isdevcycle(series, version):
-            if LATEST_VERSIONS[series] and version.startswith(LATEST_VERSIONS[series]):
-                return True
-            return False
-
-        def retcategory(category='default'):
-            return combine(point1, point2), category
-
-        # handle all solved ones
-        if self.solved_reason == 'fixed' or self.solved_reason == 'duplicateof' or self.solved_reason == 'invalid':
-            return retcategory('resolved')
-
-        # only mainline has more that three categories
-        if not self.treename == 'mainline':
-            if point1 is None and point2pres:
-                if iscommitid(point2) or point2pres is True:
-                    return retcategory('identified')
-            return retcategory()
 
         # handle all regressions specifying a commit
         if point2 and not point1:
             if isdevcycle('indevelopment', point2):
                 # from the current cycle
-                return retcategory('curridentified')
+                return combine(point1, point2), 'indevelopment'
+            if isdevcycle('latest', point2):
+                # from the current cycle
+                return combine(point1, point2), 'latest'
             elif iscommitid(point2) and point2pres:
                 # commit is present, but 'git describe --tags' failed, which means: commit happenend since the last tag
-                return retcategory('curridentified')
-            elif point2pres:
-                # it's from an earlier cycle
-                return retcategory('identified')
+                return combine(point1, point2), 'indevelopment'
             else:
                 # this commit could not be found, so just put it in the default section
-                return retcategory()
+                return combine(point1, point2), 'previous'
 
         # now handle ranges
-        if days_delta(self.gmtime) < 8:
-            return retcategory('new')
-
         if isdevcycle('indevelopment', point2):
             # this checks:
             # 1) if range starts with the same version number
             # 2) if range starts with the number from the previous cycle (catches mainline and stable releases)
             if isdevcycle('indevelopment', point1) or \
-               point1.startswith(LATEST_VERSIONS['latest']):
-                return retcategory('currrange')
+                   point1.startswith(LATEST_VERSIONS['latest']):
+                return combine(point1, point2), 'indevelopment'
         if isdevcycle('latest', point2):
             if isdevcycle('latest', point1) or \
-               point1.startswith(LATEST_VERSIONS['previous']):
-                return retcategory('prevrange')
+                   point1.startswith(LATEST_VERSIONS['previous']):
+                return combine(point1, point2), 'latest'
 
         # default: either its and older range or something doesn't match up, which can happen if user specifies odd ranges
-        return retcategory('default')
+        return combine(point1, point2), 'previous'
 
     @staticmethod
     def get_by_entry(entry):
@@ -1601,11 +1600,6 @@ class RegressionFull(RegressionBasic):
         if dbresult:
             return RegressionFull(*dbresult)
         return None
-
-    @classmethod
-    def get_all(cls, order="regid", unsolved=True):
-        for dbresult in RegressionBasic.getall(order, unsolved):
-            yield cls(*dbresult)
 
 class UnhandledEvent():
     def __init__(self, unhanid, link, note, gmtime, regid, subject, solved_gmtime, solved_link, solved_subject):

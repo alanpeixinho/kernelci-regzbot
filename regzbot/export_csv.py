@@ -59,9 +59,13 @@ class RegressionFullCSV(regzbot.RegressionFull):
         return compiled
 
     def add_basics(self, compiled):
-        compiled.append("REGRESSION: %s, %s, %s (%s), %s, %s, %s, %s, %s" %
+        if self.identified:
+            identified = 'culprit indentified'
+        else:
+            identified = 'culprit unkown'
+        compiled.append("REGRESSION: %s, %s, %s (%s), %s, %s, %s, %s, %s, %s" %
                        (self.subject, self.report_url, self._introduced_short, self._introduced_presentable,
-                           self._introduced_url, self.gmtime, self.treename, self._branchname, self.category))
+                           self._introduced_url, self.gmtime, self.treename, self._branchname, self.versionline, identified))
         return compiled
 
     def add_solved(self, compiled):
