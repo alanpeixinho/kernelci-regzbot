@@ -61,113 +61,175 @@ class RegressionMailReport(regzbot.RegressionFull):
             compiled.append(link.mailreport())
         return compiled
 
-    def dump(self):
+    def mailreport(self):
         return('\n'.join(self.compile()))
 
 
 
 class RegExportMailReport():
-    def __init__(self, entry, gmtime_report, gmtime_filed, gmtime_activity, treename, reporttext):
+    def __init__(self, entry, gmtime_report, gmtime_filed, gmtime_activity, treename, versionline, identified, reporttext):
         self.entry = entry
         self.gmtime_report = gmtime_report
         self.gmtime_filed = gmtime_filed
         self.gmtime_activity = gmtime_activity
         self.treename = treename
+        self.versionline = versionline
+        self.identified = identified
         self.reporttext = reporttext
 
+
     @classmethod
-    def get_all_categorized(cls, only_unsolved = True):
+    def pagecreate(cls, categories):
+        for category in categories.keys():
+            if not categories[category]['entries']:
+                # nothing to do
+                continue
+
+            print(categories[category]['desc'])
+            print('='*len(categories[category]['desc']))
+            print('\n')
+
+            categories[category]['entries'].sort(key=lambda x: x.gmtime_report, reverse=True)
+            for regexportreport in categories[category]['entries']:
+                print(regexportreport.reporttext)
+                print('')
+
+
+    @classmethod
+    def categorize(cls, regressionlist):
         categories = {
             'new': {
-                'desc': 'tracked less than a week',
-                'entries': list(),
+                'next': {
+                   'desc': "next",
+                   'entries': list(),
+                },
+                'mainline': {
+                   'desc': "mainline",
+                   'entries': list(),
+                },
+                'stable': {
+                    'desc': 'stable/longterm',
+                    'entries': list(),
+                },
             },
-            'identified_indevelopment': {
-                'desc': "current cycle, culprit identified",
-                'entries': list(),
+            'next': {
+                'identified': {
+                   'desc': "culprit identified",
+                   'entries': list(),
+                },
+                'default': {
+                    'desc': 'culprit unkown',
+                    'entries': list(),
+                },
             },
-            'unidentified_indevelopment': {
-                'desc': "current cycle, unkown culprit",
-                'entries': list(),
+            'mainline': {
+                'identified_indevelopment': {
+                    'desc': "current cycle (%s.. aka %s-rc), culprit identified" % (regzbot.LATEST_VERSIONS['latest'], regzbot.LATEST_VERSIONS['indevelopment']),
+                    'entries': list(),
+                },
+                'identified_latest': {
+                    'desc': "previous cycle (%s..%s), culprit identified, with activity in the past three weeks" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
+                    'entries': list(),
+                },
+                'identified': {
+                   'desc': "older cycles, culprit identified, with activity in the past three weeks",
+                   'entries': list(),
+                },
+                'unidentified_indevelopment': {
+                    'desc': "current cycle (%s.. aka %s-rc), unkown culprit" % (regzbot.LATEST_VERSIONS['latest'], regzbot.LATEST_VERSIONS['indevelopment']),
+                    'entries': list(),
+                },
+                'unidentified_latest': {
+                    'desc': "previous cycle (%s..%s), unkown culprit, with activity in the past three weeks" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
+                    'entries': list(),
+                },
+                'unidentified': {
+                    'desc': 'older cycles, unkown culprit, with activity in the past three weeks',
+                    'entries': list(),
+                },
+                'default': {
+                    'desc': 'all others with activity in the past three months',
+                    'entries': list(),
+                },
             },
-            'identified_latest': {
-                'desc': "previous cycle, culprit identified, activity in the past four weeks",
-                'entries': list(),
+            'stable': {
+                'identified': {
+                   'desc': "culprit identified",
+                   'entries': list(),
+                },
+                'default': {
+                    'desc': 'culprit unkown',
+                    'entries': list(),
+                },
             },
-            'unidentified_latest': {
-                'desc': "previous cycle, unkown culprit, activity in the past four weeks",
-                'entries': list(),
-            },
-            'identified_previous': {
-               'desc': "older cycles, culprit identified, with activity in the past two weeks",
-               'entries': list(),
-            },
-            'unidentified_previous': {
-               'desc': "older cycles, culprit identified, with activity in the past two weeks",
-               'entries': list(),
-            },
-            'identified': {
-               'desc': "older cycles, culprit identified, with activity in the past three months",
-               'entries': list(),
-            },
-            'default': {
-                'desc': 'tracked by less than a week, with activity in the past three months',
-                'entries': list(),
+            'unassociated': {
+                'default': {
+                    'desc': '',
+                    'entries': list(),
+                },
             },
         }
 
-        for regression in RegressionMailReport.get_all(only_unsolved=only_unsolved):
-            last_activity_days = regzbot.days_delta(regression._actievents[-1].gmtime)
-            filed_days = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)).days
+        for regression in regressionlist:
+            last_activity_days = regzbot.days_delta(regression.gmtime_activity)
+            if regression.treename == 'next' or regression.treename == 'stable':
+                if regression.identified:
+                    categories[regression.treename]['identified']['entries'].append(regression)
+                else:
+                    categories[regression.treename]['default']['entries'].append(regression)
+            elif regression.treename == 'mainline':
+                if regression.versionline == 'indevelopment':
+                    if regression.identified:
+                           categories[regression.treename]['identified_indevelopment']['entries'].append(regression)
+                    else:
+                           categories[regression.treename]['unidentified_indevelopment']['entries'].append(regression)
+                elif regression.versionline == 'latest' and last_activity_days < 21:
+                    if regression.identified:
+                           categories[regression.treename]['identified_latest']['entries'].append(regression)
+                    else:
+                           categories[regression.treename]['unidentified_latest']['entries'].append(regression)
+                elif last_activity_days < 21:
+                    if regression.identified:
+                           categories[regression.treename]['identified']['entries'].append(regression)
+                    else:
+                           categories[regression.treename]['unidentified']['entries'].append(regression)
+                else:
+                    categories[regression.treename]['default']['entries'].append(regression)
+            else:
+                categories['unassociated']['default']['entries'].append(regression)
 
+            # put copies on the new page
+            filed_days = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)).days
+            if filed_days < 7:
+                categories['new'][regression.treename]['entries'].append(regression)
+
+        return categories
+
+
+    @classmethod
+    def compile(cls):
+        logger.debug("[reportmail] generating")
+
+        # gather everything we need
+        regressionslist = list()
+
+        for regression in RegressionMailReport.get_all(only_unsolved=True):
             # ignore some
+            last_activity_days = regzbot.days_delta(regression._actievents[-1].gmtime)
             if regression.treename != 'mainline':
                 # for now only generate reports for mainline
                 continue
             elif last_activity_days > 91:
                 # ignore due to inactivity for ~three months
                 continue
+            regressionslist.append(cls(regression.entry, regression.gmtime, regression.gmtime_filed,
+                                                    regression._actievents[-1].gmtime, regression.treename,
+                                                    regression.versionline, regression.identified, regression.mailreport()))
 
-            # okay, we care about this one
-            regexport = cls(regression.entry, regression.gmtime, regression.gmtime_filed, regression._actievents[-1].gmtime,
-                                    regression.treename, regression.dump())
-            if filed_days < 7:
-                categories['new']['entries'].append(regexport)
-            elif regression.versionline == 'indevelopment':
-                if regression.identified:
-                       categories['identified_indevelopment']['entries'].append(regexport)
-                else:
-                       categories['unidentified_indevelopment']['entries'].append(regexport)
-            elif regression.versionline == 'latest' and last_activity_days < 21:
-                if regression.identified:
-                       categories['identified_latest']['entries'].append(regexport)
-                else:
-                       categories['unidentified_latest']['entries'].append(regexport)
-            elif regression.versionline == 'previous' and last_activity_days < 21:
-                if regression.identified:
-                       categories['identified_previous']['entries'].append(regexport)
-                else:
-                       categories['unidentified_previous']['entries'].append(regexport)
-            elif regression.identified:
-                categories['identified']['entries'].append(regexport)
-            else:
-                categories['default']['entries'].append(regexport)
+        regressionslist.sort(key=lambda x: x.gmtime_activity, reverse=True)
+        categories = cls.categorize(regressionslist)
 
-        return categories
+        for treename in categories.keys():
+          cls.pagecreate(categories[treename])
 
-
-def main():
-    categories = RegExportMailReport.get_all_categorized(only_unsolved=True)
-    for category in categories.keys():
-        if not categories[category]['entries']:
-            # nothing to do
-            continue
-
-        print(categories[category]['desc'])
-        print('='*len(categories[category]['desc']))
-        print('\n')
-
-        categories[category]['entries'].sort(key=lambda x: x.gmtime_report, reverse=True)
-        for regexportreport in categories[category]['entries']:
-            print(regexportreport.reporttext)
-            print('')
+        logger.debug("[webpages] generated")

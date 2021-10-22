@@ -2196,10 +2196,10 @@ def run():
 
 
 def report():
-    import export_mail
+    from export_mail import RegExportMailReport
 
     basicressources_init()
-    return export_mail.main()
+    return RegExportMailReport.compile()
 
 def download_msg(msgid, repsrcid=None):
     return lore.download_msg(msgid, repsrcid)

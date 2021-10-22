@@ -533,6 +533,7 @@ class RegExportWeb():
 
         return categories
 
+
     @classmethod
     def compile(cls):
         logger.debug("[webpages] generating")
@@ -551,7 +552,7 @@ class RegExportWeb():
             if regression.solved_gitbranchid:
                 gmtime_solved = regression.solved_gmtime
             regressionslist.append(cls(regression.entry, regression.gmtime, regression.gmtime_filed,
-                                                    regression._actievents[-1].gmtime, gmtime_solved,regression.treename,
+                                                    regression._actievents[-1].gmtime, gmtime_solved, regression.treename,
                                                     regression.versionline, regression.identified, regression.html()))
 
         # create the page listing all regressions, sorted by date
