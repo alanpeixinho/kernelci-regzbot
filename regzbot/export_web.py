@@ -63,30 +63,8 @@ class RegressionWeb(regzbot.RegressionFull):
 
     def __init__(self, *args):
         super().__init__(*args)
-        self.category = 'default'
 
-    def compile(self):
-        oldwebpage(self)
-
-
-    @classmethod
-    def oldwebgen_getall_html(cls):
-        from export_web import RegressionWebOld as RegressionWebOld
-        regressionlist = list()
-        for regressionf in cls.get_all():
-            if regressionf.category == 'resolved':
-                regressionlist.append(RegressionWebOld(regressionf.entry, regressionf.gmtime,
-                                                    regressionf._actievents[-1].gmtime, 'resolved', regressionf.treename, 'default', regressionf.oldwebgen_html()))
-            elif days_delta(regressionf._actievents[-1].gmtime) > 21 and not regzbot.is_running_citesting():
-                regressionlist.append(RegressionWebOld(regressionf.entry, regressionf.gmtime,
-                                                    regressionf._actievents[-1].gmtime, 'dormant', regressionf.treename, 'default', regressionf.oldwebgen_html()))
-            else:
-                regressionlist.append(RegressionWebOld(regressionf.entry, regressionf.gmtime, regressionf._actievents[-1].gmtime,
-                                                    regressionf.treename, regressionf.treename, regressionf.category, regressionf.oldwebgen_html()))
-        return regressionlist
-
-
-    def oldwebgen_html(self):
+    def html(self):
         def cell1(yattagdoc):
             with yattagdoc.tag('div', style="padding-left: 1em;"):
                 with yattagdoc.tag('li'):
@@ -252,13 +230,6 @@ class UnhandledEventWeb(regzbot.UnhandledEvent):
     def __init__(self, *args):
         super().__init__(*args)
 
-    def getall_yattag(yattagdoc):
-        count = 0
-        for unhandled in UnhandledEventWeb.get_all():
-            unhandled.html(yattagdoc)
-            count += 1
-        return count, yattagdoc
-
     def html(self, yattagdoc):
         def cell1(yattagdoc):
             yattagdoc.text('%s' % self.unhanid)
@@ -283,255 +254,319 @@ class UnhandledEventWeb(regzbot.UnhandledEvent):
             with yattagdoc.tag('td'):
                 cell2(yattagdoc)
 
-class RegressionWebOld():
-    def __init__(self, entry, gmtime_report, gmtime_activity, page, tree, category, htmlsnippet):
+
+class RegExportWeb():
+    def __init__(self, entry, gmtime_report, gmtime_filed, gmtime_activity, gmtime_solved, treename, versionline, identified, htmlsnippet):
         self.entry = entry
         self.gmtime_report = gmtime_report
+        self.gmtime_filed = gmtime_filed
         self.gmtime_activity = gmtime_activity
-        self.page = page
-        self.tree = tree
-        self.category = category
+        self.gmtime_solved = gmtime_solved
+        self.treename = treename
+        self.versionline = versionline
+        self.identified = identified
         self.htmlsnippet = htmlsnippet
 
+
     @staticmethod
-    def create_htmlpages():
-        def outpage_header(yattagdoc, htmlpages, pagename):
-            with yattagdoc.tag('h1'):
-                yattagdoc.text('Linux kernel regression status')
-            with yattagdoc.tag('h2'):
-                description = None
-                for htmlpage in htmlpages:
-                    # make it obvious that stable is about longterm, too
-                    if htmlpage == "stable":
-                        description = "stable/longterm"
-                    else:
-                        description = htmlpage
+    def outpage_header(yattagdoc, htmlpages, pagename):
+        with yattagdoc.tag('h1'):
+            yattagdoc.text('Linux kernel regression status')
+        with yattagdoc.tag('h2'):
+            description = None
+            for htmlpage in htmlpages:
+                # make it obvious that stable is about longterm, too
+                if htmlpage == "stable":
+                    description = "stable/longterm"
+                else:
+                    description = htmlpage
 
-                    # print
-                    if htmlpage == pagename:
+                # print
+                if htmlpage == pagename:
+                    yattagdoc.text("[%s]" % description)
+                else:
+                    with yattagdoc.tag('a', href='%s.html' % htmlpage):
                         yattagdoc.text("[%s]" % description)
-                    else:
-                        with yattagdoc.tag('a', href='%s.html' % htmlpage):
-                            yattagdoc.text("[%s]" % description)
 
-                    # seperate entries by space, unless we are at the end
-                    if not htmlpage == htmlpage[-1]:
-                        yattagdoc.asis("&nbsp;")
+                # seperate entries by space, unless we are at the end
+                if not htmlpage == htmlpage[-1]:
+                    yattagdoc.asis("&nbsp;")
 
-        def outpage_table_span(yattagdoc, description, tablecolumns, horizontal_rule=False, strong=False, heading=False):
-            with yattagdoc.tag('tr'):
-                if heading:
-                    htmltag = "tr"
-                else:
-                    htmltag = "td"
-                with yattagdoc.tag(htmltag, colspan=tablecolumns, style="text-align: left;  padding-bottom: 1em;"):
-                    #            with yattagdoc.tag(htmltag, style="text-align: left;  padding-bottom: 1em;"):
-                    if horizontal_rule:
-                        yattagdoc.asis('<hr>')
-                    if description is None:
-                        return
-                    if strong:
-                        yattagdoc.line('strong', description)
-                    else:
-                        yattagdoc.text(description)
-
-        def outpage_table_header_unhandled(yattagdoc):
-            with yattagdoc.tag('tr', style="vertical-align:top;"):
-                with yattagdoc.tag('th', align='left', style="width: 10px;"):
-                    yattagdoc.text("id")
-                with yattagdoc.tag('th', align='left'):
-                    yattagdoc.text("place")
-
-        def outpage_footer(yattagdoc, count):
-            with yattagdoc.tag('p'):
-                yattagdoc.text("[compiled by ")
-                with yattagdoc.tag('a', href='https://linux-regtracking.leemhuis.info'):
-                    yattagdoc.text("regzbot")
-                currenttime = datetime.datetime.now(datetime.timezone.utc)
-                yattagdoc.text(" on %s (UTC)" %
-                               currenttime.strftime("%Y-%m-%d %H:%M:%S"))
-                if count == 0:
-                    # nothing to do
-                    yattagdoc.text("]")
+    @staticmethod
+    def outpage_table_span(yattagdoc, description, tablecolumns, horizontal_rule=False, strong=False, heading=False):
+        with yattagdoc.tag('tr'):
+            if heading:
+                htmltag = "tr"
+            else:
+                htmltag = "td"
+            with yattagdoc.tag(htmltag, colspan=tablecolumns, style="text-align: left;  padding-bottom: 1em;"):
+                #            with yattagdoc.tag(htmltag, style="text-align: left;  padding-bottom: 1em;"):
+                if horizontal_rule:
+                    yattagdoc.asis('<hr>')
+                if description is None:
                     return
-
-                yattagdoc.text("; recently ")
-                with yattagdoc.tag('a', href='unhandled.html'):
-                    if count == 1:
-                        yattagdoc.text(
-                            "%s event occurred that regzbot was unable to handle" % count)
-                    else:
-                        yattagdoc.text(
-                            "%s events occurred that regzbot was unable to handle" % count)
-                yattagdoc.text(".]")
-
-        def create_page_regressions(directory, pagename, categories, htmlpages, regressionslist, unhandled_count):
-            for regressionweb in regressionslist:
-                if (pagename == 'all'):
-                    categories['default']['entries'].append(regressionweb)
-                elif regressionweb.page == pagename:
-                    categories[regressionweb.category]['entries'].append(
-                        regressionweb)
-
-            tablecolumns = 3
-            yattagdoc = yattag.Doc()
-            yattagdoc.asis('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/></head>')
-            with yattagdoc.tag('body'):
-                outpage_header(yattagdoc, htmlpages, pagename)
-                with yattagdoc.tag('h3'):
-                    yattagdoc.text()
-                with yattagdoc.tag('table', style="width:100%;"):
-                    for category in categories.keys():
-                        # print section header
-                        outpage_table_span(
-                            yattagdoc, categories[category]['desc'], tablecolumns, horizontal_rule=True, strong=True, )
-                        # check if the list for this section is empty
-                        if not categories[category]['entries']:
-                            outpage_table_span(yattagdoc, "none", tablecolumns)
-                        # add html
-                        for regressionweb in categories[category]['entries']:
-                            with yattagdoc.tag('tr', style="vertical-align:top;"):
-                                yattagdoc.asis(
-                                    regressionweb.htmlsnippet.getvalue())
-                                if (pagename == 'all'
-                                        or pagename == 'resolved'
-                                        or pagename == 'dormant'):
-                                    with yattagdoc.tag('td', style="width: 100px;"):
-                                        yattagdoc.text(regressionweb.tree)
-                outpage_footer(yattagdoc, unhandled_count)
-
-            with open(os.path.join(directory, '%s.html' % pagename), 'w') as outputfile:
-                if regzbot.is_running_citesting():
-                    # make this easier to read
-                    outputfile.write(yattag.indent(yattagdoc.getvalue()))
+                if strong:
+                    yattagdoc.line('strong', description)
                 else:
-                    outputfile.write(yattagdoc.getvalue())
+                    yattagdoc.text(description)
 
-        def create_page_unhandled(directory, htmlpages):
-            yattagdoc = yattag.Doc()
-            yattagdoc.asis('<!DOCTYPE html>')
-            with yattagdoc.tag('html'):
-                outpage_header(yattagdoc, htmlpages, None)
+    @staticmethod
+    def outpage_table_header_unhandled(yattagdoc):
+        with yattagdoc.tag('tr', style="vertical-align:top;"):
+            with yattagdoc.tag('th', align='left', style="width: 10px;"):
+                yattagdoc.text("id")
+            with yattagdoc.tag('th', align='left'):
+                yattagdoc.text("place")
 
-                rowcount, yattagrows = UnhandledEventWeb.getall_yattag(
-                    yattag.Doc())
-                if rowcount == 0:
-                    yattagdoc.text("No unhandled events known as of now.")
+    @staticmethod
+    def outpage_footer(yattagdoc, count):
+        with yattagdoc.tag('p'):
+            yattagdoc.text("[compiled by ")
+            with yattagdoc.tag('a', href='https://linux-regtracking.leemhuis.info'):
+                yattagdoc.text("regzbot")
+            currenttime = datetime.datetime.now(datetime.timezone.utc)
+            yattagdoc.text(" on %s (UTC)" %
+                           currenttime.strftime("%Y-%m-%d %H:%M:%S"))
+            if count == 0:
+                # nothing to do
+                yattagdoc.text("]")
+                return
+
+            yattagdoc.text("; recently ")
+            with yattagdoc.tag('a', href='unhandled.html'):
+                if count == 1:
+                    yattagdoc.text(
+                        "%s event occurred that regzbot was unable to handle" % count)
                 else:
-                    with yattagdoc.tag('table', style="width:100%;"):
-                        outpage_table_header_unhandled(yattagdoc)
-                        yattagdoc.asis(yattagrows.getvalue())
+                    yattagdoc.text(
+                        "%s events occurred that regzbot was unable to handle" % count)
+            yattagdoc.text("]")
 
-                outpage_footer(yattagdoc, 0)
+    @classmethod
+    def pagecreate(cls, htmlpages, unhandled_count, categories, pagename):
+        tablecolumns = 3
+        yattagdoc = yattag.Doc()
+        yattagdoc.asis('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/></head>')
+        with yattagdoc.tag('body'):
+            cls.outpage_header(yattagdoc, htmlpages, pagename)
+            with yattagdoc.tag('h3'):
+                yattagdoc.text()
+            with yattagdoc.tag('table', style="width:100%;"):
+                for category in categories.keys():
+                    # print section header
+                    cls.outpage_table_span(
+                        yattagdoc, categories[category]['desc'], tablecolumns, horizontal_rule=True, strong=True, )
+                    # check if the list for this section is empty
+                    if not categories[category]['entries']:
+                        cls.outpage_table_span(yattagdoc, "none known by regzbot", tablecolumns)
+                    # add html
+                    for regressionweb in categories[category]['entries']:
+                        with yattagdoc.tag('tr', style="vertical-align:top;"):
+                            yattagdoc.asis(
+                                regressionweb.htmlsnippet.getvalue())
+                            if (pagename == 'all'
+                                    or pagename == 'resolved'
+                                    or pagename == 'dormant'):
+                                with yattagdoc.tag('td', style="width: 100px;"):
+                                    yattagdoc.text(regressionweb.treename)
+            cls.outpage_footer(yattagdoc, unhandled_count)
 
-            # write out
-            with open(os.path.join(directory, 'unhandled.html'), 'w') as outputfile:
+        with open(os.path.join(regzbot.WEBPAGEDIR, '%s.html' % pagename), 'w') as outputfile:
+            if regzbot.is_running_citesting():
+                # make this easier to read
+                outputfile.write(yattag.indent(yattagdoc.getvalue()))
+            else:
                 outputfile.write(yattagdoc.getvalue())
 
-            return rowcount
 
-        htmlpages = ('next', 'mainline', 'stable',
+    @classmethod
+    def create_unhandled(cls, directory, htmlpages):
+        yattagdoc = yattag.Doc()
+        yattagdoc.asis('<!DOCTYPE html>')
+        with yattagdoc.tag('html'):
+            cls.outpage_header(yattagdoc, htmlpages, None)
+
+            unhandled_events = 0
+            unhandled_html = yattag.Doc()
+            for unhandled in UnhandledEventWeb.get_all():
+                unhandled.html(unhandled_html)
+                unhandled_events += 1
+
+            if unhandled_events == 0:
+                yattagdoc.text("No unhandled events known as of now")
+            else:
+                with yattagdoc.tag('table', style="width:100%;"):
+                    cls.outpage_table_header_unhandled(yattagdoc)
+                    yattagdoc.asis(unhandled_html.getvalue())
+
+            cls.outpage_footer(yattagdoc, 0)
+
+        # write out
+        with open(os.path.join(directory, 'unhandled.html'), 'w') as outputfile:
+            outputfile.write(yattagdoc.getvalue())
+
+        return unhandled_events
+
+    @classmethod
+    def categorize(cls, regressionlist):
+        categories = {
+            'new': {
+                'next': {
+                   'desc': "next",
+                   'entries': list(),
+                },
+                'mainline': {
+                   'desc': "mainline",
+                   'entries': list(),
+                },
+                'stable': {
+                    'desc': 'stable/longterm',
+                    'entries': list(),
+                },
+            },
+            'next': {
+                'identified': {
+                   'desc': "culprit identified",
+                   'entries': list(),
+                },
+                'default': {
+                    'desc': 'culprit unkown',
+                    'entries': list(),
+                },
+            },
+            'mainline': {
+                'identified_indevelopment': {
+                    'desc': "current cycle (%s.. aka %s-rc), culprit identified" % (regzbot.LATEST_VERSIONS['latest'], regzbot.LATEST_VERSIONS['indevelopment']),
+                    'entries': list(),
+                },
+                'identified_latest': {
+                    'desc': "previous cycle (%s..%s), culprit identified, with activity in the past three weeks" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
+                    'entries': list(),
+                },
+                'identified': {
+                   'desc': "older cycles, culprit identified, with activity in the past three weeks",
+                   'entries': list(),
+                },
+                'unidentified_indevelopment': {
+                    'desc': "current cycle (%s.. aka %s-rc), unkown culprit" % (regzbot.LATEST_VERSIONS['latest'], regzbot.LATEST_VERSIONS['indevelopment']),
+                    'entries': list(),
+                },
+                'unidentified_latest': {
+                    'desc': "previous cycle (%s..%s), unkown culprit, with activity in the past three weeks" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
+                    'entries': list(),
+                },
+                'unidentified': {
+                    'desc': 'older cycles, unkown culprit, with activity in the past three weeks',
+                    'entries': list(),
+                },
+                'default': {
+                    'desc': 'all others with activity in the past three months',
+                    'entries': list(),
+                },
+            },
+            'stable': {
+                'identified': {
+                   'desc': "culprit identified",
+                   'entries': list(),
+                },
+                'default': {
+                    'desc': 'culprit unkown',
+                    'entries': list(),
+                },
+            },
+            'unassociated': {
+                'default': {
+                    'desc': '',
+                    'entries': list(),
+                },
+            },
+            'dormant': {
+                'default': {
+                    'desc': '',
+                    'entries': list(),
+                },
+            },
+            'resolved': {
+                'default': {
+                    'desc': '',
+                    'entries': list(),
+                },
+            },
+        }
+
+        for regression in regressionlist:
+            last_activity_days = regzbot.days_delta(regression.gmtime_activity)
+            if last_activity_days > 90:
+                categories['dormant']['default']['entries'].append(regression)
+            elif regression.gmtime_solved:
+                categories['resolved']['default']['entries'].append(regression)
+            elif regression.treename == 'next' or regression.treename == 'stable':
+                if regression.identified:
+                    categories[regression.treename]['identified']['entries'].append(regression)
+                else:
+                    categories[regression.treename]['default']['entries'].append(regression)
+            elif regression.treename == 'mainline':
+                if regression.versionline == 'indevelopment':
+                    if regression.identified:
+                           categories[regression.treename]['identified_indevelopment']['entries'].append(regression)
+                    else:
+                           categories[regression.treename]['unidentified_indevelopment']['entries'].append(regression)
+                elif regression.versionline == 'latest' and last_activity_days < 21:
+                    if regression.identified:
+                           categories[regression.treename]['identified_latest']['entries'].append(regression)
+                    else:
+                           categories[regression.treename]['unidentified_latest']['entries'].append(regression)
+                elif last_activity_days < 21:
+                    if regression.identified:
+                           categories[regression.treename]['identified']['entries'].append(regression)
+                    else:
+                           categories[regression.treename]['unidentified']['entries'].append(regression)
+                else:
+                    categories[regression.treename]['default']['entries'].append(regression)
+            else:
+                categories['unassociated']['default']['entries'].append(regression)
+
+            # put copies on the new page
+            filed_days = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)).days
+            if filed_days < 7:
+                categories['new'][regression.treename]['entries'].append(regression)
+
+        return categories
+
+    @classmethod
+    def compile(cls):
+        logger.debug("[webpages] generating")
+
+        # these are the pages we are going to create
+        htmlpages = ('new', 'next', 'mainline', 'stable',
                      'unassociated', 'dormant', 'resolved', 'all')
-        unhandled_count = create_page_unhandled(regzbot.WEBPAGEDIR, htmlpages)
-        regressionslist = RegressionWeb.oldwebgen_getall_html()
 
-        # all
+        # handle this page first, as we need something from it anyway
+        unhandled_count = cls.create_unhandled(regzbot.WEBPAGEDIR, htmlpages)
+
+        # gather everything we need
+        regressionslist = list()
+        for regression in RegressionWeb.get_all():
+            gmtime_solved = None
+            if regression.solved_gitbranchid:
+                gmtime_solved = regression.solved_gmtime
+            regressionslist.append(cls(regression.entry, regression.gmtime, regression.gmtime_filed,
+                                                    regression._actievents[-1].gmtime, gmtime_solved,regression.treename,
+                                                    regression.versionline, regression.identified, regression.html()))
+
+        # create the page listing all regressions, sorted by date
         regressionslist.sort(key=lambda x: x.gmtime_report, reverse=True)
         categories = {
             'default': {
                 'desc': 'sorted by date of report',
-                'entries': list(),
+                'entries': regressionslist,
             }
         }
-        create_page_regressions(
-            regzbot.WEBPAGEDIR, 'all', categories, htmlpages, regressionslist, unhandled_count)
+        cls.pagecreate(htmlpages, unhandled_count, categories, 'all')
 
-        # all the other pages are sorted by activity
+        # create all the other pages that are sorted by activity
         regressionslist.sort(key=lambda x: x.gmtime_activity, reverse=True)
-
-        # next
-        categories = {
-            'identified': {
-                'desc': 'culprit identified',
-                'entries': list(),
-            },
-            'default': {
-                'desc': 'others',
-                'entries': list(),
-            },
-        }
-        create_page_regressions(
-            regzbot.WEBPAGEDIR, 'next', categories, htmlpages, regressionslist, unhandled_count)
-
-        # mainline
-        categories = {
-            'new': {
-                'desc': "tracked by regzbot by less than a week",
-                'entries': list(),
-            },
-            'curridentified': {
-                'desc': "current development cycle, culprit identified",
-                'entries': list(),
-            },
-            'identified': {
-                'desc': "older development cycles, culprit identified",
-                'entries': list(),
-            },
-            'currrange': {
-                'desc': "current development cycle, unkown culprit",
-                'entries': list(),
-            },
-            'prevrange': {
-                'desc': "previous development cycle, unkown culprit",
-                'entries': list(),
-            },
-            'default': {
-                'desc': "older development cycles, unkown culprit",
-                'entries': list(),
-            },
-        }
-        create_page_regressions(
-            regzbot.WEBPAGEDIR, 'mainline', categories, htmlpages, regressionslist, unhandled_count)
-
-        # next
-        categories = {
-            'identified': {
-                'desc': 'culprit identified',
-                'entries': list(),
-            },
-            'default': {
-                'desc': 'others',
-                'entries': list(),
-            },
-        }
-        create_page_regressions(
-            regzbot.WEBPAGEDIR, 'stable', categories, htmlpages, regressionslist, unhandled_count)
-
-        categories = {
-            'default': {
-                'desc': None,
-                'entries': list(),
-            }
-        }
-        create_page_regressions(
-            regzbot.WEBPAGEDIR, 'unassociated', categories, htmlpages, regressionslist, unhandled_count)
-
-        categories = {
-            'default': {
-                'desc': 'no activity in the past three weeks',
-                'entries': list(),
-            },
-        }
-        create_page_regressions(
-            regzbot.WEBPAGEDIR, 'dormant', categories, htmlpages, regressionslist, unhandled_count)
-
-        categories = {
-            'default': {
-                'desc': None,
-                'entries': list(),
-            },
-        }
-        create_page_regressions(
-            regzbot.WEBPAGEDIR, 'resolved', categories, htmlpages, regressionslist, unhandled_count)
-
-        logger.debug("webpages regenerated")
+        categories = cls.categorize(regressionslist)
+        for pagename in categories.keys():
+            cls.pagecreate(htmlpages, unhandled_count, categories[pagename], pagename)
+        logger.debug("[webpages] generated")

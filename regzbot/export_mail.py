@@ -67,11 +67,12 @@ class RegressionMailReport(regzbot.RegressionFull):
 
 
 class RegExportMailReport():
-    def __init__(self, entry, gmtime_report, gmtime_activity, tree, reporttext):
+    def __init__(self, entry, gmtime_report, gmtime_filed, gmtime_activity, treename, reporttext):
         self.entry = entry
         self.gmtime_report = gmtime_report
+        self.gmtime_filed = gmtime_filed
         self.gmtime_activity = gmtime_activity
-        self.tree = tree
+        self.treename = treename
         self.reporttext = reporttext
 
     @classmethod
@@ -109,7 +110,7 @@ class RegExportMailReport():
                'desc': "older cycles, culprit identified, with activity in the past three months",
                'entries': list(),
             },
-            'unidentified': {
+            'default': {
                 'desc': 'tracked by less than a week, with activity in the past three months',
                 'entries': list(),
             },
@@ -117,6 +118,7 @@ class RegExportMailReport():
 
         for regression in RegressionMailReport.get_all(only_unsolved=only_unsolved):
             last_activity_days = regzbot.days_delta(regression._actievents[-1].gmtime)
+            filed_days = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)).days
 
             # ignore some
             if regression.treename != 'mainline':
@@ -127,21 +129,21 @@ class RegExportMailReport():
                 continue
 
             # okay, we care about this one
-            regexport = cls(regression.entry, regression.gmtime, regression._actievents[-1].gmtime,
+            regexport = cls(regression.entry, regression.gmtime, regression.gmtime_filed, regression._actievents[-1].gmtime,
                                     regression.treename, regression.dump())
-            if regression.age < 7:
+            if filed_days < 7:
                 categories['new']['entries'].append(regexport)
             elif regression.versionline == 'indevelopment':
                 if regression.identified:
                        categories['identified_indevelopment']['entries'].append(regexport)
                 else:
                        categories['unidentified_indevelopment']['entries'].append(regexport)
-            elif regression.versionline == 'latest' and last_activity_days < 28:
+            elif regression.versionline == 'latest' and last_activity_days < 21:
                 if regression.identified:
                        categories['identified_latest']['entries'].append(regexport)
                 else:
                        categories['unidentified_latest']['entries'].append(regexport)
-            elif regression.versionline == 'previous' and last_activity_days < 14:
+            elif regression.versionline == 'previous' and last_activity_days < 21:
                 if regression.identified:
                        categories['identified_previous']['entries'].append(regexport)
                 else:
@@ -149,7 +151,7 @@ class RegExportMailReport():
             elif regression.identified:
                 categories['identified']['entries'].append(regexport)
             else:
-                categories['unidentified_previous']['entries'].append(regexport)
+                categories['default']['entries'].append(regexport)
 
         return categories
 

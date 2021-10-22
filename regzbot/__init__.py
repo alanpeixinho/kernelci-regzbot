@@ -837,12 +837,12 @@ class RegHistory():
             return True
 
     @staticmethod
-    def get_age(regid):
+    def filed(regid):
         dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute('SELECT gmtime FROM reghistory WHERE regzbotcmd LIKE (?) AND regid=(?) ORDER BY gmtime', ('%%introduced: %%', regid)).fetchone()
         if not dbresult:
             return None
-        return (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(dbresult[0], datetime.timezone.utc)).days
+        return dbresult[0]
 
     @classmethod
     def get_all(cls, regid):
@@ -1450,7 +1450,7 @@ class RegressionFull(RegressionBasic):
         self._introduced_short, _ = self._get_presentable(self.introduced)
 
         self.versionline = None
-        self.age = RegHistory.get_age(self.regid)
+        self.gmtime_filed = RegHistory.filed(self.regid)
 
         self._branchname = None
         self._introduced_url = None
@@ -2188,8 +2188,8 @@ def run():
     db_commit()
 
     # update webpages
-    from export_web import RegressionWebOld as RegressionWebOld
-    RegressionWebOld.create_htmlpages()
+    from export_web import RegExportWeb
+    RegExportWeb.compile()
 
     # we are done
     db_close()
