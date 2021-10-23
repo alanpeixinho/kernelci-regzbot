@@ -2104,6 +2104,7 @@ def basicressources_init(databasedir=None, gittreesdir=None, websitesdir=None, t
         sys.exit(1)
 
     basicressource_checkdir_exists(websitesdir, create=True)
+    basicressource_checkdir_exists(os.path.join(websitesdir, 'regression'), create=True)
 
     global WEBPAGEDIR
     WEBPAGEDIR = websitesdir

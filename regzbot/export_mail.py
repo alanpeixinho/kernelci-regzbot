@@ -40,7 +40,7 @@ class RegressionMailReport(regzbot.RegressionFull):
         compiled.append('')
         compiled.append('Oldest and latest activity: %s and %s days ago:'
                    % (regzbot.days_delta(self._actievents[0].gmtime), regzbot.days_delta(self._actievents[-1].gmtime)))
-        compiled.append('https://linux-regtracking.leemhuis.info/regzbot/all.html#%s' % regzbot.urlencode(self.entry))
+        compiled.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s/' % regzbot.urlencode(self.entry))
         compiled = self.add_links(compiled)
         compiled.append('')
         return compiled

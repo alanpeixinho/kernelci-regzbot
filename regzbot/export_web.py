@@ -269,7 +269,7 @@ class RegExportWeb():
 
 
     @staticmethod
-    def outpage_header(yattagdoc, htmlpages, pagename):
+    def outpage_header(yattagdoc, htmlpages, pagename, relpath=''):
         with yattagdoc.tag('h1'):
             yattagdoc.text('Linux kernel regression status')
         with yattagdoc.tag('h2'):
@@ -283,7 +283,7 @@ class RegExportWeb():
 
                 # put a seperator here, because new and all contain
                 # entries are also show on the previous pages
-                if htmlpage == 'new':
+                if htmlpage == 'new' or htmlpage == 'all' :
                     yattagdoc.text('|')
                     yattagdoc.asis("&nbsp;")
 
@@ -291,7 +291,7 @@ class RegExportWeb():
                 if htmlpage == pagename:
                     yattagdoc.text("[%s]" % description)
                 else:
-                    with yattagdoc.tag('a', href='%s.html' % htmlpage):
+                    with yattagdoc.tag('a', href='../%s%s/' % (relpath, htmlpage)):
                         yattagdoc.text("[%s]" % description)
 
                 # seperate entries by space, unless we are at the end
@@ -348,15 +348,48 @@ class RegExportWeb():
                         "%s events occurred that regzbot was unable to handle" % count)
             yattagdoc.text("]")
 
+    @staticmethod
+    def outpage_head(yattagdoc):
+        yattagdoc.asis('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/></head>')
+        return yattagdoc
+
+    @staticmethod
+    def outpage_write(subdir, yattagdoc):
+        directory = os.path.join(regzbot.WEBPAGEDIR, subdir)
+        regzbot.basicressource_checkdir_exists(directory, create=True)
+        with open(os.path.join(directory, 'index.html'), 'w') as outputfile:
+            if regzbot.is_running_citesting():
+                # make this easier to read
+                outputfile.write(yattag.indent(yattagdoc.getvalue()))
+            else:
+                outputfile.write(yattagdoc.getvalue())
+
     @classmethod
-    def pagecreate(cls, htmlpages, unhandled_count, categories, pagename):
+    def create_individual_page(cls, htmlpages, unhandled_count, regression):
         tablecolumns = 3
         yattagdoc = yattag.Doc()
-        yattagdoc.asis('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/></head>')
+        cls.outpage_head(yattagdoc)
+        with yattagdoc.tag('body'):
+            cls.outpage_header(yattagdoc, htmlpages, None, relpath='../')
+            with yattagdoc.tag('table', style="width:100%;"):
+                with yattagdoc.tag('tr', style="vertical-align:top;"):
+                    yattagdoc.asis(
+                        regression.htmlsnippet.getvalue())
+                    with yattagdoc.tag('td', style="width: 100px;"):
+                         yattagdoc.text(regression.treename)
+
+
+            cls.outpage_footer(yattagdoc, unhandled_count)
+            cls.outpage_write('regression/%s' % regzbot.urlencode(regression.entry), yattagdoc)
+
+
+    @classmethod
+    def createpage_compilation(cls, htmlpages, unhandled_count, categories, pagename):
+        tablecolumns = 3
+        yattagdoc = yattag.Doc()
+        cls.outpage_head(yattagdoc)
         with yattagdoc.tag('body'):
             cls.outpage_header(yattagdoc, htmlpages, pagename)
-            with yattagdoc.tag('h3'):
-                yattagdoc.text()
             with yattagdoc.tag('table', style="width:100%;"):
                 for category in categories.keys():
                     # print section header
@@ -377,12 +410,8 @@ class RegExportWeb():
                                     yattagdoc.text(regressionweb.treename)
             cls.outpage_footer(yattagdoc, unhandled_count)
 
-        with open(os.path.join(regzbot.WEBPAGEDIR, '%s.html' % pagename), 'w') as outputfile:
-            if regzbot.is_running_citesting():
-                # make this easier to read
-                outputfile.write(yattag.indent(yattagdoc.getvalue()))
-            else:
-                outputfile.write(yattagdoc.getvalue())
+            cls.outpage_write(pagename, yattagdoc)
+
 
 
     @classmethod
@@ -569,11 +598,20 @@ class RegExportWeb():
                 'entries': regressionslist,
             }
         }
-        cls.pagecreate(htmlpages, unhandled_count, categories, 'all')
+        cls.createpage_compilation(htmlpages, unhandled_count, categories, 'all')
+
+        # create the indivudal pages
+        for regression in regressionslist:
+            cls.create_individual_page(htmlpages, unhandled_count, regression)
 
         # create all the other pages that are sorted by activity
         regressionslist.sort(key=lambda x: x.gmtime_activity, reverse=True)
         categories = cls.categorize(regressionslist)
         for pagename in categories.keys():
-            cls.pagecreate(htmlpages, unhandled_count, categories[pagename], pagename)
+            cls.createpage_compilation(htmlpages, unhandled_count, categories[pagename], pagename)
+
+        # create default
+        with open(os.path.join(regzbot.WEBPAGEDIR, 'index.html'), 'w') as outputfile:
+             outputfile.write("<head><meta http-equiv='refresh' content='0; URL=mainline/'></head>")
+
         logger.debug("[webpages] generated")
