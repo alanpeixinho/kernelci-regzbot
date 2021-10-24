@@ -27,17 +27,92 @@ WEBPAGEDIR = None
 logger = logging.getLogger('regzbot')
 
 
+class RegzbotDbMeta():
+    def db_create(version, dbcursor):
+        logger.debug('Initializing new dbtable "RegzbotMeta"')
+        dbcursor.execute('''
+                CREATE TABLE RegzbotMeta (
+                    name TEXT UNIQUE,
+                    version INTEGER
+            )''')
+
+    @staticmethod
+    def init(databasedir):
+        dbconnection = db_init(databasedir)
+        if not dbconnection:
+            logger.debug('aborting: dbconnection could not be initialized')
+            sys.exit(1)
+
+        return dbconnection
+
+
+    @staticmethod
+    def update( dbcursor=None):
+        if dbcursor is None:
+            dbcursor = DBCON.cursor()
+
+        if not RegzbotDbMeta.table_exists('RegzbotState', dbcursor):
+            RegzbotState.db_create(1, dbcursor)
+
+    @staticmethod
+    def table_exists(tablename, dbcursor=None):
+        if dbcursor is None:
+            dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name=(?)", (tablename, )).fetchone()
+        if dbresult:
+           return True
+        return False
+
+    @staticmethod
+    def set_tableversion(tablename, version, dbcursor=None):
+        if dbcursor is None:
+            dbcursor = DBCON.cursor()
+        dbcursor.execute('''
+            INSERT INTO RegzbotMeta
+            VALUES(?, ?)''', (tablename, version))
+
+
+class RegzbotState():
+    @staticmethod
+    def db_create(version, dbcursor):
+        logger.debug('Initializing new dbtable "RegzbotState"')
+        dbcursor.execute('''
+                CREATE TABLE RegzbotState (
+                    name TEXT UNIQUE,
+                    version STRING
+            )''')
+
+    @staticmethod
+    def get(attribute, dbcursor=None):
+        if dbcursor is None:
+            dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute(
+            'SELECT * FROM RegzbotState WHERE attribute=(?)', (attribute)).fetchone()
+        if dbresult:
+           return dbresult[0]
+        return False
+
+
+    @staticmethod
+    def set(attribute, value, dbcursor=None):
+        if dbcursor is None:
+            dbcursor = DBCON.cursor()
+        dbcursor.execute('''
+            INSERT INTO RegzbotState
+            VALUES(?, ?)''', (attribute, value ))
+
+
+
 class RecordProcessedMsgids():
     def __init__(self, msgid, gmtime):
         self.msgid = msgid
         self.gmtime = gmtime
 
     @staticmethod
-    def db_create(dbcursor, version):
+    def db_create(version, dbcursor):
         logger.debug('Initializing new dbtable "msgidrecord"')
-        dbcursor.execute('''
-            INSERT INTO meta
-            VALUES(?, ?)''', ('msgidrecord', version, ))
+        RegzbotDbMeta.set_tableversion('msgidrecord', version, dbcursor)
         dbcursor.execute('''
             CREATE TABLE msgidrecord (
                 msgid       STRING   NOT NULL PRIMARY KEY,
@@ -90,11 +165,9 @@ class GitBranch():
         self.lastchked = lastchked
 
     @staticmethod
-    def db_create(dbcursor, version):
+    def db_create(version, dbcursor):
         logger.debug('Initializing new dbtable "gitbranches"')
-        dbcursor.execute('''
-            INSERT INTO meta
-                VALUES(?, ?)''', ('gitbranches', version, ))
+        RegzbotDbMeta.set_tableversion('gitbranches', version, dbcursor)
         dbcursor.execute('''
             CREATE TABLE gitbranches (
                 gitbranchid INTEGER  NOT NULL PRIMARY KEY,
@@ -229,11 +302,9 @@ class GitTree():
         self.__repo = None  # only initialize it once needed
 
     @staticmethod
-    def db_create(dbcursor, version):
+    def db_create(version, dbcursor):
         logger.debug('Initializing new dbtable "gittrees"')
-        dbcursor.execute('''
-            INSERT INTO meta
-                VALUES(?, ?)''', ('gittrees', version, ))
+        RegzbotDbMeta.set_tableversion('gittrees', version, dbcursor)
         dbcursor.execute('''
             CREATE TABLE gittrees (
                 gittreeid   INTEGER  NOT NULL PRIMARY KEY,
@@ -493,11 +564,9 @@ class RegActivityMonitor():
         self.entry = entry
 
     @staticmethod
-    def db_create(dbcursor, version):
+    def db_create(version, dbcursor):
         logger.debug('Initializing new dbtable "actmonitor"')
-        dbcursor.execute('''
-            INSERT INTO meta
-            VALUES(?, ?)''', ('actmonitor', version, ))
+        RegzbotDbMeta.set_tableversion('actmonitor', version, dbcursor)
         dbcursor.execute('''
             CREATE TABLE actmonitor (
                 actimonid   INTEGER  NOT NULL PRIMARY KEY,
@@ -611,11 +680,9 @@ class RegActivityEvent():
         self._regid = regid
 
     @staticmethod
-    def db_create(dbcursor, version):
+    def db_create(version, dbcursor):
         logger.debug('Initializing new dbtable "regactivity"')
-        dbcursor.execute('''
-            INSERT INTO meta
-            VALUES(?, ?)''', ('regactivity', version, ))
+        RegzbotDbMeta.set_tableversion('regactivity', version, dbcursor)
         dbcursor.execute('''
             CREATE TABLE regactivity (
                 gmtime       INTEGER  NOT NULL,
@@ -760,11 +827,9 @@ class RegHistory():
         self.repsrcid = repsrcid
 
     @staticmethod
-    def db_create(dbcursor, version):
+    def db_create(version, dbcursor):
         logger.debug('Initializing new dbtable "reghistory"')
-        dbcursor.execute('''
-            INSERT INTO meta
-            VALUES(?, ?)''', ('reghistory', version, ))
+        RegzbotDbMeta.set_tableversion('reghistory', version, dbcursor)
         dbcursor.execute('''
             CREATE TABLE reghistory (
                 regid       INTEGER  NOT NULL,
@@ -883,11 +948,9 @@ class RegLink():
             self.link = ReportSource.url_by_id(self.repsrcid, self.entry)
 
     @staticmethod
-    def db_create(dbcursor, version):
+    def db_create(version, dbcursor):
         logger.debug('Initializing new dbtable "reglinks"')
-        dbcursor.execute('''
-            INSERT INTO meta
-            VALUES(?, ?)''', ('reglinks', version, ))
+        RegzbotDbMeta.set_tableversion('reglinks', version, dbcursor)
         dbcursor.execute('''
             CREATE TABLE reglinks (
                 regid       INTEGER  NOT NULL,
@@ -998,11 +1061,9 @@ class RegressionBasic():
         self.solved_repentry = solved_repentry
 
     @staticmethod
-    def db_create(dbcursor, version):
+    def db_create(version, dbcursor):
         logger.debug('Initializing new dbtable "regressions"')
-        dbcursor.execute('''
-            INSERT INTO meta
-                VALUES(?, ?)''', ('regressions', version, ))
+        RegzbotDbMeta.set_tableversion('regressions', version, dbcursor)
         dbcursor.execute('''
             CREATE TABLE regressions (
                 regid              INTEGER  NOT NULL PRIMARY KEY,
@@ -1614,11 +1675,9 @@ class UnhandledEvent():
         self.solved_subject = solved_subject
 
     @staticmethod
-    def db_create(dbcursor, version):
+    def db_create(version, dbcursor):
         logger.debug('Initializing new dbtable "unhandled"')
-        dbcursor.execute('''
-            INSERT INTO meta
-                VALUES(?, ?)''', ('unhandled', version, ))
+        RegzbotDbMeta.set_tableversion('unhandled', version, dbcursor)
         dbcursor.execute('''
             CREATE TABLE unhandled (
                 unhanid         INTEGER  NOT NULL PRIMARY KEY,
@@ -1660,11 +1719,9 @@ class ReportSource():
         self.lastchked = lastchked
         self.priority = priority
 
-    def db_create(dbcursor, version):
+    def db_create(version, dbcursor):
         logger.debug('Initializing new dbtable "reportsources"')
-        dbcursor.execute('''
-            INSERT INTO meta
-                VALUES(?, ?)''', ('reportsources', version, ))
+        RegzbotDbMeta.set_tableversion('reportsources', version, dbcursor)
         dbcursor.execute('''
             CREATE TABLE reportsources (
                 repsrcid    INTEGER  NOT NULL PRIMARY KEY,
@@ -1788,26 +1845,19 @@ def db_commit():
 
 
 def db_create(directory):
-    def db_create_meta(dbcursor):
-        logger.debug('Initializing new dbtable "meta"')
-        dbcursor.execute('''
-                CREATE TABLE meta (
-                    name TEXT UNIQUE,
-                    version INTEGER
-            )''')
-
     def db_create_all(dbcursor):
-        db_create_meta(dbcursor)
-        RegActivityMonitor.db_create(dbcursor, 1)
-        GitTree.db_create(dbcursor, 1)
-        GitBranch.db_create(dbcursor, 1)
-        RecordProcessedMsgids.db_create(dbcursor, 1)
-        RegressionBasic.db_create(dbcursor, 1)
-        RegActivityEvent.db_create(dbcursor, 1)
-        RegHistory.db_create(dbcursor, 1)
-        RegLink.db_create(dbcursor, 1)
-        ReportSource.db_create(dbcursor, 1)
-        UnhandledEvent.db_create(dbcursor, 1)
+        RegzbotDbMeta.db_create(1, dbcursor)
+        RegzbotState.db_create(1, dbcursor)
+        RegActivityMonitor.db_create(1, dbcursor)
+        GitTree.db_create(1, dbcursor)
+        GitBranch.db_create(1, dbcursor)
+        RecordProcessedMsgids.db_create(1, dbcursor)
+        RegressionBasic.db_create(1, dbcursor)
+        RegActivityEvent.db_create(1, dbcursor)
+        RegHistory.db_create(1, dbcursor)
+        RegLink.db_create(1, dbcursor)
+        ReportSource.db_create(1, dbcursor)
+        UnhandledEvent.db_create(1, dbcursor)
 
     if not basicressource_checkdir_exists(directory, create=True):
         logger.error("Aborting, directory '%s' exist already." % directory)
@@ -1839,6 +1889,8 @@ def db_init(directory, create=False):
     global DBCON
     if DBCON is None:
         DBCON = sqlite3.connect(dbfile, sqlite3.PARSE_DECLTYPES)
+
+    RegzbotDbMeta.update()
 
     return DBCON
 
@@ -2093,10 +2145,7 @@ def basicressources_init(databasedir=None, gittreesdir=None, websitesdir=None, t
     databasedir, gittreesdir, websitesdir = basicressources_get_dirs(
         databasedir, gittreesdir, websitesdir, tmpdir)
 
-    dbconnection = db_init(databasedir)
-    if not dbconnection:
-        logger.debug('aborting: dbconnection could not be initialized')
-        sys.exit(1)
+    dbconnection = RegzbotDbMeta.init(databasedir)
 
     reposdir = init_reposdir(gittreesdir)
     if not reposdir:
