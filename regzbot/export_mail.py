@@ -35,11 +35,8 @@ class RegressionMailReport(regzbot.RegressionFull):
         compiled.append('-'*len(self.subject))
         compiled.append('')
         compiled.append(self.report_url)
-        compiled.append("%s days ago, by %s" % (regzbot.days_delta(self.gmtime), self.author))
+        compiled.append("By %s, %s days ago; latest activity %s days ago;" % (self.author, regzbot.days_delta(self.gmtime), regzbot.days_delta(self._actievents[-1].gmtime)))
         compiled = self.add_introduced(compiled)
-        compiled.append('')
-        compiled.append('Oldest and latest activity: %s and %s days ago:'
-                   % (regzbot.days_delta(self._actievents[0].gmtime), regzbot.days_delta(self._actievents[-1].gmtime)))
         compiled.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s/' % regzbot.urlencode(self.entry))
         compiled = self.add_links(compiled)
         compiled.append('')
@@ -79,17 +76,26 @@ class RegExportMailReport():
 
 
     @classmethod
-    def pagecreate(cls, categories):
+    def pagecreate(cls, categories, treename):
+        def sectionheader(headline):
+            print(headline)
+            print('='*len(headline))
+            print('')
+
         for category in categories.keys():
             if not categories[category]['entries']:
                 # nothing to do
                 continue
 
-            print(categories[category]['desc'])
-            print('='*len(categories[category]['desc']))
-            print('\n')
+            if category == 'default':
+                sectionheader('Inactive regressions')
+                print("The regzbot's website lists %s more regressions omitted here due to lack of recent activity:" % len(['entries']))
+                print("https://linux-regtracking.leemhuis.info/regzbot/%s/" % treename)
+                print('')
+                return
 
-            categories[category]['entries'].sort(key=lambda x: x.gmtime_report, reverse=True)
+            sectionheader(categories[category]['desc'])
+            print('')
             for regexportreport in categories[category]['entries']:
                 print(regexportreport.reporttext)
                 print('')
@@ -97,22 +103,15 @@ class RegExportMailReport():
 
     @classmethod
     def categorize(cls, regressionlist):
+        # some lines are commented out below to keep code similar to the one used in export_web,
+        # as it shows a few regressions that don't make it into the reports
+
         categories = {
-            'new': {
-                'next': {
-                   'desc': "next",
-                   'entries': list(),
-                },
-                'mainline': {
-                   'desc': "mainline",
-                   'entries': list(),
-                },
-                'stable': {
-                    'desc': 'stable/longterm',
+            'next': {
+                'new': {
+                    'desc': "newly tracked since the last report",
                     'entries': list(),
                 },
-            },
-            'next': {
                 'identified': {
                    'desc': "culprit identified",
                    'entries': list(),
@@ -123,6 +122,10 @@ class RegExportMailReport():
                 },
             },
             'mainline': {
+                'new': {
+                    'desc': "newly tracked since the last report",
+                    'entries': list(),
+                },
                 'identified_indevelopment': {
                     'desc': "current cycle (%s.. aka %s-rc), culprit identified" % (regzbot.LATEST_VERSIONS['latest'], regzbot.LATEST_VERSIONS['indevelopment']),
                     'entries': list(),
@@ -132,7 +135,7 @@ class RegExportMailReport():
                     'entries': list(),
                 },
                 'identified': {
-                   'desc': "older cycles, culprit identified, with activity in the past three weeks",
+                   'desc': "old cycles (..%s), culprit identified, with activity in the past three weeks" % regzbot.LATEST_VERSIONS['previous'],
                    'entries': list(),
                 },
                 'unidentified_indevelopment': {
@@ -144,7 +147,7 @@ class RegExportMailReport():
                     'entries': list(),
                 },
                 'unidentified': {
-                    'desc': 'older cycles, unkown culprit, with activity in the past three weeks',
+                    'desc': 'old cycles (..%s), unkown culprit, with activity in the past three weeks' % regzbot.LATEST_VERSIONS['previous'],
                     'entries': list(),
                 },
                 'default': {
@@ -153,6 +156,10 @@ class RegExportMailReport():
                 },
             },
             'stable': {
+                'new': {
+                    'desc': "newly tracked since the last report",
+                    'entries': list(),
+                },
                 'identified': {
                    'desc': "culprit identified",
                    'entries': list(),
@@ -171,14 +178,20 @@ class RegExportMailReport():
         }
 
         for regression in regressionlist:
+            filed_days = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)).days
             last_activity_days = regzbot.days_delta(regression.gmtime_activity)
+
             if regression.treename == 'next' or regression.treename == 'stable':
-                if regression.identified:
+                if filed_days < 7:
+                    categories['new'][regression.treename]['entries'].append(regression)
+                elif regression.identified:
                     categories[regression.treename]['identified']['entries'].append(regression)
                 else:
                     categories[regression.treename]['default']['entries'].append(regression)
             elif regression.treename == 'mainline':
-                if regression.versionline == 'indevelopment':
+                if filed_days < 7:
+                    categories['new'][regression.treename]['entries'].append(regression)
+                elif regression.versionline == 'indevelopment':
                     if regression.identified:
                            categories[regression.treename]['identified_indevelopment']['entries'].append(regression)
                     else:
@@ -197,11 +210,6 @@ class RegExportMailReport():
                     categories[regression.treename]['default']['entries'].append(regression)
             else:
                 categories['unassociated']['default']['entries'].append(regression)
-
-            # put copies on the new page
-            filed_days = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)).days
-            if filed_days < 7:
-                categories['new'][regression.treename]['entries'].append(regression)
 
         return categories
 
@@ -230,6 +238,8 @@ class RegExportMailReport():
         categories = cls.categorize(regressionslist)
 
         for treename in categories.keys():
-          cls.pagecreate(categories[treename])
+          cls.pagecreate(categories[treename], treename)
 
-        logger.debug("[webpages] generated")
+        logger.debug("[report] generated")
+
+        regzbot.RegzbotState.set('lastreport', datetime.datetime.now(datetime.timezone.utc))

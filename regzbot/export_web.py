@@ -480,7 +480,7 @@ class RegExportWeb():
                     'entries': list(),
                 },
                 'identified': {
-                   'desc': "older cycles, culprit identified, with activity in the past three weeks",
+                   'desc': "old cycles (..%s), culprit identified, with activity in the past three weeks" % regzbot.LATEST_VERSIONS['previous'],
                    'entries': list(),
                 },
                 'unidentified_indevelopment': {
@@ -492,7 +492,7 @@ class RegExportWeb():
                     'entries': list(),
                 },
                 'unidentified': {
-                    'desc': 'older cycles, unkown culprit, with activity in the past three weeks',
+                    'desc': 'old cycles (..%s), unkown culprit, with activity in the past three weeks' % regzbot.LATEST_VERSIONS['previous'],
                     'entries': list(),
                 },
                 'default': {
