@@ -5,6 +5,7 @@
 __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
 import datetime
+import pathlib
 import os
 
 import yattag
@@ -613,5 +614,10 @@ class RegExportWeb():
         # create default
         with open(os.path.join(regzbot.WEBPAGEDIR, 'index.html'), 'w') as outputfile:
              outputfile.write("<head><meta http-equiv='refresh' content='0; URL=mainline/'></head>")
+
+        if not regzbot.is_running_citesting():
+            publishscript = os.path.join(pathlib.Path.home(), '.local/share/regzbot/', 'pusblishwebsites.sh')
+            if os.path.exists(publishscript):
+                os.system(publishscript)
 
         logger.debug("[webpages] generated")
