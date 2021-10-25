@@ -5,9 +5,16 @@
 __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
 import datetime
-import regzbot
 import re
+from email.message import EmailMessage
+import email.utils
+import tempfile
+import os
+
+import regzbot
+
 logger = regzbot.logger
+
 
 class RegLinkMailReport(regzbot.RegLink):
     def __init__(self, *args):
@@ -30,37 +37,36 @@ class RegressionMailReport(regzbot.RegressionFull):
         super().__init__(*args)
        
     def compile(self):
-        compiled = list()
-        compiled.append(self.subject)
-        compiled.append('-'*len(self.subject))
-        compiled.append('')
-        compiled.append(self.report_url)
-        compiled.append("By %s, %s days ago; latest activity %s days ago;" % (self.author, regzbot.days_delta(self.gmtime), regzbot.days_delta(self._actievents[-1].gmtime)))
-        compiled = self.add_introduced(compiled)
-        compiled.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s/' % regzbot.urlencode(self.entry))
-        compiled = self.add_links(compiled)
-        compiled.append('')
-        return compiled
+        report = list()
+        report.append(self.subject)
+        report.append('-'*len(self.subject))
+        report.append('')
+        report.append(self.report_url)
+        report.append("By %s, %s days ago; latest activity %s days ago;" % (self.author, regzbot.days_delta(self.gmtime), regzbot.days_delta(self._actievents[-1].gmtime)))
+        report = self.add_introduced(report)
+        report.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s/' % regzbot.urlencode(self.entry))
+        report = self.add_links(report)
+        report.append('')
+        return report
 
-    def add_introduced(self, compiled):
+    def add_introduced(self, report):
         presentable = ''
         if self._introduced_presentable:
              presentable = ' (%s)' % self._introduced_presentable
-        compiled.append('Introduced in %s%s' % (self._introduced_short, presentable))
-        return compiled
+        report.append('Introduced in %s%s' % (self._introduced_short, presentable))
+        return report
 
-    def add_links(self, compiled):
+    def add_links(self, report):
         if not self._links:
-            return compiled
+            return report
 
-        compiled.append('\nRelated:')
+        report.append('\nRelated:')
         for link in self._links:
-            compiled.append(link.mailreport())
-        return compiled
+            report.append(link.mailreport())
+        return report
 
     def mailreport(self):
         return('\n'.join(self.compile()))
-
 
 
 class RegExportMailReport():
@@ -74,31 +80,43 @@ class RegExportMailReport():
         self.identified = identified
         self.reporttext = reporttext
 
+    @classmethod
+    def __create_mail(cls, content, treename):
+        msg = EmailMessage()
+        msg['From'] = 'Regzbot (for Thorsten Leemhuis) <regressions@leemhuis.info>'
+        msg['To'] = 'Thorsten Leemhuis <regressions@leemhuis.info>'
+        msg['Subject'] = 'Regression report for linux-%s [%s]' % (treename, datetime.date.today())
+        msg['Date'] = email.utils.localtime()
+        msg['Message-Id'] = email.utils.make_msgid(domain='leemhuis.info')
+        msg.set_content(content, cte='quoted-printable')
+        return msg
 
     @classmethod
     def pagecreate(cls, categories, treename):
-        def sectionheader(headline):
-            print(headline)
-            print('='*len(headline))
-            print('')
+        def sectionheader(report, headline):
+            report.append(headline)
+            report.append('='*len(headline))
+            report.append('')
+            return report
 
+        report = list()
         for category in categories.keys():
             if not categories[category]['entries']:
                 # nothing to do
                 continue
 
             if category == 'default':
-                sectionheader('Inactive regressions')
-                print("The regzbot's website lists %s more regressions omitted here due to lack of recent activity:" % len(['entries']))
-                print("https://linux-regtracking.leemhuis.info/regzbot/%s/" % treename)
-                print('')
-                return
-
-            sectionheader(categories[category]['desc'])
-            print('')
-            for regexportreport in categories[category]['entries']:
-                print(regexportreport.reporttext)
-                print('')
+                report = sectionheader(report, 'Inactive regressions')
+                report.append("The regzbot's website lists %s more regressions omitted here due to lack of recent activity:" % len(['entries']))
+                report.append("https://linux-regtracking.leemhuis.info/regzbot/%s/" % treename)
+                report.append('')
+            else:
+                report = sectionheader(report, categories[category]['desc'])
+                report.append('')
+                for regexportreport in categories[category]['entries']:
+                    report.append(regexportreport.reporttext)
+                    report.append('')
+        return ('\n'.join(report))
 
 
     @classmethod
@@ -237,9 +255,33 @@ class RegExportMailReport():
         regressionslist.sort(key=lambda x: x.gmtime_activity, reverse=True)
         categories = cls.categorize(regressionslist)
 
-        for treename in categories.keys():
-          cls.pagecreate(categories[treename], treename)
+        reporttime = datetime.datetime.now(datetime.timezone.utc)
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            for counter, treename in enumerate(categories.keys()):
+                if treename == 'next' or treename == 'stable' or treename == 'unassociated':
+                    # ignore those for now
+                    continue
+                report = cls.pagecreate(categories[treename], treename)
+                if not report:
+                    logger.info('Nothing to report for %s' % treename)
+                    continue
 
+
+                print('#'*120)
+                print('\n%s\n' % filename)
+                print('#'*120)
+                print(msg)
+                msg = cls.__create_mail(report, treename)
+                filename = os.path.join(tmpdirname, "%s-regzbotreport-%s" % (counter, treename))
+                with open(filename, 'w') as out:
+                    gen = email.generator.Generator(out)
+                    gen.flatten(msg)
+
+            print('#'*120)
+            print("Review the reports in %s and sent them using \"git send-email --from='Regzbot (for Thorsten Leemhuis) <regressions@leemhuis.info>' --to '' --no-thread /tmp/tmp9yywyvjt/*\"" % tmpdirname)
+            answer = input('Enter c to confirm you sent the report: ')
+            if answer.lower() != 'c':
+               print('aborting')
+               sys.exit(1)
+            regzbot.RegzbotState.set('lastreport', reporttime)
         logger.debug("[report] generated")
-
-        regzbot.RegzbotState.set('lastreport', datetime.datetime.now(datetime.timezone.utc))
