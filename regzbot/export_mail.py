@@ -93,29 +93,50 @@ class RegExportMailReport():
 
     @classmethod
     def pagecreate(cls, categories, treename):
-        def sectionheader(report, headline):
+        def repintro(report, number_issues, treename):
+            intro = list()
+            intro.append("Hi, this is regzbot, the Linux kernel regression tracking bot. FYI:")
+            intro.append("Currently I'm aware of %s regressions in linux-%s. Below you'll" % (number_issues, treename))
+            intro.append("find all I started to track since the last report as well as all")
+            intro.append("introduced in the current development cycle (%s..). Older regressions" % regzbot.LATEST_VERSIONS['indevelopment'])
+            intro.append("for previous cycles are included as well if there was a recent activity.\n")
+            intro.append("Wanna know more about regzbot or how to use it to track regressions for")
+            intro.append("your subsystem? Then check out the getting started guide:")
+            intro.append("https://gitlab.com/knurd42/regzbot/-/blob/main/docs/getting_started.md\n")
+            intro.append("So without further adue, here is my report:\n\n")
+            report.insert(0, '\n'.join(intro))
+            return report
+
+        def repsectionheader(report, headline):
             report.append(headline)
             report.append('='*len(headline))
             report.append('')
             return report
 
+        number_issues = 0
         report = list()
         for category in categories.keys():
             if not categories[category]['entries']:
                 # nothing to do
                 continue
 
+            number_issues += len(categories[category]['entries'])
+
             if category == 'default':
-                report = sectionheader(report, 'Inactive regressions')
+                report = repsectionheader(report, 'Inactive regressions')
                 report.append("The regzbot's website lists %s more regressions omitted here due to lack of recent activity:" % len(['entries']))
                 report.append("https://linux-regtracking.leemhuis.info/regzbot/%s/" % treename)
                 report.append('')
             else:
-                report = sectionheader(report, categories[category]['desc'])
+                report = repsectionheader(report, categories[category]['desc'])
                 report.append('')
                 for regexportreport in categories[category]['entries']:
                     report.append(regexportreport.reporttext)
                     report.append('')
+
+        print(report)
+        report = repintro(report, number_issues, treename)
+        print(report)
         return ('\n'.join(report))
 
 
@@ -267,21 +288,20 @@ class RegExportMailReport():
                     continue
 
 
+                filename = os.path.join(tmpdirname, "%s-regzbotreport-%s" % (counter, treename))
+                msg = cls.__create_mail(report, treename)
                 print('#'*120)
                 print('\n%s\n' % filename)
                 print('#'*120)
                 print(msg)
-                msg = cls.__create_mail(report, treename)
-                filename = os.path.join(tmpdirname, "%s-regzbotreport-%s" % (counter, treename))
                 with open(filename, 'w') as out:
                     gen = email.generator.Generator(out)
                     gen.flatten(msg)
 
             print('#'*120)
-            print("Review the reports in %s and sent them using \"git send-email --from='Regzbot (for Thorsten Leemhuis) <regressions@leemhuis.info>' --to '' --no-thread /tmp/tmp9yywyvjt/*\"" % tmpdirname)
-            answer = input('Enter c to confirm you sent the report: ')
+            print("Review the reports in %s and sent them using \"git send-email --from='Regzbot (on behalf of Thorsten Leemhuis) <regressions@leemhuis.info>' --to '' --no-thread %s*\"" % (tmpdirname, tmpdirname))
+            answer = input('Enter c to confirm you sent the report, anything else to abort: ')
             if answer.lower() != 'c':
-               print('aborting')
-               sys.exit(1)
+               return
             regzbot.RegzbotState.set('lastreport', reporttime)
         logger.debug("[report] generated")
