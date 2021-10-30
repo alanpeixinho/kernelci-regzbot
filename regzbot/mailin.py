@@ -311,7 +311,7 @@ def process_msg(repsrc, msg):
             matches.append('#regzbot ' + match.group(2))
         if len(matches) > 0:
             for match in email_process_tagmatches(matches):
-                if 'ignore-activitiy' in match or \
+                if 'ignore-activity' in match or \
                        'ignoreact' in match:
                      ignoreactivity = True
                 else:

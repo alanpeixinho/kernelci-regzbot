@@ -2221,8 +2221,9 @@ def recheck(msgid):
     regression = redo_regression(regression)
     db_commit()
 
-    from export_web import RegressionWebOld as RegressionWebOld
-    RegressionWebOld.create_htmlpages()
+    from export_web import RegExportWeb
+    RegExportWeb.compile()
+
     db_close()
 
 def run():
