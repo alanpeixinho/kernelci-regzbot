@@ -63,8 +63,7 @@ class Emaildir:
                     '<regzbot-testing-%s@example.com>' % reference)
         references = new_references
 
-        file = os.path.join(self._directory, "emailtesting-" +
-                            str(Emaildir._count) + ".regzbot")
+        file = os.path.join(self._directory, "emailtesting-%s-.regzbot" % str(Emaildir._count).zfill(3))
 
         msg = email.message.EmailMessage()
         if subject:
@@ -579,11 +578,11 @@ def offltest_0_9(funcname):
 def offltest_0_10(funcname):
     replyto = 'test_0_9_0'
     logger.info(
-        "%s: send a mail with a regzbot command, but is not added as an activity due to #regzbot ignore-activitiy" % funcname)
+        "%s: send a mail with a regzbot command, but is not added as an activity due to #regzbot ignore-activity" % funcname)
 
     subcounter = 0
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb title: updated title, set by %s_%s\n\n#regzb ignore-activitiy"
+        "%s_%s" % (funcname, subcounter), "#regzb title: updated title, set by %s_%s\n\n#regzb ignore-activity"
         % (funcname, subcounter),  replyto=replyto)
     return True, False, False
 
@@ -840,6 +839,12 @@ def offltest_4_0(funcname):
     emaildirs['primary'].create_email(
         "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.9..v1.11-rc1")
 
+    subcounter += 1
+    logger.info(
+        '%s: creating a mainline regression in the current cycle with open end)' % funcname)
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10..")
+
     return True, False, False
 
 
@@ -860,7 +865,7 @@ def offltest_4_1(funcname):
     emaildirs['primary'].create_email(
         "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..next-20190102")
 
-    return True, False, False
+    return True, False, True
 
 
 def offltest_4_2(funcname):

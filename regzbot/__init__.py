@@ -1214,7 +1214,7 @@ class RegressionBasic():
         introduced = introduced.split()[0]
 
         # try to find what tree/branch this belongs
-        _, gitbranch, _ = RegressionBasic._gettree_n_branch(introduced)
+        introduced, _, gitbranch, _ = RegressionBasic._gettree_n_branch(introduced)
         if gitbranch:
             gitbranchid = gitbranch.gitbranchid
         else:
@@ -1477,13 +1477,20 @@ class RegressionBasic():
     def _gettree_n_branch(introduced):
         if '..' in introduced:
             range_start, range_end = introduced.split("..", 1)
-            gittree_end, gitbranch_end = GitTree.commit_find(range_end)
-            return gittree_end, gitbranch_end, True
+            if not range_end:
+                # something like 'v5.15..'
+                gittree_start, gitbranch_start = GitTree.commit_find(range_start)
+                commit = gittree_start.commit('HEAD')
+                introduced = "%s%s" % (introduced, commit.hexsha)
+                return introduced, gittree_start, gitbranch_start, True
+            else:
+                gittree_end, gitbranch_end = GitTree.commit_find(range_end)
+                return introduced, gittree_end, gitbranch_end, True
         else:
             gittree, gitbranch = GitTree.commit_find(introduced)
             if gitbranch:
-                return gittree, gitbranch, False
-        return None, None, None
+                return introduced, gittree, gitbranch, False
+        return introduced, None, None, None
 
 
 class RegressionFull(RegressionBasic):
@@ -1524,7 +1531,7 @@ class RegressionFull(RegressionBasic):
 
             # catch commits that were introduced and reported in next but moved to master
             if gittree.name == 'next':
-                tmpgittree, tmpgitbranch, _ = RegressionBasic._gettree_n_branch(
+                _, tmpgittree, tmpgitbranch, _ = RegressionBasic._gettree_n_branch(
                     self.introduced)
                 if tmpgittree.name == 'master':
                     gitbranch = tmpgitbranch
