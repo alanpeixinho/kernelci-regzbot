@@ -445,6 +445,11 @@ class RegExportWeb():
 
     @classmethod
     def categorize(cls, regressionlist):
+        if regzbot.LATEST_VERSIONS['indevelopment'] == False:
+           indevelopment_descriptive = '%s-post' % regzbot.LATEST_VERSIONS['latest']
+        else:
+           indevelopment_descriptive = '%s-rc' % regzbot.LATEST_VERSIONS['indevelopment']
+
         categories = {
             'new': {
                 'next': {
@@ -472,7 +477,7 @@ class RegExportWeb():
             },
             'mainline': {
                 'identified_indevelopment': {
-                    'desc': "current cycle (%s.. aka %s-rc), culprit identified" % (regzbot.LATEST_VERSIONS['latest'], regzbot.LATEST_VERSIONS['indevelopment']),
+                    'desc': "current cycle (%s.. aka %s), culprit identified" % (regzbot.LATEST_VERSIONS['latest'], indevelopment_descriptive),
                     'entries': list(),
                 },
                 'identified_latest': {
@@ -484,7 +489,7 @@ class RegExportWeb():
                    'entries': list(),
                 },
                 'unidentified_indevelopment': {
-                    'desc': "current cycle (%s.. aka %s-rc), unkown culprit" % (regzbot.LATEST_VERSIONS['latest'], regzbot.LATEST_VERSIONS['indevelopment']),
+                    'desc': "current cycle (%s.. aka %s), unkown culprit" % (regzbot.LATEST_VERSIONS['latest'], indevelopment_descriptive),
                     'entries': list(),
                 },
                 'unidentified_latest': {

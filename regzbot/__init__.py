@@ -404,7 +404,7 @@ class GitTree():
             elif match.group(1) and match.group(2) is None:
                 # we found our first proper (aka non-rc) tag
                 if LATEST_VERSIONS['indevelopment'] is None:
-                    # we haven't seen a rc tag yet, so we are in the middle of a merge window and don't known yet what the current version will be called
+                    # we haven't seen a rc tag yet, so we are in the middle of a merge window and don't known yet what the next version will be called
                     LATEST_VERSIONS['indevelopment'] = False
                     # fallthrough
                 if LATEST_VERSIONS['latest'] is None:
@@ -412,14 +412,14 @@ class GitTree():
                     continue
                 else:
                     LATEST_VERSIONS['previous'] = match.group(1)
-                    return
-
+                    break
             logger.critical(
                 "Unable to determine current and next version, could not find expected tags")
-            logger.debug(
-                "'next' is now '%s', 'latest' is now '%s', and 'previous' is niw '%s'",
-                LATEST_VERSIONS['indevelopment'], LATEST_VERSIONS['latest'], LATEST_VERSIONS['previous'])
             return False
+
+        logger.debug(
+            "'next' is now '%s', 'latest' is now '%s', and 'previous' is now '%s'",
+            LATEST_VERSIONS['indevelopment'], LATEST_VERSIONS['latest'], LATEST_VERSIONS['previous'])
 
     @staticmethod
     def getall():

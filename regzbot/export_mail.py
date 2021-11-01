@@ -145,6 +145,11 @@ class RegExportMailReport():
         # some lines are commented out below to keep code similar to the one used in export_web,
         # as it shows a few regressions that don't make it into the reports
 
+        if regzbot.LATEST_VERSIONS['indevelopment'] == False:
+           indevelopment_descriptive = '%s-post' % regzbot.LATEST_VERSIONS['latest']
+        else:
+           indevelopment_descriptive = '%s-rc' % regzbot.LATEST_VERSIONS['indevelopment']
+
         categories = {
             'next': {
                 'new': {
@@ -166,7 +171,7 @@ class RegExportMailReport():
                     'entries': list(),
                 },
                 'identified_indevelopment': {
-                    'desc': "current cycle (%s.. aka %s-rc), culprit identified" % (regzbot.LATEST_VERSIONS['latest'], regzbot.LATEST_VERSIONS['indevelopment']),
+                    'desc': "current cycle (%s.. aka %s), culprit identified" % (regzbot.LATEST_VERSIONS['latest'], indevelopment_descriptive),
                     'entries': list(),
                 },
                 'identified_latest': {
@@ -178,7 +183,7 @@ class RegExportMailReport():
                    'entries': list(),
                 },
                 'unidentified_indevelopment': {
-                    'desc': "current cycle (%s.. aka %s-rc), unkown culprit" % (regzbot.LATEST_VERSIONS['latest'], regzbot.LATEST_VERSIONS['indevelopment']),
+                    'desc': "current cycle (%s.. aka %s), unkown culprit" % (regzbot.LATEST_VERSIONS['latest'], indevelopment_descriptive),
                     'entries': list(),
                 },
                 'unidentified_latest': {
