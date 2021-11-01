@@ -1890,8 +1890,6 @@ def db_init(directory, create=False):
     if DBCON is None:
         DBCON = sqlite3.connect(dbfile, sqlite3.PARSE_DECLTYPES)
 
-    RegzbotDbMeta.update()
-
     return DBCON
 
 
@@ -2146,6 +2144,7 @@ def basicressources_init(databasedir=None, gittreesdir=None, websitesdir=None, t
         databasedir, gittreesdir, websitesdir, tmpdir)
 
     dbconnection = RegzbotDbMeta.init(databasedir)
+    RegzbotDbMeta.update()
 
     reposdir = init_reposdir(gittreesdir)
     if not reposdir:
