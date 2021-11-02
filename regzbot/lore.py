@@ -118,7 +118,8 @@ def download_msg(msgid, repsrcid):
         try:
             logger.debug("Downloading %s", url)
             with urllib.request.urlopen(url) as response:
-                msg = email.message_from_string(response.read().decode('utf-8'), policy=policy.default)
+                # ignore decoding errors due to messages like https://lore.kernel.org/all/20211101140613.GC1456700@rowland.harvard.edu/raw
+                msg = email.message_from_string(response.read().decode('utf-8', errors='ignore'), policy=policy.default)
                 return msg
         except urllib.error.HTTPError as err:
             logger.critical('Failed to download msg %s: %s"', msgid, err)
