@@ -127,7 +127,7 @@ class RegressionWeb(regzbot.RegressionFull):
                         for counter, regressionlink in enumerate(RegLinkWeb.get_all(self.regid), start=1):
                             if counter == 1:
                                 entered_loop = True
-                                yattagdoc.text(' Related issues: ')
+                                yattagdoc.text(' Noteworthy: ')
                             else:
                                 yattagdoc.text(', ')
                             with yattagdoc.tag('a', href=regressionlink.link):
