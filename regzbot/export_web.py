@@ -381,7 +381,7 @@ class RegExportWeb():
 
 
             cls.outpage_footer(yattagdoc, unhandled_count)
-            cls.outpage_write('regression/%s' % regzbot.urlencode(regression.entry), yattagdoc)
+            cls.outpage_write('regression/%s' % regression.entry, yattagdoc)
 
 
     @classmethod
