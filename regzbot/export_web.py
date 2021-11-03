@@ -373,7 +373,7 @@ class RegExportWeb():
         yattagdoc = yattag.Doc()
         cls.outpage_head(yattagdoc)
         with yattagdoc.tag('body'):
-            yattagdoc.asis('<base href="../" target="_blank">')
+            yattagdoc.asis('<base href="../">')
             cls.outpage_header(yattagdoc, htmlpages, None)
             with yattagdoc.tag('table', style="width:100%;"):
                 with yattagdoc.tag('tr', style="vertical-align:top;"):
