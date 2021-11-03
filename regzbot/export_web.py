@@ -112,7 +112,7 @@ class RegressionWeb(regzbot.RegressionFull):
                         if len(self._actievents) < 2:
                             yattagdoc.text('Reported: %s; no further activity yet.' % yattagdoc.text('%s' % days_delta(self._actievents[0].gmtime)))
                         else:
-                            yattagdoc.text('Oldest and latest activity: ')
+                            yattagdoc.text('Earliest and latest activity: ')
                             with yattagdoc.tag('a', href=self._actievents[0].url()):
                                 yattagdoc.text('%s' % days_delta(
                                     self._actievents[0].gmtime))
