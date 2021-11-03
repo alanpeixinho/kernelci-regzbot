@@ -83,9 +83,8 @@ class RegressionWeb(regzbot.RegressionFull):
             def add_introduced(yattagdoc):
                 yattagdoc.text(self._introduced_short)
 
-            with yattagdoc_line.tag('details', style="padding-left: 1em;"):
+            with yattagdoc_line.tag('details', id='regression-details', style="padding-left: 1em;"):
                 with yattagdoc_line.tag('summary', style="list-style-position: outside;"):
-                    yattagdoc.text('Report: ')
                     with yattagdoc.tag('i'):
                         with yattagdoc.tag('a', href=self.report_url):
                             yattagdoc.text(self.subject)
@@ -109,7 +108,10 @@ class RegressionWeb(regzbot.RegressionFull):
                         yattagdoc.text(' ')
 
                     with yattagdoc.tag('div'):
-                        yattagdoc.text('Earliest and latest activity: ')
+                        yattagdoc.text('Earliest and latest ')
+                        with yattagdoc.tag('a', href='../regression/%s/' % regzbot.urlencode(self.entry)):
+                             yattagdoc.text('activity')
+                        yattagdoc.text(': ')
                         if self._actievents[0] is self._actievents[-1]:
                             yattagdoc.text('%s days ago.' % days_delta(
                                 self._actievents[0].gmtime))
@@ -371,7 +373,8 @@ class RegExportWeb():
         yattagdoc = yattag.Doc()
         cls.outpage_head(yattagdoc)
         with yattagdoc.tag('body'):
-            cls.outpage_header(yattagdoc, htmlpages, None, relpath='../')
+            yattagdoc.asis('<base href="../" target="_blank">')
+            cls.outpage_header(yattagdoc, htmlpages, None)
             with yattagdoc.tag('table', style="width:100%;"):
                 with yattagdoc.tag('tr', style="vertical-align:top;"):
                     yattagdoc.asis(
@@ -379,7 +382,7 @@ class RegExportWeb():
                     with yattagdoc.tag('td', style="width: 100px;"):
                          yattagdoc.text(regression.treename)
 
-
+            yattagdoc.asis("<script>document.getElementById('regression-details').open = true;</script>")
             cls.outpage_footer(yattagdoc, unhandled_count)
             cls.outpage_write('regression/%s' % regression.entry, yattagdoc)
 
