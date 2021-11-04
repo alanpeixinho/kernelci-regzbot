@@ -2037,6 +2037,9 @@ def basicressources_repsrces_setup():
                          'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
                          'lore', 'https://lore.kernel.org/regressions/', identifiers='regressions@lists.linux.dev',
                          lastchked=190)
+    ReportSource.add('stable', 3,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.stable',
+                     'lore', 'https://lore.kernel.org/stable/', identifiers='stable@vger.kernel.org')
     ReportSource.add('netdev', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.netdev',
                      'lore', 'https://lore.kernel.org/netdev/', identifiers='netdev@vger.kernel.org')
