@@ -114,3 +114,8 @@ The following regzbot commands are available; only the `introduced` commands can
 
    `[reason]` is optional and specifies the reason why this entry should be considered is closed as 'invalid'.
 
+### commands users and developers normally shouldn't use
+
+ * `#regzbot activity-ignore`
+
+   Regzbot will not consider the mails with this command as an activity for the regression; It thus will neither update the value for 'days since last activity' nor link to the mail in the 'latest activity' section of its web-interface. The command is useful for mails that are totally irrelevant for the bug processing process and thus would only noise to people looking into the regression; it's thus of use for mails only meant for regzbot, for example ones that just update Regzbot properties like the title.
