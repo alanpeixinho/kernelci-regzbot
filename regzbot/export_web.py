@@ -195,14 +195,18 @@ class RegressionWeb(regzbot.RegressionFull):
                             self.solved_gmtime))
 
                 with yattagdoc_line.tag('p'):
-                    yattagdoc.text("Latest known activities")
+                    listcount = len(self._actievents)
+                    if listcount > 5:
+                        yattagdoc.text("Latest five known activities:")
+                    else:
+                        yattagdoc.text("All known activities:")
                     with yattagdoc_line.tag('ul', style='padding-left: 5px; margin-top: -1em;'):
                         for actievent in reversed(self._actievents[-5:]):
                             with yattagdoc.tag('li', style="list-style-position: inside;"):
                                 actievent.html(yattagdoc)
 
                 with yattagdoc_line.tag('p'):
-                    yattagdoc.text("Regression history")
+                    yattagdoc.text("Regzbot command history:")
                     with yattagdoc_line.tag('ul', style='padding-left: 5px; margin-top: -1em;'):
                         for histevent in reversed(self._histevents):
                             with yattagdoc.tag('li', style="list-style-position: inside;"):
