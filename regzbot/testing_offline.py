@@ -586,6 +586,16 @@ def offltest_0_10(funcname):
         % (funcname, subcounter),  replyto=replyto)
     return True, False, False
 
+def offltest_0_11(funcname):
+    replyto = 'test_0_9_0'
+    logger.info(
+        "%s: try 'regzbot poke'" % funcname)
+
+    subcounter = 0
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb poke",  replyto=replyto)
+    return True, False, False
+
 # create a mainline regression
 def offltest_1_0(funcname):
     logger.info('%s: creating a mainline regression' % funcname)
@@ -865,7 +875,7 @@ def offltest_4_1(funcname):
     emaildirs['primary'].create_email(
         "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..next-20190102")
 
-    return True, False, True
+    return True, False, False
 
 
 def offltest_4_2(funcname):

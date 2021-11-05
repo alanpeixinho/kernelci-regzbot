@@ -1507,6 +1507,7 @@ class RegressionFull(RegressionBasic):
         self._actievents = self._init_related_objects(list(), self.Regactivityevent)
 
         self.gmtime = self._histevents[0].gmtime
+        self.poked = self._get_poked(self._histevents)
 
         # provide a default for this, as this can't be None:
         self.treename = 'unassociated'
@@ -1566,6 +1567,12 @@ class RegressionFull(RegressionBasic):
         for obj in cls.get_all(self.regid):
             datalist.append(obj)
         return datalist
+
+    def _get_poked(self, histevents):
+       for histevent in reversed(histevents):
+          if histevent.regzbotcmd.startswith('poke'):
+              return histevent
+       return False
 
     def _get_presentable(self, gitref, gittree=None, getversionline=None):
         def iscommitid(commitid):

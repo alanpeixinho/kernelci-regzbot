@@ -119,3 +119,7 @@ The following regzbot commands are available; only the `introduced` commands can
  * `#regzbot activity-ignore`
 
    Regzbot will not consider the mails with this command as an activity for the regression; It thus will neither update the value for 'days since last activity' nor link to the mail in the 'latest activity' section of its web-interface. The command is useful for mails that are totally irrelevant for the bug processing process and thus would only noise to people looking into the regression; it's thus of use for mails only meant for regzbot, for example ones that just update Regzbot properties like the title.
+
+ * `#regzbot poke`
+
+   Regzbot will consider the mail with this command as a 'poke' asking for a progress update from someone involved. It's meant to be used in inquires when a regression seems to become state, after there was no mail from a user or developer for a while. Regzbot in its reports and the web UI will show if someone sent a poke to get things rolling again. But a mail with this command otherwise will be handled like `#regzbot activity-ignore` and thus not be counted as an activity; that way it will continue to look state until someone replies.

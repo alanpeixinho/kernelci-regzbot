@@ -90,7 +90,10 @@ def process_tag(repsrc, tag, msg):
     author = email_get_from(msg)
     gmtime = email_get_gmtime(msg)
     msgid = email_get_msgid(msg)
-    regzbotcmd = tagcmd + ": " + tagload
+    if tagload:
+        regzbotcmd = tagcmd + ": " + tagload
+    else:
+        regzbotcmd = tagcmd
 
     # get the regression id, in case there is one already
     regressionb = regzbot.RegressionBasic.get_by_msgreferences(
@@ -177,6 +180,9 @@ def process_tag(repsrc, tag, msg):
             regressionb.monitoradd(tagload, gmtime, repsrc, msg)
         elif tagcmd == "unmonitor":
             regressionb.monitorremove(tagload, gmtime, repsrc, msg)
+        elif tagcmd == "poke":
+            # nothing to do, the entry in the history is enough
+            pass
         elif tagcmd == "subject" or tagcmd == "title":
             regressionb.title(tagload)
         else:
@@ -314,8 +320,10 @@ def process_msg(repsrc, msg):
                 if 'ignore-activity' in match or \
                        'ignoreact' in match:
                      ignoreactivity = True
-                else:
-                     process_tag(repsrc, match, msg)
+                     continue
+                if 'poke' in match:
+                     ignoreactivity = True
+                process_tag(repsrc, match, msg)
 
     # record this activity, if this thread is tracked
     def add_actimon(reference, msgid, gmtime, subject):

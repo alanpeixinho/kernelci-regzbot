@@ -37,8 +37,12 @@ class RegHistoryWeb(regzbot.RegHistory):
 
     def html(self, yattagdoc):
         if self.regzbotcmd:
+            if self.regzbotcmd == 'poke:':
+                regzbotcmd = 'poke'
+            else:
+                regzbotcmd = self.regzbotcmd
             with yattagdoc.tag('a', href=self.url()):
-                yattagdoc.text("%s" % self.regzbotcmd)
+                yattagdoc.text("%s" % regzbotcmd)
         else:
             with yattagdoc.tag('a', href=self.url()):
                 yattagdoc.text("%s" % self.subject)
@@ -123,7 +127,16 @@ class RegressionWeb(regzbot.RegressionFull):
                             with yattagdoc.tag('a', href=self._actievents[-1].url()):
                                 yattagdoc.text('%s' % days_delta(
                                     self._actievents[-1].gmtime))
+                            yattagdoc.text(' days ago')
+
+                        if self.poked and \
+                            days_delta(self._actievents[-1].gmtime) > 20 :
+                            yattagdoc.text('; poked ')
+                            with yattagdoc.tag('a', href=self.poked.url()):
+                                yattagdoc.text('%s' % days_delta(self.poked.gmtime))
                             yattagdoc.text(' days ago.')
+                        else:
+                            yattagdoc.text('.')
 
                         entered_loop = False
                         for counter, regressionlink in enumerate(RegLinkWeb.get_all(self.regid), start=1):
