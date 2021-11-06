@@ -344,7 +344,7 @@ def init_repodirs(path_tmprepos, path_testdata):
 
     # create linux-mainline repo
     regzbot.GitTree.add('mainline', 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/',
-                        'cgit', 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/',  'master')
+                        'cgit', 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/',  'master', 0)
     gittrees_testing['mainline'] = TestingGitTree(
         path_testdata, path_upstream_tmprepos, 'mainline', 1546300800)
     gittrees_testing['mainline'].repo.clone(
@@ -354,7 +354,7 @@ def init_repodirs(path_tmprepos, path_testdata):
 
     # create linux-next repo
     regzbot.GitTree.add('next', 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/',
-                        'cgit', 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/', 'master')
+                        'cgit', 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/', 'master', -1)
     gittree_testing_prep_linux_next(
         gittrees_testing['mainline'].clone(path_upstream_tmprepos, 'next'))
     gittrees_testing['next'] = TestingGitTree(
@@ -368,7 +368,7 @@ def init_repodirs(path_tmprepos, path_testdata):
     gittree_testing_prep_linux_stable(
         gittrees_testing['mainline'].clone(path_upstream_tmprepos, 'stable'))
     regzbot.GitTree.add('stable', 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git', 'cgit',
-                        'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/', r'linux-[0-9][0-9]*.[0-9][0-9]*\.y')
+                        'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/', r'linux-[0-9][0-9]*.[0-9][0-9]*\.y', 1)
     gittrees_testing['linux-1.8.y'] = TestingGitTree(
         path_testdata, path_upstream_tmprepos, 'stable', 1609459200, 'linux-1.8.y')
     gittrees_testing['linux-1.8.y'].repo.clone(

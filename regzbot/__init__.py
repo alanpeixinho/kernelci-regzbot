@@ -292,13 +292,14 @@ class GitBranch():
 
 
 class GitTree():
-    def __init__(self, gittreeid, name, server, kind, weburl, branchregex):
+    def __init__(self, gittreeid, name, server, kind, weburl, branchregex, priority):
         self.gittreeid = gittreeid
         self.name = name
         self.server = server
         self.kind = kind
         self.weburl = weburl
         self.branchregex = branchregex
+        self.priority = priority
         self.__repo = None  # only initialize it once needed
 
     @staticmethod
@@ -312,18 +313,19 @@ class GitTree():
                 server      STRING   NOT NULL,
                 kind        STRING   NOT NULL,
                 weburl      STRING   NOT NULL,
-                branchregex STRING   NOT NULL
+                branchregex STRING   NOT NULL,
+                priority    INTEGER  NOT NULL
             )''')
 
     @staticmethod
-    def add(name, server, kind, weburl, branchregex):
+    def add(name, server, kind, weburl, branchregex, priority):
         dbcursor = DBCON.cursor()
         dbcursor.execute('''INSERT INTO gittrees
-            (name, server, kind, weburl, branchregex)
-            VALUES (?, ?, ?, ?, ?)''',
-                         (name, server, kind, weburl, branchregex))
-        logger.debug('[db gittrees] insert (gittreeid:%s, name:%s, server:%s, kind:%s, weburl:%s, branchregex:%s)' % (
-            dbcursor.lastrowid, name, server, kind, weburl, branchregex))
+            (name, server, kind, weburl, branchregex, priority)
+            VALUES (?, ?, ?, ?, ?, ?)''',
+                         (name, server, kind, weburl, branchregex, priority))
+        logger.debug('[db gittrees] insert (gittreeid:%s, name:%s, server:%s, kind:%s, weburl:%s, branchregex:%s, priority: %s)' % (
+            dbcursor.lastrowid, name, server, kind, weburl, branchregex, priority))
         return dbcursor.lastrowid
 
     def commit(self, hexsha):
@@ -2023,11 +2025,11 @@ def basicressources_gittrees_setup(gittreesdir):
 
     # hardcoded for now, too
     GitTree.add('mainline', 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/', 'cgit',
-                'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/', 'master')
+                'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/', 'master', 0)
     GitTree.add('next', 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/', 'cgit',
-                'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/', 'master')
+                'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/', 'master', -1)
     GitTree.add('stable', 'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git', 'cgit',
-                'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/', r'linux-[0-9][0-9]*.[0-9][0-9]*\.y')
+                'https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/', r'linux-[0-9][0-9]*.[0-9][0-9]*\.y', 1)
 
 
 def basicressources_repsrces_setup():
