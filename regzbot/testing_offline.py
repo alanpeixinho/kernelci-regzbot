@@ -649,6 +649,16 @@ def offltest_1_4(funcname):
     return True, True, False
 
 
+def offltest_1_5(funcname):
+    logger.info(
+        '%s: create a mainline regression and have a commit refer to in in stable' % funcname)
+    emaildirs['primary'].create_email(
+        funcname, "#regzb introduced: v1.8..v1.9-rc1")
+    gittrees_testing['linux-1.8.y'].mv(
+        'Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com' % funcname)
+    return True, True, False
+
+
 def offltest_2_0(funcname):
     logger.info(
         '%s: creating a mainline regression and add a link to it ' % funcname)

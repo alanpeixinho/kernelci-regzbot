@@ -546,12 +546,17 @@ class GitTree():
                         else:
                             treespec = "%s/%s" % (self.name, gitbranch.name)
 
+                        RegActivityEvent.event(mergedate, commit.hexsha, "The commit '%s' in '%s' linked to this regression" % (
+                            commit.hexsha[0:12], treespec), gitbranchid=gitbranch.gitbranchid, regid=regressionfull.regid)
+
+                        # if the commits is found in a downstream tree, that's it
+                        if regressionfull.gittree and self.priority > regressionfull.gittree.priority:
+                            continue
+
                         regressionfull.fixedby(
                             mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid, lookup=False)
                         RegHistory.event(regressionfull.regid, mergedate, commit.hexsha, commit.summary,
                                          gitbranchid=gitbranch.gitbranchid, regzbotcmd="fixed-by: %s (noticed in %s)" % (commit.hexsha[0:12], treespec))
-                        RegActivityEvent.event(mergedate, commit.hexsha, "Commit '%s' in '%s' linked to this regression" % (
-                            commit.hexsha[0:12], treespec), gitbranchid=gitbranch.gitbranchid, regid=regressionfull.regid)
 
             # and we are done here
             gitbranch.set_lastchked(repobranch.commit.hexsha)
@@ -1527,6 +1532,7 @@ class RegressionFull(RegressionBasic):
         self.versionline = None
         self.gmtime_filed = RegHistory.filed(self.regid)
 
+        self.gittree = None
         self._branchname = None
         self._introduced_url = None
         self._introduced_presentable = None
@@ -1534,30 +1540,30 @@ class RegressionFull(RegressionBasic):
 
         if self.gitbranchid:
             gitbranch = GitBranch.get_by_id(self.gitbranchid)
-            gittree = GitTree.get_by_id(gitbranch.gittreeid)
+            self.gittree = GitTree.get_by_id(gitbranch.gittreeid)
 
             # catch commits that were introduced and reported in next but moved to master
-            if gittree.name == 'next':
+            if self.gittree.name == 'next':
                 _, tmpgittree, tmpgitbranch, _ = RegressionBasic._gettree_n_branch(
                     self.introduced)
                 if tmpgittree.name == 'master':
                     gitbranch = tmpgitbranch
-                    gittree = tmpgittree
+                    self.gittree = tmpgittree
 
-            self.treename = gittree.name
+            self.treename = self.gittree.name
             self._branchname = gitbranch.name
             self._introduced_presentable, self.versionline = self._get_presentable(
-                self.introduced, gittree=gittree)
+                self.introduced, gittree=self.gittree)
             if self._introduced_short == self._introduced_presentable:
                 self._introduced_presentable = None
 
             if '..' not in self.introduced:
                 self._introduced_url = gitbranch.url(
-                    self.introduced, gittree)
+                    self.introduced, self.gittree)
 
         if self.solved_gitbranchid:
             self._solved_entry_presentable, _ = self._get_presentable(
-                self.solved_entry, gittree=gittree)
+                self.solved_entry, gittree=self.gittree)
             self.solved_url = GitBranch.url_by_id(
                 self.solved_gitbranchid, self.solved_entry)
         #
