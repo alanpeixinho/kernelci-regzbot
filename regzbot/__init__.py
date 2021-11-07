@@ -541,13 +541,17 @@ class GitTree():
                                          gitbranchid=gitbranch.gitbranchid, regzbotcmd="fixed (link in commit): %s" % commit.hexsha[0:12])
                     else:
                         mergedate = gitbranch.merge_date(commit.hexsha)
+                        if gitbranch.name == 'master' or gitbranch.name == 'main':
+                            treespec = self.name
+                        else:
+                            treespec = "%s/%s" % (self.name, gitbranch.name)
 
                         regressionfull.fixedby(
                             mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid, lookup=False)
                         RegHistory.event(regressionfull.regid, mergedate, commit.hexsha, commit.summary,
-                                         gitbranchid=gitbranch.gitbranchid, regzbotcmd="fixed-by: %s (noticed in %s)" % (self.name, commit.hexsha[0:12]))
-                        RegActivityEvent.event(mergedate, commit.hexsha, "The commit '%s' in '%s' linked to this regression" % (
-                            self.name, commit.hexsha[0:12]), gitbranchid=gitbranch.gitbranchid, regid=regressionfull.regid)
+                                         gitbranchid=gitbranch.gitbranchid, regzbotcmd="fixed-by: %s (noticed in %s)" % (commit.hexsha[0:12], treespec))
+                        RegActivityEvent.event(mergedate, commit.hexsha, "Commit '%s' in '%s' linked to this regression" % (
+                            commit.hexsha[0:12], treespec), gitbranchid=gitbranch.gitbranchid, regid=regressionfull.regid)
 
             # and we are done here
             gitbranch.set_lastchked(repobranch.commit.hexsha)

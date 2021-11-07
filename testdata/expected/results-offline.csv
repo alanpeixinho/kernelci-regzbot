@@ -382,10 +382,10 @@ LATEST: test_1_2_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore
 REGRESSION: test_1_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_1_4@example.com, v1.8..v1.9-rc1 (None), None, 1546560000, mainline, master, previous: no flags
 SOLVED: to_be_fixed, 1577836803, 7510deb6f945, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=7510deb6f94536b8c4dcc160d12616c51e2a44d0, This is a next_master commit for testing regzbot, the content doesn't matter.
 ACTIVITY: test_1_4: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_1_4@example.com, 1546560000
-ACTIVITY: The commit 'next' in '7510deb6f945' linked to this regression, None, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=7510deb6f94536b8c4dcc160d12616c51e2a44d0, 1577836803
+ACTIVITY: The commit '7510deb6f945' in 'next' linked to this regression, None, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=7510deb6f94536b8c4dcc160d12616c51e2a44d0, 1577836803
 HISTORY: test_1_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_1_4@example.com, 1546560000, introduced: v1.8..v1.9-rc1
-HISTORY: This is a next_master commit for testing regzbot, the content doesn't matter., https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=7510deb6f94536b8c4dcc160d12616c51e2a44d0, 1577836803, fixed-by: next (noticed in 7510deb6f945)
-LATEST: The commit 'next' in '7510deb6f945' linked to this regression, None, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=7510deb6f94536b8c4dcc160d12616c51e2a44d0, 1577836803
+HISTORY: This is a next_master commit for testing regzbot, the content doesn't matter., https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=7510deb6f94536b8c4dcc160d12616c51e2a44d0, 1577836803, fixed-by: 7510deb6f945 (noticed in next)
+LATEST: The commit '7510deb6f945' in 'next' linked to this regression, None, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=7510deb6f94536b8c4dcc160d12616c51e2a44d0, 1577836803
 
 [offltest_2_0]
 REGRESSION: test_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, v1.8..v1.9-rc1 (None), None, 1546300800, mainline, master, previous: no flags
@@ -963,10 +963,10 @@ LATEST: test_4_4_9: Lorem ipsum dolor sit amet, nobody@example.com, https://lore
 REGRESSION: test_4_4_10: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_4_10@example.com, v1.10..v1.11-rc1 (None), None, 1548720000, mainline, master, indevelopment: no flags
 SOLVED: to_be_fixed, 1577836803, 66de592bca39, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=66de592bca39fc7ca5eb36e2154df0c32c095ff0, This is a next_master commit for testing regzbot, the content doesn't matter.
 ACTIVITY: test_4_4_10: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_4_10@example.com, 1548720000
-ACTIVITY: The commit 'next' in '66de592bca39' linked to this regression, None, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=66de592bca39fc7ca5eb36e2154df0c32c095ff0, 1577836803
+ACTIVITY: The commit '66de592bca39' in 'next' linked to this regression, None, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=66de592bca39fc7ca5eb36e2154df0c32c095ff0, 1577836803
 HISTORY: test_4_4_10: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_4_10@example.com, 1548720000, introduced: v1.10..v1.11-rc1
-HISTORY: This is a next_master commit for testing regzbot, the content doesn't matter., https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=66de592bca39fc7ca5eb36e2154df0c32c095ff0, 1577836803, fixed-by: next (noticed in 66de592bca39)
-LATEST: The commit 'next' in '66de592bca39' linked to this regression, None, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=66de592bca39fc7ca5eb36e2154df0c32c095ff0, 1577836803
+HISTORY: This is a next_master commit for testing regzbot, the content doesn't matter., https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=66de592bca39fc7ca5eb36e2154df0c32c095ff0, 1577836803, fixed-by: 66de592bca39 (noticed in next)
+LATEST: The commit '66de592bca39' in 'next' linked to this regression, None, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=66de592bca39fc7ca5eb36e2154df0c32c095ff0, 1577836803
 
 [offltest_5_0]
 REGRESSION: test_5_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_5_0@example.com, v1.10..v1.11-rc1 (None), None, 1546300800, mainline, master, indevelopment: no flags
