@@ -641,19 +641,12 @@ def offltest_1_3(funcname):
 
 def offltest_1_4(funcname):
     logger.info(
-        '%s: create a mainline regression that will be fixed by a commit that will shows up in next' % funcname)
+        '%s: create a mainline regression that will be fixed by a commit that shows up in next' % funcname)
     emaildirs['primary'].create_email(
         funcname, "#regzb introduced: v1.8..v1.9-rc1")
-    return True, False, False
-
-
-def offltest_1_5(funcname):
-    replyto = 'test_1_4'
-    logger.info(
-        '%s: create a mainline regression that will be fixed by a commit that will shows up in next' % funcname)
     gittrees_testing['next'].mv(
-        'Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com' % replyto)
-    return False, True, False
+        'Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com' % funcname)
+    return True, True, False
 
 
 def offltest_2_0(funcname):
