@@ -471,20 +471,6 @@ class RegExportWeb():
            indevelopment_descriptive = '%s-rc' % regzbot.LATEST_VERSIONS['indevelopment']
 
         categories = {
-            'new': {
-                'next': {
-                   'desc': "next",
-                   'entries': list(),
-                },
-                'mainline': {
-                   'desc': "mainline",
-                   'entries': list(),
-                },
-                'stable': {
-                    'desc': 'stable/longterm',
-                    'entries': list(),
-                },
-            },
             'next': {
                 'identified': {
                    'desc': "culprit identified",
@@ -587,11 +573,6 @@ class RegExportWeb():
             else:
                 categories['unassociated']['default']['entries'].append(regression)
 
-            # put copies on the new page
-            filed_days = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)).days
-            if filed_days < 7:
-                categories['new'][regression.treename]['entries'].append(regression)
-
         return categories
 
 
@@ -625,6 +606,29 @@ class RegExportWeb():
             }
         }
         cls.createpage_compilation(htmlpages, unhandled_count, categories, 'all')
+
+        # create the page listing new regressions, sorted by date
+        categories = {
+            'next': {
+               'desc': "next",
+               'entries': list(),
+            },
+            'mainline': {
+               'desc': "mainline",
+               'entries': list(),
+            },
+            'stable': {
+                'desc': 'stable/longterm',
+                'entries': list(),
+            },
+        }
+        for regression in regressionslist:
+            filed_days = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)).days
+            if filed_days < 7:
+                categories[regression.treename]['entries'].append(regression)
+            else:
+                break
+        cls.createpage_compilation(htmlpages, unhandled_count, categories, 'new')
 
         # create the indivudal pages
         for regression in regressionslist:
