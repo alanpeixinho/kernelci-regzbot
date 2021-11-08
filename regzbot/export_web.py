@@ -623,6 +623,8 @@ class RegExportWeb():
             },
         }
         for regression in regressionslist:
+            if regression.gmtime_solved:
+                continue
             filed_days = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)).days
             if filed_days < 7:
                 categories[regression.treename]['entries'].append(regression)
