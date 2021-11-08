@@ -96,8 +96,10 @@ def process_tag(repsrc, tag, msg):
         regzbotcmd = tagcmd
 
     # get the regression id, in case there is one already
-    regressionb = regzbot.RegressionBasic.get_by_msgreferences(
-        msg['References'])
+    regressionb = regzbot.RegressionBasic.get_by_entry(msgid)
+    if not regressionb:
+        regressionb = regzbot.RegressionBasic.get_by_msgreferences(
+            msg['References'])
 
     if not regressionb:
         if tagcmd == "introduced":
@@ -289,7 +291,11 @@ def process_msg(repsrc, msg):
     gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(msg['Date']))
     ignoreactivity = False
 
-    logger.info("processing mail(%s): subject:'%s'; from:%s'; :",
+    if regzbot.RecordProcessedMsgids.check_presence(msgid, gmtime):
+          logger.debug('[mailin] skipping "%s", we already encountered it it', msgid)
+          return
+
+    logger.info("[mailin] processing mail(%s): subject:'%s'; from:%s'; :",
                 msgid, msg['Subject'], msg['From'])
 
     msg_simplest = msg.get_body(preferencelist=('plain'))
@@ -330,10 +336,10 @@ def process_msg(repsrc, msg):
     def add_actimon(reference, msgid, gmtime, subject):
         if ignoreactivity:
             return
-        for actimonid in regzbot.RegActivityEvent.get_actimonid_by_entry(reference):
-            if actimonid and not regzbot.RegActivityEvent.present(actimonid, msgid):
-                regzbot.RegressionBasic.activity_event_monitored(
-                    repsrc.repsrcid, gmtime, msgid, subject, author, regzbot.RegActivityMonitor.get(actimonid))
+        actimonid = regzbot.RegActivityEvent.get_actimonid_by_entry(reference)
+        if actimonid and not regzbot.RegActivityEvent.present(actimonid, msgid):
+            regzbot.RegressionBasic.activity_event_monitored(
+                repsrc.repsrcid, gmtime, msgid, subject, author, regzbot.RegActivityMonitor.get(actimonid))
     add_actimon(msgid, msgid, gmtime, subject)
     if msg['In-Reply-To'] is not None:
         add_actimon(email_get_msgid(msg['In-Reply-To']), msgid, gmtime, subject)
@@ -379,21 +385,21 @@ def process_msg(repsrc, msg):
         def thread_already_monitored():
             if msg['References'] is not None:
                 for reference in msg['References'].split(" "):
-                    actimongen = regzbot.RegActivityMonitor.getall_by_entry(
+                    actimon = regzbot.RegActivityMonitor.get_by_entry(
                         reference)
-                    if actimongen is not None:
-                        return actimongen
+                    if actimon is not None:
+                        return actimon
             return None
-        actimongen = thread_already_monitored()
+        actimon = thread_already_monitored()
 
-        if actimongen is None and linktag is True:
+        if actimon is None and linktag is True:
             # start monitoring this thread
             regressionb.monitoradd_direct(
                 repsrc.repsrcid, gmtime, msgid, subject, author)
             regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid,
                                      regzbotcmd='monitor: automatically started monitoring "%s", as it referred to this this regression with a "Link:"'
                                      % subject)
-        elif actimongen:
+        elif actimon:
             # already monitored, nothing to do
             return
         else:
@@ -403,6 +409,46 @@ def process_msg(repsrc, msg):
             regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject,
                                      repsrcid=repsrc.repsrcid, regzbotcmd='linked: "%s" mentioned this regression' % subject)
 
+
+# processes messages from a thread that already got checked:
+# finds the msgid in question, processes it and its replies,
+# while ignoring the other messages; some of this complexity
+# is needed to recheck nested threads like
+# https://lore.kernel.org/regressions/ea5fe78c-9a36-726f-afe2-1bdc25c5eba7@leemhuis.info/
+# https://lore.kernel.org/regressions/be354029-6062-b8e5-50a4-70df088f93d2@leemhuis.info/
+def process_thread(msgid_interested, repsrcid):
+    import regzbot.lore as lore
+
+    def get_actimonid(references):
+        for reference in references:
+            reference_msgid = email_get_msgid(reference)
+            actimonid_ref = regzbot.RegActivityEvent.get_actimonid_by_entry(reference_msgid)
+            if actimonid_ref:
+                return actimonid_ref
+
+    actimonid = None
+
+    for msg in lore.download_thread(msgid_interested, repsrcid):
+        msgid_current = email_get_msgid(msg['message-id'])
+
+        if not actimonid:
+            # ignore all messages until we hit the one we care about
+            if not msgid_current == msgid_interested:
+                continue
+            actimonid = False
+        # elif regzbot.RecordProcessedMsgids.check_presence(msgid_current):
+        #    # don't process this again
+        #    continue
+        elif msg['References'] and get_actimonid(msg['References'].split(" ")) != actimonid:
+                continue
+
+        repsrc = adjust_repsrc(None, msg)
+        process_msg(repsrc, msg)
+
+        # we just found msgid_interested and now need to set this:
+        if actimonid == False:
+           actimonid = regzbot.RegActivityEvent.get_actimonid_by_entry(
+                        msgid_interested)
 
 def processmsg_file(repsrc, file):
     with open(file, "r") as f:

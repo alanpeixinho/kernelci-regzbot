@@ -639,11 +639,10 @@ class RegActivityMonitor():
             yield RegActivityMonitor(*dbresult)
 
     @staticmethod
-    def getall_by_entry(entry):
+    def get_by_entry(entry):
         dbcursor = DBCON.cursor()
         for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE entry=(?)', (entry, )):
-            yield RegActivityMonitor(*dbresult)
-
+            return RegActivityMonitor(*dbresult)
 
     @staticmethod
     def get_by_regid_n_entry(regid, entry):
@@ -784,8 +783,13 @@ class RegActivityEvent():
     @staticmethod
     def get_actimonid_by_entry(entry):
         dbcursor = DBCON.cursor()
-        for dbresult in dbcursor.execute('SELECT actimonid FROM regactivity WHERE entry=(?) ORDER BY gmtime', (entry, )):
-            yield dbresult[0]
+        dbresult = dbcursor.execute('SELECT actimonid FROM actmonitor WHERE entry=(?)', (entry, )).fetchone()
+        if dbresult is not None:
+            return dbresult[0]
+        dbresult = dbcursor.execute('SELECT actimonid FROM regactivity WHERE entry=(?) ORDER BY gmtime', (entry, )).fetchone()
+        if dbresult is not None:
+            return dbresult[0]
+
 
 
     @staticmethod
@@ -1329,6 +1333,10 @@ class RegressionBasic():
                 mergedate = gitbranch.merge_date(commit.hexsha)
 
                 return self.fixed(mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
+
+        # later commits in a downstream treee might refer to a regression already fixed
+        if self.solved_reason == 'fixed':
+           return True
 
         self.solved_reason = 'to_be_fixed'
         self.solved_gmtime = gmtime
@@ -2307,9 +2315,7 @@ def process_msg(msgid, repsrcid=None):
 
 
 def process_thread(msgid, repsrcid=None):
-    for msg in lore.download_thread(msgid, repsrcid):
-        repsrc = mailin.adjust_repsrc(None, msg)
-        mailin.process_msg(repsrc, msg)
+    mailin.process_thread(msgid, repsrcid)
 
 
 def checksource(identifier):

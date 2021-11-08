@@ -65,12 +65,9 @@ def run():
             msgid = regzbot.mailin.email_get_msgid(over['message-id'])
             gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(over['date']))
 
-            if regzbot.RecordProcessedMsgids.check_presence(msgid, gmtime):
-                logger.debug('skipping "%s", we already encountered it it', msgid)
-            else:
-                _, article = nntp_connection.article(art_num)
-                msg = email.message_from_bytes(b'\n'.join(article.lines), policy=policy.default)
-                regzbot.mailin.process_msg(repsrc, msg)
+            _, article = nntp_connection.article(art_num)
+            msg = email.message_from_bytes(b'\n'.join(article.lines), policy=policy.default)
+            regzbot.mailin.process_msg(repsrc, msg)
 
         # update database
         repsrc.set_lastchked(group_lastid)

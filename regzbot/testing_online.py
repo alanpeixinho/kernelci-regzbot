@@ -69,8 +69,8 @@ def run(resultfilename, tmpdir):
 
 
 def onlntest_0_0(funcname):
-    regzbot.process_msg('466b8730-1424-dfc0-3f14-f279954188b9@leemhuis.info')
-    return False, False, True
+    regzbot.process_msg('a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info')
+    return False, False, False
 
 
 def onlntest_0_1(funcname):

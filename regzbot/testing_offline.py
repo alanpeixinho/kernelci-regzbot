@@ -691,7 +691,7 @@ def offltest_2_2(funcname):
 
 def offltest_2_3(funcname):
     replyto = 'test_2_0'
-    logger.info('%s: refer to the regression created in %s on another mainling list (will only show up in the history)' % (
+    logger.info('%s: refer to the regression created in %s on another mailing list' % (
         funcname, replyto))
     emaildirs['secondary'].create_email(funcname, "https://lore.kernel.org/regressions/regzbot-testing-%s@example.com" % replyto,
                                         subject="%s: refer to this regression on another mainling list" % funcname)
