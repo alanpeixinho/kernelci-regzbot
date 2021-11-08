@@ -2223,24 +2223,32 @@ def is_running_citesting(kind=None):
     return False
 
 
-def redo_regression(regression):
-    msgid_regression = regression.entry
-
+def redo_regressions(msgids):
     with tempfile.TemporaryFile(mode='w+t') as tmpfile_before:
         with tempfile.TemporaryFile(mode='w+t') as tmpfile_after:
+            for msgid in msgids:
+                print(msgid)
+                regression = RegressionBasic.get_by_entry(msgid)
+                if not regression:
+                    logger.critical('Aborting, could not find any regression with msgid %s', msgid)
+                    sys.exit(1)
+
             # store everything we need later
             db_dump(tmpfile_before)
             msgids_to_recheck = list()
-            for histevent in RegHistory.get_all(regression.regid):
-                # skip commits
-                if histevent.gitbranchid:
-                    continue
-                msgids_to_recheck.append(histevent.entry)
 
-            # remove the old regression
-            dbcursor = DBCON.cursor()
-            regression.delete(dbcursor=dbcursor)
-            del regression
+            for msgid in msgids:
+                regression = RegressionBasic.get_by_entry(msgid)
+
+                for histevent in RegHistory.get_all(regression.regid):
+                    # skip commits
+                    if histevent.gitbranchid:
+                        continue
+                    msgids_to_recheck.append(histevent.entry)
+
+                    # remove the old regression
+                    dbcursor = DBCON.cursor()
+                    regression.delete(dbcursor=dbcursor)
 
             # recheck all msg found that had a entry in the history
             # to recreate the regression
@@ -2259,19 +2267,11 @@ def redo_regression(regression):
                     if answer.lower() == 'a':
                         sys.exit(1)
 
-    regression = RegressionBasic.get_by_entry(msgid_regression)
-    if not regression:
-        logger.critical('Aborting, failed to find a redone regression with msgid %s', msgid_regression)
-        sys.exit(1)
     return regression
 
-def recheck(msgid):
+def recheck(msgids):
     basicressources_init()
-    regression = RegressionBasic.get_by_entry(msgid)
-    if not regression:
-        logger.critical('Aborting, could not find any regression with msgid %s', msgid)
-        sys.exit(1)
-    regression = redo_regression(regression)
+    redo_regressions(msgids)
     db_commit()
 
     from export_web import RegExportWeb

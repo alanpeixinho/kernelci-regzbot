@@ -32,7 +32,7 @@ def cmd_setup(cmdargs):
 
 
 def cmd_recheck(cmdargs):
-    regzbot.recheck(cmdargs.msgid_to_check)
+    regzbot.recheck(cmdargs.msgids_to_check)
 
 
 def cmd_run(cmdargs):
@@ -87,8 +87,8 @@ def cmd():
     sparser_run.set_defaults(func=cmd_run)
 
     # recheck
-    sparser_recheck = subparsers.add_parser('recheck', help='Recheck a specific message')
-    sparser_recheck.add_argument(dest='msgid_to_check', help='msgid to recheck')
+    sparser_recheck = subparsers.add_parser('recheck', help='Recheck messages')
+    sparser_recheck.add_argument(dest='msgids_to_check', help='msgids to recheck', nargs='+')
     sparser_recheck.set_defaults(func=cmd_recheck)
 
     # status
