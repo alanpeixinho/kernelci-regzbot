@@ -449,20 +449,37 @@ class GitTree():
 
     def greplogmsgs(self, pattern):
         repo = self.repo()
-
+        result = None
         try:
-            result = repo.git.log('--pretty=%H', '--since=365 days ago', '--grep=%s' % pattern, 'origin').splitlines()[0]
-            if len(result) > 12:
-                return result
+            for result in repo.git.log('--pretty=%H', "--since='Aug 15 0:0:0 UTC 2021'", '--all', '--grep=%s' % pattern).splitlines():
+                yield result
         except Exception:
-            return False
-        return None
+            return
 
     def repo(self):
         # hidden even within the class, to only initialize it when actually needed
         if self.__repo is None:
             self.__repo = git.Repo.init(os.path.join(REPOSDIR, self.name))
         return self.__repo
+
+    @classmethod
+    def search_references(cls, msgid, regid):
+        def getregression(regression, regid):
+           if regression:
+               return regression
+           return RegressionFull.get_by_regid(regid)
+
+        regression = None
+        for gittree in cls.getall():
+            searchstring = "Link:.*%s" % msgid
+            logger.debug("Trying to find %s in gittree %s", searchstring, gittree.name)
+            for commit_hexsha in gittree.greplogmsgs(searchstring):
+                logger.debug("Found it in %s", commit_hexsha)
+                for gitbranch in GitBranch.getall_by_gittreeid(gittree.gittreeid):
+                    print("checking %s" % gitbranch.name)
+                    if gitbranch.commit_exists(commit_hexsha, repo=gittree.repo()):
+                         commit = gittree.commit(commit_hexsha)
+                         getregression(regression, regid).commitmention(gittree, gitbranch, commit)
 
     def update(self):
         def process_link(url, foundspot):
@@ -481,7 +498,7 @@ class GitTree():
                 remote.fetch()
 
         # check for new branches
-        for repobranch in repo.remote().refs:
+        for repobranch in repo.remotes.origin.refs:
             # do we care about this branch?
             if re.search(self.branchregex, repobranch.name) is None:
                 continue
@@ -530,33 +547,8 @@ class GitTree():
                     if not regressionfull:
                         logger.debug(
                             "Saw link to %s, but not aware of any regressions about it", match.group(2))
-                        continue
-
-                    if regressionfull.treename == self.name:
-                        mergedate = gitbranch.merge_date(commit.hexsha)
-
-                        regressionfull.fixed(
-                            mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
-                        RegHistory.event(regressionfull.regid, mergedate, commit.hexsha, commit.summary,
-                                         gitbranchid=gitbranch.gitbranchid, regzbotcmd="fixed (link in commit): %s" % commit.hexsha[0:12])
                     else:
-                        mergedate = gitbranch.merge_date(commit.hexsha)
-                        if gitbranch.name == 'master' or gitbranch.name == 'main':
-                            treespec = self.name
-                        else:
-                            treespec = "%s/%s" % (self.name, gitbranch.name)
-
-                        RegActivityEvent.event(mergedate, commit.hexsha, "The commit '%s' in '%s' linked to this regression" % (
-                            commit.hexsha[0:12], treespec), gitbranchid=gitbranch.gitbranchid, regid=regressionfull.regid)
-
-                        # if the commits is found in a downstream tree, that's it
-                        if regressionfull.gittree and self.priority > regressionfull.gittree.priority:
-                            continue
-
-                        regressionfull.fixedby(
-                            mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid, lookup=False)
-                        RegHistory.event(regressionfull.regid, mergedate, commit.hexsha, commit.summary,
-                                         gitbranchid=gitbranch.gitbranchid, regzbotcmd="fixed-by: %s (noticed in %s)" % (commit.hexsha[0:12], treespec))
+                        regressionfull.commitmention(self, gitbranch, commit)
 
             # and we are done here
             gitbranch.set_lastchked(repobranch.commit.hexsha)
@@ -1147,13 +1139,13 @@ class RegressionBasic():
             for dbresult in dbcursor.execute('SELECT * FROM regressions ORDER BY (?)', (order, )):
                 yield cls(*dbresult)
 
-    @staticmethod
-    def get_by_regid(regid):
+    @classmethod
+    def get_by_regid(cls, regid):
         dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
             'SELECT * FROM regressions WHERE regid=?', (regid,)).fetchone()
         if dbresult:
-            return RegressionBasic(*dbresult)
+            return cls(*dbresult)
         return None
 
     @staticmethod
@@ -1249,6 +1241,11 @@ class RegressionBasic():
 
         logger.info('regression[%s, "%s"]: created ("%s"; "%s")',
                     dbcursor.lastrowid, subject, entry, introduced)
+
+        # check if it already got fixed
+        regression = RegressionBasic.get_by_regid(dbcursor.lastrowid)
+        GitTree.search_references(regression.entry, regression.regid)
+
         return RegressionBasic(dbcursor.lastrowid, repsrcid, entry, subject, author, introduced, gitbranchid)
 
     def introduced_update(self, tagload):
@@ -1435,15 +1432,7 @@ class RegressionBasic():
             lore.process_replies(target_msgid)
 
         # check if a reference to this was mentioned in the git logs
-        for gittree in GitTree.getall():
-            searchstring = "Link:.*%s" % target_msgid
-            logger.debug("Trying to find %s in gittree %s", searchstring, gittree.name)
-            commit_hexsha = gittree.greplogmsgs(searchstring)
-            if commit_hexsha:
-                logger.debug("Found it in %s", commit_hexsha)
-                commit = gittree.commit(commit_hexsha)
-                self.fixedby(gmtime, commit.hexsha, commit.summary)
-                break
+        GitTree.search_references(target_msgid, self.regid)
 
     def monitorremove(self, tagload, gmtime, report_repsrc, report_msg):
         link, _ = self.linkparse(tagload)
@@ -1517,7 +1506,10 @@ class RegressionFull(RegressionBasic):
         self._histevents = self._init_related_objects(list(), self.Reghistory)
         self._actievents = self._init_related_objects(list(), self.Regactivityevent)
 
-        self.gmtime = self._histevents[0].gmtime
+        if len(self._histevents) > 0:
+            self.gmtime = self._histevents[0].gmtime
+        else:
+            self.gmtime = 0
         self.poked = self._get_poked(self._histevents)
 
         # provide a default for this, as this can't be None:
@@ -1678,6 +1670,35 @@ class RegressionFull(RegressionBasic):
 
         # default: either its and older range or something doesn't match up, which can happen if user specifies odd ranges
         return combine(point1, point2), 'previous'
+
+    def commitmention(self, gittree, gitbranch, commit):
+        if self.treename == gittree.name:
+            mergedate = gitbranch.merge_date(commit.hexsha)
+
+            self.fixed(
+                mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
+            RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary,
+                 gitbranchid=gitbranch.gitbranchid, regzbotcmd="fixed (link in commit): %s" % commit.hexsha[0:12])
+        else:
+            mergedate = gitbranch.merge_date(commit.hexsha)
+            if gitbranch.name == 'master' or gitbranch.name == 'main':
+                treespec = gittree.name
+            else:
+                treespec = "%s/%s" % (gittree.name, gitbranch.name)
+
+            RegActivityEvent.event(mergedate, commit.hexsha, "The commit '%s' in '%s' linked to this regression" % (
+                commit.hexsha[0:12], treespec), gitbranchid=gitbranch.gitbranchid, regid=self.regid)
+
+            # downstream only
+            if self.gittree and gittree.priority > self.gittree.priority:
+                 RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary,
+                     gitbranchid=gitbranch.gitbranchid, regzbotcmd="note: %s in %s referred to this regression" % (commit.hexsha[0:12], treespec))
+                 return
+
+            RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary,
+                gitbranchid=gitbranch.gitbranchid, regzbotcmd="fixed-by: %s (noticed in %s)" % (commit.hexsha[0:12], treespec))
+            self.fixedby(
+                mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid, lookup=False)
 
     @staticmethod
     def get_by_entry(entry):
@@ -1924,25 +1945,17 @@ def db_rollback():
 
 
 def db_dump(filehdl):
-    # import export_mail
     import export_csv
 
     for data in export_csv.dumpall_csv():
           filehdl.write(data)
 
-def db_diff(filehdl_old, filehdl_new, filedesc_old=None, filedesc_new=None):
-    if filedesc_old and filedesc_new:
-        diff = difflib.unified_diff(
+def db_diff(filehdl_old, filehdl_new, filedesc_old='before', filedesc_new='after'):
+    diff = difflib.unified_diff(
             filehdl_old.readlines(),
             filehdl_new.readlines(),
             fromfile="%s" % filedesc_old,
             tofile="%s" % filedesc_new,
-            n=1,
-        )
-    else:
-        diff = difflib.unified_diff(
-            filehdl_old.readlines(),
-            filehdl_new.readlines(),
             n=1,
         )
 
@@ -1954,10 +1967,8 @@ def db_diff(filehdl_old, filehdl_new, filedesc_old=None, filedesc_new=None):
                 "The results from don't match the expected results:\n")
             sys.stdout.write('#######\n')
         sys.stdout.write(line)
-    if differences:
-       return False
-    else:
-       return True
+
+    return differences
 
 
 def init_reposdir(directory):
@@ -2213,6 +2224,9 @@ def redo_regression(regression):
             db_dump(tmpfile_before)
             msgids_to_recheck = list()
             for histevent in RegHistory.get_all(regression.regid):
+                # skip commits
+                if histevent.gitbranchid:
+                    continue
                 msgids_to_recheck.append(histevent.entry)
 
             # remove the old regression
@@ -2224,11 +2238,14 @@ def redo_regression(regression):
             # to recreate the regression
             for msgid_to_check in msgids_to_recheck:
                 process_msg(msgid_to_check)
+
             db_dump(tmpfile_after)
 
             # look out for differences, unless testing code is doing it for us
             if not __CITESTING__:
-                if not db_diff(tmpfile_before, tmpfile_after):
+                tmpfile_before.seek(0)
+                tmpfile_after.seek(0)
+                if db_diff(tmpfile_before, tmpfile_after):
                     answer = input(
                        "Enter 'a' to abort, anything else to move on")
                     if answer.lower() == 'a':

@@ -52,7 +52,7 @@ def check_results(results_expected, results_generated):
 
     with open(results_expected, 'r') as file_expected:
         with open(results_generated, 'r') as file_generated:
-            if not regzbot.db_diff(file_expected, file_generated, "%s" % results_expected, "%s" % results_generated):
+            if regzbot.db_diff(file_expected, file_generated, "%s" % results_expected, "%s" % results_generated):
                 sys.stdout.write('#######\n')
                 while not ask_user(results_expected, results_generated):
                     pass

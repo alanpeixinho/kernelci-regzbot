@@ -413,6 +413,7 @@ REGRESSION: test_1_5: Lorem ipsum dolor sit amet, https://lore.kernel.org/regres
 ACTIVITY: test_1_5: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_1_5@example.com, 1546646400
 ACTIVITY: The commit 'b4838e154fdf' in 'stable/linux-1.8.y' linked to this regression, None, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-1.8.y&id=b4838e154fdf495e23adca10d59657368393b98f, 1609459203
 HISTORY: test_1_5: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_1_5@example.com, 1546646400, introduced: v1.8..v1.9-rc1
+HISTORY: This is a stable_linux-1.8.y commit for testing regzbot, the content doesn't matter., https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-1.8.y&id=b4838e154fdf495e23adca10d59657368393b98f, 1609459203, note: b4838e154fdf in stable/linux-1.8.y referred to this regression
 LATEST: The commit 'b4838e154fdf' in 'stable/linux-1.8.y' linked to this regression, None, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-1.8.y&id=b4838e154fdf495e23adca10d59657368393b98f, 1609459203
 
 [offltest_2_0]
