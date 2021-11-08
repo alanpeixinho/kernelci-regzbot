@@ -318,6 +318,7 @@ def process_msg(repsrc, msg):
         if len(matches) > 0:
             for match in email_process_tagmatches(matches):
                 if 'ignore-activity' in match or \
+                       'activity-ignore' in match or \
                        'ignoreact' in match:
                      ignoreactivity = True
                      continue
