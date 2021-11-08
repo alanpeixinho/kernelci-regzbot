@@ -97,7 +97,7 @@ class RegressionWeb(regzbot.RegressionFull):
                     if self.solved_reason:
                         yattagdoc.text(' ')
                         with yattagdoc.tag('mark', style='background-color: #D0D0D0;'):
-                            yattagdoc.text('[ ')
+                            yattagdoc.text('[ ')
                             if self.solved_reason == 'fixed':
                                 yattagdoc.text('Fixed')
                             elif self.solved_reason == 'to_be_fixed':
@@ -108,7 +108,7 @@ class RegressionWeb(regzbot.RegressionFull):
                                 yattagdoc.text('Invalid')
                             elif self.solved_reason is not None:
                                 yattagdoc.text('%s' % self.solved_reason)
-                            yattagdoc.text(' ]')
+                            yattagdoc.text(' ]')
                         yattagdoc.text(' ')
 
                     with yattagdoc.tag('div'):
@@ -591,7 +591,7 @@ class RegExportWeb():
         regressionslist = list()
         for regression in RegressionWeb.get_all():
             gmtime_solved = None
-            if regression.solved_gitbranchid:
+            if regression.solved_reason == 'fixed' or regression.solved_reason == 'invalid' or regression.solved_reason == 'duplicateof':
                 gmtime_solved = regression.solved_gmtime
             regressionslist.append(cls(regression.entry, regression.gmtime, regression.gmtime_filed,
                                                     regression._actievents[-1].gmtime, gmtime_solved, regression.treename,
