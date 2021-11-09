@@ -139,3 +139,9 @@ Regzbot ignores all '#regzbot commands' in threads that are not associated with 
    If used in a mail with a Link to the report of a tracked regression, regzbot will start to monitor the thread; the mail with this tag and all replies to it will thus be considered an activity for the regression in question.
 
    If used in a commit with a Link to the report of a tracked regression, regzbot will consider the commit a fix for the regression.
+
+#### tag users and developers normally shouldn't use
+
+ * `^Link: https://lore.kernel.org/r/30th.anniversary.repost@klaava.Helsinki.FI/`
+
+   Just like the link tag, but makes regzbot start monitoring the parent mail. Useful for mails in the style of 'hey, next time when writing the commit message for a regression fix please add the link to the report of said regression'. For all other cases better reply to the report with a `#regzbot monitor` command pointing to the related discussion.

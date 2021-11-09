@@ -357,6 +357,7 @@ def process_msg(repsrc, msg):
         linktag = False
         url = False
 
+        linkparent = False
         for grp in match.groups():
             if grp is None:
                 continue
@@ -366,6 +367,9 @@ def process_msg(repsrc, msg):
                 break
             elif grp.startswith("Link:"):
                 linktag = True
+                continue
+            elif grp == ("^"):
+                linkparent = True
                 continue
             elif grp.startswith("http"):
                 url = grp
@@ -394,11 +398,43 @@ def process_msg(repsrc, msg):
 
         if actimon is None and linktag is True:
             # start monitoring this thread
-            regressionb.monitoradd_direct(
-                repsrc.repsrcid, gmtime, msgid, subject, author)
-            regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid,
-                                     regzbotcmd='monitor: automatically started monitoring "%s", as it referred to this this regression with a "Link:"'
-                                     % subject)
+            if linkparent:
+                if regzbot.is_running_citesting('offline'):
+                    parent_msgid = email_get_msgid_parent(msg)
+                    parent_repsrc = repsrc
+                    parent_gmtime = gmtime
+                    parent_subject = 'Parent of %s' % subject
+                    parent_author = author
+                else:
+                    parent_msgid = email_get_msgid_parent(msg)
+                    parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid, repsrc.repsrcid)
+                    parent_gmtime = email_get_gmtime(parent_msg)
+                    parent_subject = email_get_subject(parent_msg)
+                    parent_author = email_get_from(parent_msg)
+
+                print("here")
+                regressionb.monitoradd_direct(
+                    parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, parent_author)
+                print("we")
+                regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid,
+                                         regzbotcmd='monitor: started monitoring parent mail "%s", which should have referred to this this regression with a "Link:"'
+                                         % parent_subject)
+                print("are")
+
+                # add the entry for this mail
+                actimon = regzbot.RegActivityMonitor.get_by_regid_n_entry(regressionb.regid, parent_msgid)
+                regzbot.RegressionBasic.activity_event_monitored(
+                    repsrc.repsrcid, gmtime, msgid, subject, author, actimon)
+
+                # we might need to recheck the thread, as it can contain msgs we have seen earlier and ignored earlier
+                if not regzbot.is_running_citesting('offline'):
+                    regzbot.process_thread(parent_msgid, parent_repsrc.repsrcid)
+            else:
+                regressionb.monitoradd_direct(
+                    repsrc.repsrcid, gmtime, msgid, subject, author)
+                regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid,
+                                         regzbotcmd='monitor: automatically started monitoring "%s", as it referred to this this regression with a "Link:"'
+                                         % subject)
         elif actimon:
             # already monitored, nothing to do
             return
