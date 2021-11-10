@@ -1347,8 +1347,8 @@ class RegressionBasic():
                 return "%s/%s" % (gittree.name, gitbranch.name)
 
         def add_activity(gittree, gitbranch, commit, mergedate):
-            RegActivityEvent.event(mergedate, commit.hexsha, "Commit '%s' added to %s" % (
-                    commit.hexsha[0:12], get_treespec(gittree, gitbranch)), gitbranchid=gitbranch.gitbranchid, regid=self.regid)
+            RegActivityEvent.event(mergedate, commit.hexsha, "%s, the commit specified by 'fixed-by', showed up in %s" % (
+                    commit.hexsha[0:12], get_treespec(gittree, gitbranch)), gitbranchid=gitbranch.gitbranchid, regid=self.regid, author='regzbot')
 
         def add_history(gittree, gitbranch, commit, gmtime, regzbotcmd):
             # use gmtime instead of mergetime here, otherwise the entries will show up in strange order
@@ -1369,18 +1369,15 @@ class RegressionBasic():
                 commit = gittree.commit(commit_hexsha)
                 mergedate = gitbranch.merge_date(commit.hexsha, gittree.repo())
                 add_activity(gittree, gitbranch, commit, mergedate)
-
+                add_history(gittree, gitbranch, commit, gmtime,
+                                "note: noticed %s, earlier specified by 'fixed-by', in %s"
+                                % (commit.hexsha[0:12], get_treespec(gittree, gitbranch)))
                 if gittree.priority == culprit_gittree.priority:
-                    add_history(gittree, gitbranch, commit, gmtime,
-                                    "fixed: %s (the commit-id specified by 'fixed-by' noticed in %s)"
-                                    % (commit.hexsha, get_treespec(gittree, gitbranch)))
+                    # mark the commit as fixed
                     return self.fixed(gmtime, commit.hexsha, commit.summary, gitbranch.gitbranchid)
                 elif gittree.priority < culprit_gittree.priority:
-                    add_history(gittree, gitbranch, commit, gmtime,
-                                    "note: %s, specified by 'fixed-by' earlier, noticed in %s"
-                                    % (commit.hexsha[0:12], get_treespec(gittree, gitbranch)))
-
-                    # we have the commit, so use its data instead of relying on what the user specfied
+                    # the fix hasn't reached the proper tree yet; but we have the commit, so use
+                    # its data instead of relying on what the user specfied
                     commit_hexsha = commit.hexsha
                     commit_subject = commit.summary
                     gmtime = mergedate
