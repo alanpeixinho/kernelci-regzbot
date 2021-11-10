@@ -110,8 +110,8 @@ class UnhandledEventCSV(regzbot.UnhandledEvent):
         return "UNHANDLED: %s, %s, %s, %s, %s, %s, %s, %s, %s\n" % (self.unhanid, self.link, self.note, self.gmtime, self.regid,
                                                        self.subject, self.solved_gmtime, self.solved_link, self.solved_subject)
 
-def dumpall_csv():
-    for regression in RegressionFullCSV.get_all():
+def dumpall_csv(order='regid'):
+    for regression in RegressionFullCSV.get_all(order=order):
         yield regression.dump()
     for unhandled_event in UnhandledEventCSV.get_all():
         yield unhandled_event.dump()

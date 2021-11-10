@@ -2000,10 +2000,10 @@ def db_rollback():
     DBCON.rollback()
 
 
-def db_dump(filehdl):
+def db_dump(filehdl, order='regid'):
     import export_csv
 
-    for data in export_csv.dumpall_csv():
+    for data in export_csv.dumpall_csv(order=order):
           filehdl.write(data)
 
 def db_diff(filehdl_old, filehdl_new, filedesc_old='before', filedesc_new='after'):
@@ -2282,7 +2282,7 @@ def redo_regressions(msgids):
                     sys.exit(1)
 
             # store everything we need later
-            db_dump(tmpfile_before)
+            db_dump(tmpfile_before, order='subject')
             msgids_to_recheck = list()
 
             for msgid in msgids:
@@ -2303,7 +2303,7 @@ def redo_regressions(msgids):
             for msgid_to_check in msgids_to_recheck:
                 process_msg(msgid_to_check)
 
-            db_dump(tmpfile_after)
+            db_dump(tmpfile_after, order='subject')
 
             # look out for differences, unless testing code is doing it for us
             if not __CITESTING__:
