@@ -354,13 +354,27 @@ class GitTree():
 
     @staticmethod
     # commitdesc can be a tag or a hexsha
-    def commit_find(commitdesc):
+    def commit_find_old(commitdesc):
         for gittree in GitTree.getall():
             repo = gittree.repo()
             for gitbranch in GitBranch.getall_by_gittreeid(gittree.gittreeid):
                 if gitbranch.commit_exists(commitdesc, repo):
                     return gittree, gitbranch
         return None, None
+
+    @staticmethod
+    # commitdesc can be a tag or a hexsha
+    def commit_find_new(hexsha, ascending=True):
+        if ascending:
+           sortorder='ORDER BY priority ASC'
+        else:
+           sortorder='ORDER BY priority DESC'
+
+        for gittree in GitTree.getall(FIXME=sortorder):
+            repo = gittree.repo()
+            for gitbranch in GitBranch.getall_by_gittreeid(gittree.gittreeid):
+                if gitbranch.commit_exists(hexsha, repo):
+                    yield gittree, gitbranch
 
     @staticmethod
     def commit_summary(hexsha):
@@ -424,9 +438,9 @@ class GitTree():
             LATEST_VERSIONS['indevelopment'], LATEST_VERSIONS['latest'], LATEST_VERSIONS['previous'])
 
     @staticmethod
-    def getall():
+    def getall(FIXME=''):
         dbcursor = DBCON.cursor()
-        for dbresult in dbcursor.execute('SELECT * FROM gittrees'):
+        for dbresult in dbcursor.execute('SELECT * FROM gittrees %s' % FIXME):
             yield GitTree(*dbresult)
 
     @staticmethod
@@ -480,6 +494,7 @@ class GitTree():
                     if gitbranch.commit_exists(commit_hexsha, repo=gittree.repo()):
                          commit = gittree.commit(commit_hexsha)
                          getregression(regression, regid).commitmention(gittree, gitbranch, commit)
+
 
     def update(self):
         def process_link(url, foundspot):
@@ -535,7 +550,7 @@ class GitTree():
                     if regressionbasic.fixed(mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid):
                         RegHistory.event(regressionbasic.regid, regressionbasic.solved_gmtime, regressionbasic.solved_entry,
                                          regressionbasic.solved_subject, gitbranchid=gitbranch.gitbranchid,
-                                         regzbotcmd="fixed (fixed-by landed): %s" % (regressionbasic.solved_reason))
+                                         regzbotcmd="fixed: %s (commit specified by '#regzbot fixed-by' landed)" % (regressionbasic.solved_reason))
 
             # now check new commits for links
             re_link = re.compile(
@@ -1325,14 +1340,50 @@ class RegressionBasic():
         return True
 
     def fixedby(self, gmtime, commit_hexsha, commit_subject, gitbranchid=None, repsrcid=None, repentry=None, lookup=True):
-        # in case the fix already showed up, let the responsible function take over
-        if lookup:
-            gittree, gitbranch = GitTree.commit_find(commit_hexsha)
-            if gitbranch and gitbranch.gitbranchid == self.gitbranchid:
-                commit = gittree.commit(commit_hexsha)
-                mergedate = gitbranch.merge_date(commit.hexsha)
+        def get_treespec(gittree, gitbranch):
+            if gitbranch.name == 'master' or gitbranch.name == 'main':
+                return gittree.name
+            else:
+                return "%s/%s" % (gittree.name, gitbranch.name)
 
-                return self.fixed(mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
+        def add_activity(gittree, gitbranch, commit, mergedate):
+            RegActivityEvent.event(mergedate, commit.hexsha, "Commit '%s' added to %s" % (
+                    commit.hexsha[0:12], get_treespec(gittree, gitbranch)), gitbranchid=gitbranch.gitbranchid, regid=self.regid)
+
+        def add_history(gittree, gitbranch, commit, gmtime, regzbotcmd):
+            # use gmtime instead of mergetime here, otherwise the entries will show up in strange order
+            RegHistory.event(self.regid, gmtime, commit.hexsha,
+                                 commit.summary, gitbranchid=gitbranch.gitbranchid,
+                                 regzbotcmd=regzbotcmd)
+
+        # look the commit up, in case it was commited already
+        if lookup:
+            _, culprit_gittree, _ , _ = RegressionBasic._gettree_n_branch(
+                self.introduced)
+            for gittree, gitbranch in GitTree.commit_find_new(commit_hexsha, ascending=False):
+                logger.debug('[regression.fixedby] found fixed-by commit %s in %s/%s', commit_hexsha[0:12], gittree.name,  gitbranch.name)
+                if gittree.priority > culprit_gittree.priority:
+                    # this is a commit in a downstream repo we can ignore
+                    continue
+
+                commit = gittree.commit(commit_hexsha)
+                mergedate = gitbranch.merge_date(commit.hexsha, gittree.repo())
+                add_activity(gittree, gitbranch, commit, mergedate)
+
+                if gittree.priority == culprit_gittree.priority:
+                    add_history(gittree, gitbranch, commit, gmtime,
+                                    "fixed: %s (the commit-id specified by 'fixed-by' noticed in %s)"
+                                    % (commit.hexsha, get_treespec(gittree, gitbranch)))
+                    return self.fixed(gmtime, commit.hexsha, commit.summary, gitbranch.gitbranchid)
+                elif gittree.priority < culprit_gittree.priority:
+                    add_history(gittree, gitbranch, commit, gmtime,
+                                    "note: %s, specified by 'fixed-by' earlier, noticed in %s"
+                                    % (commit.hexsha[0:12], get_treespec(gittree, gitbranch)))
+
+                    # we have the commit, so use its data instead of relying on what the user specfied
+                    commit_hexsha = commit.hexsha
+                    commit_subject = commit.summary
+                    gmtime = mergedate
 
         # later commits in a downstream treee might refer to a regression already fixed
         if self.solved_reason == 'fixed':
@@ -1487,15 +1538,15 @@ class RegressionBasic():
             range_start, range_end = introduced.split("..", 1)
             if not range_end:
                 # something like 'v5.15..'
-                gittree_start, gitbranch_start = GitTree.commit_find(range_start)
+                gittree_start, gitbranch_start = GitTree.commit_find_old(range_start)
                 commit = gittree_start.commit('HEAD')
                 introduced = "%s%s" % (introduced, commit.hexsha)
                 return introduced, gittree_start, gitbranch_start, True
             else:
-                gittree_end, gitbranch_end = GitTree.commit_find(range_end)
+                gittree_end, gitbranch_end = GitTree.commit_find_old(range_end)
                 return introduced, gittree_end, gitbranch_end, True
         else:
-            gittree, gitbranch = GitTree.commit_find(introduced)
+            gittree, gitbranch = GitTree.commit_find_old(introduced)
             if gitbranch:
                 return introduced, gittree, gitbranch, False
         return introduced, None, None, None
