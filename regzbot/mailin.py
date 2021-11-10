@@ -143,7 +143,7 @@ def process_tag(repsrc, tag, msg):
                 parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, parent_author, actimon)
             regzbot.RegHistory.event(
                 regressionb.regid, parent_gmtime, parent_msgid, parent_subject, repsrcid=parent_repsrc.repsrcid,
-                regzbotcmd="report: automatically added due to later %s" % tagcmd)
+                regzbotcmd="note: report automatically added due to later %s" % tagcmd)
         else:
             urltoreport = repsrc.url(msgid)
             regzbot.UnhandledEvent.add(
