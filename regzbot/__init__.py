@@ -1014,7 +1014,7 @@ class RegLink():
 
         dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
-            'SELECT link FROM reglinks WHERE regid=(?)', (regid,)).fetchone()
+            'SELECT link FROM reglinks WHERE regid=(?) AND link=(?)', (regid, link)).fetchone()
         if dbresult is None:
             add(dbcursor, regid, link, description, gmtime)
             return False
