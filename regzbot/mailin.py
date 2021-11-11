@@ -143,7 +143,7 @@ def process_tag(repsrc, tag, msg):
                 parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, parent_author, actimon)
             regzbot.RegHistory.event(
                 regressionb.regid, parent_gmtime, parent_msgid, parent_subject, repsrcid=parent_repsrc.repsrcid,
-                regzbotcmd="note: report automatically added due to later %s" % tagcmd)
+                regzbotcmd="regzbot-note: report automatically added due to later %s" % tagcmd)
         else:
             urltoreport = repsrc.url(msgid)
             regzbot.UnhandledEvent.add(
@@ -338,7 +338,7 @@ def process_msg(repsrc, msg):
         if ignoreactivity:
             return
         actimonid = regzbot.RegActivityEvent.get_actimonid_by_entry(reference)
-        if actimonid and not regzbot.RegActivityEvent.present(actimonid, msgid):
+        if actimonid and not regzbot.RegActivityEvent.present(msgid, actimonid=actimonid):
             regzbot.RegressionBasic.activity_event_monitored(
                 repsrc.repsrcid, gmtime, msgid, subject, author, regzbot.RegActivityMonitor.get(actimonid))
     add_actimon(msgid, msgid, gmtime, subject)
