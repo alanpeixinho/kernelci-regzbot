@@ -291,11 +291,12 @@ def process_msg(repsrc, msg):
     gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(msg['Date']))
     ignoreactivity = False
 
-    if regzbot.RecordProcessedMsgids.check_presence(msgid, gmtime):
-          logger.debug('[mailin] skipping "%s", we already encountered it it', msgid)
+    # do not process messages a second time
+    if regzbot.RegHistory.present(msgid):
+          logger.debug('[mailin] skipping mail %s, as we already processed it', msgid)
           return
 
-    logger.info("[mailin] processing mail(%s): subject:'%s'; from:%s'; :",
+    logger.info("[mailin] processing mail %s: subject:'%s'; from:%s'; :",
                 msgid, msg['Subject'], msg['From'])
 
     msg_simplest = msg.get_body(preferencelist=('plain'))

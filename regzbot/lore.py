@@ -64,6 +64,9 @@ def run():
         for art_num, over in overviews:
             msgid = regzbot.mailin.email_get_msgid(over['message-id'])
             gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(over['date']))
+            if regzbot.RecordProcessedMsgids.check_presence(msgid, gmtime):
+               logger.debug('[lore] skipping "%s", we already encountered it it', msgid)
+               continue
 
             _, article = nntp_connection.article(art_num)
             msg = email.message_from_bytes(b'\n'.join(article.lines), policy=policy.default)
