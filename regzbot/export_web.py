@@ -220,13 +220,12 @@ class RegressionWeb(regzbot.RegressionFull):
 
                 with yattagdoc.tag('p'):
                     yattagdoc.text(
-                         "When fixing, include one of these in the commit message to automatically resolve this entry in the regression tracking database:")
-                    for actimonitor in regzbot.RegActivityMonitor.getall_by_regid(self.regid):
-                        with yattagdoc_line.tag('ul', style='padding-left: 1em; margin-top: -1em; font-style: italic; list-style-type: none;'):
-                            yattagdoc.text("Link: ")
-                            link = "https://lore.kernel.org/r/%s" % actimonitor.entry
-                            with yattagdoc.tag('a', href=link):
-                                yattagdoc.text(link)
+                         "When fixing, include this in the commit message to make regzbot notice patch postings and commits to resolve the issue:")
+                    with yattagdoc_line.tag('ul', style='padding-left: 1em; margin-top: -1em; font-style: italic; list-style-type: none;'):
+                        yattagdoc.text("Link: ")
+                        link = "https://lore.kernel.org/r/%s" % self.entry
+                        with yattagdoc.tag('a', href=link):
+                            yattagdoc.text(link)
 
                 # use self._introduced_url here, as that will avoid ranges and commits we could not find
                 if self._introduced_url:
