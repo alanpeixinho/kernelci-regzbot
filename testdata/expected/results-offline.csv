@@ -573,7 +573,7 @@ HISTORY: test_2_2: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressio
 HISTORY: test_2_3: refer to this regression on another mainling list, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, 1546646400, linked: "test_2_3: refer to this regression on another mainling list" mentioned this regression
 HISTORY: test_2_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_4@example.com, 1546732800, monitor: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com
 HISTORY: test_2_6: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_6@example.com, 1546905600, unmonitor: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com
-HISTORY: test_2_8: refer to this regression on another mainling list, https://lore.kernel.org/lkml/regzbot-testing-test_2_8@example.com, 1547078400, monitor: automatically started monitoring "test_2_8: refer to this regression on another mainling list", as it referred to this this regression with a "Link:"
+HISTORY: test_2_8: refer to this regression on another mainling list, https://lore.kernel.org/lkml/regzbot-testing-test_2_8@example.com, 1547078400, monitor: started monitoring "test_2_8: refer to this regression on another mainling list" due to "Link:" to this regression
 LATEST: test_2_8: refer to this regression on another mainling list, nobody@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_8@example.com, 1547078400
 
 [offltest_2_9]
@@ -596,7 +596,7 @@ HISTORY: test_2_2: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressio
 HISTORY: test_2_3: refer to this regression on another mainling list, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, 1546646400, linked: "test_2_3: refer to this regression on another mainling list" mentioned this regression
 HISTORY: test_2_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_4@example.com, 1546732800, monitor: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com
 HISTORY: test_2_6: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_6@example.com, 1546905600, unmonitor: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com
-HISTORY: test_2_8: refer to this regression on another mainling list, https://lore.kernel.org/lkml/regzbot-testing-test_2_8@example.com, 1547078400, monitor: automatically started monitoring "test_2_8: refer to this regression on another mainling list", as it referred to this this regression with a "Link:"
+HISTORY: test_2_8: refer to this regression on another mainling list, https://lore.kernel.org/lkml/regzbot-testing-test_2_8@example.com, 1547078400, monitor: started monitoring "test_2_8: refer to this regression on another mainling list" due to "Link:" to this regression
 LATEST: test_2_9: reply to the thread now monitored, nobody@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_9@example.com, 1547164800
 
 [offltest_2_10]
@@ -614,7 +614,6 @@ ACTIVITY: test_2_6: Lorem ipsum dolor sit amet, nobody@example.com, https://lore
 ACTIVITY: test_2_8: refer to this regression on another mainling list, nobody@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_8@example.com, 1547078400
 ACTIVITY: test_2_9: reply to the thread now monitored, nobody@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_9@example.com, 1547164800
 ACTIVITY: Parent of test_2_10_1: get the previous mail monitored, nobody@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_10_0@example.com, 1547337600
-ACTIVITY: test_2_10_1: get the previous mail monitored, nobody@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_10_1@example.com, 1547337600
 HISTORY: test_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, 1546300800, introduced: v1.8..v1.9-rc1
 HISTORY: test_2_0_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_0_1@example.com, 1546387200, link: https://www.kernel.org/releases.html Linktitle
 HISTORY: test_2_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_1@example.com, 1546473600, link: https://www.kernel.org/releases.html Updated linktitle
@@ -622,9 +621,9 @@ HISTORY: test_2_2: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressio
 HISTORY: test_2_3: refer to this regression on another mainling list, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, 1546646400, linked: "test_2_3: refer to this regression on another mainling list" mentioned this regression
 HISTORY: test_2_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_4@example.com, 1546732800, monitor: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com
 HISTORY: test_2_6: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_6@example.com, 1546905600, unmonitor: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com
-HISTORY: test_2_8: refer to this regression on another mainling list, https://lore.kernel.org/lkml/regzbot-testing-test_2_8@example.com, 1547078400, monitor: automatically started monitoring "test_2_8: refer to this regression on another mainling list", as it referred to this this regression with a "Link:"
-HISTORY: test_2_10_1: get the previous mail monitored, https://lore.kernel.org/lkml/regzbot-testing-test_2_10_1@example.com, 1547337600, monitor: started monitoring parent mail "Parent of test_2_10_1: get the previous mail monitored", which should have referred to this this regression with a "Link:"
-LATEST: test_2_10_1: get the previous mail monitored, nobody@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_10_1@example.com, 1547337600
+HISTORY: test_2_8: refer to this regression on another mainling list, https://lore.kernel.org/lkml/regzbot-testing-test_2_8@example.com, 1547078400, monitor: started monitoring "test_2_8: refer to this regression on another mainling list" due to "Link:" to this regression
+HISTORY: test_2_10_1: get the previous mail monitored, https://lore.kernel.org/lkml/regzbot-testing-test_2_10_1@example.com, 1547337600, monitor: started monitoring parent mail 'Parent of test_2_10_1: get the previous mail monitored' due to '#regzbot ^backmonitor'
+LATEST: Parent of test_2_10_1: get the previous mail monitored, nobody@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_10_0@example.com, 1547337600
 
 [offltest_3_0]
 REGRESSION: test_3_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_3_0@example.com, next-20190101..next-20190102 (None), None, 1546300800, next, master, None: no flags

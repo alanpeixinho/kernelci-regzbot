@@ -142,6 +142,6 @@ Regzbot ignores all '#regzbot commands' in threads that are not associated with 
 
 #### tag users and developers normally shouldn't use
 
- * `^Link: https://lore.kernel.org/r/30th.anniversary.repost@klaava.Helsinki.FI/`
+ * `#regzbot ^backmonitor: https://lore.kernel.org/r/30th.anniversary.repost@klaava.Helsinki.FI/`
 
-   Just like the link tag, but makes regzbot start monitoring the parent mail. Useful for mails in the style of 'hey, next time when writing the commit message for a regression fix please add the link to the report of said regression'. For all other cases better reply to the report with a `#regzbot monitor` command pointing to the related discussion.
+   Makes regzbot start monitoring the parent mail for the linked regressions and ignore the mail that contains this, as it it would contain a '#regzbot ignore-activity'. Useful for mails in the style of 'hey, next time when writing the commit message for a tracked regression fix, please add the link to the report of said regression'. For all other cases better reply to the report with a `#regzbot monitor` command pointing to the related discussion.

@@ -758,14 +758,14 @@ def offltest_2_9(funcname):
 
 def offltest_2_10(funcname):
     replyto = 'test_2_0'
-    logger.info('%s: on another mainling list, use ^Link to get a the regression created in %s monitored' % (
+    logger.info('%s: on another mainling list, use #regzbot ^backmonitor to get a the regression created in %s monitored' % (
         funcname, replyto))
 
     subcounter = 0
     emaildirs['secondary'].create_email("%s_%s" % (funcname, subcounter), "Lorem ipsum dolor sit amet",
                                         subject="%s_%s: a patch to fix a regression missing a Link: tag" % (funcname, subcounter))
     subcounter += 1
-    emaildirs['secondary'].create_email("%s_%s" % (funcname, subcounter), "^Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com" % replyto,
+    emaildirs['secondary'].create_email("%s_%s" % (funcname, subcounter), "Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n\n#regzbot ^backmonitor https://lore.kernel.org/regressions/regzbot-testing-%s@example.com" % (replyto, replyto),
                                         subject="%s_%s: get the previous mail monitored" % (funcname, subcounter),
                                         replyto='%s_0' % funcname)
     return True, False, False

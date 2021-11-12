@@ -20,8 +20,7 @@ regzbot_tag_re = re.compile(
 regzbot_tag2_re = re.compile(
     r'^#(regzb|regzbot) (.*)$', re.MULTILINE | re.IGNORECASE)
 link_re = re.compile(
-    r'^(.)*?(\#regzb.*|Link:\s*)?((http://|https://)(.*))(\s)*', re.MULTILINE | re.IGNORECASE)
-
+    r'^(\#regzb |\#regzbot |Link: |.*)?(\n)?((http://|https://)\S*)', re.MULTILINE | re.IGNORECASE)
 
 def adjust_repsrc(repsrc, msg):
     def get_email_adresses(recipients):
@@ -129,7 +128,7 @@ def process_tag(repsrc, tag, msg):
                 if tagcmd == "^^introduced":
                     parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid)
                     parent_msgid = email_get_msgid_parent(parent_msg)
-                parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid, repsrc.repsrcid)
+                parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid)
                 parent_gmtime = email_get_gmtime(parent_msg)
                 parent_subject = email_get_subject(parent_msg)
                 parent_author = email_get_from(parent_msg)
@@ -204,7 +203,7 @@ def email_get_gmtime(msg):
 
 
 def email_get_msgid(msg_or_msgid):
-    if isinstance(msg_or_msgid, email.message.EmailMessage):
+    if isinstance(msg_or_msgid, email.message.EmailMessage) or isinstance(msg_or_msgid, email.message.EmailMessage):
         msgid = msg_or_msgid['message-id']
     else:
         msgid = msg_or_msgid
@@ -324,12 +323,15 @@ def process_msg(repsrc, msg):
             matches.append('#regzbot ' + match.group(2))
         if len(matches) > 0:
             for match in email_process_tagmatches(matches):
-                if 'ignore-activity' in match or \
+                if 'backmonitor' in match:
+                     # this is deal with later
+                     continue
+                elif 'ignore-activity' in match or \
                        'activity-ignore' in match or \
                        'ignoreact' in match:
                      ignoreactivity = True
                      continue
-                if 'poke' in match:
+                elif 'poke' in match:
                      ignoreactivity = True
                 process_tag(repsrc, match, msg)
 
@@ -353,30 +355,33 @@ def process_msg(repsrc, msg):
        return
 
     # check this mail for links that point to tracked regressions
-    for match in link_re.finditer(msgcontent):
-        skip = False
+    for match in link_re.finditer(re.sub(r'^>.*\n?', '', msgcontent, flags=re.MULTILINE)):
         linktag = False
+        backmonitor = False
         url = False
 
-        linkparent = False
-        for grp in match.groups():
-            if grp is None:
+        if match.group(0).startswith('Link'):
+            if re.search(r'\#regzb.*\^backmonitor', msgcontent):
+                # backmonitor implies ignore-activity, so skip this
                 continue
-            elif grp.startswith("#regzb"):
+            linktag = True
+            url = match.group(0).split()[1]
+        elif match.group(0).startswith('#regz'):
+            if '^backmonitor' in match.group(0):
+                backmonitor = True
+                url = match.group(0).split()[2]
+            else:
                 # avoid catching URLs we already dealt with
-                skip = True
-                break
-            elif grp.startswith("Link:"):
-                linktag = True
+               continue
+        else:
+            if 'Link:' in match.group(0):
+                # Link should be at the beginning of the line; it's not, so it's
+                # likely quoted or somethng and can be ignored
                 continue
-            elif grp == ("^"):
-                linkparent = True
-                continue
-            elif grp.startswith("http"):
-                url = grp
-                break
-        if skip:
-            continue
+            for section in match.groups():
+                if section and section.startswith('http'):
+                    url = section
+                    break
 
         mailinglist, linked_msgid = process_link(url)
         if linked_msgid is None:
@@ -397,9 +402,11 @@ def process_msg(repsrc, msg):
             return None
         actimon = thread_already_monitored()
 
-        if actimon is None and linktag is True:
-            # start monitoring this thread
-            if linkparent:
+        if actimon:
+            # already monitored, nothing to do
+            return
+        elif backmonitor is True :
+                # start monitoring this thread
                 if regzbot.is_running_citesting('offline'):
                     parent_msgid = email_get_msgid_parent(msg)
                     parent_repsrc = repsrc
@@ -408,38 +415,34 @@ def process_msg(repsrc, msg):
                     parent_author = author
                 else:
                     parent_msgid = email_get_msgid_parent(msg)
-                    parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid, repsrc.repsrcid)
+                    parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid)
                     parent_gmtime = email_get_gmtime(parent_msg)
                     parent_subject = email_get_subject(parent_msg)
                     parent_author = email_get_from(parent_msg)
 
-                print("here")
                 regressionb.monitoradd_direct(
                     parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, parent_author)
-                print("we")
                 regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid,
-                                         regzbotcmd='monitor: started monitoring parent mail "%s", which should have referred to this this regression with a "Link:"'
+                                         regzbotcmd="monitor: started monitoring parent mail '%s' due to '#regzbot ^backmonitor'"
                                          % parent_subject)
-                print("are")
 
-                # add the entry for this mail
-                actimon = regzbot.RegActivityMonitor.get_by_regid_n_entry(regressionb.regid, parent_msgid)
-                regzbot.RegressionBasic.activity_event_monitored(
-                    repsrc.repsrcid, gmtime, msgid, subject, author, actimon)
-
-                # we might need to recheck the thread, as it can contain msgs we have seen earlier and ignored earlier
-                if not regzbot.is_running_citesting('offline'):
-                    regzbot.process_thread(parent_msgid, parent_repsrc.repsrcid)
-            else:
+                # no activityentry for this, backmonitor works like activity-ignore
+                # recheck the thread, to record the parent msg and all others we might have seen but ignored earlier
+                if regzbot.is_running_citesting('offline'):
+                    actimon = regzbot.RegActivityMonitor.get_by_regid_n_entry(regressionb.regid, parent_msgid)
+                    regzbot.RegressionBasic.activity_event_monitored(
+                        parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, parent_author, actimon)
+                else:
+                    process_thread(parent_msgid, parent_repsrc.repsrcid)
+        elif linktag is True :
                 regressionb.monitoradd_direct(
                     repsrc.repsrcid, gmtime, msgid, subject, author)
                 regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid,
-                                         regzbotcmd='monitor: automatically started monitoring "%s", as it referred to this this regression with a "Link:"'
+                                         regzbotcmd='monitor: started monitoring "%s" due to "Link:" to this regression'
                                          % subject)
-        elif actimon:
-            # already monitored, nothing to do
-            return
-        else:
+                # check thread, maybe it got added later via a recheck of an msgid
+                process_thread(msgid, repsrcid=repsrc.repsrcid)
+        elif url:
             # just add the event to the regression
             regzbot.RegressionBasic.activity_event_linked(
                 repsrc.repsrcid, gmtime, msgid, subject, author, regid=regressionb.regid)
@@ -473,9 +476,6 @@ def process_thread(msgid_interested, repsrcid):
             if not msgid_current == msgid_interested:
                 continue
             actimonid = False
-        # elif regzbot.RecordProcessedMsgids.check_presence(msgid_current):
-        #    # don't process this again
-        #    continue
         elif msg['References'] and get_actimonid(msg['References'].split(" ")) != actimonid:
                 continue
 

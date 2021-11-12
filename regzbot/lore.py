@@ -113,27 +113,34 @@ def download_thread(msgid, repsrcid = None):
             yield email.message_from_bytes(message.as_bytes(), policy=policy.default)
 
 
-def download_msg(msgid, repsrcid):
-    def download_this(url):
+def download_msg(msgid):
+    def download_this(url, tmpfile):
         try:
-            logger.debug("Downloading %s", url)
+            logger.debug("[lore] downloading %s", url)
             with urllib.request.urlopen(url) as response:
-                # ignore decoding errors due to messages like https://lore.kernel.org/all/20211101140613.GC1456700@rowland.harvard.edu/raw
-                msg = email.message_from_string(response.read().decode('utf-8', errors='ignore'), policy=policy.default)
-                return msg
+                shutil.copyfileobj(response, tmpfile)
+                return True
         except urllib.error.HTTPError as err:
-            logger.critical('Failed to download msg %s: %s"', msgid, err)
-            return None
+            # for now just fail
+            logger.critical('lore] aborting, failed to download msg %s: %s"', msgid, err)
+            sys.exit(1)
 
-    repsrc = None
-    msg = download_this('https://lore.kernel.org/all/%s/raw' % msgid)
-    if not msg and repsrcid:
-        # work around https://twitter.com/kernellogger/status/1443863850722410496
-        repsrc = regzbot.ReportSource.get_by_id(repsrcid)
-        msg = download_this('%s/%s/raw' % (repsrc.weburl.rstrip('/'), msgid))
+    with tempfile.NamedTemporaryFile() as tmpfile:
+        download_this('https://lore.kernel.org/all/%s/raw' % msgid, tmpfile)
 
-    repsrc = regzbot.mailin.adjust_repsrc(repsrc, msg)
-    return repsrc, msg
+        # might contain a raw msg or a mbox file with multiple messages
+        mbox = mailbox.mbox(tmpfile.name)
+        if mbox:
+            for message in mbox:
+                 # just pick the first one
+                 msg = email.message_from_bytes(message.as_bytes(), policy=policy.default)
+                 break
+        else:
+            tmpfile.seek(0)
+            msg = email.message_from_string(tmpfile.read().decode('utf-8', errors='ignore'), policy=policy.default)
+
+        repsrc = regzbot.mailin.adjust_repsrc(None, msg)
+        return repsrc, msg
 
 
 def process_replies(msgid):

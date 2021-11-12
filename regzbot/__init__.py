@@ -491,13 +491,13 @@ class GitTree():
            return RegressionFull.get_by_regid(regid)
 
         regression = None
-        for gittree in cls.getall():
+        for gittree in cls.getall(FIXME='ORDER BY priority ASC'):
             searchstring = "Link:.*%s" % msgid
             logger.debug("Trying to find %s in gittree %s", searchstring, gittree.name)
             for commit_hexsha in gittree.greplogmsgs(searchstring):
-                logger.debug("Found it in %s", commit_hexsha)
+                logger.debug("Found it in %s: %s", gittree.name, commit_hexsha)
                 for gitbranch in GitBranch.getall_by_gittreeid(gittree.gittreeid):
-                    print("checking %s" % gitbranch.name)
+                    logger.debug("checking %s" % gitbranch.describe(gittree.name))
                     if gitbranch.commit_exists(commit_hexsha, repo=gittree.repo()):
                          commit = gittree.commit(commit_hexsha)
                          getregression(regression, regid).commitmention(gittree, gitbranch, commit)
@@ -1357,6 +1357,10 @@ class RegressionBasic():
         return True
 
     def fixedby(self, gmtime, commit_hexsha, commit_subject, gitbranchid=None, repsrcid=None, repentry=None, lookup=True):
+        # mark the commit as fixed, unless it's already considered fixed
+        if self.solved_reason == 'fixed' and self.solved_entry.startswith(commit_hexsha):
+            return True
+
         self.solved_reason = 'to_be_fixed'
         self.solved_gmtime = gmtime
         self.solved_entry = commit_hexsha
@@ -1413,9 +1417,11 @@ class RegressionBasic():
             mergedate = gmtime
 
         if gittree.priority == culprit_gittree.priority:
-            # mark the commit as fixed
-            historytext += " – marking this as 'fixed'"
-            self.fixed(mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
+            # mark the commit as fixed, unless it's already considered fixed
+            if not self.solved_reason == 'fixed':
+                # mark the commit as fixed, unless it's already considered fixed
+                historytext += " – marking this as 'fixed'"
+                self.fixed(mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
         elif gittree.priority < culprit_gittree.priority:
             # the fix hasn't reached the proper tree yet; but we have the commit, so use
             # its data instead of relying on what the user specfied
@@ -2302,7 +2308,6 @@ def redo_regressions(msgids):
     with tempfile.TemporaryFile(mode='w+t') as tmpfile_before:
         with tempfile.TemporaryFile(mode='w+t') as tmpfile_after:
             for msgid in msgids:
-                print(msgid)
                 regression = RegressionBasic.get_by_entry(msgid)
                 if not regression:
                     logger.critical('Aborting, could not find any regression with msgid %s', msgid)
@@ -2319,12 +2324,14 @@ def redo_regressions(msgids):
                     # skip commits
                     if histevent.gitbranchid:
                         continue
-                    msgids_to_recheck.append(histevent.entry)
+
+                    # avoid duplicates:
+                    if histevent.entry not in msgids_to_recheck:
+                        msgids_to_recheck.append(histevent.entry)
 
                     # remove the old regression
                     dbcursor = DBCON.cursor()
                     regression.delete(dbcursor=dbcursor)
-
             # recheck all msg found that had a entry in the history
             # to recreate the regression
             for msgid_to_check in msgids_to_recheck:
@@ -2380,12 +2387,13 @@ def report():
     basicressources_init()
     return RegExportMailReport.compile()
 
-def download_msg(msgid, repsrcid=None):
-    return lore.download_msg(msgid, repsrcid)
+
+def download_msg(msgid):
+    return lore.download_msg(msgid)
 
 
-def process_msg(msgid, repsrcid=None):
-    repsrc, msg = download_msg(msgid, repsrcid)
+def process_msg(msgid):
+    repsrc, msg = download_msg(msgid)
     return mailin.process_msg(repsrc, msg)
 
 
