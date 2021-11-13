@@ -142,7 +142,7 @@ def process_tag(repsrc, tag, msg):
                 parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, parent_author, actimon)
             regzbot.RegHistory.event(
                 regressionb.regid, parent_gmtime, parent_msgid, parent_subject, parent_author, repsrcid=parent_repsrc.repsrcid,
-                regzbotcmd="note: report, added due to later %s" % tagcmd)
+                regzbotcmd="note: report, added by regzbot due to later %s" % tagcmd)
         else:
             urltoreport = repsrc.url(msgid)
             regzbot.UnhandledEvent.add(
@@ -438,7 +438,7 @@ def process_msg(repsrc, msg):
                 regressionb.monitoradd_direct(
                     repsrc.repsrcid, gmtime, msgid, subject, author)
                 regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject, author, repsrcid=repsrc.repsrcid,
-                                         regzbotcmd='monitor: started monitoring "%s" due to "Link:" to this regression'
+                                         regzbotcmd="monitor: 'Link:' to this regression in `%s`"
                                          % subject)
                 # check thread, maybe it got added later via a recheck of an msgid
                 process_thread(msgid, repsrcid=repsrc.repsrcid)

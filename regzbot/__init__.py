@@ -494,10 +494,11 @@ class GitTree():
             searchstring = "Link:.*%s" % msgid
             logger.debug("[GitTree] Trying to find %s in gittree %s", searchstring, gittree.name)
             for commit_hexsha in gittree.greplogmsgs(searchstring):
-                logger.debug("[GitTree] Found it in %s: %s", gittree.name, commit_hexsha)
+                logger.debug("[GitTree] Found %s in %s", commit_hexsha, gittree.name)
                 for gitbranch in GitBranch.getall_by_gittreeid(gittree.gittreeid):
                     logger.debug("[GitTree] checking %s" % gitbranch.describe(gittree.name))
                     if gitbranch.commit_exists(commit_hexsha, repo=gittree.repo()):
+                         logger.debug("[GitTree] Found %s in %s", commit_hexsha, gitbranch.describe(gittree.name))
                          commit = gittree.commit(commit_hexsha)
                          getregression(regression, regid).commitmention(gittree, gitbranch, commit)
 
@@ -1402,7 +1403,7 @@ class RegressionBasic():
 
     def fixedby_found(self, gittree, gitbranch, commit_hexsha, culprit_gittree=None, gmtime=None):
         def add_activity(gittree, gitbranch, commit, mergedate):
-            RegActivityEvent.event(mergedate, commit.hexsha, "%s, the commit specified by 'fixed-by', showed up in %s" % (
+            RegActivityEvent.event(mergedate, commit.hexsha, "%s, the commit specified by 'fixed-by', landed in %s" % (
                     commit.hexsha[0:12], gitbranch.describe(gittree.name)), gitbranchid=gitbranch.gitbranchid, regid=self.regid, author='regzbot')
 
         def add_history(gittree, gitbranch, commit, mergedate, regzbotcmd):
@@ -1420,7 +1421,7 @@ class RegressionBasic():
             return True
 
         mergedate = gitbranch.merge_date(commit.hexsha, gittree.repo())
-        historytext = "note: 'fixed-by' commit '%s' now in '%s'" % (
+        historytext_post = "'fixed-by' commit '%s' now in '%s'" % (
                           commit.hexsha[0:12], gitbranch.describe(gittree.name))
 
         if gmtime and gmtime > mergedate:
@@ -1431,11 +1432,12 @@ class RegressionBasic():
             # mark the commit as fixed, unless it's already considered fixed
             if not self.solved_reason == 'fixed':
                 # mark the commit as fixed, unless it's already considered fixed
-                historytext += " – marking this as 'fixed'"
+                historytext = 'fixed: %s' % historytext_post
                 self.fixed(mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
         elif gittree.priority < culprit_gittree.priority:
             # the fix hasn't reached the proper tree yet; but we have the commit, so use
             # its data instead of relying on what the user specfied
+            historytext = 'note: %s' % historytext_post
             self.solved_entry = commit.hexsha
             self.solved_subject = commit.summary
             self.solved_gmtime = mergedate
@@ -1580,7 +1582,7 @@ class RegressionBasic():
             if not range_end:
                 # something like 'v5.15..'
                 gittree_start, gitbranch_start = GitTree.commit_find_old(range_start)
-                commit = gittree_start.commit('HEAD')
+                commit = gittree_start.commit('origin/%s' % gitbranch_start.name)
                 introduced = "%s%s" % (introduced, commit.hexsha)
                 return introduced, gittree_start, gitbranch_start, True
             else:
@@ -1773,24 +1775,25 @@ class RegressionFull(RegressionBasic):
 
     def commitmention(self, gittree, gitbranch, commit):
         mergedate = gitbranch.merge_date(commit.hexsha)
+        author = '%s' % commit.author
         regzbotcmd = "%s in %s referred to this regression" % (commit.hexsha[0:12], gitbranch.describe(gittree.name))
 
         RegActivityEvent.event(mergedate, commit.hexsha, "Commit %s in %s" % (
-            commit.hexsha[0:12], gitbranch.describe(gittree.name)), gitbranchid=gitbranch.gitbranchid, regid=self.regid, author='%s' % commit.author)
+            commit.hexsha[0:12], gitbranch.describe(gittree.name)), gitbranchid=gitbranch.gitbranchid, regid=self.regid, author=author)
 
         if self.treename == gittree.name:
             self.fixed(
                 mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
-            RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, 'regzbot',
+            RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, author,
                  gitbranchid=gitbranch.gitbranchid, regzbotcmd='fixed: %s' % regzbotcmd)
         else:
             # downstream only
             if self.gittree and gittree.priority > self.gittree.priority:
-                 RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, 'regzbot',
+                 RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, author,
                      gitbranchid=gitbranch.gitbranchid, regzbotcmd='note: %s' % regzbotcmd)
                  return
 
-            RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, 'regzbot',
+            RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, author,
                 gitbranchid=gitbranch.gitbranchid, regzbotcmd='fixed-by: %s' % regzbotcmd)
             self.fixedby(
                 mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid, lookup=False)
