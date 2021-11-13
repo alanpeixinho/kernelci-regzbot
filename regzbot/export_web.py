@@ -94,23 +94,6 @@ class RegressionWeb(regzbot.RegressionFull):
                             yattagdoc.text(self.subject)
                     yattagdoc.text(' by %s' % self.author)
 
-                    if self.solved_reason:
-                        yattagdoc.text(' ')
-                        with yattagdoc.tag('mark', style='background-color: #D0D0D0;'):
-                            yattagdoc.text('[ ')
-                            if self.solved_reason == 'fixed':
-                                yattagdoc.text('Fixed')
-                            elif self.solved_reason == 'to_be_fixed':
-                                yattagdoc.text('To be fixed')
-                            elif self.solved_reason == 'duplicateof':
-                                yattagdoc.text('Duplicate')
-                            elif self.solved_reason == 'invalid':
-                                yattagdoc.text('Invalid')
-                            elif self.solved_reason is not None:
-                                yattagdoc.text('%s' % self.solved_reason)
-                            yattagdoc.text(' ]')
-                        yattagdoc.text(' ')
-
                     with yattagdoc.tag('div'):
                         yattagdoc.text('Earliest and latest ')
                         with yattagdoc.tag('a', href='../regression/%s/' % regzbot.urlencode(self.entry)):
@@ -150,6 +133,25 @@ class RegressionWeb(regzbot.RegressionFull):
                         if entered_loop:
                             yattagdoc.text('.')
 
+                        if self.solved_reason:
+                            yattagdoc.text(' ')
+                            with yattagdoc.tag('mark', style='background-color: #D0D0D0;'):
+                                yattagdoc.text('[ ')
+                                if self.solved_reason == 'fixed':
+                                    yattagdoc.text('Fixed')
+                                elif self.solved_reason == 'to_be_fixed':
+                                    yattagdoc.text('To be fixed')
+                                elif self.solved_reason == 'duplicateof':
+                                    yattagdoc.text('Duplicate')
+                                elif self.solved_reason == 'invalid':
+                                    yattagdoc.text('Invalid')
+                                elif self.solved_reason is not None:
+                                    yattagdoc.text('%s' % self.solved_reason)
+                                yattagdoc.text(' ]')
+                            yattagdoc.text(' ')
+
+
+
                 for counter, regressionlink in enumerate(RegLinkWeb.get_all(self.regid), start=1):
                     with yattagdoc.tag('div'):
                         yattagdoc.text('[%s]: ' % counter)
@@ -161,7 +163,7 @@ class RegressionWeb(regzbot.RegressionFull):
                         yattagdoc.text(' ')
                         with yattagdoc.tag('strong'):
                             if self.solved_reason == 'fixed':
-                                yattagdoc.text('Fixed: ')
+                                yattagdoc.text('Fix: ')
                             elif self.solved_reason == 'to_be_fixed':
                                 yattagdoc.text('To be fixed by: ')
                             elif self.solved_reason == 'duplicateof':

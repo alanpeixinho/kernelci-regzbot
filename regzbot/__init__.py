@@ -266,11 +266,10 @@ class GitBranch():
                 '--ancestry-path', "%s..origin/HEAD" % hexsha).splitlines()
             first_parent = repo.git.rev_list(
                 '--first-parent', "%s..origin/HEAD" % hexsha).splitlines()
-            print(ancestry_path)
+
             # committed directly
             if len(ancestry_path) == 0:
                 return get_date(repo, hexsha)
-            print('\nWE')
             # find the last result in ancestry_path that's also in first_parent
             ancestry_path.reverse()
             for commit in ancestry_path:
@@ -493,11 +492,11 @@ class GitTree():
         regression = None
         for gittree in cls.getall(FIXME='ORDER BY priority ASC'):
             searchstring = "Link:.*%s" % msgid
-            logger.debug("Trying to find %s in gittree %s", searchstring, gittree.name)
+            logger.debug("[GitTree] Trying to find %s in gittree %s", searchstring, gittree.name)
             for commit_hexsha in gittree.greplogmsgs(searchstring):
-                logger.debug("Found it in %s: %s", gittree.name, commit_hexsha)
+                logger.debug("[GitTree] Found it in %s: %s", gittree.name, commit_hexsha)
                 for gitbranch in GitBranch.getall_by_gittreeid(gittree.gittreeid):
-                    logger.debug("checking %s" % gitbranch.describe(gittree.name))
+                    logger.debug("[GitTree] checking %s" % gitbranch.describe(gittree.name))
                     if gitbranch.commit_exists(commit_hexsha, repo=gittree.repo()):
                          commit = gittree.commit(commit_hexsha)
                          getregression(regression, regid).commitmention(gittree, gitbranch, commit)
@@ -1416,7 +1415,7 @@ class RegressionBasic():
             return True
 
         mergedate = gitbranch.merge_date(commit.hexsha, gittree.repo())
-        historytext = "regzbot-note: noticed %s, specified by 'fixed-by' earlier, in %s" % (
+        historytext = "note: 'fixed-by' commit '%s' now in '%s' [regzbot]" % (
                           commit.hexsha[0:12], gitbranch.describe(gittree.name))
 
         if gmtime and gmtime > mergedate:
@@ -1768,31 +1767,26 @@ class RegressionFull(RegressionBasic):
         return combine(point1, point2), 'previous'
 
     def commitmention(self, gittree, gitbranch, commit):
-        if self.treename == gittree.name:
-            mergedate = gitbranch.merge_date(commit.hexsha)
+        mergedate = gitbranch.merge_date(commit.hexsha)
+        regzbotcmd = "%s in %s referred to this regression [regzbot]" % (commit.hexsha[0:12], gitbranch.describe(gittree.name))
 
+        RegActivityEvent.event(mergedate, commit.hexsha, "Commit %s in %s" % (
+            commit.hexsha[0:12], gitbranch.describe(gittree.name)), gitbranchid=gitbranch.gitbranchid, regid=self.regid, author='%s' % commit.author)
+
+        if self.treename == gittree.name:
             self.fixed(
                 mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
             RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary,
-                 gitbranchid=gitbranch.gitbranchid, regzbotcmd="fixed (link in commit): %s" % commit.hexsha[0:12])
+                 gitbranchid=gitbranch.gitbranchid, regzbotcmd='fixed: %s' % regzbotcmd)
         else:
-            mergedate = gitbranch.merge_date(commit.hexsha)
-            if gitbranch.name == 'master' or gitbranch.name == 'main':
-                treespec = gittree.name
-            else:
-                treespec = "%s/%s" % (gittree.name, gitbranch.name)
-
-            RegActivityEvent.event(mergedate, commit.hexsha, "The commit '%s' in '%s' linked to this regression" % (
-                commit.hexsha[0:12], treespec), gitbranchid=gitbranch.gitbranchid, regid=self.regid)
-
             # downstream only
             if self.gittree and gittree.priority > self.gittree.priority:
                  RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary,
-                     gitbranchid=gitbranch.gitbranchid, regzbotcmd="regzbot-note: %s in %s referred to this regression" % (commit.hexsha[0:12], treespec))
+                     gitbranchid=gitbranch.gitbranchid, regzbotcmd='note: %s' % regzbotcmd)
                  return
 
             RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary,
-                gitbranchid=gitbranch.gitbranchid, regzbotcmd="fixed-by: %s (noticed in %s)" % (commit.hexsha[0:12], treespec))
+                gitbranchid=gitbranch.gitbranchid, regzbotcmd='fixed-by: %s' % regzbotcmd)
             self.fixedby(
                 mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid, lookup=False)
 
