@@ -36,16 +36,23 @@ class RegHistoryWeb(regzbot.RegHistory):
         super().__init__(*args)
 
     def html(self, yattagdoc):
-        if self.regzbotcmd:
-            if self.regzbotcmd == 'poke:':
-                regzbotcmd = 'poke'
+        with yattagdoc.tag('i'):
+            if self.regzbotcmd:
+                if self.regzbotcmd == 'poke:':
+                    regzbotcmd = 'poke'
+                else:
+                    regzbotcmd = self.regzbotcmd
+                with yattagdoc.tag('a', href=self.url()):
+                    yattagdoc.text("%s" % regzbotcmd)
             else:
-                regzbotcmd = self.regzbotcmd
-            with yattagdoc.tag('a', href=self.url()):
-                yattagdoc.text("%s" % regzbotcmd)
-        else:
-            with yattagdoc.tag('a', href=self.url()):
-                yattagdoc.text("%s" % self.subject)
+                with yattagdoc.tag('a', href=self.url()):
+                    yattagdoc.text("%s" % self.subject)
+
+        with yattagdoc.tag('div', style="padding-left: 2em;"):
+             yattagdoc.text("%s days ago" % days_delta(
+                             self.gmtime))
+             if self.author:
+                 yattagdoc.text(", by %s" % self.author)
 
 
 class RegActivityEventWeb(regzbot.RegActivityEvent):
@@ -55,7 +62,7 @@ class RegActivityEventWeb(regzbot.RegActivityEvent):
     def html(self, yattagdoc):
         with yattagdoc.tag('a', href=self.url()):
                  yattagdoc.text("%s" % self.subject)
-        with yattagdoc.tag('div', style="padding-left: 1em;"):
+        with yattagdoc.tag('div', style="padding-left: 2em;"):
              yattagdoc.text("%s days ago, by %s" % (days_delta(self.gmtime), self.author))
 
         return yattagdoc
@@ -212,13 +219,7 @@ class RegressionWeb(regzbot.RegressionFull):
                     with yattagdoc_line.tag('ul', style='padding-left: 5px; margin-top: -1em;'):
                         for histevent in reversed(self._histevents):
                             with yattagdoc.tag('li', style="list-style-position: inside;"):
-                                with yattagdoc.tag('i'):
-                                    histevent.html(yattagdoc)
-                                    with yattagdoc.tag('div', style="padding-left: 1em;"):
-                                         yattagdoc.text("%s days ago" % days_delta(
-                                                   histevent.gmtime))
-                                         if histevent.author:
-                                             yattagdoc.text(", by %s" % histevent.author)
+                                histevent.html(yattagdoc)
 
                 if self.solved_reason:
                     return
