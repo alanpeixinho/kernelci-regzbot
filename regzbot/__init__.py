@@ -1247,21 +1247,25 @@ class RegressionBasic():
             regid, regression.subject, subject, ReportSource.url_by_id(repsrcid, entry)))
 
     @staticmethod
-    def introduced_create(repsrcid, entry, subject, author, introduced, gmtime):
+    def __introduced_precheck(introduced):
         # remove everything after the first space, in case someone wrote something like this:
         # regzbot introduced cf68fffb66d6 ("add support for Clang CFI")
         introduced = introduced.split()[0]
 
         # try to find what tree/branch this belongs
         introduced, _, gitbranch, _ = RegressionBasic._gettree_n_branch(introduced)
-        if gitbranch:
-            gitbranchid = gitbranch.gitbranchid
-        else:
-            gitbranchid = None
 
-        dbcursor = DBCON.cursor()
+        if gitbranch:
+            return introduced, gitbranch.gitbranchid
+        else:
+            return introduced, None
+
+    @classmethod
+    def introduced_create(cls, repsrcid, entry, subject, author, introduced, gmtime):
+        introduced, gitbranchid = cls.__introduced_precheck(introduced)
 
         # create regression
+        dbcursor = DBCON.cursor()
         dbcursor.execute('''INSERT INTO regressions
                             (repsrcid, entry, subject, author, introduced, gitbranchid)
                             VALUES (?, ?, ?, ?, ?, ?)''',
@@ -1285,14 +1289,17 @@ class RegressionBasic():
         return RegressionBasic(dbcursor.lastrowid, repsrcid, entry, subject, author, introduced, gitbranchid)
 
     def introduced_update(self, tagload):
-        self.introduced = tagload
-        logger.debug('regression %s (%s): introduced now %s',
+        self.introduced, self.gitbranchid = self.__introduced_precheck(tagload)
+
+        logger.debug('regression %s (%s): setting introduced to %s',
                      self.regid, self.subject, self.introduced)
         dbcursor = DBCON.cursor()
         dbcursor.execute('''UPDATE regressions
-                            SET introduced = (?)
+                            SET
+                            introduced = (?),
+                            gitbranchid = (?)
                             WHERE regid=(?)''',
-                         (self.introduced, self.regid))
+                         (self.introduced, self.gitbranchid, self.regid))
         logger.debug('[db regressions] introduced is now %s (regid:%s; subject:"%s" )',
                      self.introduced, self.regid, self.subject)
         logger.info('regression[%s, "%s"]: setting introduced to "%s"',
