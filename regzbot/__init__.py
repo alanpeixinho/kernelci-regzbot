@@ -263,14 +263,14 @@ class GitBranch():
         try:
             # idea from https://stackoverflow.com/a/20615706
             ancestry_path = repo.git.rev_list(
-                '--ancestry-path', "%s..HEAD" % hexsha).splitlines()
+                '--ancestry-path', "%s..origin/HEAD" % hexsha).splitlines()
             first_parent = repo.git.rev_list(
-                '--first-parent', "%s..HEAD" % hexsha).splitlines()
-
+                '--first-parent', "%s..origin/HEAD" % hexsha).splitlines()
+            print(ancestry_path)
             # committed directly
             if len(ancestry_path) == 0:
                 return get_date(repo, hexsha)
-
+            print('\nWE')
             # find the last result in ancestry_path that's also in first_parent
             ancestry_path.reverse()
             for commit in ancestry_path:
