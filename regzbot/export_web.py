@@ -214,8 +214,11 @@ class RegressionWeb(regzbot.RegressionFull):
                             with yattagdoc.tag('li', style="list-style-position: inside;"):
                                 with yattagdoc.tag('i'):
                                     histevent.html(yattagdoc)
-                                yattagdoc.text(" (%s days ago)" % days_delta(
-                                               histevent.gmtime))
+                                    with yattagdoc.tag('div', style="padding-left: 1em;"):
+                                         yattagdoc.text("%s days ago" % days_delta(
+                                                   histevent.gmtime))
+                                         if histevent.author:
+                                             yattagdoc.text(", by %s" % histevent.author)
 
                 if self.solved_reason:
                     return

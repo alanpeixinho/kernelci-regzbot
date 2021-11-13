@@ -684,7 +684,7 @@ def offltest_2_2(funcname):
     replyto = 'test_2_0'
     logger.info('%s: remove the link to the regression created in %s' %
                 (funcname, replyto))
-    emaildirs['primary'].create_email(funcname, "#regzb unlink https://www.kernel.org/releases.html ",
+    emaildirs['primary'].create_email(funcname, "#regzb unlink https://www.kernel.org/releases.html",
                                       replyto=replyto)
     return True, False, False
 

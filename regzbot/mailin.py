@@ -141,8 +141,8 @@ def process_tag(repsrc, tag, msg):
             regzbot.RegressionBasic.activity_event_monitored(
                 parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, parent_author, actimon)
             regzbot.RegHistory.event(
-                regressionb.regid, parent_gmtime, parent_msgid, parent_subject, repsrcid=parent_repsrc.repsrcid,
-                regzbotcmd="note: report, added due to later %s [regzbot]" % tagcmd)
+                regressionb.regid, parent_gmtime, parent_msgid, parent_subject, parent_author, repsrcid=parent_repsrc.repsrcid,
+                regzbotcmd="note: report, added due to later %s" % tagcmd)
         else:
             urltoreport = repsrc.url(msgid)
             regzbot.UnhandledEvent.add(
@@ -151,7 +151,7 @@ def process_tag(repsrc, tag, msg):
 
         # create entry in the reghistory now that we know the regid
         regzbot.RegHistory.event(
-            regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid, regzbotcmd=regzbotcmd)
+            regressionb.regid, gmtime, msgid, subject, author, repsrcid=repsrc.repsrcid, regzbotcmd=regzbotcmd)
 
         # we might need to recheck the thread, as it can contain msgs we have seen earlier and ignored earlier
         if tagcmd == "^introduced" or tagcmd == "^^introduced":
@@ -161,7 +161,7 @@ def process_tag(repsrc, tag, msg):
         # create entry in the reghistory before processing the tag, otherwise loops will happen
         # if a monitor commands points to a mail higher up in the same thread
         regzbot.RegHistory.event(
-            regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid, regzbotcmd=regzbotcmd)
+            regressionb.regid, gmtime, msgid, subject, author, repsrcid=repsrc.repsrcid, regzbotcmd=regzbotcmd)
 
         if tagcmd == "dupof" or tagcmd == "dup-of":
             regressionb.dupof(tagload, gmtime, msgid, subject, author, repsrc.repsrcid)
@@ -422,7 +422,7 @@ def process_msg(repsrc, msg):
 
                 regressionb.monitoradd_direct(
                     parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, parent_author)
-                regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid,
+                regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, author, subject, repsrcid=repsrc.repsrcid,
                                          regzbotcmd="monitor: started monitoring parent mail '%s' due to '#regzbot ^backmonitor'"
                                          % parent_subject)
 
@@ -437,7 +437,7 @@ def process_msg(repsrc, msg):
         elif linktag is True :
                 regressionb.monitoradd_direct(
                     repsrc.repsrcid, gmtime, msgid, subject, author)
-                regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject, repsrcid=repsrc.repsrcid,
+                regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject, author, repsrcid=repsrc.repsrcid,
                                          regzbotcmd='monitor: started monitoring "%s" due to "Link:" to this regression'
                                          % subject)
                 # check thread, maybe it got added later via a recheck of an msgid
@@ -446,7 +446,7 @@ def process_msg(repsrc, msg):
             # just add the event to the regression
             regzbot.RegressionBasic.activity_event_linked(
                 repsrc.repsrcid, gmtime, msgid, subject, author, regid=regressionb.regid)
-            regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject,
+            regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject, author,
                                      repsrcid=repsrc.repsrcid, regzbotcmd='linked: "%s" mentioned this regression' % subject)
 
 

@@ -27,9 +27,7 @@ class RegHistoryCSV(regzbot.RegHistory):
         super().__init__(*args)
 
     def csv(self):
-        if self.regzbotcmd:
-            return "%s, %s, %s, %s" % (self.subject, self.url(), self.gmtime, self.regzbotcmd)
-        return "%s, %s, %s" % (self.subject, self.url(), self.gmtime)
+        return "%s, %s, %s, %s, %s" % (self.subject, self.gmtime, self.author, self.url(),  self.regzbotcmd)
 
 
 class RegActivityEventCSV(regzbot.RegActivityEvent):

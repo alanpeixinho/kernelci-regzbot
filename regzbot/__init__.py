@@ -853,7 +853,7 @@ class RegActivityEvent():
 
 
 class RegHistory():
-    def __init__(self, regid, gmtime, entry, subject, regzbotcmd, gitbranchid, repsrcid):
+    def __init__(self, regid, gmtime, entry, subject, regzbotcmd, gitbranchid, repsrcid, author):
         self.regid = regid
         self.gmtime = gmtime
         self.entry = entry
@@ -861,6 +861,10 @@ class RegHistory():
         self.regzbotcmd = regzbotcmd
         self.gitbranchid = gitbranchid
         self.repsrcid = repsrcid
+        self.author = author
+        if not self.author:
+            self.author = 'unknown'
+
 
     @staticmethod
     def db_create(version, dbcursor):
@@ -874,7 +878,8 @@ class RegHistory():
                 subject     STRING   NOT NULL,
                 regzbotcmd  STRING,
                 gitbranchid INTEGER,
-                repsrcid    INTEGER
+                repsrcid    INTEGER,
+                author      STRING
             )''')
 
     def delete(self, dbcursor=None):
@@ -898,18 +903,18 @@ class RegHistory():
             return False
 
     @staticmethod
-    def _event(regid, gmtime, entry, subject, gitbranchid=None, repsrcid=None, regzbotcmd=None):
+    def _event(regid, gmtime, entry, subject, author, gitbranchid=None, repsrcid=None, regzbotcmd=None):
         dbcursor = DBCON.cursor()
         dbcursor.execute('''INSERT INTO reghistory
-                        (regid, gmtime, entry, subject, regzbotcmd, gitbranchid, repsrcid)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)''',
-                         (regid, gmtime, entry, subject, regzbotcmd, gitbranchid, repsrcid))
-        logger.debug('[db reghistory] insert (regid:%s, gmtime:%s, entry:%s, subject:"%s", regzbotcmd:"%s", gitbranchid:%s, repsrcid:%s)' % (
-            regid, gmtime, entry, subject, regzbotcmd, gitbranchid, repsrcid))
+                        (regid, gmtime, entry, subject, author, regzbotcmd, gitbranchid, repsrcid)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                         (regid, gmtime, entry, subject, author, regzbotcmd, gitbranchid, repsrcid))
+        logger.debug('[db reghistory] insert (regid:%s, gmtime:%s, entry:%s, subject:"%s", author:"%s" regzbotcmd:"%s", gitbranchid:%s, repsrcid:%s)' % (
+            regid, gmtime, entry, subject, author, regzbotcmd, gitbranchid, repsrcid))
         return dbcursor.lastrowid
 
     @staticmethod
-    def event(regid, gmtime, entry, subject, repsrcid=None, gitbranchid=None, regzbotcmd=None):
+    def event(regid, gmtime, entry, subject, author, repsrcid=None, gitbranchid=None, regzbotcmd=None):
         # a few lines from the department of "this should not happen, but better ensure it doesn't":
         if repsrcid is None and gitbranchid is None:
             logger.critical(
@@ -921,7 +926,7 @@ class RegHistory():
                 % (gmtime, entry, subject, repsrcid, gitbranchid, regzbotcmd, regid))
 
         RegHistory._event(
-            regid, gmtime, entry, subject, repsrcid=repsrcid, gitbranchid=gitbranchid, regzbotcmd=regzbotcmd)
+            regid, gmtime, entry, subject, author, repsrcid=repsrcid, gitbranchid=gitbranchid, regzbotcmd=regzbotcmd)
 
     def present(entry, repsrcid=None):
         dbcursor = DBCON.cursor()
@@ -1334,7 +1339,7 @@ class RegressionBasic():
             logger.info('regression[%s, "%s"]: marked as duplicate of regression Regression[%s, "%s"])',
                         self.regid, self.subject, regression_other.regid, regression_other.subject)
             # make sure this is mentioned in the other regression, too
-            RegHistory.event(regression_other.regid, gmtime, msgid, self.solved_subject, repsrcid=repsrcid,
+            RegHistory.event(regression_other.regid, gmtime, msgid, self.solved_subject, author, repsrcid=repsrcid,
                              regzbotcmd='dup: the regression "%s" was marked as duplicate of this' % (self.subject))
             RegActivityEvent.event(
                 gmtime, msgid, msgsubject, author, repsrcid=repsrcid, regid=regression_other.regid)
@@ -1402,7 +1407,7 @@ class RegressionBasic():
 
         def add_history(gittree, gitbranch, commit, mergedate, regzbotcmd):
             RegHistory.event(self.regid, mergedate, commit.hexsha,
-                                 commit.summary, gitbranchid=gitbranch.gitbranchid,
+                                 commit.summary, 'regzbot', gitbranchid=gitbranch.gitbranchid,
                                  regzbotcmd=regzbotcmd)
 
         if not culprit_gittree:
@@ -1415,7 +1420,7 @@ class RegressionBasic():
             return True
 
         mergedate = gitbranch.merge_date(commit.hexsha, gittree.repo())
-        historytext = "note: 'fixed-by' commit '%s' now in '%s' [regzbot]" % (
+        historytext = "note: 'fixed-by' commit '%s' now in '%s'" % (
                           commit.hexsha[0:12], gitbranch.describe(gittree.name))
 
         if gmtime and gmtime > mergedate:
@@ -1768,7 +1773,7 @@ class RegressionFull(RegressionBasic):
 
     def commitmention(self, gittree, gitbranch, commit):
         mergedate = gitbranch.merge_date(commit.hexsha)
-        regzbotcmd = "%s in %s referred to this regression [regzbot]" % (commit.hexsha[0:12], gitbranch.describe(gittree.name))
+        regzbotcmd = "%s in %s referred to this regression" % (commit.hexsha[0:12], gitbranch.describe(gittree.name))
 
         RegActivityEvent.event(mergedate, commit.hexsha, "Commit %s in %s" % (
             commit.hexsha[0:12], gitbranch.describe(gittree.name)), gitbranchid=gitbranch.gitbranchid, regid=self.regid, author='%s' % commit.author)
@@ -1776,16 +1781,16 @@ class RegressionFull(RegressionBasic):
         if self.treename == gittree.name:
             self.fixed(
                 mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
-            RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary,
+            RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, 'regzbot',
                  gitbranchid=gitbranch.gitbranchid, regzbotcmd='fixed: %s' % regzbotcmd)
         else:
             # downstream only
             if self.gittree and gittree.priority > self.gittree.priority:
-                 RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary,
+                 RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, 'regzbot',
                      gitbranchid=gitbranch.gitbranchid, regzbotcmd='note: %s' % regzbotcmd)
                  return
 
-            RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary,
+            RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, 'regzbot',
                 gitbranchid=gitbranch.gitbranchid, regzbotcmd='fixed-by: %s' % regzbotcmd)
             self.fixedby(
                 mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid, lookup=False)
