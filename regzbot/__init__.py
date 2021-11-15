@@ -252,6 +252,20 @@ class GitBranch():
         for dbresult in dbcursor.execute('SELECT * FROM gitbranches WHERE gittreeid=(?)', (gittreeid,)):
             yield GitBranch(*dbresult)
 
+    def head_at_gmtime(self, gmtime, *, repo=None):
+        if repo is None:
+            gittree = GitTree.get_by_id(self.gittreeid)
+            repo = gittree.repo()
+
+        try:
+             head = repo.git.rev_list('--first-parent', '--until="%s"' % gmtime, '-n 1', 'origin/%s' % self.name)
+             return repo.commit(head)
+        except git.exc.GitCommandError as err:
+            errmsg = err.args[2].decode("utf-8")
+            print("GitCommandError: {0}".format(errmsg))
+            print(err.args)
+            return None
+
     def merge_date(self, hexsha, repo=None):
         def get_date(repo, hexsha):
             return repo.commit(hexsha).committed_date
@@ -261,11 +275,10 @@ class GitBranch():
             repo = gittree.repo()
 
         try:
-            # idea from https://stackoverflow.com/a/20615706
             ancestry_path = repo.git.rev_list(
-                '--ancestry-path', "%s..origin/HEAD" % hexsha).splitlines()
+                '--ancestry-path', "%s..origin/%s" % (hexsha, self.name)).splitlines()
             first_parent = repo.git.rev_list(
-                '--first-parent', "%s..origin/HEAD" % hexsha).splitlines()
+                '--first-parent', "%s..origin/%s" % (hexsha, self.name)).splitlines()
 
             # committed directly
             if len(ancestry_path) == 0:
@@ -1252,13 +1265,13 @@ class RegressionBasic():
             regid, regression.subject, subject, ReportSource.url_by_id(repsrcid, entry)))
 
     @staticmethod
-    def __introduced_precheck(introduced):
+    def __introduced_precheck(introduced, gmtime=None):
         # remove everything after the first space, in case someone wrote something like this:
         # regzbot introduced cf68fffb66d6 ("add support for Clang CFI")
         introduced = introduced.split()[0]
 
         # try to find what tree/branch this belongs
-        introduced, _, gitbranch, _ = RegressionBasic._gettree_n_branch(introduced)
+        introduced, _, gitbranch, _ = RegressionBasic._gettree_n_branch(introduced, gmtime=gmtime)
 
         if gitbranch:
             return introduced, gitbranch.gitbranchid
@@ -1267,7 +1280,7 @@ class RegressionBasic():
 
     @classmethod
     def introduced_create(cls, repsrcid, entry, subject, author, introduced, gmtime):
-        introduced, gitbranchid = cls.__introduced_precheck(introduced)
+        introduced, gitbranchid = cls.__introduced_precheck(introduced, gmtime)
 
         # create regression
         dbcursor = DBCON.cursor()
@@ -1576,13 +1589,14 @@ class RegressionBasic():
         self.subject = tagload
 
     @staticmethod
-    def _gettree_n_branch(introduced):
+    def _gettree_n_branch(introduced, gmtime=None):
         if '..' in introduced:
             range_start, range_end = introduced.split("..", 1)
             if not range_end:
                 # something like 'v5.15..'
                 gittree_start, gitbranch_start = GitTree.commit_find_old(range_start)
-                commit = gittree_start.commit('origin/%s' % gitbranch_start.name)
+                # commit = gittree_start.commit('origin/%s' % gitbranch_start.name)
+                commit = gitbranch_start.head_at_gmtime(gmtime, repo=gittree_start.repo())
                 introduced = "%s%s" % (introduced, commit.hexsha)
                 return introduced, gittree_start, gitbranch_start, True
             else:
