@@ -1750,9 +1750,10 @@ class RegressionFull(RegressionBasic):
             if point1 is not None:
                 point1, point1pres = lookup_commit(point1)
             point2, point2pres = lookup_commit(point2)
+
             # while at it, update this:
-            if point2pres:
-                 self.identified = point2pres
+            if point1 is None and point2pres:
+                 self.identified = True
 
         # now find the versionline, if we need it
         if self.treename != 'mainline':
