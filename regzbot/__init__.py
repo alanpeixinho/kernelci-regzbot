@@ -275,6 +275,7 @@ class GitBranch():
             repo = gittree.repo()
 
         try:
+            # inspired by https://stackoverflow.com/a/20615706
             ancestry_path = repo.git.rev_list(
                 '--ancestry-path', "%s..origin/%s" % (hexsha, self.name)).splitlines()
             first_parent = repo.git.rev_list(
@@ -1415,19 +1416,20 @@ class RegressionBasic():
             self.fixedby_found(gittree, gitbranch, commit_hexsha, culprit_gittree, gmtime=gmtime)
 
     def fixedby_found(self, gittree, gitbranch, commit_hexsha, culprit_gittree=None, gmtime=None):
-        def add_activity(gittree, gitbranch, commit, mergedate):
+        def add_activity(gittree, gitbranch, commit, mergedate, author):
             RegActivityEvent.event(mergedate, commit.hexsha, "%s, the commit specified by 'fixed-by', landed in %s" % (
-                    commit.hexsha[0:12], gitbranch.describe(gittree.name)), gitbranchid=gitbranch.gitbranchid, regid=self.regid, author='regzbot')
+                    commit.hexsha[0:12], gitbranch.describe(gittree.name)), gitbranchid=gitbranch.gitbranchid, regid=self.regid, author=author)
 
-        def add_history(gittree, gitbranch, commit, mergedate, regzbotcmd):
+        def add_history(gittree, gitbranch, commit, mergedate, regzbotcmd, author):
             RegHistory.event(self.regid, mergedate, commit.hexsha,
-                                 commit.summary, 'regzbot', gitbranchid=gitbranch.gitbranchid,
+                                 commit.summary, author, gitbranchid=gitbranch.gitbranchid,
                                  regzbotcmd=regzbotcmd)
 
         if not culprit_gittree:
              _, culprit_gittree, _ , _ = self._gettree_n_branch(self.introduced)
 
         commit = gittree.commit(commit_hexsha)
+        author = '%s' % commit.author
 
         if RegActivityEvent.present(commit.hexsha, regid=self.regid):
             # we noticed this one already
@@ -1455,8 +1457,8 @@ class RegressionBasic():
             self.solved_subject = commit.summary
             self.solved_gmtime = mergedate
             self._db_update_solved()
-        add_activity(gittree, gitbranch, commit, mergedate)
-        add_history(gittree, gitbranch, commit, mergedate, historytext)
+        add_activity(gittree, gitbranch, commit, mergedate, author)
+        add_history(gittree, gitbranch, commit, mergedate, historytext, author)
 
 
     def invalid(self, tagload, gmtime, msgid, repsrcid):
