@@ -1628,7 +1628,7 @@ class RegressionFull(RegressionBasic):
             self.gmtime = self._histevents[0].gmtime
         else:
             self.gmtime = 0
-        self.poked = self._get_poked(self._histevents)
+        self.poked = self._get_poked(self._histevents, self._actievents)
 
         # provide a default for this, as this can't be None:
         self.treename = 'unassociated'
@@ -1690,10 +1690,10 @@ class RegressionFull(RegressionBasic):
             datalist.append(obj)
         return datalist
 
-    def _get_poked(self, histevents):
-       for histevent in reversed(histevents):
-          if histevent.regzbotcmd.startswith('poke'):
-              return histevent
+    def _get_poked(self, histevents, actievents):
+       if histevents[-1].regzbotcmd.startswith('poke') and \
+               histevents[-1].gmtime > actievents[-1].gmtime:
+           return histevents[-1]
        return False
 
     def _get_presentable(self, gitref, gittree=None, getversionline=None):

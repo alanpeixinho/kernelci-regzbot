@@ -134,8 +134,7 @@ class RegressionWeb(regzbot.RegressionFull):
                                     self._actievents[-1].gmtime))
                             yattagdoc.text(' days ago')
 
-                        if self.poked and \
-                            days_delta(self._actievents[-1].gmtime) > 20 :
+                        if self.poked:
                             yattagdoc.text('; poked ')
                             with yattagdoc.tag('a', href=self.poked.url()):
                                 yattagdoc.text('%s' % days_delta(self.poked.gmtime))
