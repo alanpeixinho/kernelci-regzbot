@@ -7,17 +7,15 @@
 
 When reporting a Linux kernel regression it is in your interest to make [regzbot](https://gitlab.com/knurd42/regzbot/) aware of the issue, as that ensures the report won't accidentally fall though the cracks; it also makes sure leading developers see the issue via the tracked regression website [or the weekly reports, which are not sent yet, but soon will be].
 
-To get these benefits there is just one thing you need to do when reporting the regression: in your mail include a line starting with `#regzbot introduced foo`, where foo specifies when the regression started to happen. One way to do that is to specify a version range which is stating the last version that worked and the first broken one:
+To get these benefits there is just one thing you need to do when reporting the regression by mail: include a line starting with `#regzbot introduced foo`, where `foo` specifies when the regression started to happen. One way to do that is to specify a version range mentioning the last version that worked and the first broken one:
 
 `#regzbot introduced: v5.13..v5.14-rc1`
 
-See below for a.
-
-You know which commit causes the regression? Even better, as that will help to get the regression fixed quickly, so be sure to point it out:
+There is another way if you know which commit causes the regression, which will help to get the regression fixed quickly. So be sure to point it out, if you know it:
 
 `#regzbot introduced: 1f2e3d4c5d`
 
-In both cases ensure a blank line separates this command for regzbot from the rest of the mail. Also CC regressions@lists.linux.dev, as sending a copy to the regression mailing-list get the report on the radar of regzbot and people fighting regressions. That's all you have to do in addition to what is outlined in the kernel's [Reporting Issues](https://www.kernel.org/doc/html/latest/admin-guide/reporting-issues.html) document.
+In both cases ensure a blank line separates the line with this 'regzbot command' from the rest of the mail. That's all you have to do in addition to what is outlined in the kernel's [Reporting Issues](https://www.kernel.org/doc/html/latest/admin-guide/reporting-issues.html) document. Remember to CC regressions@lists.linux.dev, as outlined in that document: sending mail there ensures the report gets on the radar of regzbot and people fighting Linux Kernel regressions.
 
 See below for a few other examples how to specify ranges, how to modify the version range later, or make regzbot and its consumers aware of additional places with further details.
 
@@ -63,6 +61,8 @@ Simply write a reply to the report that uses the 'introduced' command again. Jus
 `#regzbot introduced: v5.14-rc1..v5.14-rc2`
 
 `#regzbot introduced: 1f2e3d4c5d`
+
+`#regzbot introduced: v5.13..`
 
 `#regzbot introduced: v5.13..1f2e3d4c5d`
 
