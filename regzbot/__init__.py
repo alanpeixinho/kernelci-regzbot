@@ -1425,17 +1425,27 @@ class RegressionBasic():
                                  commit.summary, author, gitbranchid=gitbranch.gitbranchid,
                                  regzbotcmd=regzbotcmd)
 
+        def update_solved_data(gitbranch, commit, mergedate):
+            self.solved_gitbranchid = gitbranch.gitbranchid
+            self.solved_entry = commit.hexsha
+            self.solved_subject = commit.summary
+            self.solved_gmtime = mergedate
+            self._db_update_solved()
+
         if not culprit_gittree:
              _, culprit_gittree, _ , _ = self._gettree_n_branch(self.introduced)
 
         commit = gittree.commit(commit_hexsha)
         author = '%s' % commit.author
+        mergedate = gitbranch.merge_date(commit.hexsha, gittree.repo())
 
         if RegActivityEvent.present(commit.hexsha, regid=self.regid):
             # we noticed this one already
+            # update data in case a fixed-by came after we noticed it
+            if not self.solved_subject:
+                update_solved_data(gitbranch, commit, mergedate)
             return True
 
-        mergedate = gitbranch.merge_date(commit.hexsha, gittree.repo())
         historytext_post = "'fixed-by' commit '%s' now in '%s'" % (
                           commit.hexsha[0:12], gitbranch.describe(gittree.name))
 
@@ -1453,10 +1463,7 @@ class RegressionBasic():
             # the fix hasn't reached the proper tree yet; but we have the commit, so use
             # its data instead of relying on what the user specfied
             historytext = 'note: %s' % historytext_post
-            self.solved_entry = commit.hexsha
-            self.solved_subject = commit.summary
-            self.solved_gmtime = mergedate
-            self._db_update_solved()
+            update_solved_data(gitbranch, commit, mergedate)
         add_activity(gittree, gitbranch, commit, mergedate, author)
         add_history(gittree, gitbranch, commit, mergedate, historytext, author)
 
@@ -1691,7 +1698,8 @@ class RegressionFull(RegressionBasic):
         return datalist
 
     def _get_poked(self, histevents, actievents):
-       if histevents[-1].regzbotcmd.startswith('poke') and \
+       if len(histevents) > 0 and \
+               histevents[-1].regzbotcmd.startswith('poke') and \
                histevents[-1].gmtime > actievents[-1].gmtime:
            return histevents[-1]
        return False
@@ -2334,7 +2342,7 @@ def redo_regressions(msgids):
     with tempfile.TemporaryFile(mode='w+t') as tmpfile_before:
         with tempfile.TemporaryFile(mode='w+t') as tmpfile_after:
             for msgid in msgids:
-                regression = RegressionBasic.get_by_entry(msgid)
+                regression = RegressionBasic.get_by_entry(urldecode(msgid))
                 if not regression:
                     logger.critical('Aborting, could not find any regression with msgid %s', msgid)
                     sys.exit(1)
@@ -2344,7 +2352,7 @@ def redo_regressions(msgids):
             msgids_to_recheck = list()
 
             for msgid in msgids:
-                regression = RegressionBasic.get_by_entry(msgid)
+                regression = RegressionBasic.get_by_entry(urldecode(msgid))
 
                 for histevent in RegHistory.get_all(regression.regid):
                     # skip commits
@@ -2430,6 +2438,8 @@ def process_thread(msgid, repsrcid=None):
 def checksource(identifier):
     return lore.checksource(identifier)
 
+def urldecode(url):
+    return urllib.parse.unquote(url)
 
 def urlencode(url):
     return urllib.parse.quote(url, safe='@=')
