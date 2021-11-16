@@ -354,27 +354,35 @@ class RegExportWeb():
 
     @staticmethod
     def outpage_footer(yattagdoc, count):
+        if count > 0:
+            with yattagdoc.tag('p'):
+                yattagdoc.text("[recently ")
+                with yattagdoc.tag('a', href='../unhandled.html'):
+                    if count == 1:
+                        yattagdoc.text(
+                        "%s event occurred that regzbot was unable to handle" % count)
+                    else:
+                        yattagdoc.text(
+                            "%s events occurred that regzbot was unable to handle" % count)
+                yattagdoc.text("]")
+
         with yattagdoc.tag('p'):
             yattagdoc.text("[compiled by ")
             with yattagdoc.tag('a', href='https://linux-regtracking.leemhuis.info'):
                 yattagdoc.text("regzbot")
             currenttime = datetime.datetime.now(datetime.timezone.utc)
-            yattagdoc.text(" on %s (UTC)" %
+            yattagdoc.text(" on %s (UTC). " %
                            currenttime.strftime("%Y-%m-%d %H:%M:%S"))
-            if count == 0:
-                # nothing to do
-                yattagdoc.text("]")
-                return
 
-            yattagdoc.text("; recently ")
-            with yattagdoc.tag('a', href='../unhandled.html'):
-                if count == 1:
-                    yattagdoc.text(
-                        "%s event occurred that regzbot was unable to handle" % count)
-                else:
-                    yattagdoc.text(
-                        "%s events occurred that regzbot was unable to handle" % count)
-            yattagdoc.text("]")
+            yattagdoc.text("Wanna know more about regzbot? Then check out its ")
+            with yattagdoc.tag('a', href='https://gitlab.com/knurd42/regzbot/-/blob/main/docs/getting_started.md'):
+                yattagdoc.text("getting stated guide")
+            yattagdoc.text(" or its ")
+            with yattagdoc.tag('a', href='https://gitlab.com/knurd42/regzbot/-/blob/main/docs/reference.md'):
+                yattagdoc.text("reference documentation")
+            yattagdoc.text(".]")
+
+
 
     @staticmethod
     def outpage_head(yattagdoc):
