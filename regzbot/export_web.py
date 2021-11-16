@@ -354,19 +354,9 @@ class RegExportWeb():
 
     @staticmethod
     def outpage_footer(yattagdoc, count):
-        if count > 0:
-            with yattagdoc.tag('p'):
-                yattagdoc.text("[recently ")
-                with yattagdoc.tag('a', href='../unhandled.html'):
-                    if count == 1:
-                        yattagdoc.text(
-                        "%s event occurred that regzbot was unable to handle" % count)
-                    else:
-                        yattagdoc.text(
-                            "%s events occurred that regzbot was unable to handle" % count)
-                yattagdoc.text("]")
+        yattagdoc.asis('<hr>')
 
-        with yattagdoc.tag('p'):
+        with yattagdoc.tag('p', style='text-align: center'):
             yattagdoc.text("[compiled by ")
             with yattagdoc.tag('a', href='https://linux-regtracking.leemhuis.info'):
                 yattagdoc.text("regzbot")
@@ -376,13 +366,23 @@ class RegExportWeb():
 
             yattagdoc.text("Wanna know more about regzbot? Then check out its ")
             with yattagdoc.tag('a', href='https://gitlab.com/knurd42/regzbot/-/blob/main/docs/getting_started.md'):
-                yattagdoc.text("getting stated guide")
+                yattagdoc.text("getting started guide")
             yattagdoc.text(" or its ")
             with yattagdoc.tag('a', href='https://gitlab.com/knurd42/regzbot/-/blob/main/docs/reference.md'):
                 yattagdoc.text("reference documentation")
             yattagdoc.text(".]")
 
-
+        if count > 0:
+            with yattagdoc.tag('p', style='text-align: center'):
+                yattagdoc.text("[recently ")
+                with yattagdoc.tag('a', href='../unhandled.html'):
+                    if count == 1:
+                        yattagdoc.text(
+                        "%s event occurred that regzbot was unable to handle" % count)
+                    else:
+                        yattagdoc.text(
+                            "%s events occurred that regzbot was unable to handle" % count)
+                yattagdoc.text("]")
 
     @staticmethod
     def outpage_head(yattagdoc):
