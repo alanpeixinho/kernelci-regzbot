@@ -285,15 +285,16 @@ def process_link(link):
 
 def process_msg(repsrc, msg):
     msgid = email_get_msgid(msg)
-    subject = email_get_subject(msg)
-    author = email_get_from(msg)
-    gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(msg['Date']))
-    ignoreactivity = False
 
     # do not process messages a second time
     if regzbot.RegHistory.present(msgid):
           logger.debug('[mailin] skipping mail %s, as we already processed it', msgid)
           return
+
+    subject = email_get_subject(msg)
+    author = email_get_from(msg)
+    gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(msg['Date']))
+    ignoreactivity = False
 
     logger.info("[mailin] processing mail %s: subject:'%s'; from:%s'; :",
                 msgid, msg['Subject'], msg['From'])
@@ -336,13 +337,15 @@ def process_msg(repsrc, msg):
                 process_tag(repsrc, match, msg)
 
     # record this activity, if this thread is tracked
+    contains_patch = regzbot.PatchKind.getby_content(msgcontent, subject=subject)
+
     def add_actimon(reference, msgid, gmtime, subject):
         if ignoreactivity:
             return
         actimonid = regzbot.RegActivityEvent.get_actimonid_by_entry(reference)
         if actimonid and not regzbot.RegActivityEvent.present(msgid, actimonid=actimonid):
             regzbot.RegressionBasic.activity_event_monitored(
-                repsrc.repsrcid, gmtime, msgid, subject, author, regzbot.RegActivityMonitor.get(actimonid))
+                repsrc.repsrcid, gmtime, msgid, subject, author, regzbot.RegActivityMonitor.get(actimonid), contains_patch=contains_patch)
     add_actimon(msgid, msgid, gmtime, subject)
     if msg['In-Reply-To'] is not None:
         add_actimon(email_get_msgid(msg['In-Reply-To']), msgid, gmtime, subject)
@@ -431,7 +434,7 @@ def process_msg(repsrc, msg):
                 if regzbot.is_running_citesting('offline'):
                     actimon = regzbot.RegActivityMonitor.get_by_regid_n_entry(regressionb.regid, parent_msgid)
                     regzbot.RegressionBasic.activity_event_monitored(
-                        parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, parent_author, actimon)
+                        parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, parent_author, actimon, contains_patch=contains_patch)
                 else:
                     process_thread(parent_msgid, parent_repsrc.repsrcid)
         elif linktag is True :

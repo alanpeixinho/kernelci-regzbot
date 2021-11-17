@@ -5,6 +5,7 @@ __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
 import datetime
 import difflib
+from enum import IntFlag
 import logging
 import os
 import pathlib
@@ -26,6 +27,37 @@ WEBPAGEDIR = None
 
 logger = logging.getLogger('regzbot')
 
+
+class PatchKind(IntFlag):
+    DIFF = 1
+    SUBJECT = 2
+    SIGNEDOFF = 4
+
+    @staticmethod
+    def getby_content(content, subject=None):
+        def checkfor_diff(content):
+            if re.search(r'^diff.*\nindex.*\n\-\-\- .*\n\+\+\+.*', content, re.MULTILINE | re.DOTALL):
+                return PatchKind.DIFF
+            return 0
+
+        def checkfor_subject(content, subject):
+            if subject and subject.startswith('[PATCH'):
+                return PatchKind.SUBJECT
+            elif re.search(r'^Subject: \[PATCH', content, re.MULTILINE):
+                return PatchKind.SUBJECT
+            return 0
+
+        def checkfor_signed_off(text):
+            if re.search(r'^Signed-[oO]ff-[Bb]y: ', content, re.MULTILINE):
+                return PatchKind.SIGNEDOFF
+            return 0
+
+        patchkind = PatchKind(0)
+        patchkind |= checkfor_diff(content)
+        patchkind |= checkfor_subject(content, subject)
+        patchkind |= checkfor_signed_off(content)
+
+        return patchkind
 
 class RegzbotDbMeta():
     def db_create(version, dbcursor):
@@ -704,7 +736,7 @@ class RegActivityEvent():
     # reminder: can either get added directly or indirectly via RegActivityMonitor,
     # hence eiher _actimonid or _regid is set
 
-    def __init__(self, gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid=None, regid=None):
+    def __init__(self, gmtime, entry, subject, author, repsrcid, gitbranchid, patchkind, actimonid=None, regid=None, ):
         self.gmtime = gmtime
         self.entry = entry
         self.subject = subject
@@ -713,6 +745,10 @@ class RegActivityEvent():
         self.gitbranchid = gitbranchid
         self._actimonid = actimonid
         self._regid = regid
+
+        if patchkind is None:
+            patchkind = 0
+        self.patchkind = PatchKind(patchkind)
 
     @staticmethod
     def db_create(version, dbcursor):
@@ -727,7 +763,8 @@ class RegActivityEvent():
                 repsrcid     INTEGER,
                 gitbranchid  INTEGER,
                 actimonid    INTEGER,
-                regid        INTEGER
+                regid        INTEGER,
+                patchkind    INTEGER
             )''')
 
     def delete(self, dbcursor=None):
@@ -757,7 +794,7 @@ class RegActivityEvent():
 
 
     @staticmethod
-    def event(gmtime, entry, subject, author=None, repsrcid=None, gitbranchid=None, actimonid=None, regid=None):
+    def event(gmtime, entry, subject, author=None, repsrcid=None, gitbranchid=None, actimonid=None, regid=None, patchkind=0):
         # a few lines from the department of "this should not happen, but better ensure it doesn't":
         if repsrcid is None and gitbranchid is None:
             logger.critical(
@@ -778,13 +815,15 @@ class RegActivityEvent():
                 'this should not happen: RegActivityEvent.event(%s, %s, %s, %s, %s, %s, %s) was called with specifying both actimonid or regid'
                 % (gmtime, entry, subject, repsrcid, gitbranchid, actimonid, regid))
 
+        patchkind = int(patchkind)
+
         dbcursor = DBCON.cursor()
         dbcursor.execute('''INSERT INTO regactivity
-                        (gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
-                         (gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid))
-        logger.debug('[db regactivity] insert (gmtime:%s, entry:"%s", subject:"%s", author:"%s", repsrcid:%s, gitbranchid:%s, actimonid:%s, regid:%s)' % (
-            gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid))
+                        (gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid, patchkind)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                         (gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid, patchkind))
+        logger.debug('[db regactivity] insert (gmtime:%s, entry:"%s", subject:"%s", author:"%s", repsrcid:%s, gitbranchid:%s, actimonid:%s, regid:%s, patchkind:%s)' % (
+            gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid, patchkind))
 
     @staticmethod
     def getall_by_actimonid(actimonid):
@@ -807,10 +846,10 @@ class RegActivityEvent():
 
         dbcursor = DBCON.cursor()
         if onlyonce:
-            for dbresult in dbcursor.execute('SELECT DISTINCT gmtime, entry, subject, author, repsrcid, gitbranchid FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % placeholders, replacements):
+            for dbresult in dbcursor.execute('SELECT DISTINCT gmtime, entry, subject, author, repsrcid, gitbranchid, patchkind FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % placeholders, replacements):
                 yield cls(*dbresult)
         else:
-            for dbresult in dbcursor.execute('SELECT * FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % placeholders, replacements):
+            for dbresult in dbcursor.execute('SELECT gmtime, entry, subject, author, repsrcid, gitbranchid, patchkind, actimonid, regid FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % placeholders, replacements):
                 yield cls(*dbresult)
 
     @staticmethod
@@ -1250,10 +1289,10 @@ class RegressionBasic():
         return pending
 
     @staticmethod
-    def activity_event_monitored(repsrcid, gmtime, entry, subject, author, actimon):
+    def activity_event_monitored(repsrcid, gmtime, entry, subject, author, actimon, *, contains_patch=0):
         regression = RegressionBasic.get_by_regid(actimon.regid)
         RegActivityEvent.event(
-            gmtime, entry, subject, author=author, repsrcid=repsrcid, actimonid=actimon.actimonid)
+            gmtime, entry, subject, author=author, repsrcid=repsrcid, actimonid=actimon.actimonid, patchkind=contains_patch)
         logger.info('regression[%s, "%s"]: activity detected in %s")' % (
             regression.regid, regression.subject, entry))
 

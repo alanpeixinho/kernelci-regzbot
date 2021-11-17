@@ -770,6 +770,91 @@ def offltest_2_10(funcname):
                                         replyto='%s_0' % funcname)
     return True, False, False
 
+def offltest_2_11(funcname):
+    subcounter = 0
+    replyto = 'test_2_0'
+    logger.info(
+        "%s: a reply with a simple patch'" % funcname)
+
+    subcounter += 1
+    content = '''something something
+
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2x00usb.c b/drivers/net/wireless/ralink/rt2x00/rt2x00usb.c
+index e4473a551241..57c947dad036 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2x00usb.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2x00usb.c
+@@ -30,7 +30,8 @@ static bool rt2x00usb_check_usb_error(struct rt2x00_dev *rt2x00dev, int status)
+	else
+		rt2x00dev->num_proto_errs = 0;
+
+-	if (rt2x00dev->num_proto_errs > 3)
++	if (rt2x00dev->num_proto_errs > 3 &&
++	    !test_bit(DEVICE_STATE_STARTED, &rt2x00dev->flags))
+		return true;
+
+	return false;'''
+
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), content,  subject="%s_%s: add a mail with a simple patch" % (funcname, subcounter), replyto=replyto)
+
+    subcounter += 1
+    content = '''something something
+
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2x00usb.c b/drivers/net/wireless/ralink/rt2x00/rt2x00usb.c
+index e4473a551241..57c947dad036 100644
+--- a/drivers/net/wireless/ralink/rt2x00/rt2x00usb.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2x00usb.c
+@@ -30,7 +30,8 @@ static bool rt2x00usb_check_usb_error(struct rt2x00_dev *rt2x00dev, int status)
+	else
+		rt2x00dev->num_proto_errs = 0;
+
+-	if (rt2x00dev->num_proto_errs > 3)
++	if (rt2x00dev->num_proto_errs > 3 &&
++	    !test_bit(DEVICE_STATE_STARTED, &rt2x00dev->flags))
+		return true;
+
+	return false;'''
+
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), content,  subject="[PATCH v2] %s_%s: add a mail with a simple patch" % (funcname, subcounter), replyto=replyto)
+
+    subcounter += 1
+    content = '''something something
+
+From be7736582945b56e88d385ddd4a05e13e4bc6784 Mon Sep 17 00:00:00 2001
+From: Alexei Starovoitov <ast@kernel.org>
+Date: Wed, 10 Nov 2021 08:47:52 -0800
+Subject: [PATCH] foo: bar
+
+Fixes: 123456789ab ("foo: bar")
+Signed-off-by: Nobody <nobody@example.co,>
+---
+ kernel/bpf/verifier.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 1aafb43f61d1..3eddcd8ebae2 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -1157,7 +1157,8 @@ static void mark_ptr_not_null_reg(struct bpf_reg_state *reg)
+                        /* transfer reg's id which is unique for every map_lookup_elem
+                         * as UID of the inner map.
+                         */
+-                       reg->map_uid = reg->id;
++                       if (map_value_has_timer(map->inner_map_meta))
++                               reg->map_uid = reg->id;
+                } else if (map->map_type == BPF_MAP_TYPE_XSKMAP) {
+                        reg->type = PTR_TO_XDP_SOCK;
+                } else if (map->map_type == BPF_MAP_TYPE_SOCKMAP ||
+--
+2.30.2'''
+
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), content,  subject="%s_%s: add a mail with a simple patch" % (funcname, subcounter), replyto=replyto)
+
+    return True, False, False
+
+
 
 def offltest_3_0(funcname):
     logger.info('%s: create a regression in next' % funcname)

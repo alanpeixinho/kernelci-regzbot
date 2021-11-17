@@ -12,6 +12,7 @@ import yattag
 
 import regzbot
 from regzbot import days_delta
+from regzbot import PatchKind
 
 logger = regzbot.logger
 
@@ -67,6 +68,13 @@ class RegActivityEventWeb(regzbot.RegActivityEvent):
                 yattagdoc.text("%s" % self.subject)
         with yattagdoc.tag('div', style="padding-left: 2em;"):
             yattagdoc.text("%s days ago, by %s" % (days_delta(self.gmtime), self.author))
+            if int(self.patchkind) > 0:
+                if (PatchKind.DIFF | PatchKind.SUBJECT | PatchKind.SIGNEDOFF) in self.patchkind:
+                     yattagdoc.text('; contains a signed-off patch')
+                elif (PatchKind.DIFF | PatchKind.SUBJECT) in self.patchkind:
+                     yattagdoc.text('; contains a proper patch')
+                else:
+                     yattagdoc.text('; contains a simple patch')
 
         return yattagdoc
 
@@ -166,6 +174,25 @@ class RegressionWeb(regzbot.RegressionFull):
                                     with yattagdoc.tag('a', href=self.solved_url):
                                         yattagdoc.text(__resolution())
                                 yattagdoc.text(']')
+                        else:
+                            for actievent in reversed(self._actievents):
+                                if int(actievent.patchkind) == 0:
+                                    continue
+
+                                if not entered_loop:
+                                    yattagdoc.text(' Noteworthy: ')
+                                    entered_loop = True
+                                else:
+                                    yattagdoc.text(', ')
+
+                                yattagdoc.text('[')
+                                with yattagdoc.tag('a', href=actievent.url()):
+                                    yattagdoc.text('patch')
+                                    if (PatchKind.DIFF | PatchKind.SUBJECT | PatchKind.SIGNEDOFF) in actievent.patchkind:
+                                        yattagdoc.text(' (SOB)')
+                                yattagdoc.text(']')
+                                break
+
                         if entered_loop:
                             yattagdoc.text('.')
 
@@ -203,8 +230,35 @@ class RegressionWeb(regzbot.RegressionFull):
                                 self.solved_gmtime))
                             if self.solved_entry and self._solved_entry_presentable and not self._solved_entry_presentable == self.solved_entry[:12]:
                                 yattagdoc.text('in %s' % self._solved_entry_presentable)
+                else:
+                    latest_shown = False
+                    earlier_patches = 0
+                    for actievent in reversed(self._actievents):
+                        if int(actievent.patchkind) == 0:
+                            continue
+                        if not latest_shown:
+                            latest_shown = True
+                            yattagdoc.text('Latest patch: ')
+                            with yattagdoc.tag('a', href=actievent.url()):
+                                yattagdoc.text("%s" % actievent.subject)
+                            with yattagdoc.tag('div', style="padding-left: 3em;"):
+                                yattagdoc.text("%s days ago, by %s; " % (days_delta(actievent.gmtime), actievent.author))
+                                if (PatchKind.DIFF | PatchKind.SUBJECT | PatchKind.SIGNEDOFF) in actievent.patchkind:
+                                    yattagdoc.text('signed-off-by present')
+                                elif (PatchKind.DIFF | PatchKind.SUBJECT) in actievent.patchkind:
+                                    yattagdoc.text('proper patch')
+                                else:
+                                    yattagdoc.text('simple patch')
+                            continue
 
+                        if earlier_patches == 0:
+                            yattagdoc.text('Earlier patches: ')
+                        else:
+                            yattagdoc.text(', ')
 
+                        earlier_patches += 1
+                        with yattagdoc.tag('a', href=actievent.url()):
+                            yattagdoc.text("%s" % earlier_patches)
 
                 with yattagdoc_line.tag('p'):
                     listcount = len(self._actievents)
