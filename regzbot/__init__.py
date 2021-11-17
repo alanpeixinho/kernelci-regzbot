@@ -1542,10 +1542,10 @@ class RegressionBasic():
         logger.info('regression[%s, "%s"]: removed link to %s' % (
             self.regid, self.subject, link))
 
-    def monitoradd_direct(self, repsrcid, gmtime, msgid, description, author):
+    def monitoradd_direct(self, repsrcid, gmtime, msgid, description, author, contains_patch=0):
         actimonid = RegActivityMonitor.add(self.regid, repsrcid, msgid)
         RegActivityEvent.event(
-            gmtime, msgid, description, author, repsrcid=repsrcid, actimonid=actimonid)
+            gmtime, msgid, description, author, repsrcid=repsrcid, actimonid=actimonid, patchkind=contains_patch)
         RegLink.add_entry(
             self.regid, gmtime, description, author, repsrcid, msgid)
         logger.info('regression[%s, "%s"]: started to monitor %s' % (

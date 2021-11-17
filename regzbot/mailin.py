@@ -416,15 +416,17 @@ def process_msg(repsrc, msg):
                     parent_gmtime = gmtime
                     parent_subject = 'Parent of %s' % subject
                     parent_author = author
+                    parent_contains_patch = contains_patch
                 else:
                     parent_msgid = email_get_msgid_parent(msg)
                     parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid)
                     parent_gmtime = email_get_gmtime(parent_msg)
                     parent_subject = email_get_subject(parent_msg)
                     parent_author = email_get_from(parent_msg)
+                    parent_contains_patch = regzbot.PatchKind.getby_content(msg.get_body(preferencelist=('plain')).get_content(), subject=parent_subject)
 
                 regressionb.monitoradd_direct(
-                    parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, parent_author)
+                    parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, parent_author, parent_contains_patch)
                 regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, author, subject, repsrcid=repsrc.repsrcid,
                                          regzbotcmd="monitor: started monitoring parent mail '%s' due to '#regzbot ^backmonitor'"
                                          % parent_subject)
@@ -439,7 +441,7 @@ def process_msg(repsrc, msg):
                     process_thread(parent_msgid, parent_repsrc.repsrcid)
         elif linktag is True :
                 regressionb.monitoradd_direct(
-                    repsrc.repsrcid, gmtime, msgid, subject, author)
+                    repsrc.repsrcid, gmtime, msgid, subject, author, contains_patch)
                 regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject, author, repsrcid=repsrc.repsrcid,
                                          regzbotcmd="monitor: 'Link:' to this regression in `%s`"
                                          % subject)
