@@ -35,7 +35,7 @@ class RegActivityEventCSV(regzbot.RegActivityEvent):
         super().__init__(*args)
 
     def csv(self):
-        return "%s, %s, %s, %s" % (self.subject, self.author, self.url(), self.gmtime)
+        return "%s, %s, %s, %s, %s" % (self.subject, self.author, self.url(), self.gmtime, self.patchkind)
 
 
 class RegressionFullCSV(regzbot.RegressionFull):
