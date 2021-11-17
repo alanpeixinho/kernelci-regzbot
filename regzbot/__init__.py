@@ -1194,10 +1194,10 @@ class RegressionBasic():
         if not dbcursor:
             dbcursor = DBCON.cursor()
 
-        for actimon in RegActivityMonitor.getall_by_regid(self.regid):
-            actimon.delete(dbcursor=dbcursor)
         for activity in RegActivityEvent.get_all(self.regid, onlyonce=False):
             activity.delete(dbcursor=dbcursor)
+        for actimon in RegActivityMonitor.getall_by_regid(self.regid):
+            actimon.delete(dbcursor=dbcursor)
         for histevent in RegHistory.get_all(self.regid):
             histevent.delete(dbcursor=dbcursor)
         for link in RegLink.get_all(self.regid):
@@ -2393,18 +2393,17 @@ def redo_regressions(msgids):
             for msgid in msgids:
                 regression = RegressionBasic.get_by_entry(urldecode(msgid))
 
+                # we need to store what we need to recheck
                 for histevent in RegHistory.get_all(regression.regid):
-                    # skip commits
+                    # we don't need these:
                     if histevent.gitbranchid:
                         continue
-
-                    # avoid duplicates:
                     if histevent.entry not in msgids_to_recheck:
                         msgids_to_recheck.append(histevent.entry)
 
-                    # remove the old regression
-                    dbcursor = DBCON.cursor()
-                    regression.delete(dbcursor=dbcursor)
+                # remove the old regression
+                regression.delete()
+
             # recheck all msg found that had a entry in the history
             # to recreate the regression
             for msgid_to_check in msgids_to_recheck:
