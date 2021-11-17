@@ -502,14 +502,14 @@ ACTIVITY: Re: virtio-net: kernel panic in virtio_net.c, Xuan Zhuo, https://lore.
 ACTIVITY: Re: virtio-net: kernel panic in virtio_net.c, Greg KH, https://lore.kernel.org/regressions/YWEma6YvB2HN9%2FE%2F@kroah.com, 1633756779
 ACTIVITY: Re: virtio-net: kernel panic in virtio_net.c, Xuan Zhuo, https://lore.kernel.org/regressions/1633771866.6350079-2-xuanzhuo@linux.alibaba.com, 1633771866
 ACTIVITY: Re: virtio-net: kernel panic in virtio_net.c, Thorsten Leemhuis, https://lore.kernel.org/regressions/e2d474a4-c307-9f8e-d896-48d8d3acc9cb@leemhuis.info, 1634042690
-ACTIVITY: 732b74d64704, the commit specified by 'fixed-by', landed in mainline, regzbot, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, 1634250099
+ACTIVITY: 732b74d64704, the commit specified by 'fixed-by', landed in mainline, Xuan Zhuo, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, 1634250099
 HISTORY: virtio-net: kernel panic in virtio_net.c, 1633608262, Corentin Noël, https://lore.kernel.org/regressions/5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com, note: report, added by regzbot due to later ^introduced
 HISTORY: Re: virtio-net: kernel panic in virtio_net.c, 1633679996, Thorsten Leemhuis, https://lore.kernel.org/regressions/ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info, ^introduced: v5.13..v5.14-rc1
 HISTORY: Re: virtio-net: kernel panic in virtio_net.c, 1633679996, Thorsten Leemhuis, https://lore.kernel.org/regressions/ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info, link:  https://lore.kernel.org/regressions/1633623446.6192446-1-xuanzhuo@linux.alibaba.com/  Looks like a fix for this somehow fall through the cracks
 HISTORY: Re: virtio-net: kernel panic in virtio_net.c, 1633679996, Thorsten Leemhuis, https://lore.kernel.org/regressions/ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info, ignore-activitiy
 HISTORY: Re: virtio-net: kernel panic in virtio_net.c, 1634042690, Thorsten Leemhuis, https://lore.kernel.org/regressions/e2d474a4-c307-9f8e-d896-48d8d3acc9cb@leemhuis.info, fixed-by: 732b74d647048668f0f8dc0c848f0746c69e2e2f
-HISTORY: virtio-net: fix for skb_over_panic inside big mode, 1634250099, regzbot, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, fixed: 'fixed-by' commit '732b74d64704' now in 'mainline'
-LATEST: 732b74d64704, the commit specified by 'fixed-by', landed in mainline, regzbot, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, 1634250099
+HISTORY: virtio-net: fix for skb_over_panic inside big mode, 1634250099, Xuan Zhuo, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, fixed: 'fixed-by' commit '732b74d64704' now in 'mainline'
+LATEST: 732b74d64704, the commit specified by 'fixed-by', landed in mainline, Xuan Zhuo, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, 1634250099
 UNHANDLED: 1, https://lore.kernel.org/regressions/ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info, unkown regzbot command: ignore-activitiy, 1633679996, None, Re: virtio-net: kernel panic in virtio_net.c, None, None, None
 
 [onlntest_1_1]
@@ -532,14 +532,14 @@ ACTIVITY: Re: virtio-net: kernel panic in virtio_net.c, Xuan Zhuo, https://lore.
 ACTIVITY: Re: virtio-net: kernel panic in virtio_net.c, Greg KH, https://lore.kernel.org/regressions/YWEma6YvB2HN9%2FE%2F@kroah.com, 1633756779
 ACTIVITY: Re: virtio-net: kernel panic in virtio_net.c, Xuan Zhuo, https://lore.kernel.org/regressions/1633771866.6350079-2-xuanzhuo@linux.alibaba.com, 1633771866
 ACTIVITY: Re: virtio-net: kernel panic in virtio_net.c, Thorsten Leemhuis, https://lore.kernel.org/regressions/e2d474a4-c307-9f8e-d896-48d8d3acc9cb@leemhuis.info, 1634042690
-ACTIVITY: 732b74d64704, the commit specified by 'fixed-by', landed in mainline, regzbot, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, 1634250099
+ACTIVITY: 732b74d64704, the commit specified by 'fixed-by', landed in mainline, Xuan Zhuo, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, 1634250099
 HISTORY: virtio-net: kernel panic in virtio_net.c, 1633608262, Corentin Noël, https://lore.kernel.org/regressions/5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com, note: report, added by regzbot due to later ^introduced
 HISTORY: Re: virtio-net: kernel panic in virtio_net.c, 1633679996, Thorsten Leemhuis, https://lore.kernel.org/regressions/ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info, ^introduced: v5.13..v5.14-rc1
 HISTORY: Re: virtio-net: kernel panic in virtio_net.c, 1633679996, Thorsten Leemhuis, https://lore.kernel.org/regressions/ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info, link:  https://lore.kernel.org/regressions/1633623446.6192446-1-xuanzhuo@linux.alibaba.com/  Looks like a fix for this somehow fall through the cracks
 HISTORY: Re: virtio-net: kernel panic in virtio_net.c, 1633679996, Thorsten Leemhuis, https://lore.kernel.org/regressions/ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info, ignore-activitiy
 HISTORY: Re: virtio-net: kernel panic in virtio_net.c, 1634042690, Thorsten Leemhuis, https://lore.kernel.org/regressions/e2d474a4-c307-9f8e-d896-48d8d3acc9cb@leemhuis.info, fixed-by: 732b74d647048668f0f8dc0c848f0746c69e2e2f
-HISTORY: virtio-net: fix for skb_over_panic inside big mode, 1634250099, regzbot, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, fixed: 'fixed-by' commit '732b74d64704' now in 'mainline'
-LATEST: 732b74d64704, the commit specified by 'fixed-by', landed in mainline, regzbot, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, 1634250099
+HISTORY: virtio-net: fix for skb_over_panic inside big mode, 1634250099, Xuan Zhuo, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, fixed: 'fixed-by' commit '732b74d64704' now in 'mainline'
+LATEST: 732b74d64704, the commit specified by 'fixed-by', landed in mainline, Xuan Zhuo, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, 1634250099
 UNHANDLED: 1, https://lore.kernel.org/regressions/ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info, unkown regzbot command: ignore-activitiy, 1633679996, None, Re: virtio-net: kernel panic in virtio_net.c, None, None, None
 UNHANDLED: 2, https://lore.kernel.org/regressions/ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info, unkown regzbot command: ignore-activitiy, 1633679996, None, Re: virtio-net: kernel panic in virtio_net.c, None, None, None
 
