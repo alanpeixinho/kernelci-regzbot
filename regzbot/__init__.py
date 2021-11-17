@@ -1111,9 +1111,9 @@ class RegLink():
         return False
 
     @classmethod
-    def get_all(cls, regid):
+    def get_all(cls, regid, order='ASC'):
         dbcursor = DBCON.cursor()
-        for dbresult in dbcursor.execute('SELECT * FROM reglinks WHERE regid=(?) ORDER BY gmtime', (regid,)):
+        for dbresult in dbcursor.execute('SELECT * FROM reglinks WHERE regid=(?) ORDER BY gmtime %s' % order, (regid,)):
             yield cls(*dbresult)
 
     def delete(self, dbcursor=None):

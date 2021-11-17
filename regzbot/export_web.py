@@ -151,7 +151,7 @@ class RegressionWeb(regzbot.RegressionFull):
                             yattagdoc.text('.')
 
                         entered_loop = False
-                        for counter, regressionlink in enumerate(RegLinkWeb.get_all(self.regid), start=1):
+                        for counter, regressionlink in enumerate(RegLinkWeb.get_all(self.regid, order='DESC'), start=1):
                             if counter == 1:
                                 entered_loop = True
                                 yattagdoc.text(' Noteworthy: ')
@@ -197,7 +197,7 @@ class RegressionWeb(regzbot.RegressionFull):
                             yattagdoc.text('.')
 
 
-                for counter, regressionlink in enumerate(RegLinkWeb.get_all(self.regid), start=1):
+                for counter, regressionlink in enumerate(RegLinkWeb.get_all(self.regid, order='DESC'), start=1):
                     with yattagdoc.tag('div'):
                         yattagdoc.text('[%s]: ' % counter)
                         regressionlink.html(yattagdoc)
