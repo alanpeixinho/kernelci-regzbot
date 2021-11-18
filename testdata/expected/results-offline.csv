@@ -659,6 +659,38 @@ HISTORY: test_2_8: refer to this regression on another mainling list, 1547078400
 HISTORY: nobody@example.com, 1547337600, test_2_10_1: get the previous mail monitored, https://lore.kernel.org/lkml/regzbot-testing-test_2_10_1@example.com, monitor: started monitoring parent mail 'Parent of test_2_10_1: get the previous mail monitored' due to '#regzbot ^backmonitor'
 LATEST: test_2_11_3: add a mail with a simple patch, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_11_3@example.com, 1547596800, PatchKind.SIGNEDOFF|SUBJECT|DIFF
 
+[offltest_2_12]
+REGRESSION: test_2_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, 23bde5c338c7 (None), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=23bde5c338c7d028609c1af64173853fb1b84018, 1546300800, mainline, master, indevelopment: culprit indentified
+LINK: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, None, 1546732800
+LINK: test_2_8: refer to this regression on another mainling list, https://lore.kernel.org/lkml/regzbot-testing-test_2_8@example.com [monitored]
+LINK: Parent of test_2_10_1: get the previous mail monitored, https://lore.kernel.org/lkml/regzbot-testing-test_2_10_0@example.com [monitored]
+ACTIVITY: test_2_0: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, 1546300800, PatchKind.0
+ACTIVITY: test_2_0_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0_1@example.com, 1546387200, PatchKind.0
+ACTIVITY: test_2_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_1@example.com, 1546473600, PatchKind.0
+ACTIVITY: test_2_2: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_2@example.com, 1546560000, PatchKind.0
+ACTIVITY: test_2_3: refer to this regression on another mainling list, nobody@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, 1546646400, PatchKind.0
+ACTIVITY: test_2_4: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_4@example.com, 1546732800, PatchKind.0
+ACTIVITY: test_2_6: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_6@example.com, 1546905600, PatchKind.0
+ACTIVITY: test_2_8: refer to this regression on another mainling list, nobody@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_8@example.com, 1547078400, PatchKind.0
+ACTIVITY: test_2_9: reply to the thread now monitored, nobody@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_9@example.com, 1547164800, PatchKind.0
+ACTIVITY: Parent of test_2_10_1: get the previous mail monitored, nobody@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_10_0@example.com, 1547337600, PatchKind.0
+ACTIVITY: test_2_11_1: add a mail with a simple patch, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_11_1@example.com, 1547424000, PatchKind.DIFF
+ACTIVITY: [PATCH v2] test_2_11_2: add a mail with a simple patch, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_11_2@example.com, 1547510400, PatchKind.SUBJECT|DIFF
+ACTIVITY: test_2_11_3: add a mail with a simple patch, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_11_3@example.com, 1547596800, PatchKind.SIGNEDOFF|SUBJECT|DIFF
+ACTIVITY: test_2_12_0: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_12_0@example.com, 1547683200, PatchKind.0
+HISTORY: test_2_0: Lorem ipsum dolor sit amet, 1546300800, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0@example.com, introduced: v1.8..v1.9-rc1
+HISTORY: test_2_0_1: Lorem ipsum dolor sit amet, 1546387200, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_0_1@example.com, link: https://www.kernel.org/releases.html Linktitle
+HISTORY: test_2_1: Lorem ipsum dolor sit amet, 1546473600, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_1@example.com, link: https://www.kernel.org/releases.html Updated linktitle
+HISTORY: test_2_2: Lorem ipsum dolor sit amet, 1546560000, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_2@example.com, unlink: https://www.kernel.org/releases.html
+HISTORY: test_2_3: refer to this regression on another mainling list, 1546646400, nobody@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com, linked: "test_2_3: refer to this regression on another mainling list" mentioned this regression
+HISTORY: test_2_4: Lorem ipsum dolor sit amet, 1546732800, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_4@example.com, monitor: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com
+HISTORY: test_2_6: Lorem ipsum dolor sit amet, 1546905600, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_6@example.com, unmonitor: https://lore.kernel.org/lkml/regzbot-testing-test_2_3@example.com
+HISTORY: test_2_8: refer to this regression on another mainling list, 1547078400, nobody@example.com, https://lore.kernel.org/lkml/regzbot-testing-test_2_8@example.com, monitor: 'Link:' to this regression in `test_2_8: refer to this regression on another mainling list`
+HISTORY: nobody@example.com, 1547337600, test_2_10_1: get the previous mail monitored, https://lore.kernel.org/lkml/regzbot-testing-test_2_10_1@example.com, monitor: started monitoring parent mail 'Parent of test_2_10_1: get the previous mail monitored' due to '#regzbot ^backmonitor'
+HISTORY: test_2_12_0: Lorem ipsum dolor sit amet, 1547683200, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_12_0@example.com, introduced: 23bde5c338c7d028609c1af64173853fb1b84018
+HISTORY: test_2_12_1: Lorem ipsum dolor sit amet, 1547769600, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_12_1@example.com, note: "test_2_12_1: Lorem ipsum dolor sit amet" contains a 'Fixes:' tag for the culprit of this regression
+LATEST: test_2_12_0: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_2_12_0@example.com, 1547683200, PatchKind.0
+
 [offltest_3_0]
 REGRESSION: test_3_0: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_3_0@example.com, next-20190101..next-20190102 (None), None, 1546300800, next, master, None: no flags
 ACTIVITY: test_3_0: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_3_0@example.com, 1546300800, PatchKind.0

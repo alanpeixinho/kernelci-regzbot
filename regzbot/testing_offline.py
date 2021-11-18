@@ -855,6 +855,23 @@ index 1aafb43f61d1..3eddcd8ebae2 100644
     return True, False, False
 
 
+def offltest_2_12(funcname):
+    replyto = 'test_2_0'
+
+    subcounter = 0
+    logger.info(
+        '%s_%s: set the introduced to a commit we know and mention it in another mail' % (funcname, subcounter))
+    emaildirs['primary'].create_email(
+        '%s_%s' % (funcname, subcounter), "#regzb introduced: %s" %
+                                      gittrees_testing['mainline'].hashes_known[-1], replyto=replyto)
+
+    subcounter += 1
+    emaildirs['primary'].create_email(
+        '%s_%s' % (funcname, subcounter), 'Foobar\nFixes: %s ("foo bar baz")\nSigned-off-by: Someone' %
+                                      gittrees_testing['mainline'].hashes_known[-1][0:12])
+
+    return True, False, False
+
 
 def offltest_3_0(funcname):
     logger.info('%s: create a regression in next' % funcname)
@@ -863,7 +880,7 @@ def offltest_3_0(funcname):
     return True, False, False
 
 
-#
+
 def offltest_3_1(funcname):
     replyto = 'test_3_0'
     logger.info('%s: specify the culprit for the regression created in %s' % (

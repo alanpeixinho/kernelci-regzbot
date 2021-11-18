@@ -982,8 +982,14 @@ class RegHistory():
         RegHistory._event(
             regid, gmtime, entry, subject, author, repsrcid=repsrcid, gitbranchid=gitbranchid, regzbotcmd=regzbotcmd)
 
-    def present(entry, repsrcid=None):
+    def present(entry, regid=None, repsrcid=None):
         dbcursor = DBCON.cursor()
+        if repsrcid and regid:
+            dbresult = dbcursor.execute(
+                'SELECT * FROM reghistory WHERE entry=(?) AND repsrcid=(?) AND regid=(?)', (entry, regid)).fetchone()
+        if regid:
+            dbresult = dbcursor.execute(
+                'SELECT * FROM reghistory WHERE entry=(?) AND regid=(?)', (entry, regid)).fetchone()
         if repsrcid:
             dbresult = dbcursor.execute(
                 'SELECT * FROM reghistory WHERE entry=(?) AND repsrcid=(?)', (entry, repsrcid)).fetchone()
@@ -1225,7 +1231,7 @@ class RegressionBasic():
         dbcursor = DBCON.cursor()
 
         if only_unsolved:
-            for dbresult in dbcursor.execute('SELECT * FROM regressions WHERE solved_gitbranchid IS NULL ORDER BY (?)', (order, )):
+            for dbresult in dbcursor.execute('SELECT * FROM regressions WHERE solved_gitbranchid IS NULL OR "to_be_fixed" ORDER BY (?)', (order, )):
                 yield cls(*dbresult)
         else:
             for dbresult in dbcursor.execute('SELECT * FROM regressions ORDER BY (?)', (order, )):

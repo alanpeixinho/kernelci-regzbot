@@ -455,6 +455,28 @@ def process_msg(repsrc, msg):
                                      repsrcid=repsrc.repsrcid, regzbotcmd='linked: "%s" mentioned this regression' % subject)
 
 
+    # now check if this mail contains a Fixed: tag that mentioned a commit that is known to cause a regression
+    open_regressions = {}
+    for regression in regzbot.RegressionBasic.get_all(only_unsolved=True):
+        if not '..' in regression.introduced:
+            open_regressions[regression.regid] = regression.introduced[0:12]
+
+    for match in re.finditer('^(Fixes: )([0-9,a-e]{12})', msgcontent, re.MULTILINE):
+        if not match.group(2) in open_regressions.values():
+            continue
+        for regid in open_regressions.keys():
+            if not open_regressions[regid] == match.group(2):
+                continue
+            if regzbot.RegHistory.present(msgid, regid=regid):
+                # no need to add a second entry for mails that already were noticed as related,
+                # for example if this msg that already has a Link: to this regression
+                continue
+
+            # no activity, only a history entry, as it might be about different bug in the same commit
+            regzbot.RegHistory.event(regid, gmtime, msgid, subject, author,
+                                     repsrcid=repsrc.repsrcid, regzbotcmd='note: "%s" contains a \'Fixes:\' tag for the culprit of this regression' % subject)
+
+
 # processes messages from a thread that already got checked:
 # finds the msgid in question, processes it and its replies,
 # while ignoring the other messages; some of this complexity
