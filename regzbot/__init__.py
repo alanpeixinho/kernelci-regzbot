@@ -1324,7 +1324,7 @@ class RegressionBasic():
             tmpstring = tmpstring.removeprefix("http://")
 
         if tmpstring.startswith("lore.kernel.org/"):
-            _, _, tmpstring = tmpstring.split('/', maxsplit=3)
+            _, _, tmpstring = tmpstring.split('/', maxsplit=2)
             msgid, _, _ = tmpstring.partition('/')
             return RegressionBasic.get_by_entry(msgid)
         else:
