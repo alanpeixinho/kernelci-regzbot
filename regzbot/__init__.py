@@ -1453,9 +1453,12 @@ class RegressionBasic():
         self.solved_repsrcid = repsrcid
         self.solved_repentry = msgid
 
-        self._db_update_solved()
 
-        if regression_other:
+        if regression_other.regid == self.regid:
+            UnhandledEvent.add(ReportSource.url_by_id(repsrcid, msgid),
+                                           "cannon mark regression '%s' as a duplicate of itself" % self.subject)
+        elif regression_other:
+            self._db_update_solved()
             logger.info('regression[%s, "%s"]: marked as duplicate of regression Regression[%s, "%s"])',
                         self.regid, self.subject, regression_other.regid, regression_other.subject)
             # make sure this is mentioned in the other regression, too
@@ -1464,8 +1467,8 @@ class RegressionBasic():
             RegActivityEvent.event(
                 gmtime, msgid, msgsubject, author, repsrcid=repsrcid, regid=regression_other.regid)
         else:
-            logger.warning('regression[%s, "%s"]: marked as duplicate of "%s", but could not find a regression entry for it',
-                           self.regid, self.subject, self.solved_subject)
+            UnhandledEvent.add(ReportSource.url_by_id(repsrcid, msgid),
+                                           "regression '%s' marked as duplicate of '%s', but could not find a regression for the latter" % (self.subject, tagload))
 
     def fixed(self, gmtime, commit_hexsha, commit_subject, gitbranchid):
         if self.solved_reason == 'fixed':

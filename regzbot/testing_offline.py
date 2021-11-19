@@ -679,7 +679,7 @@ def offltest_1_8(funcname):
         '%s: create a mainline commit which a Fixed: for a culprit of a present regression' % funcname)
     gittrees_testing['mainline'].mv(
         'Fixes: %s ("Foo bar")' % gittrees_testing['mainline'].hashes_known[-2][0:12])
-    return False, True, True
+    return False, True, False
 
 
 def offltest_2_0(funcname):
