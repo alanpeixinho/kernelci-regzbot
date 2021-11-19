@@ -457,11 +457,13 @@ def process_msg(repsrc, msg):
 
     # now check if this mail contains a Fixed: tag that mentioned a commit that is known to cause a regression
     open_regressions = {}
-    for regression in regzbot.RegressionBasic.get_all(only_unsolved=True):
-        if not '..' in regression.introduced:
-            open_regressions[regression.regid] = regression.introduced[0:12]
-
     for match in re.finditer('^(Fixes: )([0-9,a-e]{12})', msgcontent, re.MULTILINE):
+        # only fill this now, as we only need it if we found a Fixes: tag
+        if len(open_regressions) == 0:
+            for regression in regzbot.RegressionBasic.get_all(only_unsolved=True):
+                if not '..' in regression.introduced:
+                    open_regressions[regression.regid] = regression.introduced[0:12]
+
         if not match.group(2) in open_regressions.values():
             continue
         for regid in open_regressions.keys():
