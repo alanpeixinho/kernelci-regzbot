@@ -516,8 +516,12 @@ class GitTree():
     def greplogmsgs(self, pattern):
         repo = self.repo()
         result = None
+        since = "--since='Aug 15 0:0:0 UTC 2021'"
+        if is_running_citesting('offline'):
+             since = "--since='Aug 15 0:0:0 UTC 2010'"
+
         try:
-            for result in repo.git.log('--pretty=%H', "--since='Aug 15 0:0:0 UTC 2021'", '--all', '--grep=%s' % pattern).splitlines():
+            for result in repo.git.log('--pretty=%H', since, '--all', '--grep=%s' % pattern).splitlines():
                 yield result
         except Exception:
             return
@@ -529,24 +533,50 @@ class GitTree():
         return self.__repo
 
     @classmethod
-    def search_references(cls, msgid, regid):
+    def search_references(cls, msgid, regression, gmtime=None):
         def getregression(regression, regid):
-           if regression:
-               return regression
+           if regressionfull:
+               return regressionfull
            return RegressionFull.get_by_regid(regid)
 
-        regression = None
+        regressionfull = None
         for gittree in cls.getall(FIXME='ORDER BY priority ASC'):
             searchstring = "Link:.*%s" % msgid
-            logger.debug("[GitTree] Trying to find %s in gittree %s", searchstring, gittree.name)
+            logger.debug("[GitTree] Trying to find '%s' in gittree %s", searchstring, gittree.name)
             for commit_hexsha in gittree.greplogmsgs(searchstring):
-                logger.debug("[GitTree] Found %s in %s", commit_hexsha, gittree.name)
                 for gitbranch in GitBranch.getall_by_gittreeid(gittree.gittreeid):
-                    logger.debug("[GitTree] checking %s" % gitbranch.describe(gittree.name))
+                    logger.debug("[GitTree] Found '%s' in this tree, thus checking branch '%s' now" % (searchstring, gitbranch.describe(gittree.name)))
                     if gitbranch.commit_exists(commit_hexsha, repo=gittree.repo()):
                          logger.debug("[GitTree] Found %s in %s", commit_hexsha, gitbranch.describe(gittree.name))
                          commit = gittree.commit(commit_hexsha)
-                         getregression(regression, regid).commitmention(gittree, gitbranch, commit)
+                         getregression(regressionfull, regression.regid).commitmention(gittree, gitbranch, commit)
+
+            if '..' in regression.introduced \
+                     or len(regression.introduced) < 11:
+                # we don't need to search for those
+                continue
+  
+            searchstring = "Fixes: %s" % regression.introduced[0:12]
+            logger.debug("[GitTree] Trying to find '%s' in gittree %s", searchstring, gittree.name)
+            for commit_hexsha in gittree.greplogmsgs(searchstring):
+                for gitbranch in GitBranch.getall_by_gittreeid(gittree.gittreeid):
+                    logger.debug("[GitTree] Found '%s' in this tree, thus checking branch '%s' now" % (searchstring, gitbranch.describe(gittree.name)))
+                    if gitbranch.commit_exists(commit_hexsha, repo=gittree.repo()):
+                        if RegHistory.present(commit_hexsha, regid=regression.regid):
+                            # no need to add a second entry for commits that already were noticed as related,
+                            # for example if this msg that already has a Link: to this regression
+                            continue
+                        logger.debug("[GitTree] Found %s in %s", commit_hexsha, gitbranch.describe(gittree.name))
+                        commit = gittree.commit(commit_hexsha)
+                        mergedate = gitbranch.merge_date(commit.hexsha, gittree.repo())
+                        if gmtime and gmtime > mergedate:
+                            # use gmtime instead of mergetime in this case, otherwise entries will show up in strange order
+                            mergedate = gmtime + 1
+
+                        # no activity, only a history entry, as it might be about different bug in the same commit
+                        RegHistory.event(regression.regid, mergedate, commit.hexsha, commit.summary, '%s' % commit.author,
+                                                 gitbranchid=gitbranch.gitbranchid, regzbotcmd="note: '%s' in '%s' contains a 'Fixes:' tag for the culprit of this regression"
+                                                 % (commit.hexsha[0:12], gitbranch.describe(gittree.name)))
 
 
     def update(self):
@@ -594,6 +624,7 @@ class GitTree():
                 self.check_latest_versions(repo)
 
             expected_fixes = RegressionBasic.fixes_expected()
+            open_regressions = {}
 
             # now check new commits for links
             re_link = re.compile(
@@ -614,6 +645,32 @@ class GitTree():
                             "Saw link to %s, but not aware of any regressions about it", match.group(2))
                     else:
                         regressionfull.commitmention(self, gitbranch, commit)
+
+
+                # now check if this commit contains a Fixed: tag that mentions a commit known to cause a regression
+                for match in re.finditer('^(Fixes: )([0-9,a-f]{12})( )', commit.message, re.MULTILINE):
+                    print('HERE %s' % match.group(0))
+                    # only fill this now, as we only need it if we found a Fixes: tag
+                    if len(open_regressions) == 0:
+                        for regression in RegressionBasic.get_all(only_unsolved=True):
+                            if not '..' in regression.introduced:
+                                open_regressions[regression.regid] = regression.introduced[0:12]
+
+                    if not match.group(2) in open_regressions.values():
+                        continue
+                    for regid in open_regressions.keys():
+                        if not open_regressions[regid] == match.group(2):
+                            continue
+                        if RegHistory.present(commit.hexsha, regid=regid, gitbranchid=gitbranch.gitbranchid):
+                            # no need to add a second entry for commits that already were noticed as related,
+                            # for example if this msg that already has a Link: to this regression
+                            continue
+
+                        # no activity, only a history entry, as it might be about different bug in the same commit
+                        mergedate = gitbranch.merge_date(commit.hexsha, self.repo())
+                        RegHistory.event(regid, mergedate, commit.hexsha, commit.summary, '%s' % commit.author,
+                                                 gitbranchid=gitbranch.gitbranchid, regzbotcmd="note: '%s' in '%s' contains a 'Fixes:' tag for the culprit of this regression"
+                                                 % (commit.hexsha[0:12], gitbranch.describe(self.name)))
 
             # and we are done here
             gitbranch.set_lastchked(repobranch.commit.hexsha)
@@ -982,15 +1039,18 @@ class RegHistory():
         RegHistory._event(
             regid, gmtime, entry, subject, author, repsrcid=repsrcid, gitbranchid=gitbranchid, regzbotcmd=regzbotcmd)
 
-    def present(entry, regid=None, repsrcid=None):
+    def present(entry, regid=None, repsrcid=None, gitbranchid=None):
         dbcursor = DBCON.cursor()
-        if repsrcid and regid:
+        if gitbranchid and regid:
             dbresult = dbcursor.execute(
-                'SELECT * FROM reghistory WHERE entry=(?) AND repsrcid=(?) AND regid=(?)', (entry, regid)).fetchone()
-        if regid:
+                'SELECT * FROM reghistory WHERE entry=(?) AND gitbranchid=(?) AND regid=(?)', (entry, gitbranchid, regid)).fetchone()
+        elif repsrcid and regid:
+            dbresult = dbcursor.execute(
+                'SELECT * FROM reghistory WHERE entry=(?) AND repsrcid=(?) AND regid=(?)', (entry, repsrcid, regid)).fetchone()
+        elif regid:
             dbresult = dbcursor.execute(
                 'SELECT * FROM reghistory WHERE entry=(?) AND regid=(?)', (entry, regid)).fetchone()
-        if repsrcid:
+        elif repsrcid:
             dbresult = dbcursor.execute(
                 'SELECT * FROM reghistory WHERE entry=(?) AND repsrcid=(?)', (entry, repsrcid)).fetchone()
         else:
@@ -1348,7 +1408,7 @@ class RegressionBasic():
 
         # check if it already got fixed
         regression = RegressionBasic.get_by_regid(dbcursor.lastrowid)
-        GitTree.search_references(regression.entry, regression.regid)
+        GitTree.search_references(regression.entry, regression, gmtime=gmtime)
 
         return RegressionBasic(dbcursor.lastrowid, repsrcid, entry, subject, author, introduced, gitbranchid)
 
@@ -1601,7 +1661,7 @@ class RegressionBasic():
             lore.process_replies(target_msgid)
 
         # check if a reference to this was mentioned in the git logs
-        GitTree.search_references(target_msgid, self.regid)
+        GitTree.search_references(target_msgid, self)
 
     def monitorremove(self, tagload, gmtime, report_repsrc, report_msg):
         link, _ = self.linkparse(tagload)

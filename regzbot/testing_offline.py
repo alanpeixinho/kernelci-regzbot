@@ -658,6 +658,29 @@ def offltest_1_5(funcname):
         'Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com' % funcname)
     return True, True, False
 
+def offltest_1_6(funcname):
+    logger.info(
+        '%s: create a mainline commit which a "Fixes: %s" for a culprit of a regression introduced later' % (funcname, gittrees_testing['mainline'].hashes_known[-1][0:12]))
+    gittrees_testing['mainline'].mv(
+        'Fixes: %s ("Foo bar")' % gittrees_testing['mainline'].hashes_known[-1][0:12])
+    return False, True, False
+
+
+def offltest_1_7(funcname):
+    logger.info(
+        '%s: create a mainline regression with a culprit that a commit mentions in a Fixed: tag' % funcname)
+    emaildirs['primary'].create_email(
+        funcname, "#regzb introduced: %s" % gittrees_testing['mainline'].hashes_known[-2])
+    return True, False, False
+
+
+def offltest_1_8(funcname):
+    logger.info(
+        '%s: create a mainline commit which a Fixed: for a culprit of a present regression' % funcname)
+    gittrees_testing['mainline'].mv(
+        'Fixes: %s ("Foo bar")' % gittrees_testing['mainline'].hashes_known[-2][0:12])
+    return False, True, True
+
 
 def offltest_2_0(funcname):
     logger.info(
