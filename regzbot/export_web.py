@@ -130,7 +130,7 @@ class RegressionWeb(regzbot.RegressionFull):
                              yattagdoc.text('activity')
                         yattagdoc.text(': ')
                         if self._actievents[0] is self._actievents[-1]:
-                            yattagdoc.text('%s days ago.' % days_delta(
+                            yattagdoc.text('%s days ago' % days_delta(
                                 self._actievents[0].gmtime))
                         else:
                             with yattagdoc.tag('a', href=self._actievents[0].url()):
@@ -146,9 +146,9 @@ class RegressionWeb(regzbot.RegressionFull):
                             yattagdoc.text('; poked ')
                             with yattagdoc.tag('a', href=self.poked.url()):
                                 yattagdoc.text('%s' % days_delta(self.poked.gmtime))
-                            yattagdoc.text(' days ago.')
-                        else:
-                            yattagdoc.text('.')
+                            yattagdoc.text(' days ago')
+
+                        yattagdoc.text('.')
 
                         entered_loop = False
                         for counter, regressionlink in enumerate(RegLinkWeb.get_all(self.regid, order='DESC'), start=1):
