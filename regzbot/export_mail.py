@@ -42,7 +42,7 @@ class RegressionMailReport(regzbot.RegressionFull):
         report.append('-'*len(self.subject))
         report.append('')
         report.append(self.report_url)
-        report.append("By %s, %s days ago; latest activity %s days ago;" % (self.author, regzbot.days_delta(self.gmtime), regzbot.days_delta(self._actievents[-1].gmtime)))
+        report.append("By %s, %s days ago; %s activities, latest %s days ago;" % (self.author, regzbot.days_delta(self.gmtime), len(self._actievents),  regzbot.days_delta(self._actievents[-1].gmtime)))
         report = self.add_introduced(report)
         report.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s/' % regzbot.urlencode(self.entry))
         report = self.add_links(report)
@@ -103,7 +103,7 @@ class RegExportMailReport():
             intro.append("Wanna know more about regzbot or how to use it to track regressions for")
             intro.append("your subsystem? Then check out the getting started guide:")
             intro.append("https://gitlab.com/knurd42/regzbot/-/blob/main/docs/getting_started.md\n")
-            intro.append("So without further adue, here is my report:\n\n")
+            intro.append("So without further ado, here is my report:\n\n")
             report.insert(0, '\n'.join(intro))
             return report
 
@@ -234,7 +234,7 @@ class RegExportMailReport():
                     categories[regression.treename]['default']['entries'].append(regression)
             elif regression.treename == 'mainline':
                 if filed_days < 7:
-                    categories['new'][regression.treename]['entries'].append(regression)
+                    categories[regression.treename]['new']['entries'].append(regression)
                 elif regression.versionline == 'indevelopment':
                     if regression.identified:
                            categories[regression.treename]['identified_indevelopment']['entries'].append(regression)

@@ -384,14 +384,23 @@ class GitTree():
         repo = self.repo()
         return repo.commit(hexsha)
 
-    def commit_describe(self, identifier):
+    def commit_describe(self, identifier, contains):
         repo = self.repo()
+
+        if contains:
+           kind='--contains'
+        else:
+           kind='--tags'
+
         try:
             # reminder: just relying on the exception is not enough here, as it will not fire
             # if the commit exists in the tree, but in another branch :-/
-            result = repo.git.describe('--contains', identifier)
+            result = repo.git.describe(kind, identifier)
             if result:
-                result = result.split('~')[0]
+                if contains:
+                    result = result.split('~')[0]
+                else:
+                    result = re.sub('-[0-9]+-g[0-9,a-f]+$', '', result)
                 return result, True
         except git.exc.GitCommandError as err:
             output = err.args[2].decode("utf-8")
@@ -1291,7 +1300,7 @@ class RegressionBasic():
         dbcursor = DBCON.cursor()
 
         if only_unsolved:
-            for dbresult in dbcursor.execute('SELECT * FROM regressions WHERE solved_gitbranchid IS NULL OR "to_be_fixed" ORDER BY (?)', (order, )):
+            for dbresult in dbcursor.execute('SELECT * FROM regressions WHERE solved_reason IS NULL OR solved_reason IS "to_be_fixed" ORDER BY (?)', (order, )):
                 yield cls(*dbresult)
         else:
             for dbresult in dbcursor.execute('SELECT * FROM regressions ORDER BY (?)', (order, )):
@@ -1821,9 +1830,9 @@ class RegressionFull(RegressionBasic):
             else:
                 return False
 
-        def lookup_commit(commitid):
+        def lookup_commit(commitid, contains):
             if iscommitid(commitid):
-                description, present = gittree.commit_describe(commitid)
+                description, present = gittree.commit_describe(commitid, contains)
                 if description is None:
                     # fallback for situations where a commit is present, but can't be described since it happened after the last tag
                     description = commitid
@@ -1864,8 +1873,8 @@ class RegressionFull(RegressionBasic):
         point2pres = None
         if gittree is not None:
             if point1 is not None:
-                point1, point1pres = lookup_commit(point1)
-            point2, point2pres = lookup_commit(point2)
+                point1, point1pres = lookup_commit(point1, False)
+            point2, point2pres = lookup_commit(point2, True)
 
             # while at it, update this:
             if point1 is None and point2pres:

@@ -100,6 +100,10 @@ class RegressionWeb(regzbot.RegressionFull):
                                                self._introduced_presentable)
                     else:
                         yattagdoc.text(self._introduced_short)
+                        if self._introduced_presentable:
+                            with yattagdoc.tag('div'):
+                                yattagdoc.text("(within %s)" %
+                                               self._introduced_presentable)
 
         def cell2(yattagdoc):
             def add_introduced(yattagdoc):
@@ -285,9 +289,9 @@ class RegressionWeb(regzbot.RegressionFull):
                     yattagdoc.text(
                          "When fixing, add this to the commit message to make regzbot notice patch postings and commits to resolve the issue:")
                     with yattagdoc_line.tag('ul', style='padding-left: 1em; margin-top: -1em; font-style: italic; list-style-type: none;'):
-                      with yattagdoc.tag('li'):
-                        if self.author:
-                           yattagdoc.text("Reported-by: %s" % self.author)
+                      #with yattagdoc.tag('li'):
+                      #  if self.author:
+                      #     yattagdoc.text("Reported-by: %s" % self.author)
 
                       with yattagdoc.tag('li'):
                         yattagdoc.text("Link: ")
