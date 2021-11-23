@@ -36,7 +36,7 @@ class PatchKind(IntFlag):
     @staticmethod
     def getby_content(content, subject=None):
         def checkfor_diff(content):
-            if re.search(r'^diff.*\nindex.*\n\-\-\- .*\n\+\+\+.*', content, re.MULTILINE | re.DOTALL):
+            if re.search(r'^\-\-\- .*\n\+\+\+.*\n@@', content, re.MULTILINE | re.DOTALL):
                 return PatchKind.DIFF
             return 0
 
