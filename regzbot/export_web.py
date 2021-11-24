@@ -233,7 +233,7 @@ class RegressionWeb(regzbot.RegressionFull):
                             yattagdoc.text('%s days ago' % days_delta(
                                 self.solved_gmtime))
                             if self.solved_entry and self._solved_entry_presentable and not self._solved_entry_presentable == self.solved_entry[:12]:
-                                yattagdoc.text('in %s' % self._solved_entry_presentable)
+                                yattagdoc.text(' in %s' % self._solved_entry_presentable)
                 else:
                     latest_shown = False
                     earlier_patches = 0
@@ -564,11 +564,11 @@ class RegExportWeb():
                     'entries': list(),
                 },
                 'identified_latest': {
-                    'desc': "previous cycle (%s..%s), culprit identified, with activity in the past three weeks" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
+                    'desc': "previous cycle (%s..%s), culprit identified, with activity in the past three months" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
                     'entries': list(),
                 },
-                'identified': {
-                   'desc': "old cycles (..%s), culprit identified, with activity in the past three weeks" % regzbot.LATEST_VERSIONS['previous'],
+                'identified_old': {
+                   'desc': "older cycles (..%s), culprit identified, with activity in the past three months" % regzbot.LATEST_VERSIONS['previous'],
                    'entries': list(),
                 },
                 'unidentified_indevelopment': {
@@ -579,12 +579,12 @@ class RegExportWeb():
                     'desc': "previous cycle (%s..%s), unkown culprit, with activity in the past three weeks" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
                     'entries': list(),
                 },
-                'unidentified': {
-                    'desc': 'old cycles (..%s), unkown culprit, with activity in the past three weeks' % regzbot.LATEST_VERSIONS['previous'],
+                'unidentified_old': {
+                    'desc': 'older cycles (..%s), unkown culprit, with activity in the past three weeks' % regzbot.LATEST_VERSIONS['previous'],
                     'entries': list(),
                 },
                 'default': {
-                    'desc': 'all others with activity in the past three months',
+                    'desc': 'all others with unkown culprit and activity in the past three months',
                     'entries': list(),
                 },
             },
@@ -635,16 +635,14 @@ class RegExportWeb():
                            categories[regression.treename]['identified_indevelopment']['entries'].append(regression)
                     else:
                            categories[regression.treename]['unidentified_indevelopment']['entries'].append(regression)
+                elif regression.versionline == 'latest' and regression.identified:
+                     categories[regression.treename]['identified_latest']['entries'].append(regression)
                 elif regression.versionline == 'latest' and last_activity_days < 21:
-                    if regression.identified:
-                           categories[regression.treename]['identified_latest']['entries'].append(regression)
-                    else:
-                           categories[regression.treename]['unidentified_latest']['entries'].append(regression)
+                     categories[regression.treename]['unidentified_latest']['entries'].append(regression)
+                elif regression.identified:
+                    categories[regression.treename]['identified_old']['entries'].append(regression)
                 elif last_activity_days < 21:
-                    if regression.identified:
-                           categories[regression.treename]['identified']['entries'].append(regression)
-                    else:
-                           categories[regression.treename]['unidentified']['entries'].append(regression)
+                    categories[regression.treename]['unidentified_old']['entries'].append(regression)
                 else:
                     categories[regression.treename]['default']['entries'].append(regression)
             else:

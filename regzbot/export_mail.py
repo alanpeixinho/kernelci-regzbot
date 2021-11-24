@@ -26,8 +26,10 @@ class RegLinkMailReport(regzbot.RegLink):
                 and self.entry \
                 and regzbot.RegActivityMonitor.ismonitored(
                         self.entry, self.regid, self.repsrcid):
-             monitored = ' [monitored]'
+             monitored = '; thread monitored.'
 
+        if self.subject == self.link:
+            return('* %s\n  %s days ago, by %s%s' % (self.subject, regzbot.days_delta(self.gmtime), self.author, monitored))
         return('* %s\n  %s\n  %s days ago, by %s%s' % (self.subject, self.link, regzbot.days_delta(self.gmtime), self.author, monitored))
 
 class RegressionMailReport(regzbot.RegressionFull):
@@ -40,12 +42,11 @@ class RegressionMailReport(regzbot.RegressionFull):
         report = list()
         report.append(self.subject)
         report.append('-'*len(self.subject))
-        report.append('')
         report.append(self.report_url)
-        report.append("By %s, %s days ago; %s activities, latest %s days ago;" % (self.author, regzbot.days_delta(self.gmtime), len(self._actievents),  regzbot.days_delta(self._actievents[-1].gmtime)))
+        report.append("By %s, %s days ago; %s activities, latest %s days ago." % (self.author, regzbot.days_delta(self.gmtime), len(self._actievents),  regzbot.days_delta(self._actievents[-1].gmtime)))
         report = self.add_introduced(report)
-        report.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s/' % regzbot.urlencode(self.entry))
-        report = self.add_links(report)
+        report.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s' % regzbot.urlencode(self.entry))
+        report = self.add_details(report)
         report.append('')
         return report
 
@@ -56,14 +57,55 @@ class RegressionMailReport(regzbot.RegressionFull):
         report.append('Introduced in %s%s' % (self._introduced_short, presentable))
         return report
 
+    def add_fix(self, report):
+        # reminder: we only get those where solved_reason is 'to_be_fixed'
+        report.append('\nFix incoming:')
+        report.append('* %s' % self.solved_subject)
+        if self.solved_url is not None:
+            report.append('  %s' % self.solved_url)
+        return report
+
+    def add_latestpatch(self, report):
+        for actievent in reversed(self._actievents):
+            if int(actievent.patchkind) == 0:
+                continue
+
+            report.append("\nLatest activity with a patch:" )
+
+            # avoid mentioning a patch twice
+            for link in self._links:
+                if link.entry == actievent.entry:
+                    # taking the stuff from the link will get us the monitor status
+                    report.append(link.mailreport())
+                    self._links.remove(link)
+                    return report
+
+            report.append("* %s" % actievent.subject)
+            report.append("  %s" % actievent.url())
+            report.append("  %s days ago, by %s" % (regzbot.days_delta(actievent.gmtime), actievent.author))
+
+            return report
+
+        return report
+
     def add_links(self, report):
         if not self._links:
             return report
 
-        report.append('\nRelated:')
+        report.append('\nNoteworthy links:')
         for link in self._links:
             report.append(link.mailreport())
         return report
+
+    def add_details(self, report):
+        if self.solved_reason:
+            return self.add_fix(report)
+
+        report = self.add_latestpatch(report)
+        report = self.add_links(report)
+
+        return report
+
 
     def mailreport(self):
         return('\n'.join(self.compile()))
@@ -84,8 +126,8 @@ class RegExportMailReport():
     def __create_mail(cls, content, treename):
         msg = EmailMessage()
         msg['From'] = 'Regzbot (for Thorsten Leemhuis) <regressions@leemhuis.info>'
-        msg['To'] = 'Thorsten Leemhuis <regressions@leemhuis.info>'
-        msg['Subject'] = 'Regression report for linux-%s [%s]' % (treename, datetime.date.today())
+        msg['To'] = 'LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Linux regressions mailing list <regressions@lists.linux.dev>'
+        msg['Subject'] = 'Linux regressions report for %s [%s]' % (treename, datetime.date.today())
         msg['Date'] = email.utils.localtime()
         msg['Message-Id'] = email.utils.make_msgid(domain='leemhuis.info')
         msg.set_content(content, cte='quoted-printable')
@@ -95,22 +137,37 @@ class RegExportMailReport():
     def pagecreate(cls, categories, treename):
         def repintro(report, number_issues, treename):
             intro = list()
-            intro.append("Hi, this is regzbot, the Linux kernel regression tracking bot. FYI:")
-            intro.append("Currently I'm aware of %s regressions in linux-%s. Below you'll" % (number_issues, treename))
-            intro.append("find all I started to track since the last report as well as all")
-            intro.append("introduced in the current development cycle (%s..). Older regressions" % regzbot.LATEST_VERSIONS['indevelopment'])
-            intro.append("for previous cycles are included as well if there was a recent activity.\n")
-            intro.append("Wanna know more about regzbot or how to use it to track regressions for")
-            intro.append("your subsystem? Then check out the getting started guide:")
-            intro.append("https://gitlab.com/knurd42/regzbot/-/blob/main/docs/getting_started.md\n")
-            intro.append("So without further ado, here is my report:\n\n")
+            intro.append("Hi, this is regzbot, the Linux kernel regression tracking bot.")
+            intro.append("\nCurrently I'm aware of %s regressions in linux-%s. Find the" % (number_issues, treename))
+            intro.append("current status below and the latest on the web:")
+            intro.append("\nhttps://linux-regtracking.leemhuis.info/regzbot/%s/" % treename)
+            intro.append("\nBye bye, hope to see you soon for the next report.")
+            intro.append("   Regzbot (on behalf of Thorsten Leemhuis)")
+            intro.append("\n")
             report.insert(0, '\n'.join(intro))
             return report
 
         def repsectionheader(report, headline):
+            report.append('='*len(headline))
             report.append(headline)
             report.append('='*len(headline))
             report.append('')
+            return report
+
+        def repfooter(report):
+            report.append("-- ")
+            report.append("P.S.: Wanna know more about regzbot or how to use it to track regressions")
+            report.append("for your subsystem? Then check out the getting started guide or the")
+            report.append("reference documentation:")
+            report.append("\nhttps://gitlab.com/knurd42/regzbot/-/blob/main/docs/getting_started.md")
+            report.append("https://gitlab.com/knurd42/regzbot/-/blob/main/docs/reference.md")
+            report.append("\nThe short version: if you see a regression report you want to see")
+            report.append("tracked, just send a reply to the report where you Cc")
+            report.append("regressions@lists.linux.dev with a line like this:")
+            report.append("\n#regzbot introduced: v5.13..v5.14-rc1")
+            report.append("\nIf you want to fix a tracked regression, just do what is expected")
+            report.append("anyway: add a 'Link:' tag with the url to the report, e.g.:")
+            report.append("\nLink: https://lore.kernel.org/all/30th.anniversary.repost@klaava.Helsinki.FI/")
             return report
 
         number_issues = 0
@@ -122,21 +179,24 @@ class RegExportMailReport():
 
             number_issues += len(categories[category]['entries'])
 
-            if category == 'default':
-                report = repsectionheader(report, 'Inactive regressions')
-                report.append("The regzbot's website lists %s more regressions omitted here due to lack of recent activity:" % len(['entries']))
-                report.append("https://linux-regtracking.leemhuis.info/regzbot/%s/" % treename)
-                report.append('')
-            else:
+            # if category == 'default':
+            #    report = repsectionheader(report, 'Regressions with unkown culprit without activitiy in the past three weeks')
+            #    report.append("There are a %s more regressions from older cycles with unkown culprit that omitted here due to lack of activity in the past three weeks:" % len(['entries']))
+            #    report.append("https://linux-regtracking.leemhuis.info/regzbot/%s/" % treename)
+            #    report.append('\n')
+            # else:
+            if True:
                 report = repsectionheader(report, categories[category]['desc'])
                 report.append('')
                 for regexportreport in categories[category]['entries']:
                     report.append(regexportreport.reporttext)
                     report.append('')
 
-        print(report)
+        # add footer and header
+        report = repsectionheader(report, "End of report")
+        report = repfooter(report)
         report = repintro(report, number_issues, treename)
-        print(report)
+
         return ('\n'.join(report))
 
 
@@ -152,10 +212,6 @@ class RegExportMailReport():
 
         categories = {
             'next': {
-                'new': {
-                    'desc': "newly tracked since the last report",
-                    'entries': list(),
-                },
                 'identified': {
                    'desc': "culprit identified",
                    'entries': list(),
@@ -166,20 +222,16 @@ class RegExportMailReport():
                 },
             },
             'mainline': {
-                'new': {
-                    'desc': "newly tracked since the last report",
-                    'entries': list(),
-                },
                 'identified_indevelopment': {
                     'desc': "current cycle (%s.. aka %s), culprit identified" % (regzbot.LATEST_VERSIONS['latest'], indevelopment_descriptive),
                     'entries': list(),
                 },
                 'identified_latest': {
-                    'desc': "previous cycle (%s..%s), culprit identified, with activity in the past three weeks" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
+                    'desc': "previous cycle (%s..%s), culprit identified, with activity in the past three months" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
                     'entries': list(),
                 },
-                'identified': {
-                   'desc': "old cycles (..%s), culprit identified, with activity in the past three weeks" % regzbot.LATEST_VERSIONS['previous'],
+                'identified_old': {
+                   'desc': "older cycles (..%s), culprit identified, with activity in the past three months" % regzbot.LATEST_VERSIONS['previous'],
                    'entries': list(),
                 },
                 'unidentified_indevelopment': {
@@ -190,20 +242,16 @@ class RegExportMailReport():
                     'desc': "previous cycle (%s..%s), unkown culprit, with activity in the past three weeks" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
                     'entries': list(),
                 },
-                'unidentified': {
-                    'desc': 'old cycles (..%s), unkown culprit, with activity in the past three weeks' % regzbot.LATEST_VERSIONS['previous'],
+                'unidentified_old': {
+                    'desc': 'older cycles (..%s), unkown culprit, with activity in the past three weeks' % regzbot.LATEST_VERSIONS['previous'],
                     'entries': list(),
                 },
                 'default': {
-                    'desc': 'all others with activity in the past three months',
+                    'desc': 'all others with unkown culprit and activity in the past three months',
                     'entries': list(),
                 },
             },
             'stable': {
-                'new': {
-                    'desc': "newly tracked since the last report",
-                    'entries': list(),
-                },
                 'identified': {
                    'desc': "culprit identified",
                    'entries': list(),
@@ -219,37 +267,47 @@ class RegExportMailReport():
                     'entries': list(),
                 },
             },
+            'dormant': {
+                'default': {
+                    'desc': '',
+                    'entries': list(),
+                },
+            },
+            'resolved': {
+                'default': {
+                    'desc': '',
+                    'entries': list(),
+                },
+            },
         }
 
         for regression in regressionlist:
             filed_days = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)).days
             last_activity_days = regzbot.days_delta(regression.gmtime_activity)
 
-            if regression.treename == 'next' or regression.treename == 'stable':
-                if filed_days < 7:
-                    categories['new'][regression.treename]['entries'].append(regression)
-                elif regression.identified:
+            if last_activity_days > 90:
+                continue
+            elif regression.treename == 'next' or regression.treename == 'stable':
+                # only create reports for mainline for now
+                continue
+                if regression.identified:
                     categories[regression.treename]['identified']['entries'].append(regression)
                 else:
                     categories[regression.treename]['default']['entries'].append(regression)
             elif regression.treename == 'mainline':
-                if filed_days < 7:
-                    categories[regression.treename]['new']['entries'].append(regression)
-                elif regression.versionline == 'indevelopment':
+                if regression.versionline == 'indevelopment':
                     if regression.identified:
                            categories[regression.treename]['identified_indevelopment']['entries'].append(regression)
                     else:
                            categories[regression.treename]['unidentified_indevelopment']['entries'].append(regression)
+                elif regression.versionline == 'latest' and regression.identified:
+                     categories[regression.treename]['identified_latest']['entries'].append(regression)
                 elif regression.versionline == 'latest' and last_activity_days < 21:
-                    if regression.identified:
-                           categories[regression.treename]['identified_latest']['entries'].append(regression)
-                    else:
-                           categories[regression.treename]['unidentified_latest']['entries'].append(regression)
+                     categories[regression.treename]['unidentified_latest']['entries'].append(regression)
+                elif regression.identified:
+                    categories[regression.treename]['identified_old']['entries'].append(regression)
                 elif last_activity_days < 21:
-                    if regression.identified:
-                           categories[regression.treename]['identified']['entries'].append(regression)
-                    else:
-                           categories[regression.treename]['unidentified']['entries'].append(regression)
+                    categories[regression.treename]['unidentified_old']['entries'].append(regression)
                 else:
                     categories[regression.treename]['default']['entries'].append(regression)
             else:
@@ -284,10 +342,14 @@ class RegExportMailReport():
         reporttime = datetime.datetime.now(datetime.timezone.utc)
         with tempfile.TemporaryDirectory() as tmpdirname:
             for counter, treename in enumerate(categories.keys()):
-                if treename == 'next' or treename == 'stable' or treename == 'unassociated':
+                if treename == 'resolved' or treename == 'unassociated' or treename == 'dormant':
+                    # no reports for those
+                    continue
+                elif treename == 'next' or treename == 'stable':
                     # ignore those for now
                     continue
                 report = cls.pagecreate(categories[treename], treename)
+
                 if not report:
                     logger.info('Nothing to report for %s' % treename)
                     continue
@@ -304,7 +366,7 @@ class RegExportMailReport():
                     gen.flatten(msg)
 
             print('#'*120)
-            print("Review the reports in %s and sent them using \"git send-email --from='Regzbot (on behalf of Thorsten Leemhuis) <regressions@leemhuis.info>' --to '' --no-thread %s*\"" % (tmpdirname, tmpdirname))
+            print("Review the reports in %s and sent them using \"git send-email --from='Regzbot (on behalf of Thorsten Leemhuis) <regressions@leemhuis.info>' --suppress-cc=self --to '' %s/*\"" % (tmpdirname, tmpdirname))
             answer = input('Enter c to confirm you sent the report, anything else to abort: ')
             if answer.lower() != 'c':
                return
