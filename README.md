@@ -8,7 +8,7 @@ Regzbot is still in the beta phase, but you are free to use it. See
 [getting started with regzbot](docs/getting_started.md) or the bots
 [reference documentation](docs/reference.md) for details how to use
 regzbot. To get an impression how the data is processed, checkout out
-[regzbot's webinterface](https://linux-regtracking.leemhuis.info/regzbot/mainline.html).
+[regzbot's webinterface](https://linux-regtracking.leemhuis.info/regzbot/mainline/).
 
 For some more background about the whole idea for a bot see here:
 https://linux-regtracking.leemhuis.info/post/regzbot-approach/
