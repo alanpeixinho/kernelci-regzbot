@@ -563,6 +563,10 @@ class RegExportWeb():
                     'desc': "current cycle (%s.. aka %s), culprit identified" % (regzbot.LATEST_VERSIONS['latest'], indevelopment_descriptive),
                     'entries': list(),
                 },
+                'unidentified_indevelopment': {
+                    'desc': "current cycle (%s.. aka %s), unkown culprit" % (regzbot.LATEST_VERSIONS['latest'], indevelopment_descriptive),
+                    'entries': list(),
+                },
                 'identified_latest': {
                     'desc': "previous cycle (%s..%s), culprit identified, with activity in the past three months" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
                     'entries': list(),
@@ -570,10 +574,6 @@ class RegExportWeb():
                 'identified_old': {
                    'desc': "older cycles (..%s), culprit identified, with activity in the past three months" % regzbot.LATEST_VERSIONS['previous'],
                    'entries': list(),
-                },
-                'unidentified_indevelopment': {
-                    'desc': "current cycle (%s.. aka %s), unkown culprit" % (regzbot.LATEST_VERSIONS['latest'], indevelopment_descriptive),
-                    'entries': list(),
                 },
                 'unidentified_latest': {
                     'desc': "previous cycle (%s..%s), unkown culprit, with activity in the past three weeks" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
