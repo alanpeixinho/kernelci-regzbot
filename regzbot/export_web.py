@@ -290,9 +290,12 @@ class RegressionWeb(regzbot.RegressionFull):
                     yattagdoc.text(
                          "When fixing, add this to the commit message to make regzbot notice patch postings and commits to resolve the issue:")
                     with yattagdoc_line.tag('ul', style='padding-left: 1em; margin-top: -1em; font-style: italic; list-style-type: none;'):
-                      #with yattagdoc.tag('li'):
-                      #  if self.author:
-                      #     yattagdoc.text("Reported-by: %s" % self.author)
+                      if self.author and self.authormail:
+                           with yattagdoc.tag('li'):
+                               if self.author == self.authormail:
+                                   yattagdoc.text("Reported-by: %s" % self.authormail)
+                               else:
+                                   yattagdoc.text("Reported-by: %s <%s>" % (self.author, self.authormail))
 
                       with yattagdoc.tag('li'):
                         yattagdoc.text("Link: ")

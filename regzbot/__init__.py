@@ -1171,7 +1171,7 @@ class RegLink():
         if domain is 'lore.kernel.org':
             _, linkedmsg = lore.download_msg(msgid)
             gmtime = mailin.email_get_gmtime(linkedmsg)
-            realauthor = mailin.email_get_from(linkedmsg)
+            realauthor, realauthormail = mailin.email_get_from(linkedmsg)
             if subject == link:
                 subject = mailin.email_get_subject(linkedmsg)
                 author = realauthor
@@ -1230,7 +1230,7 @@ class RegLink():
 
 
 class RegressionBasic():
-    def __init__(self, regid, repsrcid, entry, subject, author, introduced, gitbranchid, solved_reason=None, solved_gmtime=None,
+    def __init__(self, regid, repsrcid, entry, subject, author, authormail, introduced, gitbranchid, solved_reason=None, solved_gmtime=None,
                  solved_entry=None, solved_subject=None, solved_gitbranchid=None, solved_repsrcid=None, solved_repentry=None):
         self.regid = regid
 
@@ -1240,6 +1240,7 @@ class RegressionBasic():
 
         self.subject = subject
         self.author = author
+        self.authormail = authormail
         self.introduced = str(introduced)
         self.gitbranchid = gitbranchid
         self.solved_reason = solved_reason
@@ -1261,6 +1262,7 @@ class RegressionBasic():
                 entry              STRING   NOT NULL,
                 subject            STRING   NOT NULL,
                 author             STRING   NOT NULL,
+                authormail         STRING,
                 introduced         STRING   NOT NULL,
                 gitbranchid        INTEGER,
                 solved_reason      STRING,
@@ -1409,23 +1411,23 @@ class RegressionBasic():
             return introduced, None
 
     @classmethod
-    def introduced_create(cls, repsrcid, entry, subject, author, introduced, gmtime):
+    def introduced_create(cls, repsrcid, entry, subject, author, authormail, introduced, gmtime):
         introduced, gitbranchid = cls.__introduced_precheck(introduced, gmtime)
 
         # create regression
         dbcursor = DBCON.cursor()
         dbcursor.execute('''INSERT INTO regressions
-                            (repsrcid, entry, subject, author, introduced, gitbranchid)
-                            VALUES (?, ?, ?, ?, ?, ?)''',
-                         (repsrcid, entry, subject, author, introduced, gitbranchid))
+                            (repsrcid, entry, subject, author,  authormail, introduced, gitbranchid)
+                            VALUES (?, ?, ?, ?,?, ?, ?)''',
+                         (repsrcid, entry, subject, author, authormail, introduced, gitbranchid))
         # create entry for monitoring
         actimonid = RegActivityMonitor.add(dbcursor.lastrowid, repsrcid, entry)
         RegActivityEvent.event(
             gmtime, entry, subject, author, repsrcid=repsrcid, actimonid=actimonid)
 
 
-        logger.debug('[db regressions] inserted (regid:%s; subject:"%s" repsrcid:%s; entry:%s; introduced:%s; gitbranchid:%s)',
-                     dbcursor.lastrowid, subject, repsrcid, entry, introduced, gitbranchid)
+        logger.debug('[db regressions] inserted (regid:%s; subject:"%s"; author:"%s"; authormail:"%s"; repsrcid:%s; entry:%s; introduced:%s; gitbranchid:%s)',
+                     dbcursor.lastrowid, subject, author, authormail, repsrcid, entry, introduced, gitbranchid)
 
         logger.info('regression[%s, "%s"]: created ("%s"; "%s")',
                     dbcursor.lastrowid, subject, entry, introduced)
@@ -1434,7 +1436,7 @@ class RegressionBasic():
         regression = RegressionBasic.get_by_regid(dbcursor.lastrowid)
         GitTree.search_references(regression.entry, regression, gmtime=gmtime)
 
-        return RegressionBasic(dbcursor.lastrowid, repsrcid, entry, subject, author, introduced, gitbranchid)
+        return RegressionBasic(dbcursor.lastrowid, repsrcid, entry, subject, author, authormail, introduced, gitbranchid)
 
     def introduced_update(self, tagload):
         self.introduced, self.gitbranchid = self.__introduced_precheck(tagload)
@@ -1670,7 +1672,7 @@ class RegressionBasic():
         if target_repsrc and target_msg:
             target_gmtime = mailin.email_get_gmtime(target_msg)
             target_subject = mailin.email_get_subject(target_msg)
-            target_author = mailin.email_get_from(target_msg)
+            target_author, target_authormail = mailin.email_get_from(target_msg)
             self.monitoradd_direct(
                 target_repsrc.repsrcid, target_gmtime, target_msgid, target_subject, target_author)
         else:
