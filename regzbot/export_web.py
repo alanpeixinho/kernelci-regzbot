@@ -26,10 +26,11 @@ class RegLinkWeb(regzbot.RegLink):
             with yattagdoc.tag('a', href=self.link):
                 yattagdoc.text(self.subject)
 
-        with yattagdoc.tag('div', style="padding-left: 3em;"):
-            yattagdoc.text('%s days ago, by %s' % (days_delta(self.gmtime), self.author))
-            if self.repsrcid and self.entry and regzbot.RegActivityMonitor.ismonitored(self.entry, self.regid, self.repsrcid):
-                yattagdoc.text(" (monitored)")
+        if self.author:
+            with yattagdoc.tag('div', style="padding-left: 3em;"):
+                yattagdoc.text('%s days ago, by %s' % (days_delta(self.gmtime), self.author))
+                if self.repsrcid and self.entry and regzbot.RegActivityMonitor.ismonitored(self.entry, self.regid, self.repsrcid):
+                    yattagdoc.text(" (monitored)")
 
         return yattagdoc
 

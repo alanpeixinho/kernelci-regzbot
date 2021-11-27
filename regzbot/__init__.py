@@ -658,7 +658,6 @@ class GitTree():
 
                 # now check if this commit contains a Fixed: tag that mentions a commit known to cause a regression
                 for match in re.finditer('^(Fixes: )([0-9,a-f]{12})( )', commit.message, re.MULTILINE):
-                    print('HERE %s' % match.group(0))
                     # only fill this now, as we only need it if we found a Fixes: tag
                     if len(open_regressions) == 0:
                         for regression in RegressionBasic.get_all(only_unsolved=True):
@@ -1140,41 +1139,55 @@ class RegLink():
             )''')
 
     @staticmethod
-    def add_entry(regid, gmtime, description, author, repsrcid, entry):
+    def add_entry(regid, gmtime, subject, author, repsrcid, entry):
         dbcursor = DBCON.cursor()
         dbcursor.execute('''INSERT INTO reglinks
                             (regid, gmtime, repsrcid, entry, subject, author)
                             VALUES (?, ?, ?, ?, ?, ?)''',
-                         (regid, gmtime, repsrcid, entry, description, author))
+                         (regid, gmtime, repsrcid, entry, subject, author))
         logger.debug('[db reglinks] insert (regid:%s, gmtime:%s, repsrcid:%s, entry:%s, subject:"%s", author:"%s" )' % (
-            regid, gmtime, repsrcid, entry, description, author ))
+            regid, gmtime, repsrcid, entry, subject, author ))
 
     @staticmethod
-    def add_link(regid, gmtime, description, author, link):
-        def add(dbcursor, regid, link, description, gmtime):
+    def add_link(regid, gmtime, subject, author, link):
+        def add(dbcursor, regid, link, subject, gmtime):
             dbcursor.execute('''INSERT INTO reglinks
                             (regid, gmtime, link, subject, author)
                             VALUES (?, ?, ?, ?, ?)''',
-                             (regid, gmtime, link, description, author))
+                             (regid, gmtime, link, subject, author))
             logger.debug('[db reglinks] insert (regid:%s, gmtime:%s, link:%s, subject:"%s", author:"%s")' % (
-                regid, gmtime, link, description, author))
+                regid, gmtime, link, subject, author))
 
-        def update(dbcursor, regid, link, description):
+        def update(dbcursor, regid, link, subject):
             dbcursor.execute('''UPDATE reglinks
                             SET link = (?), subject = (?)
                             WHERE regid=(?)''',
-                             (link, description, regid))
+                             (link, subject, regid))
             logger.debug(
                 '[db reglinks] update (regid:%s, link:%s)' % (regid, link))
+
+        domain, mlist, msgid = parse_link(link)
+
+        if domain is 'lore.kernel.org':
+            _, linkedmsg = lore.download_msg(msgid)
+            gmtime = mailin.email_get_gmtime(linkedmsg)
+            realauthor = mailin.email_get_from(linkedmsg)
+            if subject == link:
+                subject = mailin.email_get_subject(linkedmsg)
+                author = realauthor
+            else:
+                author = '%s; link later added and described by %s' % (realauthor, author)
+        else:
+             author = None
 
         dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
             'SELECT link FROM reglinks WHERE regid=(?) AND link=(?)', (regid, link)).fetchone()
         if dbresult is None:
-            add(dbcursor, regid, link, description, gmtime)
+            add(dbcursor, regid, link, subject, gmtime)
             return False
         else:
-            update(dbcursor, regid, link, description)
+            update(dbcursor, regid, link, subject)
             return True
         return None
 
@@ -2232,17 +2245,13 @@ def parse_link(url):
     elif tmpstring.startswith("http://"):
         tmpstring = tmpstring.removeprefix("http://")
 
-    kind = mlist = msgid = None
+    domain = mlist = msgid = None
     if (tmpstring.startswith("lore.kernel.org")
             or tmpstring.startswith("lkml.kernel.org")):
-        split = tmpstring.split('/')
-        if len(split) < 3:
-            logger.warning(
-                "Unable to parse '%s', non-standard format", url)
-            return kind, mlist, msgid
-        kind = split[0]
-        mlist = split[1]
-        msgid = split[2]
+
+        domain = 'lore.kernel.org'
+        _, mlist, tmpstring = tmpstring.split('/', maxsplit=2)
+        msgid, _, _ = tmpstring.partition('/')
 
         if mlist == 'r':
             if tmpstring.startswith("lkml.kernel.org"):
@@ -2253,7 +2262,7 @@ def parse_link(url):
     else:
         logger.debug(
             "Tried to get msgid from %s, but don't known how to handle that domain", url)
-    return kind, mlist, msgid
+    return domain, mlist, msgid
 
 
 def basicressource_checkdir_exists(directory, create=False):

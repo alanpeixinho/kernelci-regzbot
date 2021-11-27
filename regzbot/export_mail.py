@@ -21,16 +21,20 @@ class RegLinkMailReport(regzbot.RegLink):
         super().__init__(*args)
 
     def mailreport(self):
-        monitored = ''
-        if self.repsrcid \
-                and self.entry \
-                and regzbot.RegActivityMonitor.ismonitored(
-                        self.entry, self.regid, self.repsrcid):
-             monitored = '; thread monitored.'
+        if self.author:
+            monitored = ''
+            if self.repsrcid \
+                    and self.entry \
+                    and regzbot.RegActivityMonitor.ismonitored(
+                            self.entry, self.regid, self.repsrcid):
+                monitored = '; thread monitored.'
+            authored = "\n  %s days ago, by %s%s" % (regzbot.days_delta(self.gmtime), self.author, monitored)
+        else:
+            authored = ''
 
         if self.subject == self.link:
-            return('* %s\n  %s days ago, by %s%s' % (self.subject, regzbot.days_delta(self.gmtime), self.author, monitored))
-        return('* %s\n  %s\n  %s days ago, by %s%s' % (self.subject, self.link, regzbot.days_delta(self.gmtime), self.author, monitored))
+            return('* %s%s' % (self.subject, authored))
+        return('* %s\n  %s%s' % (self.subject, self.link, authored))
 
 class RegressionMailReport(regzbot.RegressionFull):
     Reglink = RegLinkMailReport
