@@ -785,6 +785,15 @@ class RegActivityMonitor():
         else:
             return False
 
+    @classmethod
+    def get_by_regactivity(cls, entry):
+        dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute(
+            'SELECT actmonitor.* FROM actmonitor INNER JOIN regactivity ON regactivity.actimonid = actmonitor.actimonid WHERE regactivity.entry=?', (entry,)).fetchone()
+        if dbresult:
+            return cls(*dbresult)
+        return None
+
     @staticmethod
     def ismonitored(entry, regid=None, repsrcid=None):
         dbcursor = DBCON.cursor()

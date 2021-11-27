@@ -77,6 +77,21 @@ def find_regression(msg):
 
         return None
 
+def find_actimon(msg):
+        msgids_tocheck = [email_get_msgid(msg)]
+        if 'References' in msg:
+            for reference in msg['References'].split():
+                msgids_tocheck.append(email_get_msgid(reference))
+        if 'In-Reply-To' in msg and not msg['In-Reply-To'] in msg['References']:
+            msgids_tocheck.append(email_get_msgid(msg['In-Reply-To']))
+
+        for msgid_tocheck in msgids_tocheck:
+             actimon = regzbot.RegActivityMonitor.get_by_regactivity(msgid_tocheck)
+             if actimon:
+                 return actimon
+
+        return None
+
 
 def process_tag(repsrc, tag, msg):
     def spilttag_first_word(tagload):
@@ -407,16 +422,7 @@ def process_msg(repsrc, msg):
         if regressionb is None:
             continue
 
-        # so this is related to a tracked regression; check if the thread is monitored or start monitoring it
-        def thread_already_monitored():
-            if msg['References'] is not None:
-                for reference in msg['References'].split(" "):
-                    actimon = regzbot.RegActivityMonitor.get_by_entry(
-                        reference)
-                    if actimon is not None:
-                        return actimon
-            return None
-        actimon = thread_already_monitored()
+        actimon = find_actimon(msg)
 
         if actimon:
             # already monitored, nothing to do
