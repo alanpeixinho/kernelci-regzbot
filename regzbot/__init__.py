@@ -928,8 +928,6 @@ class RegActivityEvent():
         if dbresult is not None:
             return dbresult[0]
 
-
-
     @staticmethod
     def present(entry, actimonid=None, regid=None):
         if not actimonid and not regid:
@@ -1325,6 +1323,15 @@ class RegressionBasic():
         return None
 
     @staticmethod
+    def get_by_regactivity(entry):
+        dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute(
+            'SELECT regressions.* FROM ((actmonitor INNER JOIN regactivity ON regactivity.actimonid = actmonitor.actimonid) INNER JOIN regressions ON actmonitor.entry = regressions.entry) WHERE regactivity.entry=?; ', (entry,)).fetchone()
+        if dbresult:
+            return RegressionBasic(*dbresult)
+        return None
+
+    @staticmethod
     def get_by_link(link):
         tmpstring = link
         if tmpstring.startswith("https://"):
@@ -1340,20 +1347,6 @@ class RegressionBasic():
             logger.warning(
                 "RegressionBasic.get_by_link(%s): unsupported domain ", link)
         return None
-
-    @staticmethod
-    def get_by_msgreferences(references):
-        # handle mails without references
-        if not references:
-            return False
-
-        dbcursor = DBCON.cursor()
-        for ref in references.split():
-            dbresult = dbcursor.execute(
-                'SELECT * FROM regressions WHERE entry=?', (ref[1:-1],)).fetchone()
-            if dbresult is not None:
-                return RegressionBasic(*dbresult)
-        return False
 
     @staticmethod
     def fixes_expected():

@@ -62,6 +62,22 @@ def adjust_repsrc(repsrc, msg):
     return repsrc
 
 
+def find_regression(msg):
+        msgids_tocheck = [email_get_msgid(msg)]
+        if 'References' in msg:
+            for reference in msg['References'].split():
+                msgids_tocheck.append(email_get_msgid(reference))
+        if 'In-Reply-To' in msg and not msg['In-Reply-To'] in msg['References']:
+            msgids_tocheck.append(email_get_msgid(msg['In-Reply-To']))
+
+        for msgid_tocheck in msgids_tocheck:
+             regressionb = regzbot.RegressionBasic.get_by_regactivity(msgid_tocheck)
+             if regressionb:
+                 return regressionb
+
+        return None
+
+
 def process_tag(repsrc, tag, msg):
     def spilttag_first_word(tagload):
         tagload = tagload.split(maxsplit=1)
@@ -95,10 +111,7 @@ def process_tag(repsrc, tag, msg):
         regzbotcmd = tagcmd
 
     # get the regression id, in case there is one already
-    regressionb = regzbot.RegressionBasic.get_by_entry(msgid)
-    if not regressionb:
-        regressionb = regzbot.RegressionBasic.get_by_msgreferences(
-            msg['References'])
+    regressionb = find_regression(msg)
 
     if not regressionb:
         if tagcmd == "introduced":
