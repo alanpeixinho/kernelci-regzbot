@@ -111,8 +111,8 @@ class RegzbotState():
         logger.debug('Initializing new dbtable "RegzbotState"')
         dbcursor.execute('''
                 CREATE TABLE RegzbotState (
-                    name TEXT UNIQUE,
-                    version STRING
+                    attribute  TEXT UNIQUE,
+                    value      STRING
             )''')
 
     @staticmethod
@@ -120,7 +120,7 @@ class RegzbotState():
         if dbcursor is None:
             dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
-            'SELECT * FROM RegzbotState WHERE attribute=(?)', (attribute)).fetchone()
+            'SELECT value FROM RegzbotState WHERE attribute=(?)', (attribute, )).fetchone()
         if dbresult:
            return dbresult[0]
         return False
@@ -131,7 +131,7 @@ class RegzbotState():
         if dbcursor is None:
             dbcursor = DBCON.cursor()
         dbcursor.execute('''
-            INSERT INTO RegzbotState
+            INSERT OR REPLACE INTO RegzbotState
             VALUES(?, ?)''', (attribute, value ))
 
 
@@ -2548,7 +2548,13 @@ def report():
     from export_mail import RegExportMailReport
 
     basicressources_init()
-    return RegExportMailReport.compile()
+    RegExportMailReport.compile()
+
+    # we are done
+    db_commit()
+    db_close()
+
+    return
 
 
 def download_msg(msgid):

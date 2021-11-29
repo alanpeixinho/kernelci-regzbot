@@ -42,10 +42,15 @@ class RegressionMailReport(regzbot.RegressionFull):
     def __init__(self, *args):
         super().__init__(*args)
        
-    def compile(self):
+    def compile(self, lastreport_gmtime):
+        if lastreport_gmtime < self.gmtime_filed:
+            subject = "[ *NEW* ] %s" % self.subject
+        else:
+            subject = self.subject
+
         report = list()
-        report.append(self.subject)
-        report.append('-'*len(self.subject))
+        report.append(subject)
+        report.append('-'*len(subject))
         report.append(self.report_url)
         report.append("By %s, %s days ago; %s activities, latest %s days ago." % (self.author, regzbot.days_delta(self.gmtime), len(self._actievents),  regzbot.days_delta(self._actievents[-1].gmtime)))
         report = self.add_introduced(report)
@@ -111,8 +116,8 @@ class RegressionMailReport(regzbot.RegressionFull):
         return report
 
 
-    def mailreport(self):
-        return('\n'.join(self.compile()))
+    def mailreport(self, lastreport_gmtime):
+        return('\n'.join(self.compile(lastreport_gmtime)))
 
 
 class RegExportMailReport():
@@ -133,12 +138,12 @@ class RegExportMailReport():
         msg['To'] = 'LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Linux regressions mailing list <regressions@lists.linux.dev>'
         msg['Subject'] = 'Linux regressions report for %s [%s]' % (treename, datetime.date.today())
         msg['Date'] = email.utils.localtime()
-        msg['Message-Id'] = email.utils.make_msgid(domain='leemhuis.info')
+        msg['Message-ID'] = email.utils.make_msgid(domain='leemhuis.info')
         msg.set_content(content, cte='quoted-printable')
         return msg
 
     @classmethod
-    def pagecreate(cls, categories, treename):
+    def pagecreate(cls, categories, treename, lastreport_msgid):
         def repintro(report, number_issues, treename):
             intro = list()
             intro.append("Hi, this is regzbot, the Linux kernel regression tracking bot.")
@@ -158,9 +163,16 @@ class RegExportMailReport():
             report.append('')
             return report
 
-        def repfooter(report):
-            report.append("-- ")
-            report.append("P.S.: Wanna know more about regzbot or how to use it to track regressions")
+        def repfooter(report, lastreport_msgid):
+            if not lastreport_msgid:
+                report.append("All regressions marked '[ *NEW* ]' were added since the previous report.")
+            else:
+                report.append("All regressions marked '[ *NEW* ]' were added since the previous report,")
+                report.append("which can be found here:")
+                report.append("https://lore.kernel.org/r/%s\n" % lastreport_msgid)
+            report.append("Thanks for your attention, have a nice day!")
+            report.append("\n  Regzbot, your hard working Linux kernel regression tracking robot")
+            report.append("\n\nP.S.: Wanna know more about regzbot or how to use it to track regressions")
             report.append("for your subsystem? Then check out the getting started guide or the")
             report.append("reference documentation:")
             report.append("\nhttps://gitlab.com/knurd42/regzbot/-/blob/main/docs/getting_started.md")
@@ -199,7 +211,7 @@ class RegExportMailReport():
 
         # add footer and header
         report = repsectionheader(report, "End of report")
-        report = repfooter(report)
+        report = repfooter(report, lastreport_msgid)
         report = repintro(report, number_issues, treename)
 
         return ('\n'.join(report))
@@ -325,6 +337,16 @@ class RegExportMailReport():
     def compile(cls):
         logger.debug("[reportmail] generating")
 
+        lastreport_msgid = regzbot.RegzbotState.get('lastreport_mainline_msgid')
+        lastreport_gmtime = regzbot.RegzbotState.get('lastreport_mainline_gmtime')
+        if lastreport_gmtime:
+            lastreport_gmtime = int(lastreport_gmtime)
+        else:
+            lastreport_gmtime = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
+
+        logger.debug('[reportmail] lastreport was %s' % lastreport_gmtime)
+
+
         # gather everything we need
         regressionslist = list()
 
@@ -339,21 +361,22 @@ class RegExportMailReport():
                 continue
             regressionslist.append(cls(regression.entry, regression.gmtime, regression.gmtime_filed,
                                                     regression._actievents[-1].gmtime, regression.treename,
-                                                    regression.versionline, regression.identified, regression.mailreport()))
+                                                    regression.versionline, regression.identified, regression.mailreport(lastreport_gmtime)))
 
         regressionslist.sort(key=lambda x: x.gmtime_activity, reverse=True)
         categories = cls.categorize(regressionslist)
 
-        reporttime = datetime.datetime.now(datetime.timezone.utc)
+        report_gmtime = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
         with tempfile.TemporaryDirectory() as tmpdirname:
             for counter, treename in enumerate(categories.keys()):
                 if treename == 'resolved' or treename == 'unassociated' or treename == 'dormant':
                     # no reports for those
                     continue
                 elif treename == 'next' or treename == 'stable':
-                    # ignore those for now
+                    # ignore those for now; when changing this, remember to update
+                    # the regzbot.RegzbotState.set stuff as well
                     continue
-                report = cls.pagecreate(categories[treename], treename)
+                report = cls.pagecreate(categories[treename], treename, lastreport_msgid)
 
                 if not report:
                     logger.info('Nothing to report for %s' % treename)
@@ -362,6 +385,7 @@ class RegExportMailReport():
 
                 filename = os.path.join(tmpdirname, "%s-regzbotreport-%s" % (counter, treename))
                 msg = cls.__create_mail(report, treename)
+                lastreport_msgid = msg['Message-ID'].strip('<>')
                 print('#'*120)
                 print('\n%s\n' % filename)
                 print('#'*120)
@@ -371,9 +395,13 @@ class RegExportMailReport():
                     gen.flatten(msg)
 
             print('#'*120)
+
             print("Review the reports in %s and sent them using \"git send-email --from='Regzbot (on behalf of Thorsten Leemhuis) <regressions@leemhuis.info>' --suppress-cc=self --to '' %s/*\"" % (tmpdirname, tmpdirname))
             answer = input('Enter c to confirm you sent the report, anything else to abort: ')
             if answer.lower() != 'c':
                return
-            regzbot.RegzbotState.set('lastreport', reporttime)
+            regzbot.RegzbotState.set('lastreport_mainline_gmtime', report_gmtime)
+            regzbot.RegzbotState.set('lastreport_mainline_msgid', lastreport_msgid)
+            lastreport_msgid = regzbot.RegzbotState.get('lastreport_mainline_msgid')
+
         logger.debug("[report] generated")
