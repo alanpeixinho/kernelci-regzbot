@@ -367,6 +367,9 @@ def process_msg(repsrc, msg):
                      continue
                 elif 'poke' in match:
                      ignoreactivity = True
+                elif '#justforregzbot' in subject:
+                     ignoreactivity = True
+
                 process_tag(repsrc, match, msg)
 
     # record this activity, if this thread is tracked
