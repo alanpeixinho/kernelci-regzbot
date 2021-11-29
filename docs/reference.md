@@ -124,7 +124,7 @@ The following 'regzbot commands' are intended mainly for people helping with reg
 
    Regzbot will not consider a mail with this command as an activity for the regression. It thus will neither update the value for 'days since last activity' nor link to the mail in the 'latest activity' section of its web-interface. The command is useful for mails that are totally irrelevant for the bug processing process and thus would only be noise to people looking into the regression via regzbot; it's thus of use for mails only meant for regzbot, for example ones that just update Regzbot properties like the title.
 
-   Note: the same effect as this regzbot command can be achieved by adding '#forregzbot' to the end of a mail's subject. The latter should be preferred for mails primarily intended for regzbot, as the tag makes such mails easy to chatch by mail filters and easy to spot in mailing lists archives.
+   Note: the same effect as this regzbot command can be achieved by adding `#forregzbot` to the end of a mail's subject. The latter should be preferred for mails primarily intended for regzbot, as the tag makes such mails easy to chatch by mail filters and easy to spot in mailing lists archives.
 
  * `#regzbot poke`
 
