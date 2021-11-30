@@ -1420,11 +1420,9 @@ class RegressionBasic():
                             (repsrcid, entry, subject, author,  authormail, introduced, gitbranchid)
                             VALUES (?, ?, ?, ?,?, ?, ?)''',
                          (repsrcid, entry, subject, author, authormail, introduced, gitbranchid))
+
         # create entry for monitoring
         actimonid = RegActivityMonitor.add(dbcursor.lastrowid, repsrcid, entry)
-        RegActivityEvent.event(
-            gmtime, entry, subject, author, repsrcid=repsrcid, actimonid=actimonid)
-
 
         logger.debug('[db regressions] inserted (regid:%s; subject:"%s"; author:"%s"; authormail:"%s"; repsrcid:%s; entry:%s; introduced:%s; gitbranchid:%s)',
                      dbcursor.lastrowid, subject, author, authormail, repsrcid, entry, introduced, gitbranchid)

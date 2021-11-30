@@ -13,7 +13,6 @@ ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.k
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/751150dd-251f-bc68-0cd0-4a10b70ab79a@linux.com, 1627317256, PatchKind.0
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/ffb8ca1c-ac8c-95c4-c05a-1269c4831b0a@linux.com, 1627622101, PatchKind.0
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Kurt Garloff, https://lore.kernel.org/lkml/9d46f063-8d8d-95ee-e262-9300f54d527c@garloff.de, 1627816483, PatchKind.0
-ACTIVITY: Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566, PatchKind.0
 ACTIVITY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566, PatchKind.0
 ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Jiri Kosina, https://lore.kernel.org/lkml/nycvar.YFH.7.76.2108160914070.8253@cbobk.fhfr.pm, 1629098250, PatchKind.0
 ACTIVITY: [RFC PATCH 0/5] selftests: floppy: basic tests, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com, 1629301601, PatchKind.0
@@ -85,7 +84,6 @@ ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.k
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/751150dd-251f-bc68-0cd0-4a10b70ab79a@linux.com, 1627317256, PatchKind.0
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/ffb8ca1c-ac8c-95c4-c05a-1269c4831b0a@linux.com, 1627622101, PatchKind.0
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Kurt Garloff, https://lore.kernel.org/lkml/9d46f063-8d8d-95ee-e262-9300f54d527c@garloff.de, 1627816483, PatchKind.0
-ACTIVITY: Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566, PatchKind.0
 ACTIVITY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566, PatchKind.0
 ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Jiri Kosina, https://lore.kernel.org/lkml/nycvar.YFH.7.76.2108160914070.8253@cbobk.fhfr.pm, 1629098250, PatchKind.0
 ACTIVITY: [RFC PATCH 0/5] selftests: floppy: basic tests, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com, 1629301601, PatchKind.0
@@ -142,7 +140,6 @@ HISTORY: Revert "floppy: reintroduce O_NDELAY fix", 1630657442, Denis Efremov, h
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", 1632137352, Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, monitor: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
 LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352, PatchKind.0
 REGRESSION: mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 020d3b26c07a (v5.13-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=020d3b26c07abe274ac17f64999bbd3bf3342195, 1631779209, mainline, master, previous: culprit indentified
-ACTIVITY: mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209, PatchKind.0
 ACTIVITY: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209, PatchKind.0
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Loic Poulain, https://lore.kernel.org/regressions/CAMZdPi8UJLvBFQd8-nf-iHAQh8cEuihq97PUFfZ7Q=rxRQoPsg@mail.gmail.com, 1631787490, PatchKind.0
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210916111218.GA12918@thinkpad, 1631790738, PatchKind.0
@@ -185,7 +182,6 @@ ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.k
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/751150dd-251f-bc68-0cd0-4a10b70ab79a@linux.com, 1627317256, PatchKind.0
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/ffb8ca1c-ac8c-95c4-c05a-1269c4831b0a@linux.com, 1627622101, PatchKind.0
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Kurt Garloff, https://lore.kernel.org/lkml/9d46f063-8d8d-95ee-e262-9300f54d527c@garloff.de, 1627816483, PatchKind.0
-ACTIVITY: Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566, PatchKind.0
 ACTIVITY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566, PatchKind.0
 ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Jiri Kosina, https://lore.kernel.org/lkml/nycvar.YFH.7.76.2108160914070.8253@cbobk.fhfr.pm, 1629098250, PatchKind.0
 ACTIVITY: [RFC PATCH 0/5] selftests: floppy: basic tests, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com, 1629301601, PatchKind.0
@@ -242,7 +238,6 @@ HISTORY: Revert "floppy: reintroduce O_NDELAY fix", 1630657442, Denis Efremov, h
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", 1632137352, Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, monitor: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
 LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352, PatchKind.0
 REGRESSION: mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 020d3b26c07a (v5.13-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=020d3b26c07abe274ac17f64999bbd3bf3342195, 1631779209, mainline, master, previous: culprit indentified
-ACTIVITY: mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209, PatchKind.0
 ACTIVITY: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209, PatchKind.0
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Loic Poulain, https://lore.kernel.org/regressions/CAMZdPi8UJLvBFQd8-nf-iHAQh8cEuihq97PUFfZ7Q=rxRQoPsg@mail.gmail.com, 1631787490, PatchKind.0
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210916111218.GA12918@thinkpad, 1631790738, PatchKind.0
@@ -273,7 +268,6 @@ REGRESSION: nvme: code command_id with a genctr for use-after-free validation cr
 LINK: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX%2Bi7OfMA0Vd4FWA@mail.gmail.com [monitored]
 LINK: [PATCHv2] nvme: add command id quirk for apple controllers, https://lore.kernel.org/lkml/20210927154306.387437-1-kbusch@kernel.org [monitored]
 SOLVED: fixed, 1633197636, v5.15-rc4, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=a2941f6aa71a72be2c82c0a168523a492d093530, nvme: add command id quirk for apple controllers
-ACTIVITY: nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442, PatchKind.0
 ACTIVITY: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442, PatchKind.0
 ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Keith Busch, https://lore.kernel.org/regressions/20210925171618.GA116968@dhcp-10-100-145-180.wdc.com, 1632590178, PatchKind.0
 ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Linus Torvalds, https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX%2Bi7OfMA0Vd4FWA@mail.gmail.com, 1632595628, PatchKind.0
@@ -340,7 +334,6 @@ ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Mark Hounschell, https://lore.k
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/751150dd-251f-bc68-0cd0-4a10b70ab79a@linux.com, 1627317256, PatchKind.0
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Denis Efremov, https://lore.kernel.org/lkml/ffb8ca1c-ac8c-95c4-c05a-1269c4831b0a@linux.com, 1627622101, PatchKind.0
 ACTIVITY: Re: [BUG] FLOPPY DRIVER since 5.10.20, Kurt Garloff, https://lore.kernel.org/lkml/9d46f063-8d8d-95ee-e262-9300f54d527c@garloff.de, 1627816483, PatchKind.0
-ACTIVITY: Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566, PatchKind.0
 ACTIVITY: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com, 1628408566, PatchKind.0
 ACTIVITY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Jiri Kosina, https://lore.kernel.org/lkml/nycvar.YFH.7.76.2108160914070.8253@cbobk.fhfr.pm, 1629098250, PatchKind.0
 ACTIVITY: [RFC PATCH 0/5] selftests: floppy: basic tests, Denis Efremov, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com, 1629301601, PatchKind.0
@@ -397,7 +390,6 @@ HISTORY: Revert "floppy: reintroduce O_NDELAY fix", 1630657442, Denis Efremov, h
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", 1632137352, Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, monitor: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
 LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info, 1632137352, PatchKind.0
 REGRESSION: mhi: ath11k resume fails on some devices, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 020d3b26c07a (v5.13-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=020d3b26c07abe274ac17f64999bbd3bf3342195, 1631779209, mainline, master, previous: culprit indentified
-ACTIVITY: mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209, PatchKind.0
 ACTIVITY: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org, 1631779209, PatchKind.0
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Loic Poulain, https://lore.kernel.org/regressions/CAMZdPi8UJLvBFQd8-nf-iHAQh8cEuihq97PUFfZ7Q=rxRQoPsg@mail.gmail.com, 1631787490, PatchKind.0
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Manivannan Sadhasivam, https://lore.kernel.org/regressions/20210916111218.GA12918@thinkpad, 1631790738, PatchKind.0
@@ -428,7 +420,6 @@ REGRESSION: nvme: code command_id with a genctr for use-after-free validation cr
 LINK: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX%2Bi7OfMA0Vd4FWA@mail.gmail.com [monitored]
 LINK: [PATCHv2] nvme: add command id quirk for apple controllers, https://lore.kernel.org/lkml/20210927154306.387437-1-kbusch@kernel.org [monitored]
 SOLVED: fixed, 1633197636, v5.15-rc4, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=a2941f6aa71a72be2c82c0a168523a492d093530, nvme: add command id quirk for apple controllers
-ACTIVITY: nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442, PatchKind.0
 ACTIVITY: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com, 1632575442, PatchKind.0
 ACTIVITY: Re: [REGRESSION] nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Keith Busch, https://lore.kernel.org/regressions/20210925171618.GA116968@dhcp-10-100-145-180.wdc.com, 1632590178, PatchKind.0
 ACTIVITY: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., Linus Torvalds, https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX%2Bi7OfMA0Vd4FWA@mail.gmail.com, 1632595628, PatchKind.0
