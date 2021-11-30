@@ -1168,7 +1168,7 @@ class RegLink():
 
         domain, mlist, msgid = parse_link(link)
 
-        if domain is 'lore.kernel.org':
+        if domain == 'lore.kernel.org':
             _, linkedmsg = lore.download_msg(msgid)
             gmtime = mailin.email_get_gmtime(linkedmsg)
             realauthor, realauthormail = mailin.email_get_from(linkedmsg)
