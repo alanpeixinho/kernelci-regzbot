@@ -131,7 +131,7 @@ class RegressionWeb(regzbot.RegressionFull):
 
                     with yattagdoc.tag('div'):
                         yattagdoc.text('Earliest & latest ')
-                        with yattagdoc.tag('a', href='../regression/%s/' % regzbot.urlencode(self.entry)):
+                        with yattagdoc.tag('a', href='../regression/%s/' % self.entry):
                              yattagdoc.text('activity')
                         yattagdoc.text(': ')
                         if self._actievents[0] is self._actievents[-1]:

@@ -2272,7 +2272,7 @@ def basicressource_checkdir_exists(directory, create=False):
         if os.path.exists(directory):
             return True
         elif create is True:
-            os.mkdir(directory)
+            os.makedirs(directory)
             return True
         else:
             return False
