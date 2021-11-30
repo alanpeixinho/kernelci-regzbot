@@ -114,7 +114,7 @@ class RegressionWeb(regzbot.RegressionFull):
                 if self.solved_reason == 'fixed':
                     return('resolution')
                 elif self.solved_reason == 'to_be_fixed':
-                    return('incoming fix')
+                    return('fix incoming')
                 elif self.solved_reason == 'duplicateof':
                     return('marked as duplicate')
                 elif self.solved_reason == 'invalid':
