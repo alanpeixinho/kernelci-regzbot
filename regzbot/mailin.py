@@ -325,6 +325,10 @@ def process_msg(repsrc, msg):
           return
 
     subject = email_get_subject(msg)
+    if subject.startswith(regzbot.REPORT_SUBJECT_PREFIX):
+          logger.debug("[mailin] skipping mail %s, as it's a report we send", msgid)
+          return
+
     authorname, authormail = email_get_from(msg)
     gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(msg['Date']))
     ignoreactivity = False

@@ -134,9 +134,8 @@ class RegExportMailReport():
     @classmethod
     def __create_mail(cls, content, treename):
         msg = EmailMessage()
-        msg['From'] = 'Regzbot (for Thorsten Leemhuis) <regressions@leemhuis.info>'
         msg['To'] = 'LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Linux regressions mailing list <regressions@lists.linux.dev>'
-        msg['Subject'] = 'Linux regressions report for %s [%s]' % (treename, datetime.date.today())
+        msg['Subject'] = '%s for %s [%s]' % (regzbot.REPORT_SUBJECT_PREFIX, treename, datetime.date.today())
         msg['Date'] = email.utils.localtime()
         msg['Message-ID'] = email.utils.make_msgid(domain='leemhuis.info')
         msg.set_content(content, cte='quoted-printable')

@@ -22,6 +22,7 @@ __VERSION__ = '0.0.1-dev'
 __CITESTING__ = False
 DBCON = None
 REPOSDIR = None
+REPORT_SUBJECT_PREFIX = 'Linux regressions report '
 LATEST_VERSIONS = None
 WEBPAGEDIR = None
 
