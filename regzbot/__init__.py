@@ -2234,6 +2234,11 @@ def init_reposdir(directory):
     return REPOSDIR
 
 
+def hours_delta(past):
+    delta = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(past, datetime.timezone.utc))
+    return ((delta.days * 86400) + delta.seconds) // 3600
+
+
 def days_delta(past):
     return (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(past, datetime.timezone.utc)).days
 

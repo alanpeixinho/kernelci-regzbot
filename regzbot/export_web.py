@@ -12,6 +12,7 @@ import yattag
 
 import regzbot
 from regzbot import days_delta
+from regzbot import hours_delta
 from regzbot import PatchKind
 
 logger = regzbot.logger
@@ -58,6 +59,32 @@ class RegHistoryWeb(regzbot.RegHistory):
              if self.author:
                  yattagdoc.text(", by %s" % self.author)
 
+        return yattagdoc
+
+
+    def html_event(self, yattagdoc):
+        yattagdoc.text("History: ")
+
+        with yattagdoc.tag('i'):
+            if self.regzbotcmd:
+                if self.regzbotcmd == 'poke:':
+                    regzbotcmd = 'poke'
+                else:
+                    regzbotcmd = self.regzbotcmd
+                with yattagdoc.tag('a', href=self.url()):
+                    yattagdoc.text("%s" % regzbotcmd)
+            else:
+                with yattagdoc.tag('a', href=self.url()):
+                    yattagdoc.text("%s" % self.subject)
+
+        yattagdoc.text("; %s hours ago" % hours_delta(
+                             self.gmtime))
+        if self.author:
+            yattagdoc.text(", by %s" % self.author)
+
+        return yattagdoc
+
+
 
 class RegActivityEventWeb(regzbot.RegActivityEvent):
     def __init__(self, *args):
@@ -79,6 +106,22 @@ class RegActivityEventWeb(regzbot.RegActivityEvent):
 
         return yattagdoc
 
+    def html_event(self, yattagdoc):
+        yattagdoc.text("Activity: ")
+        with yattagdoc.tag('i'):
+            with yattagdoc.tag('a', href=self.url()):
+                yattagdoc.text("%s" % self.subject)
+        yattagdoc.text("; %s hours ago, by %s" % (hours_delta(self.gmtime), self.author))
+        if int(self.patchkind) > 0:
+            if (PatchKind.DIFF | PatchKind.SUBJECT | PatchKind.SIGNEDOFF) in self.patchkind:
+                 yattagdoc.text('; contains a signed-off patch')
+            elif (PatchKind.DIFF | PatchKind.SUBJECT) in self.patchkind:
+                 yattagdoc.text('; contains a proper patch')
+            else:
+                 yattagdoc.text('; contains a simple patch')
+
+        return yattagdoc
+
 
 class RegressionWeb(regzbot.RegressionFull):
     Reglink = RegLinkWeb
@@ -87,6 +130,37 @@ class RegressionWeb(regzbot.RegressionFull):
 
     def __init__(self, *args):
         super().__init__(*args)
+
+    def events(self, gmtime_offset):
+        def fresh(gmtime):
+            if gmtime > gmtime_offset:
+                return True
+            return False
+
+        def compile(func):
+            html = yattag.Doc()
+            func(html)
+            with html.tag('div', style="padding-left: 3em;"):
+                 html.text("Regression: ")
+                 with html.tag('a', href=self.report_url):
+                     html.text(self.subject)
+            return html
+
+        for actievent in reversed(self._actievents):
+            if not fresh(actievent.gmtime):
+                break
+            yield {
+                 'gmtime': actievent.gmtime,
+                 'html': compile(actievent.html_event)
+                 }
+
+        for histevent in reversed(self._histevents):
+            if not fresh(histevent.gmtime):
+                break
+            yield {
+                 'gmtime': histevent.gmtime,
+                 'html': compile(histevent.html_event)
+                 }
 
     def html(self):
         def cell1(yattagdoc):
@@ -349,6 +423,8 @@ class UnhandledEventWeb(regzbot.UnhandledEvent):
 
 
 class RegExportWeb():
+    eventslist = list()
+
     def __init__(self, entry, gmtime_report, gmtime_filed, gmtime_activity, gmtime_solved, treename, versionline, identified, htmlsnippet):
         self.entry = entry
         self.gmtime_report = gmtime_report
@@ -517,7 +593,29 @@ class RegExportWeb():
 
 
     @classmethod
+    def create_events(cls, directory, unhandled_count, htmlpages, eventslist):
+        directory = os.path.join(regzbot.WEBPAGEDIR, 'events')
+        regzbot.basicressource_checkdir_exists(directory, create=True)
+
+        yattagdoc = yattag.Doc()
+        yattagdoc.asis('<!DOCTYPE html>')
+        with yattagdoc.tag('html'):
+            cls.outpage_header(yattagdoc, htmlpages, None)
+
+            for event in eventslist:
+                yattagdoc.asis(event['html'].getvalue())
+
+            cls.outpage_footer(yattagdoc, 0)
+
+        # write out
+        with open(os.path.join(directory, 'index.html'), 'w') as outputfile:
+            outputfile.write(yattagdoc.getvalue())
+
+    @classmethod
     def create_unhandled(cls, directory, htmlpages):
+        directory = os.path.join(regzbot.WEBPAGEDIR, 'unhandled')
+        regzbot.basicressource_checkdir_exists(directory, create=True)
+
         yattagdoc = yattag.Doc()
         yattagdoc.asis('<!DOCTYPE html>')
         with yattagdoc.tag('html'):
@@ -539,7 +637,7 @@ class RegExportWeb():
             cls.outpage_footer(yattagdoc, 0)
 
         # write out
-        with open(os.path.join(directory, 'unhandled.html'), 'w') as outputfile:
+        with open(os.path.join(directory, 'index.html'), 'w') as outputfile:
             outputfile.write(yattagdoc.getvalue())
 
         return unhandled_events
@@ -668,13 +766,26 @@ class RegExportWeb():
 
         # gather everything we need
         regressionslist = list()
+        eventslist = list()
+        events_gmtime_offset = int(datetime.datetime.now(datetime.timezone.utc).timestamp()) - 604800
+        if regzbot.is_running_citesting('offline'):
+            events_gmtime_offset = 604800*52*10
+
         for regression in RegressionWeb.get_all():
+            for event in regression.events(events_gmtime_offset):
+                eventslist.append(event)
+
             gmtime_solved = None
             if regression.solved_reason == 'fixed' or regression.solved_reason == 'invalid' or regression.solved_reason == 'duplicateof':
                 gmtime_solved = regression.solved_gmtime
             regressionslist.append(cls(regression.entry, regression.gmtime, regression.gmtime_filed,
                                                     regression._actievents[-1].gmtime, gmtime_solved, regression.treename,
                                                     regression.versionline, regression.identified, regression.html()))
+
+        eventslist.sort(key=lambda x: x['gmtime'], reverse=True)
+        cls.create_events(regzbot.WEBPAGEDIR, unhandled_count, htmlpages, eventslist)
+        # we don't need this anymore now that we iterated over all regressions
+        eventslist = events_gmtime_offset = None
 
         # create the page listing all regressions, sorted by date
         regressionslist.sort(key=lambda x: x.gmtime_report, reverse=True)
