@@ -75,11 +75,17 @@ class RegressionMailReport(regzbot.RegressionFull):
         return report
 
     def add_latestpatch(self, report):
+        patchcount = 0
+        for actievent in self._actievents:
+            if int(actievent.patchkind) > 0:
+                patchcount += 1
+
         for actievent in reversed(self._actievents):
             if int(actievent.patchkind) == 0:
                 continue
 
-            report.append("\nLatest activity with a patch:" )
+            if patchcount > 1:
+                report.append("\n%s patch postings are associated with this regression, this is the latest:" % patchcount )
 
             # avoid mentioning a patch twice
             for link in self._links:
