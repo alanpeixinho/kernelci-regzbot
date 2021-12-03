@@ -644,7 +644,9 @@ class GitTree():
                 for expected_fix in expected_fixes:
                     if commit.hexsha.startswith(expected_fix['solved_entry']):
                          regression = RegressionBasic.get_by_regid(expected_fix['regid'])
-                         regression.fixedby_found(self, gitbranch, commit)
+                         if regression.fixedby_found(self, gitbranch, commit):
+                             # this was fixed, no need to look closer at the commit
+                             continue
 
                 # does the commit link to a tracked regression?
                 for match in re_link.finditer(commit.message):
@@ -938,7 +940,7 @@ class RegActivityEvent():
             return dbresult[0]
 
     @staticmethod
-    def present(entry, actimonid=None, regid=None):
+    def present(entry, actimonid=None, regid=None, gitbranchid=None):
         if not actimonid and not regid:
             logger.critical("Aborting, RegActivitaEvent.present() called with neither actimonid or regid.")
             sys.exit(1)
@@ -948,11 +950,19 @@ class RegActivityEvent():
 
         dbcursor = DBCON.cursor()
         if actimonid:
-             dbresult = dbcursor.execute(
-                 'SELECT * FROM regactivity WHERE actimonid=(?) AND entry=(?)', (actimonid, entry)).fetchone()
+             if gitbranchid:
+                 dbresult = dbcursor.execute(
+                     'SELECT * FROM regactivity WHERE actimonid=(?) AND entry=(?) AND gitbranchid=(?)', (actimonid, entry, gitbranchid)).fetchone()
+             else:
+                 dbresult = dbcursor.execute(
+                     'SELECT * FROM regactivity WHERE actimonid=(?) AND entry=(?)', (actimonid, entry)).fetchone()
         elif regid:
-             dbresult = dbcursor.execute(
-                 'SELECT * FROM regactivity WHERE regid=(?) AND entry=(?)', (regid, entry)).fetchone()
+             if gitbranchid:
+                 dbresult = dbcursor.execute(
+                     'SELECT * FROM regactivity WHERE regid=(?) AND entry=(?) AND gitbranchid=(?)', (regid, entry, gitbranchid)).fetchone()
+             else:
+                 dbresult = dbcursor.execute(
+                     'SELECT * FROM regactivity WHERE regid=(?) AND entry=(?)', (regid, entry)).fetchone()
 
         if dbresult is None:
             return False
@@ -1572,11 +1582,16 @@ class RegressionBasic():
         author = '%s' % commit.author
         mergedate = gitbranch.merge_date(commit.hexsha, gittree.repo())
 
-        if RegActivityEvent.present(commit.hexsha, regid=self.regid):
+        if RegActivityEvent.present(commit.hexsha, regid=self.regid, gitbranchid=gitbranch.gitbranchid):
             # we noticed this one already
             # update data in case a fixed-by came after we noticed it
             if not self.solved_subject:
                 update_solved_data(gitbranch, commit, mergedate)
+            return
+
+        if self.solved_reason == 'fixed' and self.solved_gitbranchid != gitbranch.gitbranchid:
+            # we don't care what happens in other gitbranches if the commit landed already where it's supposed to
+            # this can happen if something get's commited to mainline and later shows up in next
             return True
 
         historytext_post = "'fixed-by' commit '%s' now in '%s'" % (
@@ -1592,13 +1607,17 @@ class RegressionBasic():
                 # mark the commit as fixed, unless it's already considered fixed
                 historytext = 'fixed: %s' % historytext_post
                 self.fixed(mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
+                returnval = True
         elif gittree.priority < culprit_gittree.priority:
             # the fix hasn't reached the proper tree yet; but we have the commit, so use
             # its data instead of relying on what the user specfied
             historytext = 'note: %s' % historytext_post
             update_solved_data(gitbranch, commit, mergedate)
+            returnval = None
         add_activity(gittree, gitbranch, commit, mergedate, author)
         add_history(gittree, gitbranch, commit, mergedate, historytext, author)
+
+        return returnval
 
 
     def invalid(self, tagload, gmtime, msgid, repsrcid):
