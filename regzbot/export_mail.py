@@ -4,6 +4,7 @@
 # Copyright (C) 2021 by Thorsten Leemhuis
 __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
+from collections import Counter
 import datetime
 import re
 from email.message import EmailMessage
@@ -55,8 +56,13 @@ class RegressionMailReport(regzbot.RegressionFull):
         report.append("By %s, %s days ago; %s activities, latest %s days ago." % (self.author, regzbot.days_delta(self.gmtime), len(self._actievents),  regzbot.days_delta(self._actievents[-1].gmtime)))
         report = self.add_introduced(report)
         report.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s' % regzbot.urlencode(self.entry))
-        report = self.add_details(report)
-        report.append('')
+        if self.solved_reason:
+            report = self.add_fix(report)
+        else:
+            report = self.add_latestpatch(report)
+            report = self.add_links(report)
+            report = self.add_involved(report, lastreport_gmtime)
+            report.append('')
         return report
 
     def add_introduced(self, report):
@@ -103,6 +109,26 @@ class RegressionMailReport(regzbot.RegressionFull):
 
         return report
 
+    def add_involved(self, report, lastreport_gmtime):
+        involved = []
+        for actievent in reversed(self._actievents):
+            if actievent.gmtime < lastreport_gmtime:
+                break
+            involved.append(actievent.author)
+
+        if len(involved) > 0:
+            counted = Counter(involved)
+            involved = ''
+            prefix = ''
+            for name, count in counted.most_common():
+                involved += "%s%s (%s)" % (prefix, name, count)
+                if prefix == '':
+                    prefix = ', '
+
+            report.append("\nRecent activities from: %s" % involved)
+        return report
+
+
     def add_links(self, report):
         if not self._links:
             return report
@@ -111,16 +137,6 @@ class RegressionMailReport(regzbot.RegressionFull):
         for link in self._links:
             report.append(link.mailreport())
         return report
-
-    def add_details(self, report):
-        if self.solved_reason:
-            return self.add_fix(report)
-
-        report = self.add_latestpatch(report)
-        report = self.add_links(report)
-
-        return report
-
 
     def mailreport(self, lastreport_gmtime):
         return('\n'.join(self.compile(lastreport_gmtime)))
