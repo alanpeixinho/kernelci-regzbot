@@ -63,26 +63,27 @@ class RegHistoryWeb(regzbot.RegHistory):
 
 
     def html_event(self, yattagdoc):
-        yattagdoc.text("History: ")
+        with yattagdoc.tag('div', style="padding-left: 3em;"):
+            yattagdoc.text("History: ")
 
-        with yattagdoc.tag('i'):
-            if self.regzbotcmd:
-                if self.regzbotcmd == 'poke:':
-                    regzbotcmd = 'poke'
+            with yattagdoc.tag('i'):
+                if self.regzbotcmd:
+                    if self.regzbotcmd == 'poke:':
+                        regzbotcmd = 'poke'
+                    else:
+                        regzbotcmd = self.regzbotcmd
+                    with yattagdoc.tag('a', href=self.url()):
+                        yattagdoc.text("%s" % regzbotcmd)
                 else:
-                    regzbotcmd = self.regzbotcmd
-                with yattagdoc.tag('a', href=self.url()):
-                    yattagdoc.text("%s" % regzbotcmd)
-            else:
-                with yattagdoc.tag('a', href=self.url()):
-                    yattagdoc.text("%s" % self.subject)
+                    with yattagdoc.tag('a', href=self.url()):
+                        yattagdoc.text("%s" % self.subject)
 
-        yattagdoc.text("; %s hours ago" % hours_delta(
-                             self.gmtime))
-        if self.author:
-            yattagdoc.text(", by %s" % self.author)
+            yattagdoc.text("; %s hours ago" % hours_delta(
+                                 self.gmtime))
+            if self.author:
+                yattagdoc.text(", by %s" % self.author)
 
-        return yattagdoc
+            return yattagdoc
 
 
 
@@ -107,20 +108,21 @@ class RegActivityEventWeb(regzbot.RegActivityEvent):
         return yattagdoc
 
     def html_event(self, yattagdoc):
-        yattagdoc.text("Activity: ")
-        with yattagdoc.tag('i'):
-            with yattagdoc.tag('a', href=self.url()):
-                yattagdoc.text("%s" % self.subject)
-        yattagdoc.text("; %s hours ago, by %s" % (hours_delta(self.gmtime), self.author))
-        if int(self.patchkind) > 0:
-            if (PatchKind.DIFF | PatchKind.SUBJECT | PatchKind.SIGNEDOFF) in self.patchkind:
-                 yattagdoc.text('; contains a signed-off patch')
-            elif (PatchKind.DIFF | PatchKind.SUBJECT) in self.patchkind:
-                 yattagdoc.text('; contains a proper patch')
-            else:
-                 yattagdoc.text('; contains a simple patch')
+        with yattagdoc.tag('div', style="padding-left: 3em;"):
+            yattagdoc.text("Activity: ")
+            with yattagdoc.tag('i'):
+                with yattagdoc.tag('a', href=self.url()):
+                    yattagdoc.text("%s" % self.subject)
+            yattagdoc.text("; %s hours ago, by %s" % (hours_delta(self.gmtime), self.author))
+            if int(self.patchkind) > 0:
+                if (PatchKind.DIFF | PatchKind.SUBJECT | PatchKind.SIGNEDOFF) in self.patchkind:
+                     yattagdoc.text('; contains a signed-off patch')
+                elif (PatchKind.DIFF | PatchKind.SUBJECT) in self.patchkind:
+                     yattagdoc.text('; contains a proper patch')
+                else:
+                     yattagdoc.text('; contains a simple patch')
 
-        return yattagdoc
+            return yattagdoc
 
 
 class RegressionWeb(regzbot.RegressionFull):
@@ -131,27 +133,27 @@ class RegressionWeb(regzbot.RegressionFull):
     def __init__(self, *args):
         super().__init__(*args)
 
-    def events(self, gmtime_offset):
+    def event_intro(self):
+        html = yattag.Doc()
+        html.text("Regression ")
+        with html.tag('a', href='../regression/%s/' % self.entry):
+             html.text(self.subject)
+        html.text(":")
+        return html
+
+    def events(self, gmtime_offset, event_intro):
         def fresh(gmtime):
             if gmtime > gmtime_offset:
                 return True
             return False
-
-        def compile(func):
-            html = yattag.Doc()
-            func(html)
-            with html.tag('div', style="padding-left: 3em;"):
-                 html.text("Regression: ")
-                 with html.tag('a', href=self.report_url):
-                     html.text(self.subject)
-            return html
 
         for actievent in reversed(self._actievents):
             if not fresh(actievent.gmtime):
                 break
             yield {
                  'gmtime': actievent.gmtime,
-                 'html': compile(actievent.html_event)
+                 'htmlevent_intro': event_intro,
+                 'htmlevent_content': actievent.html_event(yattag.Doc())
                  }
 
         for histevent in reversed(self._histevents):
@@ -159,7 +161,8 @@ class RegressionWeb(regzbot.RegressionFull):
                 break
             yield {
                  'gmtime': histevent.gmtime,
-                 'html': compile(histevent.html_event)
+                 'htmlevent_intro': event_intro,
+                 'htmlevent_content': histevent.html_event(yattag.Doc())
                  }
 
     def html(self):
@@ -598,12 +601,16 @@ class RegExportWeb():
         regzbot.basicressource_checkdir_exists(directory, create=True)
 
         yattagdoc = yattag.Doc()
-        yattagdoc.asis('<!DOCTYPE html>')
+        cls.outpage_head(yattagdoc)
         with yattagdoc.tag('html'):
             cls.outpage_header(yattagdoc, htmlpages, None)
 
+            lastintro = None
             for event in eventslist:
-                yattagdoc.asis(event['html'].getvalue())
+                if lastintro is not event['htmlevent_intro']:
+                    lastintro = event['htmlevent_intro']
+                    yattagdoc.asis(event['htmlevent_intro'].getvalue())
+                yattagdoc.asis(event['htmlevent_content'].getvalue())
 
             cls.outpage_footer(yattagdoc, 0)
 
@@ -617,7 +624,7 @@ class RegExportWeb():
         regzbot.basicressource_checkdir_exists(directory, create=True)
 
         yattagdoc = yattag.Doc()
-        yattagdoc.asis('<!DOCTYPE html>')
+        cls.outpage_head(yattagdoc)
         with yattagdoc.tag('html'):
             cls.outpage_header(yattagdoc, htmlpages, None)
 
@@ -772,7 +779,8 @@ class RegExportWeb():
             events_gmtime_offset = 604800*52*10
 
         for regression in RegressionWeb.get_all():
-            for event in regression.events(events_gmtime_offset):
+            event_intro = regression.event_intro()
+            for event in regression.events(events_gmtime_offset, event_intro):
                 eventslist.append(event)
 
             gmtime_solved = None
