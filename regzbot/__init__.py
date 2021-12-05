@@ -2144,7 +2144,7 @@ class ReportSource():
 
     def url(self, entry):
         if self.kind == 'lore':
-            return '%s%s' % (self.weburl, urlencode(entry))
+            return '%s%s/' % (self.weburl, urlencode(entry))
         logger.critical(
             "ReportSource doesn't yet known how to return a URL for %s", self.kind)
         return None
@@ -2600,7 +2600,7 @@ def urldecode(url):
     return urllib.parse.unquote(url)
 
 def urlencode(url):
-    return urllib.parse.quote(url, safe='@=')
+    return urllib.parse.quote(url, safe='/@=')
 
 def inspectobj(obj):
     for att in dir(obj):

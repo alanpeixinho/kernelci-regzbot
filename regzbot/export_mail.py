@@ -10,6 +10,7 @@ import re
 from email.message import EmailMessage
 import email.utils
 import tempfile
+import textwrap
 import os
 
 import regzbot
@@ -52,17 +53,17 @@ class RegressionMailReport(regzbot.RegressionFull):
         report = list()
         report.append(subject)
         report.append('-'*len(subject))
+        report.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s/' % self.entry)
         report.append(self.report_url)
-        report.append("By %s, %s days ago; %s activities, latest %s days ago." % (self.author, regzbot.days_delta(self.gmtime), len(self._actievents),  regzbot.days_delta(self._actievents[-1].gmtime)))
+        report.append("\nBy %s, %s days ago; %s activities, latest %s days ago." % (self.author, regzbot.days_delta(self.gmtime), len(self._actievents),  regzbot.days_delta(self._actievents[-1].gmtime)))
         report = self.add_introduced(report)
-        report.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s' % regzbot.urlencode(self.entry))
         if self.solved_reason:
             report = self.add_fix(report)
         else:
+            report = self.add_involved(report, lastreport_gmtime)
             report = self.add_latestpatch(report)
             report = self.add_links(report)
-            report = self.add_involved(report, lastreport_gmtime)
-            report.append('')
+        report.append('')
         return report
 
     def add_introduced(self, report):
@@ -75,9 +76,12 @@ class RegressionMailReport(regzbot.RegressionFull):
     def add_fix(self, report):
         # reminder: we only get those where solved_reason is 'to_be_fixed'
         report.append('\nFix incoming:')
-        report.append('* %s' % self.solved_subject)
-        if self.solved_url is not None:
-            report.append('  %s' % self.solved_url)
+        if self.solved_subject:
+            report.append('* %s' % self.solved_subject)
+            if self.solved_url is not None:
+                report.append('  %s' % self.solved_url)
+        else:
+            report.append('* %s' % self.solved_url)
         return report
 
     def add_latestpatch(self, report):
@@ -90,8 +94,10 @@ class RegressionMailReport(regzbot.RegressionFull):
             if int(actievent.patchkind) == 0:
                 continue
 
-            if patchcount > 1:
-                report.append("\n%s patch postings are associated with this regression, this is the latest:" % patchcount )
+            if patchcount == 1:
+                report.append("\nOne patch associated with this regression:")
+            else:
+                report.append("\n%s patch postings are associated with this regression, the latest is this:" % patchcount )
 
             # avoid mentioning a patch twice
             for link in self._links:
@@ -105,7 +111,7 @@ class RegressionMailReport(regzbot.RegressionFull):
             report.append("  %s" % actievent.url())
             report.append("  %s days ago, by %s" % (regzbot.days_delta(actievent.gmtime), actievent.author))
 
-            return report
+            break
 
         return report
 
@@ -125,7 +131,9 @@ class RegressionMailReport(regzbot.RegressionFull):
                 if prefix == '':
                     prefix = ', '
 
-            report.append("\nRecent activities from: %s" % involved)
+            wrapped = ['']
+            wrapped.extend(textwrap.wrap("Recent activities from: %s" % involved, width=72, subsequent_indent='  '))
+            report.append('\n'.join(wrapped))
         return report
 
 
@@ -185,12 +193,14 @@ class RegExportMailReport():
             return report
 
         def repfooter(report, lastreport_msgid):
+            intro = "All regressions marked '[ *NEW* ]' were added since the previous report"
             if not lastreport_msgid:
-                report.append("All regressions marked '[ *NEW* ]' were added since the previous report.")
+                report.append("%s." % intro)
             else:
-                report.append("All regressions marked '[ *NEW* ]' were added since the previous report,")
+                report.append("%s," % intro)
                 report.append("which can be found here:")
                 report.append("https://lore.kernel.org/r/%s\n" % lastreport_msgid)
+            intro = None
             report.append("Thanks for your attention, have a nice day!")
             report.append("\n  Regzbot, your hard working Linux kernel regression tracking robot")
             report.append("\n\nP.S.: Wanna know more about regzbot or how to use it to track regressions")
@@ -409,7 +419,7 @@ class RegExportMailReport():
                 print('#'*120)
                 print('\n%s\n' % filename)
                 print('#'*120)
-                print(msg)
+                print(report)
                 with open(filename, 'w') as out:
                     gen = email.generator.Generator(out)
                     gen.flatten(msg)
