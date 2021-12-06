@@ -1333,10 +1333,10 @@ class RegressionBasic():
         dbcursor = DBCON.cursor()
 
         if only_unsolved:
-            for dbresult in dbcursor.execute('SELECT * FROM regressions WHERE solved_reason IS NULL OR solved_reason IS "to_be_fixed" ORDER BY (?)', (order, )):
+            for dbresult in dbcursor.execute('SELECT * FROM regressions WHERE solved_reason IS NULL OR solved_reason IS "to_be_fixed" ORDER BY %s' % order):
                 yield cls(*dbresult)
         else:
-            for dbresult in dbcursor.execute('SELECT * FROM regressions ORDER BY (?)', (order, )):
+            for dbresult in dbcursor.execute('SELECT * FROM regressions ORDER BY %s' % order):
                 yield cls(*dbresult)
 
     @classmethod
