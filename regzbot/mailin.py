@@ -437,7 +437,7 @@ def process_msg(repsrc, msg):
 
         actimon = find_actimon(msg)
 
-        if actimon:
+        if actimon and actimon.regid == regressionb.regid:
             # already monitored, nothing to do
             return
         elif backmonitor is True :

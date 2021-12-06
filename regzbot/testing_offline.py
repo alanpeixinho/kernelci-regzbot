@@ -896,6 +896,28 @@ def offltest_2_12(funcname):
     return True, False, False
 
 
+def offltest_2_13(funcname):
+    logger.info('%s: create two regression and link to them using Link on another mailinglist' % (
+        funcname))
+
+    subcounter = 0
+    emaildirs['primary'].create_email(
+        '%s_%s' % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+    replyto_1 = '%s_%s' % (funcname, subcounter)
+
+    subcounter += 1
+    emaildirs['primary'].create_email(
+        '%s_%s' % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+    replyto_2 = '%s_%s' % (funcname, subcounter)
+
+    subcounter += 1
+    emaildirs['primary'].create_email(
+        '%s_%s' % (funcname, subcounter),
+        "Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\nLink: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com" % (replyto_1, replyto_2),
+                                        subject="%s_%s: refer to this regression on another mainling list" % (funcname, subcounter))
+    return True, False, False
+
+
 def offltest_3_0(funcname):
     logger.info('%s: create a regression in next' % funcname)
     emaildirs['primary'].create_email(
