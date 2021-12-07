@@ -2412,6 +2412,9 @@ def basicressources_repsrces_setup():
     ReportSource.add('ath10k', 7,
                      'nntp://nntp.lore.kernel.org/org.infradead.lists.ath10k',
                      'lore', 'https://lore.kernel.org/ath10k/', identifiers='ath10k@lists.infradead.org')
+    ReportSource.add('fbdev', 7,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-fbdev',
+                     'lore', 'https://lore.kernel.org/linux-fbdev/', identifiers='linux-fbdev@vger.kernel.org')
 
 
 def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
