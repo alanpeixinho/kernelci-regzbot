@@ -707,12 +707,6 @@ class RegExportWeb():
                     'entries': list(),
                 },
             },
-            'unassociated': {
-                'default': {
-                    'desc': '',
-                    'entries': list(),
-                },
-            },
             'dormant': {
                 'default': {
                     'desc': '',
@@ -755,7 +749,8 @@ class RegExportWeb():
                 else:
                     categories[regression.treename]['default']['entries'].append(regression)
             else:
-                categories['unassociated']['default']['entries'].append(regression)
+                # this should not happen, but in case it does due to later code changes:
+                categories['mainline']['default']['entries'].append(regression)
 
         return categories
 
@@ -766,7 +761,7 @@ class RegExportWeb():
 
         # these are the pages we are going to create
         htmlpages = ('next', 'mainline', 'stable',
-                     'unassociated', 'dormant', 'resolved', 'new', 'all')
+                     'dormant', 'resolved', 'new', 'all')
 
         # handle this page first, as we need something from it anyway
         unhandled_count = cls.create_unhandled(regzbot.WEBPAGEDIR, htmlpages)
@@ -817,10 +812,6 @@ class RegExportWeb():
             },
             'stable': {
                 'desc': 'stable/longterm',
-                'entries': list(),
-            },
-            'unassociated': {
-                'desc': 'unassociated',
                 'entries': list(),
             },
         }

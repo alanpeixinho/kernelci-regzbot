@@ -1756,7 +1756,6 @@ class RegressionBasic():
             if not range_end:
                 # something like 'v5.15..'
                 gittree_start, gitbranch_start = GitTree.commit_find_old(range_start)
-                # commit = gittree_start.commit('origin/%s' % gitbranch_start.name)
                 commit = gitbranch_start.head_at_gmtime(gmtime, repo=gittree_start.repo())
                 introduced = "%s%s" % (introduced, commit.hexsha)
                 return introduced, gittree_start, gitbranch_start, True
@@ -1789,8 +1788,8 @@ class RegressionFull(RegressionBasic):
             self.gmtime = 0
         self.poked = self._get_poked(self._histevents, self._actievents)
 
-        # provide a default for this, as this can't be None:
-        self.treename = 'unassociated'
+        # provide a default that is overwritten
+        self.treename = 'mainline'
 
         self.report_url = ReportSource.get_by_id(
             self.repsrcid).url(self.entry)
