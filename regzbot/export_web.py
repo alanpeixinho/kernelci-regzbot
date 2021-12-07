@@ -819,6 +819,10 @@ class RegExportWeb():
                 'desc': 'stable/longterm',
                 'entries': list(),
             },
+            'unassociated': {
+                'desc': 'unassociated',
+                'entries': list(),
+            },
         }
         for regression in regressionslist:
             if regression.gmtime_solved:
