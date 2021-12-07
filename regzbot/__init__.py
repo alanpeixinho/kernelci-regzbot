@@ -1553,7 +1553,7 @@ class RegressionBasic():
         for gittree, gitbranch in GitTree.commit_find_new(commit_hexsha, ascending=False):
             _, culprit_gittree, _ , _ = self._gettree_n_branch(self.introduced)
             logger.debug('[regression.fixedby] found fixed-by commit %s in %s/%s', commit_hexsha[0:12], gittree.name, gitbranch.name)
-            if gittree.priority > culprit_gittree.priority:
+            if culprit_gittree and gittree.priority > culprit_gittree.priority:
                 # this is a commit in a downstream repo we can ignore
                 continue
             self.fixedby_found(gittree, gitbranch, commit_hexsha, culprit_gittree, gmtime=gmtime)
@@ -1601,7 +1601,7 @@ class RegressionBasic():
             # use gmtime instead of mergetime in this case, otherwise entries will show up in strange order
             mergedate = gmtime
 
-        if gittree.priority == culprit_gittree.priority:
+        if culprit_gittree is None or gittree.priority == culprit_gittree.priority:
             # mark the commit as fixed, unless it's already considered fixed
             if not self.solved_reason == 'fixed':
                 # mark the commit as fixed, unless it's already considered fixed
@@ -1759,9 +1759,15 @@ class RegressionBasic():
                 commit = gitbranch_start.head_at_gmtime(gmtime, repo=gittree_start.repo())
                 introduced = "%s%s" % (introduced, commit.hexsha)
                 return introduced, gittree_start, gitbranch_start, True
-            else:
-                gittree_end, gitbranch_end = GitTree.commit_find_old(range_end)
+
+            gittree_start, gitbranch_start = GitTree.commit_find_old(range_start)
+            gittree_end, gitbranch_end = GitTree.commit_find_old(range_end)
+            # make sure to not sort v5.14.15..v5.15.1 into mainline:
+            if gitbranch_start and gitbranch_start.name == gitbranch_end.name:
                 return introduced, gittree_end, gitbranch_end, True
+            else:
+                return introduced, None, None, True
+
         else:
             gittree, gitbranch = GitTree.commit_find_old(introduced)
             if gitbranch:

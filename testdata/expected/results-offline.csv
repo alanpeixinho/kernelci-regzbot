@@ -1061,15 +1061,15 @@ REGRESSION: test_4_2_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regr
 ACTIVITY: test_4_2_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_1@example.com/, 1547337600, PatchKind.0
 HISTORY: test_4_2_1: Lorem ipsum dolor sit amet, 1547337600, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_1@example.com/, introduced: 3f48f5b9a5f
 LATEST: test_4_2_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_1@example.com/, 1547337600, PatchKind.0
-REGRESSION: test_4_2_2: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_2@example.com/, v1.8..v1.8.1 (None), None, 1547424000, stable, linux-1.8.y, None: no flags
+REGRESSION: test_4_2_2: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_2@example.com/, v1.8..v1.8.1 (None), None, 1547424000, mainline, None, None: no flags
 ACTIVITY: test_4_2_2: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_2@example.com/, 1547424000, PatchKind.0
 HISTORY: test_4_2_2: Lorem ipsum dolor sit amet, 1547424000, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_2@example.com/, introduced: v1.8..v1.8.1
 LATEST: test_4_2_2: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_2@example.com/, 1547424000, PatchKind.0
-REGRESSION: test_4_2_3: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_3@example.com/, v1.10.2..v1.11-rc1 (None), None, 1547510400, mainline, master, indevelopment: no flags
+REGRESSION: test_4_2_3: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_3@example.com/, v1.10.2..v1.11-rc1 (None), None, 1547510400, mainline, None, None: no flags
 ACTIVITY: test_4_2_3: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_3@example.com/, 1547510400, PatchKind.0
 HISTORY: test_4_2_3: Lorem ipsum dolor sit amet, 1547510400, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_3@example.com/, introduced: v1.10.2..v1.11-rc1
 LATEST: test_4_2_3: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_3@example.com/, 1547510400, PatchKind.0
-REGRESSION: test_4_2_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_4@example.com/, v1.9.2..v1.10 (None), None, 1547596800, mainline, master, latest: no flags
+REGRESSION: test_4_2_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_4@example.com/, v1.9.2..v1.10 (None), None, 1547596800, mainline, None, None: no flags
 ACTIVITY: test_4_2_4: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_4@example.com/, 1547596800, PatchKind.0
 HISTORY: test_4_2_4: Lorem ipsum dolor sit amet, 1547596800, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_4@example.com/, introduced: v1.9.2..v1.10
 LATEST: test_4_2_4: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_4@example.com/, 1547596800, PatchKind.0
@@ -1127,15 +1127,15 @@ REGRESSION: test_4_2_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regr
 ACTIVITY: test_4_2_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_1@example.com/, 1547337600, PatchKind.0
 HISTORY: test_4_2_1: Lorem ipsum dolor sit amet, 1547337600, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_1@example.com/, introduced: 3f48f5b9a5f
 LATEST: test_4_2_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_1@example.com/, 1547337600, PatchKind.0
-REGRESSION: test_4_2_2: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_2@example.com/, v1.8..v1.8.1 (None), None, 1547424000, stable, linux-1.8.y, None: no flags
+REGRESSION: test_4_2_2: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_2@example.com/, v1.8..v1.8.1 (None), None, 1547424000, mainline, None, None: no flags
 ACTIVITY: test_4_2_2: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_2@example.com/, 1547424000, PatchKind.0
 HISTORY: test_4_2_2: Lorem ipsum dolor sit amet, 1547424000, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_2@example.com/, introduced: v1.8..v1.8.1
 LATEST: test_4_2_2: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_2@example.com/, 1547424000, PatchKind.0
-REGRESSION: test_4_2_3: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_3@example.com/, v1.10.2..v1.11-rc1 (None), None, 1547510400, mainline, master, indevelopment: no flags
+REGRESSION: test_4_2_3: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_3@example.com/, v1.10.2..v1.11-rc1 (None), None, 1547510400, mainline, None, None: no flags
 ACTIVITY: test_4_2_3: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_3@example.com/, 1547510400, PatchKind.0
 HISTORY: test_4_2_3: Lorem ipsum dolor sit amet, 1547510400, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_3@example.com/, introduced: v1.10.2..v1.11-rc1
 LATEST: test_4_2_3: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_3@example.com/, 1547510400, PatchKind.0
-REGRESSION: test_4_2_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_4@example.com/, v1.9.2..v1.10 (None), None, 1547596800, mainline, master, latest: no flags
+REGRESSION: test_4_2_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_4@example.com/, v1.9.2..v1.10 (None), None, 1547596800, mainline, None, None: no flags
 ACTIVITY: test_4_2_4: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_4@example.com/, 1547596800, PatchKind.0
 HISTORY: test_4_2_4: Lorem ipsum dolor sit amet, 1547596800, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_4@example.com/, introduced: v1.9.2..v1.10
 LATEST: test_4_2_4: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_4@example.com/, 1547596800, PatchKind.0
@@ -1201,15 +1201,15 @@ REGRESSION: test_4_2_1: Lorem ipsum dolor sit amet, https://lore.kernel.org/regr
 ACTIVITY: test_4_2_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_1@example.com/, 1547337600, PatchKind.0
 HISTORY: test_4_2_1: Lorem ipsum dolor sit amet, 1547337600, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_1@example.com/, introduced: 3f48f5b9a5f
 LATEST: test_4_2_1: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_1@example.com/, 1547337600, PatchKind.0
-REGRESSION: test_4_2_2: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_2@example.com/, v1.8..v1.8.1 (None), None, 1547424000, stable, linux-1.8.y, None: no flags
+REGRESSION: test_4_2_2: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_2@example.com/, v1.8..v1.8.1 (None), None, 1547424000, mainline, None, None: no flags
 ACTIVITY: test_4_2_2: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_2@example.com/, 1547424000, PatchKind.0
 HISTORY: test_4_2_2: Lorem ipsum dolor sit amet, 1547424000, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_2@example.com/, introduced: v1.8..v1.8.1
 LATEST: test_4_2_2: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_2@example.com/, 1547424000, PatchKind.0
-REGRESSION: test_4_2_3: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_3@example.com/, v1.10.2..v1.11-rc1 (None), None, 1547510400, mainline, master, indevelopment: no flags
+REGRESSION: test_4_2_3: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_3@example.com/, v1.10.2..v1.11-rc1 (None), None, 1547510400, mainline, None, None: no flags
 ACTIVITY: test_4_2_3: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_3@example.com/, 1547510400, PatchKind.0
 HISTORY: test_4_2_3: Lorem ipsum dolor sit amet, 1547510400, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_3@example.com/, introduced: v1.10.2..v1.11-rc1
 LATEST: test_4_2_3: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_3@example.com/, 1547510400, PatchKind.0
-REGRESSION: test_4_2_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_4@example.com/, v1.9.2..v1.10 (None), None, 1547596800, mainline, master, latest: no flags
+REGRESSION: test_4_2_4: Lorem ipsum dolor sit amet, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_4@example.com/, v1.9.2..v1.10 (None), None, 1547596800, mainline, None, None: no flags
 ACTIVITY: test_4_2_4: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_4@example.com/, 1547596800, PatchKind.0
 HISTORY: test_4_2_4: Lorem ipsum dolor sit amet, 1547596800, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_4@example.com/, introduced: v1.9.2..v1.10
 LATEST: test_4_2_4: Lorem ipsum dolor sit amet, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_2_4@example.com/, 1547596800, PatchKind.0
