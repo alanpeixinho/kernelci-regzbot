@@ -367,6 +367,13 @@ class RegressionWeb(regzbot.RegressionFull):
                     yattagdoc.text(
                          "When fixing, add this to the commit message to make regzbot notice patch postings and commits to resolve the issue:")
                     with yattagdoc_line.tag('ul', style='padding-left: 1em; margin-top: -1em; font-style: italic; list-style-type: none;'):
+                      with yattagdoc.tag('li'):
+                        # use self._introduced_url here, as that will avoid ranges and commits we could not find
+                        if self._introduced_url:
+                            commitsummary = regzbot.GitTree.commit_summary(self.introduced)
+                            yattagdoc.text('Fixes: %s ("%s")' % (
+                                self.introduced[0:12], commitsummary))
+
                       if self.author and self.authormail:
                            with yattagdoc.tag('li'):
                                if self.author == self.authormail:
@@ -379,13 +386,6 @@ class RegressionWeb(regzbot.RegressionFull):
                         link = "https://lore.kernel.org/r/%s" % self.entry
                         with yattagdoc.tag('a', href=link):
                             yattagdoc.text(link)
-
-                      with yattagdoc.tag('li'):
-                        # use self._introduced_url here, as that will avoid ranges and commits we could not find
-                        if self._introduced_url:
-                            commitsummary = regzbot.GitTree.commit_summary(self.introduced)
-                            yattagdoc.text('Fixes: %s ("%s")' % (
-                                self.introduced[0:12], commitsummary))
 
         yattagdoc_line = yattag.Doc()
         with yattagdoc_line.tag('td', style="width: 200px;"):
