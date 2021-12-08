@@ -535,11 +535,11 @@ def process_thread(msgid_interested, repsrcid):
 
         if not actimonid:
             # ignore all messages until we hit the one we care about
+            
             if not msgid_current == msgid_interested:
+                logger.debug("[mailin.process_thread] skipping mail %s, waiting for the one we care about", msgid_current)
                 continue
             actimonid = False
-        elif msg['References'] and get_actimonid(msg['References'].split(" ")) != actimonid:
-                continue
 
         repsrc = adjust_repsrc(None, msg)
         process_msg(repsrc, msg)
