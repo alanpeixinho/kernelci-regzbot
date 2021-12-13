@@ -2618,7 +2618,7 @@ def urldecode(url):
     return urllib.parse.unquote(url)
 
 def urlencode(url):
-    return urllib.parse.quote(url, safe='/@=')
+    return urllib.parse.quote(url, safe='@=')
 
 def inspectobj(obj):
     for att in dir(obj):

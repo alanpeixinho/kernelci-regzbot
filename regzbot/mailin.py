@@ -155,9 +155,9 @@ def process_tag(repsrc, tag, msg):
                 parent_cleansubject = subject
             else:
                 if tagcmd == "^^introduced":
-                    parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid)
+                    parent_repsrc, parent_msg = regzbot.download_msg(regzbot.urlencode(parent_msgid))
                     parent_msgid = email_get_msgid_parent(parent_msg)
-                parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid)
+                parent_repsrc, parent_msg = regzbot.download_msg(regzbot.urlencode(parent_msgid))
                 parent_gmtime = email_get_gmtime(parent_msg)
                 parent_subject = email_get_subject(parent_msg)
                 parent_authorname, parent_authormail = email_get_from(parent_msg)
@@ -452,7 +452,7 @@ def process_msg(repsrc, msg):
                     parent_contains_patch = contains_patch
                 else:
                     parent_msgid = email_get_msgid_parent(msg)
-                    parent_repsrc, parent_msg = regzbot.download_msg(parent_msgid)
+                    parent_repsrc, parent_msg = regzbot.download_msg(regzbot.urlencode(parent_msgid))
                     parent_gmtime = email_get_gmtime(parent_msg)
                     parent_subject = email_get_subject(parent_msg)
                     parent_authorname, parent_authormail = email_get_from(parent_msg)
