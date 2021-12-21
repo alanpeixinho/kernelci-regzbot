@@ -257,7 +257,12 @@ def email_get_msgid_parent(msg):
 
 
 def email_get_subject(msg):
-    return msg['subject']
+    # mails without a subject send greetings
+    # https://lore.kernel.org/linux-usb/trinity-09ddec50-a8ca-4663-ba91-4331ab43c9e4-1639982794116@3c-app-gmx-bs07/raw
+    subject = msg['subject']
+    if subject:
+        return subject
+    return ''
 
 
 def email_get_cleansubject(msg):
