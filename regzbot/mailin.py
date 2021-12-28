@@ -414,7 +414,11 @@ def process_msg(repsrc, msg):
                 # backmonitor implies ignore-activity, so skip this
                 continue
             linktag = True
-            url = match.group(0).split()[1]
+            url = match.group(0).split()
+            if len(url) == 1:
+                # malformated, like https://lore.kernel.org/lkml/20211221071634.25980-1-yu.tu@amlogic.com/
+                continue
+            url = url[1]
         elif match.group(0).startswith('#regz'):
             if '^backmonitor' in match.group(0):
                 backmonitor = True
