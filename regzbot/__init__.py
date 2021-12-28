@@ -2433,6 +2433,9 @@ def basicressources_repsrces_setup():
     ReportSource.add('kvm', 4,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.kvm',
                      'lore', 'https://lore.kernel.org/kvm/', identifiers='kvm@vger.kernel.org')
+    ReportSource.add('rdma', 4,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-rdma',
+                     'lore', 'https://lore.kernel.org/linux-rdma/', identifiers='linux-rdma@vger.kernel.org')
 
 
 def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
