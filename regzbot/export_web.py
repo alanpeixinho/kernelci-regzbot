@@ -519,7 +519,7 @@ class RegExportWeb():
         if count > 0:
             with yattagdoc.tag('p', style='text-align: center'):
                 yattagdoc.text("[recently ")
-                with yattagdoc.tag('a', href='../unhandled.html'):
+                with yattagdoc.tag('a', href='../unhandled/'):
                     if count == 1:
                         yattagdoc.text(
                         "%s event occurred that regzbot was unable to handle" % count)
