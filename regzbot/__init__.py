@@ -1484,7 +1484,16 @@ class RegressionBasic():
         self.solved_entry, self.solved_subject = parse(tagload)
 
         regression_other = self.get_by_link(self.solved_entry)
-        if self.solved_subject is None and regression_other:
+        if not regression_other:
+            UnhandledEvent.add(ReportSource.url_by_id(repsrcid, msgid),
+                                           "regression '%s' marked as duplicate of '%s', but could not find a regression for the latter" % (self.subject, tagload))
+            return None
+        elif regression_other.regid == self.regid:
+            UnhandledEvent.add(ReportSource.url_by_id(repsrcid, msgid),
+                                           "cannon mark regression '%s' as a duplicate of itself" % self.subject)
+            return None
+
+        if self.solved_subject is None:
             self.solved_subject = regression_other.subject
         else:
             # better a URL as subject than nothing at all:
@@ -1494,23 +1503,15 @@ class RegressionBasic():
         self.solved_gmtime = gmtime
         self.solved_repsrcid = repsrcid
         self.solved_repentry = msgid
+        self._db_update_solved()
 
-
-        if regression_other.regid == self.regid:
-            UnhandledEvent.add(ReportSource.url_by_id(repsrcid, msgid),
-                                           "cannon mark regression '%s' as a duplicate of itself" % self.subject)
-        elif regression_other:
-            self._db_update_solved()
-            logger.info('regression[%s, "%s"]: marked as duplicate of regression Regression[%s, "%s"])',
-                        self.regid, self.subject, regression_other.regid, regression_other.subject)
-            # make sure this is mentioned in the other regression, too
-            RegHistory.event(regression_other.regid, gmtime, msgid, self.solved_subject, author, repsrcid=repsrcid,
-                             regzbotcmd='dup: the regression "%s" was marked as duplicate of this' % (self.subject))
-            RegActivityEvent.event(
-                gmtime, msgid, msgsubject, author, repsrcid=repsrcid, regid=regression_other.regid)
-        else:
-            UnhandledEvent.add(ReportSource.url_by_id(repsrcid, msgid),
-                                           "regression '%s' marked as duplicate of '%s', but could not find a regression for the latter" % (self.subject, tagload))
+        logger.info('regression[%s, "%s"]: marked as duplicate of regression Regression[%s, "%s"])',
+                    self.regid, self.subject, regression_other.regid, regression_other.subject)
+        # make sure this is mentioned in the other regression, too
+        RegHistory.event(regression_other.regid, gmtime, msgid, self.solved_subject, author, repsrcid=repsrcid,
+                         regzbotcmd='dup: the regression "%s" was marked as duplicate of this' % (self.subject))
+        RegActivityEvent.event(
+            gmtime, msgid, msgsubject, author, repsrcid=repsrcid, regid=regression_other.regid)
 
     def fixed(self, gmtime, commit_hexsha, commit_subject, gitbranchid):
         if self.solved_reason == 'fixed':
