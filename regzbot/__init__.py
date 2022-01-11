@@ -1384,7 +1384,7 @@ class RegressionBasic():
         if tmpstring.startswith("lore.kernel.org/"):
             _, _, tmpstring = tmpstring.split('/', maxsplit=2)
             msgid, _, _ = tmpstring.partition('/')
-            return RegressionBasic.get_by_entry(msgid)
+            return RegressionBasic.get_by_entry(urldecode(msgid))
         else:
             logger.warning(
                 "RegressionBasic.get_by_link(%s): unsupported domain ", link)
