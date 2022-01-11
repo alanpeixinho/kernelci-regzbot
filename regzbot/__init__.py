@@ -2288,7 +2288,14 @@ def parse_link(url):
             or tmpstring.startswith("lkml.kernel.org")):
 
         domain = 'lore.kernel.org'
-        _, mlist, tmpstring = tmpstring.split('/', maxsplit=2)
+        tmplist = tmpstring.split('/', maxsplit=2)
+        if len(tmplist) <= 2:
+           logger.debug("Ignoring %s, failed to parse", url)
+           return None, None, None
+
+        mlist = tmplist[1]
+        tmpstring  = tmplist[2]
+
         msgid, _, _ = tmpstring.partition('/')
 
         if mlist == 'r':
