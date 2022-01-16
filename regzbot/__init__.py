@@ -708,7 +708,7 @@ class RegActivityMonitor():
                 actimonid   INTEGER  NOT NULL PRIMARY KEY,
                 regid       INTEGER  NOT NULL,
                 repsrcid    INTEGER  NOT NULL,
-                entry       INTEGER  NOT NULL
+                entry       STRING   NOT NULL
             )''')
 
     @staticmethod
