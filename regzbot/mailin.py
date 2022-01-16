@@ -127,6 +127,11 @@ def process_tag(repsrc, tag, msg):
 
     # get the regression id, in case there is one already
     regressionb = find_regression(msg)
+    if not regressionb:
+        # fallback: the activities entry in the db is only created after all commands were processed,
+        # hence commands after a "introduced" won't work for unless we do a extra check here
+        logger.debug("CHECKING %s" % msgid)
+        regressionb = regzbot.RegressionBasic.get_by_entry(msgid)
 
     if not regressionb:
         if tagcmd == "introduced":
