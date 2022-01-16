@@ -2380,7 +2380,7 @@ def basicressources_repsrces_setup():
                      'lore', 'https://lore.kernel.org/dri-devel/', identifiers='dri-devel@lists.freedesktop.org')
     ReportSource.add('fsdevel', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-fsdevel',
-                     'lore', 'https://lore.kernel.org/linux-fsdevel/', identifiers='linux-f2fs-devel@lists.sourceforge.net')
+                     'lore', 'https://lore.kernel.org/linux-fsdevel/', identifiers='linux-fsdevel@vger.kernel.org')
     ReportSource.add('btrfs', 4,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-btrfs',
                      'lore', 'https://lore.kernel.org/linux-btrfs/', identifiers='linux-btrfs@vger.kernel.org')
