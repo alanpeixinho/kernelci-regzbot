@@ -1609,6 +1609,8 @@ class RegressionBasic():
             # use gmtime instead of mergetime in this case, otherwise entries will show up in strange order
             mergedate = gmtime
 
+        historytext = 'note: %s' % historytext_post
+        returnval = None
         if culprit_gittree is None or gittree.priority == culprit_gittree.priority:
             # mark the commit as fixed, unless it's already considered fixed
             if not self.solved_reason == 'fixed':
@@ -1619,9 +1621,7 @@ class RegressionBasic():
         elif gittree.priority < culprit_gittree.priority:
             # the fix hasn't reached the proper tree yet; but we have the commit, so use
             # its data instead of relying on what the user specfied
-            historytext = 'note: %s' % historytext_post
             update_solved_data(gitbranch, commit, mergedate)
-            returnval = None
         add_activity(gittree, gitbranch, commit, mergedate, author)
         add_history(gittree, gitbranch, commit, mergedate, historytext, author)
 
