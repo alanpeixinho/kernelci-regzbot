@@ -1745,6 +1745,24 @@ class RegressionBasic():
                             self.regid, self.subject, errormsg)
             return self.monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime)
 
+    def update_author(self, tagload):
+        from email.utils import parseaddr
+        author, authormail = parseaddr(tagload)
+
+        dbcursor = DBCON.cursor()
+        dbcursor.execute('''UPDATE regressions
+                            SET author = (?), authormail = (?)
+                            WHERE regid=(?)''',
+                         (author, authormail, self.regid))
+        logger.debug('[db regressions] author is now %s, authormail now %s (regid:%s; subject:"%s")',
+                     author, authormail, self.regid, self.subject)
+        logger.info('regression[%s, "%s"]: author is now %s, authormail now %s',
+                    self.regid, self.subject, author, authormail)
+
+        self.author = author
+        self.author = authormail
+
+
     def title(self, tagload):
         dbcursor = DBCON.cursor()
         dbcursor.execute('''UPDATE regressions
