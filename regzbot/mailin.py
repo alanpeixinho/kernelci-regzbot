@@ -196,7 +196,11 @@ def process_tag(repsrc, tag, msg):
         regzbot.RegHistory.event(
             regressionb.regid, gmtime, msgid, subject, authorname, repsrcid=repsrc.repsrcid, regzbotcmd=regzbotcmd)
 
-        if tagcmd == "dupof" or tagcmd == "dup-of":
+        if tagcmd == "backburner" or tagcmd == "back-burner":
+            regressionb.backburner_add(repsrc.repsrcid, msgid, gmtime, authorname, tagload)
+        elif tagcmd == "unbackburn" or tagcmd == "unbackburner":
+            regressionb.backburner_remove()
+        elif tagcmd == "dupof" or tagcmd == "dup-of":
             regressionb.dupof(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid)
         elif tagcmd == "fixed-by" or tagcmd == "fixedby:":
             commit_hexsha, commit_subject = spilttag_first_word(tagload)
@@ -380,7 +384,9 @@ def process_msg(repsrc, msg):
                        'ignoreact' in match:
                      ignoreactivity = True
                      continue
-                elif 'poke' in match:
+                elif 'poke' in match or \
+                       'backburner' in match or \
+                       'back-burner' in match:
                      ignoreactivity = True
                 elif '#forregzbot' in subject or \
                        '#justforregzbot' in subject:

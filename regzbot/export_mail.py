@@ -151,13 +151,14 @@ class RegressionMailReport(regzbot.RegressionFull):
 
 
 class RegExportMailReport():
-    def __init__(self, entry, gmtime_report, gmtime_filed, gmtime_activity, treename, versionline, identified, reporttext):
+    def __init__(self, entry, gmtime_report, gmtime_filed, gmtime_activity, treename, versionline, backburner, identified, reporttext):
         self.entry = entry
         self.gmtime_report = gmtime_report
         self.gmtime_filed = gmtime_filed
         self.gmtime_activity = gmtime_activity
         self.treename = treename
         self.versionline = versionline
+        self.backburner = backburner
         self.identified = identified
         self.reporttext = reporttext
 
@@ -248,7 +249,7 @@ class RegExportMailReport():
 
 
     @classmethod
-    def categorize(cls, regressionlist):
+    def categorize(cls, regressionlist, lastreport_gmtime):
         # some lines are commented out below to keep code similar to the one used in export_web,
         # as it shows a few regressions that don't make it into the reports
 
@@ -265,6 +266,10 @@ class RegExportMailReport():
                 },
                 'default': {
                     'desc': 'culprit unkown',
+                    'entries': list(),
+                },
+                'backburner': {
+                    'desc': 'on back burner',
                     'entries': list(),
                 },
             },
@@ -332,7 +337,10 @@ class RegExportMailReport():
             filed_days = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)).days
             last_activity_days = regzbot.days_delta(regression.gmtime_activity)
 
-            if last_activity_days > 90:
+            if regression.backburner and lastreport_gmtime > regression.gmtime_activity and last_activity_days < 180:
+                # ignore these
+                continue
+            elif last_activity_days > 90:
                 continue
             elif regression.treename == 'next' or regression.treename == 'stable':
                 # only create reports for mainline for now
@@ -390,11 +398,11 @@ class RegExportMailReport():
                 # ignore due to inactivity for ~three months
                 continue
             regressionslist.append(cls(regression.entry, regression.gmtime, regression.gmtime_filed,
-                                                    regression._actievents[-1].gmtime, regression.treename,
-                                                    regression.versionline, regression.identified, regression.mailreport(lastreport_gmtime)))
+                                                    regression._actievents[-1].gmtime, regression.treename, regression.versionline,
+                                                    regression.backburner, regression.identified, regression.mailreport(lastreport_gmtime)))
 
         regressionslist.sort(key=lambda x: x.gmtime_activity, reverse=True)
-        categories = cls.categorize(regressionslist)
+        categories = cls.categorize(regressionslist, lastreport_gmtime)
 
         report_gmtime = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
         with tempfile.TemporaryDirectory() as tmpdirname:

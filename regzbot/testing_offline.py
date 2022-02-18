@@ -606,6 +606,26 @@ def offltest_0_12(funcname):
         "%s_%s" % (funcname, subcounter), "#regzb from Some N. Ice Person <someone@example.com>",  replyto=replyto)
     return True, False, False
 
+def offltest_0_13(funcname):
+    replyto = 'test_0_9_0'
+    logger.info(
+        "%s: try 'regzbot backburner'" % funcname)
+
+    subcounter = 0
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb backburner Some reason",  replyto=replyto)
+    return True, False, False
+
+def offltest_0_14(funcname):
+    replyto = 'test_0_9_0'
+    logger.info(
+        "%s: try 'regzbot unbackburn'" % funcname)
+
+    subcounter = 0
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb unbackburn",  replyto=replyto)
+    return True, False, False
+
 # create a mainline regression
 def offltest_1_0(funcname):
     logger.info('%s: creating a mainline regression' % funcname)

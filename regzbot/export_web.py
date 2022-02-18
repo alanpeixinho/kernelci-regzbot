@@ -278,6 +278,14 @@ class RegressionWeb(regzbot.RegressionFull):
                         if entered_loop:
                             yattagdoc.text('.')
 
+                if self.backburner:
+                    with yattagdoc.tag('div'):
+                        yattagdoc.text('On back burner: ' )
+                        with yattagdoc.tag('i'):
+                            with yattagdoc.tag('a', href=self.backburner.report_url()):
+                                yattagdoc.text("%s" % self.backburner.subject)
+                        with yattagdoc.tag('div', style="padding-left: 1em;"):
+                             yattagdoc.text('%s days ago, by %s' % (days_delta(self.backburner.gmtime), self.backburner.author))
 
                 for counter, regressionlink in enumerate(RegLinkWeb.get_all(self.regid, order='DESC'), start=1):
                     with yattagdoc.tag('div'):
@@ -428,7 +436,7 @@ class UnhandledEventWeb(regzbot.UnhandledEvent):
 class RegExportWeb():
     eventslist = list()
 
-    def __init__(self, entry, gmtime_report, gmtime_filed, gmtime_activity, gmtime_solved, treename, versionline, identified, htmlsnippet):
+    def __init__(self, entry, gmtime_report, gmtime_filed, gmtime_activity, gmtime_solved, treename, versionline, backburner, identified, htmlsnippet):
         self.entry = entry
         self.gmtime_report = gmtime_report
         self.gmtime_filed = gmtime_filed
@@ -436,6 +444,7 @@ class RegExportWeb():
         self.gmtime_solved = gmtime_solved
         self.treename = treename
         self.versionline = versionline
+        self.backburner = backburner
         self.identified = identified
         self.htmlsnippet = htmlsnippet
 
@@ -666,6 +675,10 @@ class RegExportWeb():
                     'desc': 'culprit unkown',
                     'entries': list(),
                 },
+                'backburner': {
+                    'desc': 'on back burner with activity in the past six months',
+                    'entries': list(),
+                },
             },
             'mainline': {
                 'identified_indevelopment': {
@@ -696,6 +709,10 @@ class RegExportWeb():
                     'desc': 'all others with unkown culprit and activity in the past three months',
                     'entries': list(),
                 },
+                'backburner': {
+                    'desc': 'on back burner with activity in the past six months',
+                    'entries': list(),
+                },
             },
             'stable': {
                 'identified': {
@@ -704,6 +721,10 @@ class RegExportWeb():
                 },
                 'default': {
                     'desc': 'culprit unkown',
+                    'entries': list(),
+                },
+                'backburner': {
+                    'desc': 'on back burner with activity in the past six months',
                     'entries': list(),
                 },
             },
@@ -723,7 +744,10 @@ class RegExportWeb():
 
         for regression in regressionlist:
             last_activity_days = regzbot.days_delta(regression.gmtime_activity)
-            if last_activity_days > 90:
+            if regression.backburner and \
+                    last_activity_days < 180: # things on backburner are allowed to get a little older
+                categories[regression.treename]['backburner']['entries'].append(regression)
+            elif last_activity_days > 90:
                 categories['dormant']['default']['entries'].append(regression)
             elif regression.gmtime_solved:
                 categories['resolved']['default']['entries'].append(regression)
@@ -783,7 +807,8 @@ class RegExportWeb():
                 gmtime_solved = regression.solved_gmtime
             regressionslist.append(cls(regression.entry, regression.gmtime, regression.gmtime_filed,
                                                     regression._actievents[-1].gmtime, gmtime_solved, regression.treename,
-                                                    regression.versionline, regression.identified, regression.html()))
+                                                    regression.versionline, regression.backburner, regression.identified,
+                                                    regression.html()))
 
         eventslist.sort(key=lambda x: x['gmtime'], reverse=True)
         cls.create_events(regzbot.WEBPAGEDIR, unhandled_count, htmlpages, eventslist)

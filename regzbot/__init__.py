@@ -995,6 +995,73 @@ class RegActivityEvent():
             return GitBranch.url_by_id(self.gitbranchid, self.entry)
         return ReportSource.url_by_id(self.repsrcid, self.entry)
 
+class RegBackburner():
+    def __init__(self, regid, repsrcid, entry, gmtime, author, subject, timelimit):
+        self.regid = regid
+        self.gmtime = gmtime
+        self.repsrcid = repsrcid
+        self.entry = entry
+        self.subject = subject
+        self.author = author
+        self.timelimit = timelimit
+
+    @staticmethod
+    def db_create(version, dbcursor):
+        logger.debug('Initializing new dbtable "regbackburner"')
+        RegzbotDbMeta.set_tableversion('regbackburner', version, dbcursor)
+        dbcursor.execute('''
+            CREATE TABLE regbackburner (
+                regid       INTEGER  NOT NULL,
+                repsrcid    INTEGER,
+                entry       STRING,
+                gmtime      INTEGER,
+                author      STRING,
+                subject     STRING,
+                timelimit   INTEGER
+            )''')
+
+    @classmethod
+    def add(cls, regid, repsrcid, entry, gmtime, author, subject, timelimit=0):
+        dbcursor = DBCON.cursor()
+
+        # delete earlier entry in case there is one
+        cls.remove(regid, dbcursor)
+
+        # add entry
+        dbcursor.execute('''INSERT INTO regbackburner
+                            (regid, repsrcid, entry, gmtime, author, subject)
+                            VALUES (?, ?, ?, ?, ?, ?)''',
+                         (regid, repsrcid, entry, gmtime, author, subject))
+        logger.debug('[db regbackburner] insert (regid:%s, repsrcid:%s, entry:%s, gmtime:%s, author:"%s", subject:"%s")',
+            regid, repsrcid, entry, gmtime, author, subject)
+
+    @classmethod
+    def get_by_regid(cls, regid):
+        dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute(
+            'SELECT * FROM regbackburner WHERE regid=?', (regid,)).fetchone()
+        if dbresult:
+            return cls(*dbresult)
+        return None
+
+    @staticmethod
+    def remove(regid, dbcursor=None):
+        if dbcursor is None:
+            dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute(
+            'SELECT subject FROM regbackburner WHERE regid=(?)', (regid,)).fetchone()
+        if dbresult is not None:
+            dbcursor.execute('''DELETE FROM regbackburner
+                             WHERE regid=(?)''',
+                             (regid, ))
+            logger.debug(
+                '[db regbackburner] delete (regid:%s, subject:%s)', regid, dbresult[0])
+            return True
+        return False
+
+    def report_url(self):
+        return ReportSource.url_by_id(self.repsrcid, self.entry)
+
 
 class RegHistory():
     def __init__(self, regid, gmtime, entry, subject, regzbotcmd, gitbranchid, repsrcid, author):
@@ -1300,6 +1367,11 @@ class RegressionBasic():
                             WHERE regid=(?)''',
                          (self.solved_reason, self.solved_gmtime, self.solved_entry, self.solved_subject,
                              self.solved_gitbranchid, self.solved_repsrcid, self.solved_repentry, self.regid))
+
+        # in case it's on backburner, unbackburn this
+        if self.solved_reason != 'to_be_fixed':
+            RegBackburner.remove(self.regid)
+
         logger.debug(
             '[db regressions] update solved fieds: (regid:%s; solved_reason:%s; solved_gmtime:%s; solved_entry:%s; solved_subject:"%s"; solved_gitbranchid:%s; solved_repsrcid:%s; solved_repentry:%s;  )',
             self.regid, self.solved_reason, self.solved_gmtime, self.solved_entry,
@@ -1636,6 +1708,12 @@ class RegressionBasic():
         self.solved_repentry = msgid
         self._db_update_solved()
 
+    def backburner_add(self, repsrcid, entry, gmtime, author, subject ):
+        RegBackburner.add(self.regid, repsrcid, entry, gmtime, author, subject)
+
+    def backburner_remove(self):
+        return RegBackburner.remove(self.regid)
+
     @staticmethod
     def linkparse(tagload):
         tagload = tagload.split(maxsplit=1)
@@ -1813,6 +1891,8 @@ class RegressionFull(RegressionBasic):
         self._links = self._init_related_objects(list(), self.Reglink)
         self._histevents = self._init_related_objects(list(), self.Reghistory)
         self._actievents = self._init_related_objects(list(), self.Regactivityevent)
+
+        self.backburner = RegBackburner.get_by_regid(self.regid)
 
         if len(self._histevents) > 0:
             self.gmtime = self._histevents[0].gmtime
@@ -2207,6 +2287,7 @@ def db_create(directory):
         RecordProcessedMsgids.db_create(1, dbcursor)
         RegressionBasic.db_create(1, dbcursor)
         RegActivityEvent.db_create(1, dbcursor)
+        RegBackburner.db_create(1, dbcursor)
         RegHistory.db_create(1, dbcursor)
         RegLink.db_create(1, dbcursor)
         ReportSource.db_create(1, dbcursor)
@@ -2465,6 +2546,9 @@ def basicressources_repsrces_setup():
     ReportSource.add('bluetooth', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-bluetooth',
                      'lore', 'https://lore.kernel.org/linux-bluetooth/', identifiers='linux-bluetooth@vger.kernel.org')
+    ReportSource.add('nvme', 6,
+                     'nntp://nntp.lore.kernel.org/org.infradead.lists.linux-nvme',
+                     'lore', 'https://lore.kernel.org/linux-nvme/', identifiers='linux-nvme@lists.infradead.org')
 
 
 def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):

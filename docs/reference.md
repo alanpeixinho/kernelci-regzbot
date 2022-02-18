@@ -126,6 +126,14 @@ The following 'regzbot commands' are intended mainly for people helping with reg
 
    Note: the same effect as this regzbot command can be achieved by adding `#forregzbot` to the end of a mail's subject. The latter should be preferred for mails primarily intended for regzbot, as the tag makes such mails easy to chatch by mail filters and easy to spot in mailing lists archives.
 
+ * `#regzbot backburner: <reason>`
+
+   Mark regressions that are not urgent for some reason as "on back burner". They will get sorted into a separate category in the web-ui and are excluded from the reports, unless something happened since the last report was sent.
+
+ * `#regzbot unbackburn: [reason]`
+
+   Remove the "on back burner" flag from the tracked regression.
+
  * `#regzbot poke`
 
    Regzbot will consider the mail with this command as a 'poke' asking for a progress update from someone involved. It's meant to be used in inquires when a regression seems to become stale, e.g., where there was no mail from a user or developer for a while. Regzbot in its reports and the web UI will show if someone sent a poke to get things rolling again. Apart from this the mail will be handled like it had contained `#regzbot ignore-activity`. It thus won't be counted as an activity and in regzbot web-interface continue to look state until someone replies.

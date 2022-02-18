@@ -62,6 +62,8 @@ class RegressionFullCSV(regzbot.RegressionFull):
             flags.append('culprit indentified')
         if self.poked:
             flags.append('poked')
+        if self.backburner:
+            flags.append('back-burner')
 
         if len(flags) == 0:
             flags.append('no flags')
