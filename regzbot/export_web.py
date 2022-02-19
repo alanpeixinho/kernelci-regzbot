@@ -747,10 +747,10 @@ class RegExportWeb():
             if regression.backburner and \
                     last_activity_days < 180: # things on backburner are allowed to get a little older
                 categories[regression.treename]['backburner']['entries'].append(regression)
-            elif last_activity_days > 90:
-                categories['dormant']['default']['entries'].append(regression)
             elif regression.gmtime_solved:
                 categories['resolved']['default']['entries'].append(regression)
+            elif last_activity_days > 90:
+                categories['dormant']['default']['entries'].append(regression)
             elif regression.treename == 'next' or regression.treename == 'stable':
                 if regression.identified:
                     categories[regression.treename]['identified']['entries'].append(regression)
