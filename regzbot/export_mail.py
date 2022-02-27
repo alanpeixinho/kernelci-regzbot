@@ -55,7 +55,14 @@ class RegressionMailReport(regzbot.RegressionFull):
         report.append('-'*len(subject))
         report.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s/' % self.entry)
         report.append(self.report_url)
-        report.append("\nBy %s, %s days ago; %s activities, latest %s days ago." % (self.author, regzbot.days_delta(self.gmtime), len(self._actievents),  regzbot.days_delta(self._actievents[-1].gmtime)))
+
+        statusline = []
+        statusline.append("\nBy %s, %s days ago; %s activities, latest %s days ago" % (self.author, regzbot.days_delta(self.gmtime), len(self._actievents),  regzbot.days_delta(self._actievents[-1].gmtime)))
+        if self.poked:
+            statusline.append('; poked %s days ago' % regzbot.days_delta(self.poked.gmtime))
+        statusline.append('.')
+        report.append(''.join(statusline))
+
         report = self.add_introduced(report)
         if self.solved_reason:
             report = self.add_fix(report)
