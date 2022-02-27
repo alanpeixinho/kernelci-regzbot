@@ -2549,6 +2549,12 @@ def basicressources_repsrces_setup():
     ReportSource.add('nvme', 6,
                      'nntp://nntp.lore.kernel.org/org.infradead.lists.linux-nvme',
                      'lore', 'https://lore.kernel.org/linux-nvme/', identifiers='linux-nvme@lists.infradead.org')
+    ReportSource.add('mm', 6,
+                     'nntp://nntp.lore.kernel.org/org.kvack.linux-mm',
+                     'lore', 'https://lore.kernel.org/linux-mm/', identifiers='linux-mm@kvack.org')
+    ReportSource.add('cifs', 6,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-cifs',
+                     'lore', 'https://lore.kernel.org/linux-cifs/', identifiers='linux-cifs@vger.kernel.org')
 
 
 def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
