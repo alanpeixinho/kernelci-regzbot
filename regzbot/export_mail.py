@@ -302,6 +302,10 @@ class RegExportMailReport():
                     'desc': 'all others with unkown culprit and activity in the past three months',
                     'entries': list(),
                 },
+                'backburner': {
+                    'desc': 'on back burner, but with activity since the last report',
+                    'entries': list(),
+                },
             },
             'stable': {
                 'identified': {
@@ -337,9 +341,14 @@ class RegExportMailReport():
             filed_days = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)).days
             last_activity_days = regzbot.days_delta(regression.gmtime_activity)
 
-            if regression.backburner and lastreport_gmtime > regression.gmtime_activity and last_activity_days < 180:
-                # ignore these
-                continue
+            if regression.backburner:
+                if lastreport_gmtime > regression.gmtime_activity:
+                    # ignore these
+                    continue
+                elif regression.treename == 'next' or regression.treename == 'stable':
+                    # only create reports for mainline for now
+                    continue
+                categories[regression.treename]['backburner']['entries'].append(regression)
             elif last_activity_days > 90:
                 continue
             elif regression.treename == 'next' or regression.treename == 'stable':
