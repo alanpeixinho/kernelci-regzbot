@@ -188,6 +188,18 @@ class RecordProcessedMsgids():
             logger.debug(
                 '[db msgidrecord] removed msgid: %s', msgid)
 
+    @staticmethod
+    def cleanup(cutoff_days):
+        dbcursor = DBCON.cursor()
+        cutoff_gmtime = int(datetime.datetime.now(datetime.timezone.utc).timestamp()) - (cutoff_days * 86400)
+        dbcursor.execute('''DELETE FROM msgidrecord
+                            WHERE gmtime < (?)''',
+                            (cutoff_gmtime, ))
+        if dbcursor.rowcount > 0:
+            logger.debug(
+                '[db msgidrecord] removed %s stale entries', dbcursor.rowcount)
+
+
 
 class GitBranch():
     def __init__(self, gitbranchid, gittreeid, name, lastchked):
@@ -2604,6 +2616,7 @@ def basicressources_init(databasedir=None, gittreesdir=None, websitesdir=None, t
 
     dbconnection = RegzbotDbMeta.init(databasedir)
     RegzbotDbMeta.update()
+    RecordProcessedMsgids.cleanup(30)
 
     reposdir = init_reposdir(gittreesdir)
     if not reposdir:
