@@ -2611,10 +2611,17 @@ def basicressources_setup(databasedir=None, gittreesdir=None, websitesdir=None, 
 
 
 def basicressources_init(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
+    from random import randrange
+
     databasedir, gittreesdir, websitesdir = basicressources_get_dirs(
         databasedir, gittreesdir, websitesdir, tmpdir)
 
     dbconnection = RegzbotDbMeta.init(databasedir)
+
+    # occational cleanup
+    if randrange(500) == 250:
+        DBCON.execute("VACUUM")
+
     RegzbotDbMeta.update()
     RecordProcessedMsgids.cleanup(30)
 
