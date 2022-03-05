@@ -71,7 +71,7 @@ class Emaildir:
         else:
             msg['Subject'] = "%s: Lorem ipsum dolor sit amet" % funcname
         msg.set_content(MAIL_TEMPLATE.substitute(tag=tag))
-        msg['From'] = 'nobody@example.com'
+        msg['From'] = 'Regzbot testingmail <nobody@example.com>'
         msg['To'] = self.recipient
         if cc:
             msg['Cc'] = cc

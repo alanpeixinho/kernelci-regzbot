@@ -67,8 +67,8 @@ class RegressionFullCSV(regzbot.RegressionFull):
 
         if len(flags) == 0:
             flags.append('no flags')
-        compiled.append("REGRESSION: %s, %s, %s (%s), %s, %s, %s, %s, %s: %s" %
-                       (self.subject, self.report_url, self._introduced_short, self._introduced_presentable,
+        compiled.append("REGRESSION: %s, %s, %s, %s, %s (%s), %s, %s, %s, %s, %s: %s" %
+                       (self.subject, self._actireports[0].authorname, self._actireports[0].authormail, self.report_url, self._introduced_short, self._introduced_presentable,
                            self._introduced_url, self.gmtime, self.treename, self._branchname, self.versionline, ', '.join(flags)))
         return compiled
 
