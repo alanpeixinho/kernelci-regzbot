@@ -2589,6 +2589,9 @@ def basicressources_repsrces_setup():
     ReportSource.add('cifs', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-cifs',
                      'lore', 'https://lore.kernel.org/linux-cifs/', identifiers='linux-cifs@vger.kernel.org')
+    ReportSource.add('mtd', 6,
+                     'nntp://nntp.lore.kernel.org/org.infradead.lists.linux-mtd',
+                     'lore', 'https://lore.kernel.org/linux-mtd/', identifiers='linux-mtd@lists.infradead.org')
 
 def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
     # constructs the directory paths
