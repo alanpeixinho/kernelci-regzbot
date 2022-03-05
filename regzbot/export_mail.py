@@ -53,11 +53,11 @@ class RegressionMailReport(regzbot.RegressionFull):
         report = list()
         report.append(subject)
         report.append('-'*len(subject))
-        report.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s/' % self.entry)
+        report.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s/' % self._actireports[0].entry)
         report.append(self.report_url)
 
         statusline = []
-        statusline.append("\nBy %s, %s days ago; %s activities, latest %s days ago" % (self.author, regzbot.days_delta(self.gmtime), len(self._actievents),  regzbot.days_delta(self._actievents[-1].gmtime)))
+        statusline.append("\nBy %s, %s days ago; %s activities, latest %s days ago" % (self._actireports[0].authorname, regzbot.days_delta(self.gmtime), len(self._actievents),  regzbot.days_delta(self._actievents[-1].gmtime)))
         if self.poked:
             statusline.append('; poked %s days ago' % regzbot.days_delta(self.poked.gmtime))
         statusline.append('.')
@@ -413,7 +413,7 @@ class RegExportMailReport():
             elif last_activity_days > 91:
                 # ignore due to inactivity for ~three months
                 continue
-            regressionslist.append(cls(regression.entry, regression.gmtime, regression.gmtime_filed,
+            regressionslist.append(cls(regression._actireports[0].entry, regression._actireports[0].gmtime, regression.gmtime_filed,
                                                     regression._actievents[-1].gmtime, regression.treename, regression.versionline,
                                                     regression.backburner, regression.identified, regression.mailreport(lastreport_gmtime)))
 

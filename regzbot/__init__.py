@@ -705,11 +705,21 @@ class GitTree():
 
 
 class RegActivityMonitor():
-    def __init__(self, actimonid, regid, repsrcid, entry):
+    def __init__(self, actimonid, regid, repsrcid, entry, report, gmtime, subject, authorname, authormail, lastchk):
         self.actimonid = actimonid
         self.regid = regid
         self.repsrcid = repsrcid
         self.entry = entry
+        self.gmtime = gmtime
+        self.subject = subject
+        self.authorname = authorname
+        self.authormail = authormail
+        self.lastchk = lastchk
+
+        if report == 0:
+            self.report = False
+        else:
+            self.report = True
 
     @staticmethod
     def db_create(version, dbcursor):
@@ -720,18 +730,24 @@ class RegActivityMonitor():
                 actimonid   INTEGER  NOT NULL PRIMARY KEY,
                 regid       INTEGER  NOT NULL,
                 repsrcid    INTEGER  NOT NULL,
-                entry       STRING   NOT NULL
+                entry       STRING   NOT NULL,
+                report      BOOL,
+                gmtime      INTEGER,
+                subject     STRING,
+                authorname  STRING,
+                authormail  STRING,
+                lastchk     INTEGER
             )''')
 
     @staticmethod
-    def add(regid, repsrcid, entry):
+    def add(regid, repsrcid, entry, report, gmtime, subject, authorname, authormail):
         dbcursor = DBCON.cursor()
         dbcursor.execute('''INSERT INTO actmonitor
-                            (regid, repsrcid, entry)
-                            VALUES (?, ?, ?)''',
-                         (regid, repsrcid, entry))
-        logger.debug('[db actmonitor] insert (actimonid:%s, regid:%s, repsrcid:%s, entry:%s)' % (
-            dbcursor.lastrowid, regid, repsrcid, entry))
+                            (regid, repsrcid, entry, report, gmtime, subject, authorname, authormail)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                         (regid, repsrcid, entry, report, gmtime, subject, authorname, authormail))
+        logger.debug('[db actmonitor] insert (actimonid:%s, regid:%s, repsrcid:%s, entry:%s, report:%s, gmtime:%s, subject:%s, authorname:%s, authormail:%s)' % (
+            dbcursor.lastrowid, regid, repsrcid, entry, report, gmtime, subject, authorname, authormail))
         return dbcursor.lastrowid
 
     def delete(self, dbcursor=None):
@@ -778,9 +794,15 @@ class RegActivityMonitor():
         return None
 
     @staticmethod
-    def getall_by_regid(regid):
+    def getall_by_regid(regid, reports=None):
         dbcursor = DBCON.cursor()
-        for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE regid=(?)', (regid, )):
+
+        if reports:
+            sqlquery = 'SELECT * FROM actmonitor WHERE regid=(?) AND report=True'
+        else:
+            sqlquery = 'SELECT * FROM actmonitor WHERE regid=(?)'
+
+        for dbresult in dbcursor.execute(sqlquery, (regid, )):
             yield RegActivityMonitor(*dbresult)
 
     @staticmethod
@@ -955,7 +977,7 @@ class RegActivityEvent():
         # example: https://lore.kernel.org/dri-devel/20211206183721.6495-1-dmoulding@me.com/
         dbresult_hist_regid = dbcursor.execute('SELECT regid FROM reghistory WHERE entry=(?) ORDER BY gmtime', (entry, )).fetchone()
         if dbresult_hist_regid is not None:
-             dbresult_reg_entry = dbcursor.execute('SELECT entry FROM regressions WHERE regid=(?)', (dbresult_hist_regid[0], )).fetchone()
+             dbresult_reg_entry = dbcursor.execute('SELECT entry FROM actmonitor WHERE regid=(?) AND report=True', (dbresult_hist_regid[0], )).fetchone()
              return cls.get_actimonid_by_entry(dbresult_reg_entry[0])
 
     @staticmethod
@@ -1327,17 +1349,12 @@ class RegLink():
 
 
 class RegressionBasic():
-    def __init__(self, regid, repsrcid, entry, subject, author, authormail, introduced, gitbranchid, solved_reason=None, solved_gmtime=None,
+    def __init__(self, regid, subject, introduced, gitbranchid, solved_reason=None, solved_gmtime=None,
                  solved_entry=None, solved_subject=None, solved_gitbranchid=None, solved_repsrcid=None, solved_repentry=None):
         self.regid = regid
 
-        # FIXMELATER: get those from RegAcitivityMonitor? OTOH it might be a bad idea :-/
-        self.repsrcid = repsrcid
-        self.entry = entry
-
         self.subject = subject
-        self.author = author
-        self.authormail = authormail
+
         self.introduced = str(introduced)
         self.gitbranchid = gitbranchid
         self.solved_reason = solved_reason
@@ -1355,11 +1372,7 @@ class RegressionBasic():
         dbcursor.execute('''
             CREATE TABLE regressions (
                 regid              INTEGER  NOT NULL PRIMARY KEY,
-                repsrcid           INTEGER  NOT NULL,
-                entry              STRING   NOT NULL,
                 subject            STRING   NOT NULL,
-                author             STRING   NOT NULL,
-                authormail         STRING,
                 introduced         STRING   NOT NULL,
                 gitbranchid        INTEGER,
                 solved_reason      STRING,
@@ -1402,20 +1415,21 @@ class RegressionBasic():
         for link in RegLink.get_all(self.regid):
             link.delete(dbcursor=dbcursor)
 
-        if self.repsrcid and ReportSource.get_by_id(self.repsrcid, dbcursor).ismail():
-            RecordProcessedMsgids.delete(self.entry)
+        # FIXME: tmp disabled
+        # if self.repsrcid and ReportSource.get_by_id(self.repsrcid, dbcursor).ismail():
+        #    RecordProcessedMsgids.delete(self.entry)
 
         dbcursor.execute('''DELETE FROM regressions
                          WHERE regid=(?)''',
                          (self.regid, ))
 
         if dbcursor.rowcount > 0:
-            logger.debug('[db regressions] deleted (regid:%s; subject:"%s" repsrcid:%s; entry:%s; introduced:%s; gitbranchid:%s)',
-                         self.regid, self.subject, self.repsrcid, self.entry, self.introduced, self.gitbranchid)
+            logger.debug('[db regressions] deleted (regid:%s; subject:"%s"; introduced:%s; gitbranchid:%s)',
+                         self.regid, self.subject, self.introduced, self.gitbranchid)
             return True
         else:
-            logger.debug('[db regressions] failed to deleted entry (regid:%s; subject:"%s" repsrcid:%s; entry:%s; introduced:%s; gitbranchid:%s)',
-                         self.regid, self.subject, self.repsrcid, self.entry, self.introduced, self.gitbranchid)
+            logger.debug('[db regressions] failed to deleted entry (regid:%s; subject:"%s"; introduced:%s; gitbranchid:%s)',
+                         self.regid, self.subject, self.introduced, self.gitbranchid)
             return False
 
 
@@ -1443,7 +1457,7 @@ class RegressionBasic():
     def get_by_entry(entry):
         dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
-            'SELECT * FROM regressions WHERE entry=?', (entry,)).fetchone()
+            'SELECT regressions.* FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.report=True AND actmonitor.entry=?', (entry,)).fetchone()
         if dbresult:
             return RegressionBasic(*dbresult)
         return None
@@ -1452,7 +1466,7 @@ class RegressionBasic():
     def get_by_regactivity(entry):
         dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
-            'SELECT regressions.* FROM ((actmonitor INNER JOIN regactivity ON regactivity.actimonid = actmonitor.actimonid) INNER JOIN regressions ON actmonitor.entry = regressions.entry) WHERE regactivity.entry=?; ', (entry,)).fetchone()
+            'SELECT regressions.* FROM ((actmonitor INNER JOIN regactivity ON regactivity.actimonid = actmonitor.actimonid) INNER JOIN regressions ON actmonitor.regid = regressions.regid) WHERE regactivity.entry=?; ', (entry,)).fetchone()
         if dbresult:
             return RegressionBasic(*dbresult)
         return None
@@ -1519,12 +1533,12 @@ class RegressionBasic():
         # create regression
         dbcursor = DBCON.cursor()
         dbcursor.execute('''INSERT INTO regressions
-                            (repsrcid, entry, subject, author,  authormail, introduced, gitbranchid)
-                            VALUES (?, ?, ?, ?,?, ?, ?)''',
-                         (repsrcid, entry, subject, author, authormail, introduced, gitbranchid))
+                            (subject, introduced, gitbranchid)
+                            VALUES (?, ?, ?)''',
+                         (subject, introduced, gitbranchid))
 
         # create entry for monitoring
-        actimonid = RegActivityMonitor.add(dbcursor.lastrowid, repsrcid, entry)
+        actimonid = RegActivityMonitor.add(dbcursor.lastrowid, repsrcid, entry, True, gmtime, subject, author, authormail)
 
         logger.debug('[db regressions] inserted (regid:%s; subject:"%s"; author:"%s"; authormail:"%s"; repsrcid:%s; entry:%s; introduced:%s; gitbranchid:%s)',
                      dbcursor.lastrowid, subject, author, authormail, repsrcid, entry, introduced, gitbranchid)
@@ -1534,9 +1548,9 @@ class RegressionBasic():
 
         # check if it already got fixed
         regression = RegressionBasic.get_by_regid(dbcursor.lastrowid)
-        GitTree.search_references(regression.entry, regression, gmtime=gmtime)
+        GitTree.search_references(entry, regression, gmtime=gmtime)
 
-        return RegressionBasic(dbcursor.lastrowid, repsrcid, entry, subject, author, authormail, introduced, gitbranchid)
+        return regression
 
     def introduced_update(self, tagload):
         self.introduced, self.gitbranchid = self.__introduced_precheck(tagload)
@@ -1753,8 +1767,8 @@ class RegressionBasic():
         logger.info('regression[%s, "%s"]: removed link to %s' % (
             self.regid, self.subject, link))
 
-    def monitoradd_direct(self, repsrcid, gmtime, msgid, description, author, contains_patch=0):
-        actimonid = RegActivityMonitor.add(self.regid, repsrcid, msgid)
+    def monitoradd_direct(self, repsrcid, gmtime, msgid, description, author, authormail, contains_patch=0):
+        actimonid = RegActivityMonitor.add(self.regid, repsrcid, msgid, False, gmtime, description, author, authormail)
         RegActivityEvent.event(
             gmtime, msgid, description, author, repsrcid=repsrcid, actimonid=actimonid, patchkind=contains_patch)
         RegLink.add_entry(
@@ -1790,7 +1804,7 @@ class RegressionBasic():
             target_subject = mailin.email_get_subject(target_msg)
             target_author, target_authormail = mailin.email_get_from(target_msg)
             self.monitoradd_direct(
-                target_repsrc.repsrcid, target_gmtime, target_msgid, target_subject, target_author)
+                target_repsrc.repsrcid, target_gmtime, target_msgid, target_subject, target_author, target_authormail)
         else:
             repsrc = ReportSource.get_byweburl(
                 '%%%s/%s%%' % (domain, mailinglist))
@@ -1800,7 +1814,7 @@ class RegressionBasic():
                     self.regid, self.subject, errormsg))
                 return self.monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime)
             self.monitoradd_direct(
-                repsrc.repsrcid, gmtime, target_msgid, description, None)
+                repsrc.repsrcid, gmtime, target_msgid, description, None, None)
 
         if not is_running_citesting('offline'):
             lore.process_replies(target_msgid)
@@ -1835,15 +1849,15 @@ class RegressionBasic():
                             self.regid, self.subject, errormsg)
             return self.monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime)
 
-    def update_author(self, tagload):
+    def update_author(self, entry, tagload):
         from email.utils import parseaddr
         author, authormail = parseaddr(tagload)
 
         dbcursor = DBCON.cursor()
-        dbcursor.execute('''UPDATE regressions
-                            SET author = (?), authormail = (?)
-                            WHERE regid=(?)''',
-                         (author, authormail, self.regid))
+        dbcursor.execute('''UPDATE actmonitor
+                            SET authorname = (?), authormail = (?)
+                            WHERE regid=(?) and entry=(?)''',
+                         (author, authormail, self.regid, entry))
         logger.debug('[db regressions] author is now %s, authormail now %s (regid:%s; subject:"%s")',
                      author, authormail, self.regid, self.subject)
         logger.info('regression[%s, "%s"]: author is now %s, authormail now %s',
@@ -1896,6 +1910,7 @@ class RegressionFull(RegressionBasic):
     Reglink = RegLink
     Reghistory = RegHistory
     Regactivityevent = RegActivityEvent
+    Regactivitymonitor = RegActivityMonitor
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -1903,6 +1918,7 @@ class RegressionFull(RegressionBasic):
         self._links = self._init_related_objects(list(), self.Reglink)
         self._histevents = self._init_related_objects(list(), self.Reghistory)
         self._actievents = self._init_related_objects(list(), self.Regactivityevent)
+        self._actireports = self._init_actireports(list(), self.Regactivitymonitor)
 
         self.backburner = RegBackburner.get_by_regid(self.regid)
 
@@ -1916,7 +1932,7 @@ class RegressionFull(RegressionBasic):
         self.treename = 'mainline'
 
         self.report_url = ReportSource.get_by_id(
-            self.repsrcid).url(self.entry)
+            self._actireports[0].repsrcid).url(self._actireports[0].entry)
 
         self.identified = False
         self._introduced_short, _ = self._get_presentable(self.introduced)
@@ -1971,6 +1987,12 @@ class RegressionFull(RegressionBasic):
         for obj in cls.get_all(self.regid):
             datalist.append(obj)
         return datalist
+
+    def _init_actireports(self, datalist, cls):
+        for obj in cls.getall_by_regid(self.regid, reports=True):
+            datalist.append(obj)
+        return datalist
+
 
     def _get_poked(self, histevents, actievents):
        if len(histevents) > 0 and \
@@ -2102,7 +2124,7 @@ class RegressionFull(RegressionBasic):
     def get_by_entry(entry):
         dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
-            'SELECT * FROM regressions WHERE entry=?', (entry,)).fetchone()
+            'SELECT regressions.* FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.report=True AND actmonitor.entry=?', (entry,)).fetchone()
         if dbresult:
             return RegressionFull(*dbresult)
         return None
@@ -2567,7 +2589,6 @@ def basicressources_repsrces_setup():
     ReportSource.add('cifs', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-cifs',
                      'lore', 'https://lore.kernel.org/linux-cifs/', identifiers='linux-cifs@vger.kernel.org')
-
 
 def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
     # constructs the directory paths

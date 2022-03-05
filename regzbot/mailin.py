@@ -207,7 +207,7 @@ def process_tag(repsrc, tag, msg):
             regressionb.fixedby(
                 gmtime, commit_hexsha, commit_subject, repsrcid=repsrc.repsrcid, repentry=msgid)
         elif tagcmd == "from":
-            regressionb.update_author(tagload)
+            regressionb.update_author(msgid, tagload)
         elif tagcmd == "invalid":
             regressionb.invalid(tagload, gmtime, msgid, repsrc.repsrcid)
         elif tagcmd == "introduced" or tagcmd == "^introduced"  or tagcmd == "^^introduced":
