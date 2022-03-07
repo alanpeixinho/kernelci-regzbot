@@ -793,8 +793,8 @@ class RegActivityMonitor():
             return RegActivityMonitor(*dbresult)
         return None
 
-    @staticmethod
-    def getall_by_regid(regid, reports=None):
+    @classmethod
+    def getall_by_regid(cls, regid, reports=None, recursion_count=0):
         dbcursor = DBCON.cursor()
 
         if reports:
@@ -804,6 +804,16 @@ class RegActivityMonitor():
 
         for dbresult in dbcursor.execute(sqlquery, (regid, )):
             yield RegActivityMonitor(*dbresult)
+
+        # now get dupes
+        if recursion_count > 12:
+            logger.critical("Aborting, recursion limit in RegActivityMonitor.getall_by_regid() exceeded.")
+            sys.exit(1)
+        recursion_count += 1
+
+        for dbresult in dbcursor.execute('SELECT regid FROM regressions WHERE solved_entry=(?)', (regid, )):
+             for obj in cls.getall_by_regid(dbresult[0], reports=reports, recursion_count=recursion_count):
+                 yield obj
 
     @staticmethod
     def get_by_entry(entry):
@@ -1579,9 +1589,9 @@ class RegressionBasic():
                 subject = None
             return url, subject
 
-        self.solved_entry, self.solved_subject = parse(tagload)
+        urldup, self.solved_subject = parse(tagload)
 
-        regression_other = self.get_by_link(self.solved_entry)
+        regression_other = self.get_by_link(urldup)
         if not regression_other:
             UnhandledEvent.add(ReportSource.url_by_id(repsrcid, msgid),
                                            "regression '%s' marked as duplicate of '%s', but could not find a regression for the latter" % (self.subject, tagload))
@@ -1595,9 +1605,10 @@ class RegressionBasic():
             self.solved_subject = regression_other.subject
         else:
             # better a URL as subject than nothing at all:
-            self.solved_subject = self.solved_entry
+            self.solved_subject = urldup
 
         self.solved_reason = 'duplicateof'
+        self.solved_entry = regression_other.regid
         self.solved_gmtime = gmtime
         self.solved_repsrcid = repsrcid
         self.solved_repentry = msgid
@@ -1918,21 +1929,14 @@ class RegressionFull(RegressionBasic):
         self._links = self._init_related_objects(list(), self.Reglink)
         self._histevents = self._init_related_objects(list(), self.Reghistory)
         self._actievents = self._init_related_objects(list(), self.Regactivityevent)
-        self._actireports = self._init_actireports(list(), self.Regactivitymonitor)
+        self.repsrcid, self.entry, self.gmtime, self._actireports = self._init_actireports(self.Regactivitymonitor)
 
         self.backburner = RegBackburner.get_by_regid(self.regid)
 
-        if len(self._histevents) > 0:
-            self.gmtime = self._histevents[0].gmtime
-        else:
-            self.gmtime = 0
         self.poked = self._get_poked(self._histevents, self._actievents)
 
         # provide a default that is overwritten
         self.treename = 'mainline'
-
-        self.report_url = ReportSource.get_by_id(
-            self._actireports[0].repsrcid).url(self._actireports[0].entry)
 
         self.identified = False
         self._introduced_short, _ = self._get_presentable(self.introduced)
@@ -1988,11 +1992,18 @@ class RegressionFull(RegressionBasic):
             datalist.append(obj)
         return datalist
 
-    def _init_actireports(self, datalist, cls):
+    def _init_actireports(self, cls):
+        objlist = list()
         for obj in cls.getall_by_regid(self.regid, reports=True):
-            datalist.append(obj)
-        return datalist
+            objlist.append(obj)
 
+        repsrcid = objlist[0].repsrcid
+        entry = objlist[0].entry
+
+        objlist.sort(key=lambda x: x.gmtime)
+        gmtime = objlist[0].gmtime
+
+        return repsrcid, entry, gmtime, objlist
 
     def _get_poked(self, histevents, actievents):
        if len(histevents) > 0 and \
@@ -2287,9 +2298,12 @@ class ReportSource():
         repsrc = ReportSource.get_by_id(repsrcid)
         return repsrc.url(entry)
 
-    def url(self, entry):
+    def url(self, entry, *, redirector=None):
         if self.kind == 'lore':
-            return '%s%s/' % (self.weburl, urlencode(entry))
+            if redirector:
+                return 'https://lore.kernel.org/r/%s/' % urlencode(entry)
+            else:
+                return '%s%s/' % (self.weburl, urlencode(entry))
         logger.critical(
             "ReportSource doesn't yet known how to return a URL for %s", self.kind)
         return None

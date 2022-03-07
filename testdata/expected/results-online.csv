@@ -1,6 +1,6 @@
 [onlntest_0_0]
 REGRESSION: Revert "floppy: reintroduce O_NDELAY fix", 8a0c014cd205 (v5.12-rc1-dontuse), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=8a0c014cd20516ade9654fc13b51345ec58e7be8, mainline, master, previous: culprit indentified
-REPORT: 1628408566, Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, efremov@linux.com, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com/
+INITIAL_REPORT: 1628408566, Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, efremov@linux.com, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com/
 LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/ [monitored]
 LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com/ [monitored]
 LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com/ [monitored]
@@ -74,7 +74,7 @@ LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis
 
 [onlntest_0_1]
 REGRESSION: Revert "floppy: reintroduce O_NDELAY fix", 8a0c014cd205 (v5.12-rc1-dontuse), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=8a0c014cd20516ade9654fc13b51345ec58e7be8, mainline, master, previous: culprit indentified
-REPORT: 1628408566, Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, efremov@linux.com, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com/
+INITIAL_REPORT: 1628408566, Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, efremov@linux.com, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com/
 LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/ [monitored]
 LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com/ [monitored]
 LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com/ [monitored]
@@ -146,7 +146,7 @@ HISTORY: Revert "floppy: reintroduce O_NDELAY fix", 1630657442, Denis Efremov, h
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", 1632137352, Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info/, monitor: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
 LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info/, 1632137352, PatchKind.0
 REGRESSION: mhi: ath11k resume fails on some devices, 020d3b26c07a (v5.13-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=020d3b26c07abe274ac17f64999bbd3bf3342195, mainline, master, previous: culprit indentified
-REPORT: 1631779209, mhi: ath11k resume fails on some devices, Kalle Valo, kvalo@codeaurora.org, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org/
+INITIAL_REPORT: 1631779209, mhi: ath11k resume fails on some devices, Kalle Valo, kvalo@codeaurora.org, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org/
 SOLVED: fixed, 1639332994, v5.16-rc5, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=cab2d3fd6866e089b5c50db09dece131f85bfebd, bus: mhi: core: Add support for forced PM resume
 ACTIVITY: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org/, 1631779209, PatchKind.0
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Loic Poulain, https://lore.kernel.org/regressions/CAMZdPi8UJLvBFQd8-nf-iHAQh8cEuihq97PUFfZ7Q=rxRQoPsg@mail.gmail.com/, 1631787490, PatchKind.0
@@ -186,7 +186,7 @@ LATEST: Commit 47b355f25b55 in stable/linux-5.15.y, Loic Poulain, https://git.ke
 
 [onlntest_0_2]
 REGRESSION: Revert "floppy: reintroduce O_NDELAY fix", 8a0c014cd205 (v5.12-rc1-dontuse), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=8a0c014cd20516ade9654fc13b51345ec58e7be8, mainline, master, previous: culprit indentified
-REPORT: 1628408566, Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, efremov@linux.com, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com/
+INITIAL_REPORT: 1628408566, Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, efremov@linux.com, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com/
 LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/ [monitored]
 LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com/ [monitored]
 LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com/ [monitored]
@@ -258,7 +258,7 @@ HISTORY: Revert "floppy: reintroduce O_NDELAY fix", 1630657442, Denis Efremov, h
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", 1632137352, Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info/, monitor: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
 LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info/, 1632137352, PatchKind.0
 REGRESSION: mhi: ath11k resume fails on some devices, 020d3b26c07a (v5.13-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=020d3b26c07abe274ac17f64999bbd3bf3342195, mainline, master, previous: culprit indentified
-REPORT: 1631779209, mhi: ath11k resume fails on some devices, Kalle Valo, kvalo@codeaurora.org, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org/
+INITIAL_REPORT: 1631779209, mhi: ath11k resume fails on some devices, Kalle Valo, kvalo@codeaurora.org, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org/
 SOLVED: fixed, 1639332994, v5.16-rc5, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=cab2d3fd6866e089b5c50db09dece131f85bfebd, bus: mhi: core: Add support for forced PM resume
 ACTIVITY: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org/, 1631779209, PatchKind.0
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Loic Poulain, https://lore.kernel.org/regressions/CAMZdPi8UJLvBFQd8-nf-iHAQh8cEuihq97PUFfZ7Q=rxRQoPsg@mail.gmail.com/, 1631787490, PatchKind.0
@@ -296,7 +296,7 @@ HISTORY: bus: mhi: core: Add support for forced PM resume, 1639332994, Loic Poul
 HISTORY: bus: mhi: core: Add support for forced PM resume, 1639475842, Loic Poulain, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.15.y&id=47b355f25b55c98c63ed7346faa3e1613c895f7e, note: 47b355f25b55 in stable/linux-5.15.y referred to this regression
 LATEST: Commit 47b355f25b55 in stable/linux-5.15.y, Loic Poulain, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.15.y&id=47b355f25b55c98c63ed7346faa3e1613c895f7e, 1639475842, PatchKind.0
 REGRESSION: nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, e7006de6c238 (v5.15-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e7006de6c23803799be000a5dcce4d916a36541a, mainline, master, previous: culprit indentified
-REPORT: 1632575442, nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, redecorating@protonmail.com, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com/
+INITIAL_REPORT: 1632575442, nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, redecorating@protonmail.com, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com/
 LINK: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX%2Bi7OfMA0Vd4FWA@mail.gmail.com/ [monitored]
 LINK: [PATCHv2] nvme: add command id quirk for apple controllers, https://lore.kernel.org/lkml/20210927154306.387437-1-kbusch@kernel.org/ [monitored]
 SOLVED: fixed, 1633197636, v5.15-rc4, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=a2941f6aa71a72be2c82c0a168523a492d093530, nvme: add command id quirk for apple controllers
@@ -355,7 +355,7 @@ LATEST: Commit 617f0ea5dfc4 in stable/linux-5.14.y, Keith Busch, https://git.ker
 
 [onlntest_0_3]
 REGRESSION: Revert "floppy: reintroduce O_NDELAY fix", 8a0c014cd205 (v5.12-rc1-dontuse), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=8a0c014cd20516ade9654fc13b51345ec58e7be8, mainline, master, previous: culprit indentified
-REPORT: 1628408566, Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, efremov@linux.com, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com/
+INITIAL_REPORT: 1628408566, Revert "floppy: reintroduce O_NDELAY fix", Denis Efremov, efremov@linux.com, https://lore.kernel.org/lkml/20210808074246.33449-1-efremov@linux.com/
 LINK: [BUG] FLOPPY DRIVER since 5.10.20, https://lore.kernel.org/lkml/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/ [monitored]
 LINK: [RFC PATCH 0/5] selftests: floppy: basic tests, https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com/ [monitored]
 LINK: [GIT PULL] Floppy patch for 5.15, https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com/ [monitored]
@@ -427,7 +427,7 @@ HISTORY: Revert "floppy: reintroduce O_NDELAY fix", 1630657442, Denis Efremov, h
 HISTORY: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", 1632137352, Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info/, monitor: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
 LATEST: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix", Thorsten Leemhuis, https://lore.kernel.org/regressions/8d83985a-68a6-13f9-42b6-a6980c9f853c@leemhuis.info/, 1632137352, PatchKind.0
 REGRESSION: mhi: ath11k resume fails on some devices, 020d3b26c07a (v5.13-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=020d3b26c07abe274ac17f64999bbd3bf3342195, mainline, master, previous: culprit indentified
-REPORT: 1631779209, mhi: ath11k resume fails on some devices, Kalle Valo, kvalo@codeaurora.org, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org/
+INITIAL_REPORT: 1631779209, mhi: ath11k resume fails on some devices, Kalle Valo, kvalo@codeaurora.org, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org/
 SOLVED: fixed, 1639332994, v5.16-rc5, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=cab2d3fd6866e089b5c50db09dece131f85bfebd, bus: mhi: core: Add support for forced PM resume
 ACTIVITY: [regression] mhi: ath11k resume fails on some devices, Kalle Valo, https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org/, 1631779209, PatchKind.0
 ACTIVITY: Re: [regression] mhi: ath11k resume fails on some devices, Loic Poulain, https://lore.kernel.org/regressions/CAMZdPi8UJLvBFQd8-nf-iHAQh8cEuihq97PUFfZ7Q=rxRQoPsg@mail.gmail.com/, 1631787490, PatchKind.0
@@ -465,7 +465,7 @@ HISTORY: bus: mhi: core: Add support for forced PM resume, 1639332994, Loic Poul
 HISTORY: bus: mhi: core: Add support for forced PM resume, 1639475842, Loic Poulain, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.15.y&id=47b355f25b55c98c63ed7346faa3e1613c895f7e, note: 47b355f25b55 in stable/linux-5.15.y referred to this regression
 LATEST: Commit 47b355f25b55 in stable/linux-5.15.y, Loic Poulain, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.15.y&id=47b355f25b55c98c63ed7346faa3e1613c895f7e, 1639475842, PatchKind.0
 REGRESSION: nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, e7006de6c238 (v5.15-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e7006de6c23803799be000a5dcce4d916a36541a, mainline, master, previous: culprit indentified
-REPORT: 1632575442, nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, redecorating@protonmail.com, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com/
+INITIAL_REPORT: 1632575442, nvme: code command_id with a genctr for use-after-free validation crashes apple T2 SSD, Orlando Chamberlain, redecorating@protonmail.com, https://lore.kernel.org/regressions/cjJiSFV77WM51ciS8EuBcdeBcv9T83PUB-Kw3yi8PuC_LwrrUUnQ3w5RC1PbKvSYE72KryXp3wOJhv4Ov_WWIe2gKWOOo5uwuUjbbFA8HDM=@protonmail.com/
 LINK: Re: [PATCH] Urgent bug fix causing Apple SSDs to not work., https://lore.kernel.org/lkml/CAHk-=wgML11x9afCvmg9yhVm9wi5mvnjBvmX%2Bi7OfMA0Vd4FWA@mail.gmail.com/ [monitored]
 LINK: [PATCHv2] nvme: add command id quirk for apple controllers, https://lore.kernel.org/lkml/20210927154306.387437-1-kbusch@kernel.org/ [monitored]
 SOLVED: fixed, 1633197636, v5.15-rc4, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=a2941f6aa71a72be2c82c0a168523a492d093530, nvme: add command id quirk for apple controllers
@@ -522,7 +522,7 @@ HISTORY: nvme-pci: Fix abort command id, 1634723103, Keith Busch, https://git.ke
 HISTORY: nvme-pci: Fix abort command id, 1634723874, Keith Busch, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.14.y&id=5ccd69157a9a043f1fbcf7d6a09bcb7829b845aa, note: '5ccd69157a9a' in 'stable/linux-5.14.y' contains a 'Fixes:' tag for the culprit of this regression
 LATEST: Commit 617f0ea5dfc4 in stable/linux-5.14.y, Keith Busch, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.14.y&id=617f0ea5dfc43b9e36a980208361ed5b33ec23ec, 1633585997, PatchKind.0
 REGRESSION: Bug in Memory Layout of rx_desc for QCA6174, e3def6f7ddf8 (v4.16-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e3def6f7ddf88636febb12e1e3e86387a4ce5452, mainline, master, previous: culprit indentified, back-burner
-REPORT: 1624001331, Bug in Memory Layout of rx_desc for QCA6174, Francesco Magliocca, franciman12@gmail.com, https://lore.kernel.org/ath10k/CAH4F6usFu8-A6k5Z7rU9__iENcSC6Zr-NtRhh_aypR74UvN1uQ@mail.gmail.com/
+INITIAL_REPORT: 1624001331, Bug in Memory Layout of rx_desc for QCA6174, Francesco Magliocca, franciman12@gmail.com, https://lore.kernel.org/ath10k/CAH4F6usFu8-A6k5Z7rU9__iENcSC6Zr-NtRhh_aypR74UvN1uQ@mail.gmail.com/
 LINK: Bug in Memory Layout of rx_desc for QCA6174, https://lore.kernel.org/ath10k/CAH4F6uvX=xtTnBDaj1BVHSx_FDSUbpc4TRC2DGTHBmGJSD2oEA@mail.gmail.com/ [monitored]
 SOLVED: to_be_fixed, 1646353145, 6bae9de622d3, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=6bae9de622d3ef4805aba40e763eb4b0975c4f6d, ath10k: abstract htt_rx_desc structure
 ACTIVITY: Bug in Memory Layout of rx_desc for QCA6174, Francesco Magliocca, https://lore.kernel.org/ath10k/CAH4F6usFu8-A6k5Z7rU9__iENcSC6Zr-NtRhh_aypR74UvN1uQ@mail.gmail.com/, 1624001331, PatchKind.0
@@ -540,7 +540,7 @@ LATEST: Commit 6bae9de622d3 in next, Francesco Magliocca, https://git.kernel.org
 
 [onlntest_1_0]
 REGRESSION: virtio-net: kernel panic in virtio_net.c, v5.13..v5.14-rc1 (None), None, mainline, master, previous: culprit indentified
-REPORT: 1633608262, virtio-net: kernel panic in virtio_net.c, Corentin Noël, corentin.noel@collabora.com, https://lore.kernel.org/regressions/5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com/
+INITIAL_REPORT: 1633608262, virtio-net: kernel panic in virtio_net.c, Corentin Noël, corentin.noel@collabora.com, https://lore.kernel.org/regressions/5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com/
 LINK: Looks like a fix for this somehow fall through the cracks, https://lore.kernel.org/regressions/1633623446.6192446-1-xuanzhuo@linux.alibaba.com/, Xuan Zhuo; link later added and described by Thorsten Leemhuis, 1633623446
 SOLVED: fixed, 1634250099, v5.15-rc6, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, virtio-net: fix for skb_over_panic inside big mode
 ACTIVITY: virtio-net: kernel panic in virtio_net.c, Corentin Noël, https://lore.kernel.org/regressions/5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com/, 1633608262, PatchKind.0
@@ -571,7 +571,7 @@ UNHANDLED: 1, https://lore.kernel.org/regressions/ae2879df-64b8-0258-e4ee-59d7c2
 
 [onlntest_1_1]
 REGRESSION: virtio-net: kernel panic in virtio_net.c, v5.13..v5.14-rc1 (None), None, mainline, master, previous: culprit indentified
-REPORT: 1633608262, virtio-net: kernel panic in virtio_net.c, Corentin Noël, corentin.noel@collabora.com, https://lore.kernel.org/regressions/5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com/
+INITIAL_REPORT: 1633608262, virtio-net: kernel panic in virtio_net.c, Corentin Noël, corentin.noel@collabora.com, https://lore.kernel.org/regressions/5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com/
 LINK: Looks like a fix for this somehow fall through the cracks, https://lore.kernel.org/regressions/1633623446.6192446-1-xuanzhuo@linux.alibaba.com/, Xuan Zhuo; link later added and described by Thorsten Leemhuis, 1633623446
 SOLVED: fixed, 1634250099, v5.15-rc6, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, virtio-net: fix for skb_over_panic inside big mode
 ACTIVITY: virtio-net: kernel panic in virtio_net.c, Corentin Noël, https://lore.kernel.org/regressions/5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com/, 1633608262, PatchKind.0

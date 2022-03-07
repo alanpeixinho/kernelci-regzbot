@@ -70,10 +70,18 @@ class RegressionFullCSV(regzbot.RegressionFull):
         compiled.append("REGRESSION: %s, %s (%s), %s, %s, %s, %s: %s" %
                        (self.subject, self._introduced_short, self._introduced_presentable,
                            self._introduced_url, self.treename, self._branchname, self.versionline, ', '.join(flags)))
+
+        reportlist = list()
         for actireport in self._actireports:
-            compiled.append("REPORT: %s, %s, %s, %s, %s" %
+            content = ("%s, %s, %s, %s, %s" %
                             (actireport.gmtime, actireport.subject, actireport.authorname, actireport.authormail,
-                                regzbot.ReportSource.get_by_id(actireport.repsrcid).url(actireport.entry)))
+                            regzbot.ReportSource.get_by_id(actireport.repsrcid).url(actireport.entry)))
+            if self.repsrcid == actireport.repsrcid and self.entry == actireport.entry:
+                reportlist.insert(0, 'INITIAL_REPORT: %s' % content)
+            else:
+                reportlist.append('ADDITIONAL_REPORT: %s' % content)
+        compiled.extend(reportlist)
+
         return compiled
 
     def add_solved(self, compiled):

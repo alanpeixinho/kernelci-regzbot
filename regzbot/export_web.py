@@ -136,7 +136,7 @@ class RegressionWeb(regzbot.RegressionFull):
     def event_intro(self):
         html = yattag.Doc()
         html.text("Regression ")
-        with html.tag('a', href='../regression/%s/' % self._actireports[0].entry):
+        with html.tag('a', href='../regression/%s/' % self.entry):
              html.text(self.subject)
         html.text(":")
         return html
@@ -201,14 +201,25 @@ class RegressionWeb(regzbot.RegressionFull):
 
             with yattagdoc_line.tag('details', id='regression-details', style="padding-left: 1em;"):
                 with yattagdoc_line.tag('summary', style="list-style-position: outside;"):
-                    with yattagdoc.tag('i'):
-                        with yattagdoc.tag('a', href=self.report_url):
+                    with yattagdoc.tag('strong'):
+                        with yattagdoc.tag('i'):
                             yattagdoc.text(self.subject)
-                    yattagdoc.text(' by %s' % self._actireports[0].authorname)
+                    yattagdoc.text(' by ')
+                    for actireport in self._actireports:
+                            with yattagdoc.tag('a', href=regzbot.ReportSource.get_by_id(actireport.repsrcid).url(actireport.entry)):
+                                yattagdoc.text(actireport.authorname)
+                            if len(self._actireports) > 2 and actireport == self._actireports[-2]:
+                                yattagdoc.text(', and ')
+                            elif len(self._actireports) > 1 and actireport == self._actireports[-2]:
+                                yattagdoc.text(' and ')
+                            elif actireport == self._actireports[-1]:
+                                pass
+                            else:
+                                yattagdoc.text(', ')
 
                     with yattagdoc.tag('div'):
                         yattagdoc.text('Earliest & latest ')
-                        with yattagdoc.tag('a', href='../regression/%s/' % self._actireports[0].entry):
+                        with yattagdoc.tag('a', href='../regression/%s/' % self._actievents[0].entry):
                              yattagdoc.text('activity')
                         yattagdoc.text(': ')
                         if self._actievents[0] is self._actievents[-1]:
@@ -382,18 +393,25 @@ class RegressionWeb(regzbot.RegressionFull):
                             yattagdoc.text('Fixes: %s ("%s")' % (
                                 self.introduced[0:12], commitsummary))
 
-                      if self._actireports[0].authorname and self._actireports[0].authormail:
+                      reports = dict()
+                      for actireport in self._actireports:
+                          if not actireport.authorname or not actireport.authormail:
+                              # there are a few old database entry where authorname and authormail are missing
+                              # just ignore them
+                              continue
+                          reportedby = "Reported-by: %s <%s>" % (actireport.authorname, actireport.authormail)
+                          reportedlink=regzbot.ReportSource.get_by_id(actireport.repsrcid).url(actireport.entry, redirector=True)
+                          if not reportedby in reports.keys():
+                              reports[reportedby] = list()
+                          reports[reportedby].append(reportedlink)
+                      for reports_key in reports:
                            with yattagdoc.tag('li'):
-                               if self._actireports[0].authorname == self._actireports[0].authormail:
-                                   yattagdoc.text("Reported-by: %s" % self._actireports[0].authormail)
-                               else:
-                                   yattagdoc.text("Reported-by: %s <%s>" % (self._actireports[0].authorname, self._actireports[0].authormail))
-
-                      with yattagdoc.tag('li'):
-                        yattagdoc.text("Link: ")
-                        link = "https://lore.kernel.org/r/%s" % self._actireports[0].entry
-                        with yattagdoc.tag('a', href=link):
-                            yattagdoc.text(link)
+                               yattagdoc.text(reports_key)
+                           for link in reports[reports_key]:
+                               with yattagdoc.tag('li'):
+                                   yattagdoc.text('Link: ')
+                                   with yattagdoc.tag('a', href=link):
+                                       yattagdoc.text(link)
 
         yattagdoc_line = yattag.Doc()
         with yattagdoc_line.tag('td', style="width: 200px;"):
@@ -805,7 +823,7 @@ class RegExportWeb():
             gmtime_solved = None
             if regression.solved_reason == 'fixed' or regression.solved_reason == 'invalid' or regression.solved_reason == 'duplicateof':
                 gmtime_solved = regression.solved_gmtime
-            regressionslist.append(cls(regression._actireports[0].entry, regression.gmtime, regression.gmtime_filed,
+            regressionslist.append(cls(regression.entry, regression.gmtime, regression.gmtime_filed,
                                                     regression._actievents[-1].gmtime, gmtime_solved, regression.treename,
                                                     regression.versionline, regression.backburner, regression.identified,
                                                     regression.html()))
