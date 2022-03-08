@@ -2606,6 +2606,9 @@ def basicressources_repsrces_setup():
     ReportSource.add('mtd', 6,
                      'nntp://nntp.lore.kernel.org/org.infradead.lists.linux-mtd',
                      'lore', 'https://lore.kernel.org/linux-mtd/', identifiers='linux-mtd@lists.infradead.org')
+    ReportSource.add('raid', 6,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-raid',
+                     'lore', 'https://lore.kernel.org/linux-raid/', identifiers='linux-raid@vger.kernel.org')
 
 def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
     # constructs the directory paths
