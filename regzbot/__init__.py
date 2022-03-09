@@ -1455,8 +1455,9 @@ class RegressionBasic():
                 yield cls(*dbresult)
 
     @classmethod
-    def get_by_regid(cls, regid):
-        dbcursor = DBCON.cursor()
+    def get_by_regid(cls, regid, dbcursor=None):
+        if not dbcursor:
+            dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
             'SELECT * FROM regressions WHERE regid=?', (regid,)).fetchone()
         if dbresult:
@@ -1464,21 +1465,72 @@ class RegressionBasic():
         return None
 
     @staticmethod
-    def get_by_entry(entry):
-        dbcursor = DBCON.cursor()
+    def get_by_entry(entry, dbcursor=None):
+        if not dbcursor:
+            dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
             'SELECT regressions.* FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.report=True AND actmonitor.entry=?', (entry,)).fetchone()
         if dbresult:
             return RegressionBasic(*dbresult)
         return None
 
+    @classmethod
+    def __find_duplicates(cls, dbcursor, regression, recursion_count=0) :
+        if recursion_count > 12:
+            logger.critical("Aborting, recursion limit in RegActivityMonitor.__walk_duplicates() exceeded.")
+            sys.exit(1)
+        recursion_count += 1
+
+        # find and process any duplicates first
+        for dbresult in dbcursor.execute("SELECT * FROM regressions WHERE solved_reason='duplicateof' AND solved_entry=(?)", (regression.regid, )):
+            if dbresult:
+                for duplicate_regression in cls.__find_duplicates(dbcursor, cls(*dbresult), recursion_count=recursion_count):
+                    yield duplicate_regression
+
+    @classmethod
+    def getall_by_entry(cls, entry, dbcursor=None, recursion_count=0, regression=None):
+        if not dbcursor:
+            dbcursor = DBCON.cursor()
+
+        if not regression:
+            regression = cls.get_by_entry(entry, dbcursor)
+            if not regression:
+                return
+
+        # return primary regression entry first
+        yield regression
+        prime_regid = regression.regid
+
+        if regression.solved_reason == 'duplicateof':
+            # ughh, we are dealing with a duplicate; so let's find the top-level regression and then walk downwards from there
+            if recursion_count > 12:
+                logger.critical("Aborting, recursion limit in RegActivityMonitor.getall_by_regid() exceeded.")
+                sys.exit(1)
+            recursion_count += 1
+
+            parent_regression = cls.get_by_regid(regression.solved_entry, dbcursor=dbcursor)
+            cls.getall_by_entry(None, dbcursor=dbcursor, recursion_count=recursion_count, regression=parent_regression)
+        else:
+            # now find all duplicates of this regression and return them
+            for regression in cls.__find_duplicates(dbcursor, regression):
+                if prime_regid != regression.regid:
+                    yield regression
+
     @staticmethod
     def get_by_regactivity(entry):
         dbcursor = DBCON.cursor()
+
+        dbresult = dbcursor.execute(
+            'SELECT regressions.* FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.entry=?; ', (entry,)).fetchone()
+        if dbresult:
+            return RegressionBasic(*dbresult)
+
+        # fallback for deep threads
         dbresult = dbcursor.execute(
             'SELECT regressions.* FROM ((actmonitor INNER JOIN regactivity ON regactivity.actimonid = actmonitor.actimonid) INNER JOIN regressions ON actmonitor.regid = regressions.regid) WHERE regactivity.entry=?; ', (entry,)).fetchone()
         if dbresult:
             return RegressionBasic(*dbresult)
+
         return None
 
     @staticmethod

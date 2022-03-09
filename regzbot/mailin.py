@@ -71,10 +71,8 @@ def find_regression(msg):
             msgids_tocheck.append(email_get_msgid(msg['In-Reply-To']))
 
         for msgid_tocheck in msgids_tocheck:
-             regressionb = regzbot.RegressionBasic.get_by_regactivity(msgid_tocheck)
-             if regressionb:
-                 return regressionb
-
+            for regression in regzbot.RegressionBasic.getall_by_entry(msgid_tocheck):
+                return regression
         return None
 
 def find_actimon(msg):
@@ -127,10 +125,6 @@ def process_tag(repsrc, tag, msg):
 
     # get the regression id, in case there is one already
     regressionb = find_regression(msg)
-    if not regressionb:
-        # fallback: the activities entry in the db is only created after all commands were processed,
-        # hence commands after a "introduced" won't work for unless we do a extra check here
-        regressionb = regzbot.RegressionBasic.get_by_entry(msgid)
 
     if not regressionb:
         if tagcmd == "introduced":
