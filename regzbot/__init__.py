@@ -1481,7 +1481,9 @@ class RegressionBasic():
             sys.exit(1)
         recursion_count += 1
 
-        # find and process any duplicates first
+        yield regression
+
+        # return any duplicates, too
         for dbresult in dbcursor.execute("SELECT * FROM regressions WHERE solved_reason='duplicateof' AND solved_entry=(?)", (regression.regid, )):
             if dbresult:
                 for duplicate_regression in cls.__find_duplicates(dbcursor, cls(*dbresult), recursion_count=recursion_count):
@@ -1497,24 +1499,24 @@ class RegressionBasic():
             if not regression:
                 return
 
-        # return primary regression entry first
-        yield regression
-        prime_regid = regression.regid
-
         if regression.solved_reason == 'duplicateof':
-            # ughh, we are dealing with a duplicate; so let's find the top-level regression and then walk downwards from there
+            # return this regression first
+            yield regression
+
+            # now lets find the top-level regression and then walk downwards from there
             if recursion_count > 12:
                 logger.critical("Aborting, recursion limit in RegActivityMonitor.getall_by_regid() exceeded.")
                 sys.exit(1)
             recursion_count += 1
 
             parent_regression = cls.get_by_regid(regression.solved_entry, dbcursor=dbcursor)
-            cls.getall_by_entry(None, dbcursor=dbcursor, recursion_count=recursion_count, regression=parent_regression)
+            for duplicate_regression in cls.getall_by_entry(None, dbcursor=dbcursor, recursion_count=recursion_count, regression=parent_regression):
+                if regression.regid != duplicate_regression.regid:
+                    yield duplicate_regression
         else:
-            # now find all duplicates of this regression and return them
+            # return this regression and all duplicates of it
             for regression in cls.__find_duplicates(dbcursor, regression):
-                if prime_regid != regression.regid:
-                    yield regression
+                yield regression
 
     @staticmethod
     def get_by_regactivity(entry):

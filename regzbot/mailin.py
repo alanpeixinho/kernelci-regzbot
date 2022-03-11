@@ -62,7 +62,7 @@ def adjust_repsrc(repsrc, msg):
     return repsrc
 
 
-def find_regression(msg):
+def find_regressions(msg):
         msgids_tocheck = [email_get_msgid(msg)]
         if 'References' in msg:
             for reference in msg['References'].split():
@@ -72,8 +72,7 @@ def find_regression(msg):
 
         for msgid_tocheck in msgids_tocheck:
             for regression in regzbot.RegressionBasic.getall_by_entry(msgid_tocheck):
-                return regression
-        return None
+                yield regression
 
 def find_actimon(msg):
         msgids_tocheck = [email_get_msgid(msg)]
@@ -123,10 +122,59 @@ def process_tag(repsrc, tag, msg):
     else:
         regzbotcmd = tagcmd
 
-    # get the regression id, in case there is one already
-    regressionb = find_regression(msg)
+    primary_regression = None
+    for regressionb in find_regressions(msg):
+        if not primary_regression:
+            primary_regression = regressionb
 
-    if not regressionb:
+        # only some commands should not affect any duplicates
+        dupallowed = ['title', 'subject', 'introduced',  "^introduced", "^^introduced"]
+        if primary_regression.regid != regressionb.regid:
+            if not tagcmd in dupallowed:
+                continue
+
+        # create entry in the reghistory before processing the tag, otherwise loops will happen
+        # if a monitor commands points to a mail higher up in the same thread
+        regzbot.RegHistory.event(
+            regressionb.regid, gmtime, msgid, subject, authorname, repsrcid=repsrc.repsrcid, regzbotcmd=regzbotcmd)
+
+        if tagcmd == "backburner" or tagcmd == "back-burner":
+            regressionb.backburner_add(repsrc.repsrcid, msgid, gmtime, authorname, tagload)
+        elif tagcmd == "unbackburn" or tagcmd == "unbackburner":
+            regressionb.backburner_remove()
+        elif tagcmd == "dupof" or tagcmd == "dup-of":
+            regressionb.dupof(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid)
+        elif tagcmd == "fixed-by" or tagcmd == "fixedby:":
+            commit_hexsha, commit_subject = spilttag_first_word(tagload)
+            regressionb.fixedby(
+                gmtime, commit_hexsha, commit_subject, repsrcid=repsrc.repsrcid, repentry=msgid)
+        elif tagcmd == "from":
+            regressionb.update_author(msgid, tagload)
+        elif tagcmd == "invalid":
+            regressionb.invalid(tagload, gmtime, msgid, repsrc.repsrcid)
+        elif tagcmd == "introduced" or tagcmd == "^introduced"  or tagcmd == "^^introduced":
+            regressionb.introduced_update(tagload)
+        elif tagcmd == "link":
+            regressionb.linkadd(tagload, gmtime, authorname)
+        elif tagcmd == "unlink":
+            regressionb.linkremove(tagload)
+        elif tagcmd == "monitor":
+            regressionb.monitoradd(tagload, gmtime, repsrc, msg)
+        elif tagcmd == "unmonitor":
+            regressionb.monitorremove(tagload, gmtime, repsrc, msg)
+        elif tagcmd == "poke":
+            # nothing to do, the entry in the history is enough
+            pass
+        elif tagcmd == "subject" or tagcmd == "title":
+            regressionb.title(tagload)
+        else:
+            reportsource = regzbot.ReportSource.get_by_id(repsrc.repsrcid)
+            urltoreport = reportsource.url(msgid)
+            regzbot.UnhandledEvent.add(
+                urltoreport, "unkown regzbot command: %s" % tagcmd, gmtime=gmtime, subject=subject)
+            return
+
+    if not primary_regression:
         if tagcmd == "introduced":
             regressionb = regzbot.RegressionBasic.introduced_create(
                 repsrc.repsrcid, msgid, email_get_cleansubject(msg), authorname, authormail, tagload, gmtime)
@@ -184,47 +232,7 @@ def process_tag(repsrc, tag, msg):
         if tagcmd == "^introduced" or tagcmd == "^^introduced":
              if not regzbot.is_running_citesting('offline'):
                  regzbot.process_thread(parent_msgid, repsrc.repsrcid)
-    else:
-        # create entry in the reghistory before processing the tag, otherwise loops will happen
-        # if a monitor commands points to a mail higher up in the same thread
-        regzbot.RegHistory.event(
-            regressionb.regid, gmtime, msgid, subject, authorname, repsrcid=repsrc.repsrcid, regzbotcmd=regzbotcmd)
 
-        if tagcmd == "backburner" or tagcmd == "back-burner":
-            regressionb.backburner_add(repsrc.repsrcid, msgid, gmtime, authorname, tagload)
-        elif tagcmd == "unbackburn" or tagcmd == "unbackburner":
-            regressionb.backburner_remove()
-        elif tagcmd == "dupof" or tagcmd == "dup-of":
-            regressionb.dupof(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid)
-        elif tagcmd == "fixed-by" or tagcmd == "fixedby:":
-            commit_hexsha, commit_subject = spilttag_first_word(tagload)
-            regressionb.fixedby(
-                gmtime, commit_hexsha, commit_subject, repsrcid=repsrc.repsrcid, repentry=msgid)
-        elif tagcmd == "from":
-            regressionb.update_author(msgid, tagload)
-        elif tagcmd == "invalid":
-            regressionb.invalid(tagload, gmtime, msgid, repsrc.repsrcid)
-        elif tagcmd == "introduced" or tagcmd == "^introduced"  or tagcmd == "^^introduced":
-            regressionb.introduced_update(tagload)
-        elif tagcmd == "link":
-            regressionb.linkadd(tagload, gmtime, authorname)
-        elif tagcmd == "unlink":
-            regressionb.linkremove(tagload)
-        elif tagcmd == "monitor":
-            regressionb.monitoradd(tagload, gmtime, repsrc, msg)
-        elif tagcmd == "unmonitor":
-            regressionb.monitorremove(tagload, gmtime, repsrc, msg)
-        elif tagcmd == "poke":
-            # nothing to do, the entry in the history is enough
-            pass
-        elif tagcmd == "subject" or tagcmd == "title":
-            regressionb.title(tagload)
-        else:
-            reportsource = regzbot.ReportSource.get_by_id(repsrc.repsrcid)
-            urltoreport = reportsource.url(msgid)
-            regzbot.UnhandledEvent.add(
-                urltoreport, "unkown regzbot command: %s" % tagcmd, gmtime=gmtime, subject=subject)
-            return
 
 def email_get_from(msg):
     from email.utils import parseaddr
