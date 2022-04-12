@@ -2579,12 +2579,21 @@ def basicressources_repsrces_setup():
     ReportSource.add('dri', 3,
                      'nntp://nntp.lore.kernel.org/org.freedesktop.lists.dri-devel',
                      'lore', 'https://lore.kernel.org/dri-devel/', identifiers='dri-devel@lists.freedesktop.org')
+    ReportSource.add('block', 3,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-block',
+                     'lore', 'https://lore.kernel.org/linux-block/', identifiers='linux-block@vger.kernel.org')
     ReportSource.add('fsdevel', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-fsdevel',
                      'lore', 'https://lore.kernel.org/linux-fsdevel/', identifiers='linux-fsdevel@vger.kernel.org')
     ReportSource.add('btrfs', 4,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-btrfs',
                      'lore', 'https://lore.kernel.org/linux-btrfs/', identifiers='linux-btrfs@vger.kernel.org')
+    ReportSource.add('nfs', 4,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-nfs',
+                     'lore', 'https://lore.kernel.org/linux-nfs/', identifiers='linux-nfs@vger.kernel.org')
+    ReportSource.add('xfs', 4,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-xfs',
+                     'lore', 'https://lore.kernel.org/linux-xfs/', identifiers='linux-xfs@vger.kernel.org')
     ReportSource.add('scsi', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-scsi',
                      'lore', 'https://lore.kernel.org/linux-scsi/', identifiers='linux-scsi@vger.kernel.org')
@@ -2636,6 +2645,9 @@ def basicressources_repsrces_setup():
     ReportSource.add('ath10k', 7,
                      'nntp://nntp.lore.kernel.org/org.infradead.lists.ath10k',
                      'lore', 'https://lore.kernel.org/ath10k/', identifiers='ath10k@lists.infradead.org')
+    ReportSource.add('ath11k', 7,
+                     'nntp://nntp.lore.kernel.org/org.infradead.lists.ath11k',
+                     'lore', 'https://lore.kernel.org/ath11k/', identifiers='ath10k@lists.infradead.org')
     ReportSource.add('fbdev', 7,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-fbdev',
                      'lore', 'https://lore.kernel.org/linux-fbdev/', identifiers='linux-fbdev@vger.kernel.org')
@@ -2663,6 +2675,9 @@ def basicressources_repsrces_setup():
     ReportSource.add('raid', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-raid',
                      'lore', 'https://lore.kernel.org/linux-raid/', identifiers='linux-raid@vger.kernel.org')
+    ReportSource.add('serial', 7,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-serial',
+                     'lore', 'https://lore.kernel.org/linux-serial/', identifiers='linux-serial@vger.kernel.org')
 
 def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
     # constructs the directory paths
