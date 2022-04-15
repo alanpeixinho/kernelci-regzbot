@@ -67,7 +67,7 @@ def find_regressions(msg):
         if 'References' in msg:
             for reference in msg['References'].split():
                 msgids_tocheck.append(email_get_msgid(reference))
-        if 'In-Reply-To' in msg and not msg['In-Reply-To'] in msg['References']:
+        if 'In-Reply-To' in msg and 'References' in msg and not msg['In-Reply-To'] in msg['References']:
             msgids_tocheck.append(email_get_msgid(msg['In-Reply-To']))
 
         for msgid_tocheck in msgids_tocheck:
@@ -79,7 +79,7 @@ def find_actimon(msg):
         if 'References' in msg:
             for reference in msg['References'].split():
                 msgids_tocheck.append(email_get_msgid(reference))
-        if 'In-Reply-To' in msg and not msg['In-Reply-To'] in msg['References']:
+        if 'In-Reply-To' in msg and 'References' in msg and not msg['In-Reply-To'] in msg['References']:
             msgids_tocheck.append(email_get_msgid(msg['In-Reply-To']))
 
         for msgid_tocheck in msgids_tocheck:
