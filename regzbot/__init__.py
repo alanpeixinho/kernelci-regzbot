@@ -1358,13 +1358,17 @@ class RegLink():
 
 
 class RegressionBasic():
-    def __init__(self, regid, subject, introduced, actimonid, gitbranchid, solved_reason=None, solved_gmtime=None,
+    DBCOLS = "regressions.regid, regressions.subject, regressions.introduced, regressions.gitbranchid, regressions.actimonid, \
+                   regressions.solved_reason, regressions.solved_gmtime, regressions.solved_entry, regressions.solved_subject, \
+                   regressions.solved_gitbranchid, regressions.solved_repsrcid, regressions.solved_repentry"
+
+    def __init__(self, regid, subject, introduced, gitbranchid, actimonid, solved_reason=None, solved_gmtime=None,
                  solved_entry=None, solved_subject=None, solved_gitbranchid=None, solved_repsrcid=None, solved_repentry=None):
         self.regid = regid
         self.subject = subject
         self.introduced = str(introduced)
-        self.actimonid = actimonid
         self.gitbranchid = gitbranchid
+        self.actimonid = actimonid
 
         self.solved_reason = solved_reason
         self.solved_gmtime = solved_gmtime
@@ -1383,8 +1387,8 @@ class RegressionBasic():
                 regid              INTEGER  NOT NULL PRIMARY KEY,
                 subject            STRING   NOT NULL,
                 introduced         STRING   NOT NULL,
-                actimonid          INTEGER,
                 gitbranchid        INTEGER,
+                actimonid          INTEGER,
                 solved_reason      STRING,
                 solved_gmtime      INTEGER,
                 solved_entry       STRING,
@@ -1448,10 +1452,10 @@ class RegressionBasic():
         dbcursor = DBCON.cursor()
 
         if only_unsolved:
-            for dbresult in dbcursor.execute('SELECT * FROM regressions WHERE solved_reason IS NULL OR solved_reason IS "to_be_fixed" ORDER BY %s' % order):
+            for dbresult in dbcursor.execute('SELECT %s FROM regressions WHERE solved_reason IS NULL OR solved_reason IS "to_be_fixed" ORDER BY %s' % (RegressionBasic.DBCOLS, order)):
                 yield cls(*dbresult)
         else:
-            for dbresult in dbcursor.execute('SELECT * FROM regressions ORDER BY %s' % order):
+            for dbresult in dbcursor.execute('SELECT %s FROM regressions ORDER BY %s' % (RegressionBasic.DBCOLS, order)):
                 yield cls(*dbresult)
 
     @classmethod
@@ -1459,7 +1463,7 @@ class RegressionBasic():
         if not dbcursor:
             dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
-            'SELECT * FROM regressions WHERE regid=?', (regid,)).fetchone()
+            'SELECT %s FROM regressions WHERE regid=?' % RegressionBasic.DBCOLS, (regid,)).fetchone()
         if dbresult:
             return cls(*dbresult)
         return None
@@ -1469,7 +1473,7 @@ class RegressionBasic():
         if not dbcursor:
             dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
-            'SELECT regressions.* FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.entry=? AND actmonitor.actimonid = regressions.actimonid', (entry,)).fetchone()
+            'SELECT %s FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.entry=? AND actmonitor.actimonid = regressions.actimonid' % RegressionBasic.DBCOLS, (entry,)).fetchone()
         if dbresult:
             return RegressionBasic(*dbresult)
         return None
@@ -1484,7 +1488,7 @@ class RegressionBasic():
         yield regression
 
         # return any duplicates, too
-        for dbresult in dbcursor.execute("SELECT * FROM regressions WHERE solved_reason='duplicateof' AND solved_entry=(?)", (regression.regid, )):
+        for dbresult in dbcursor.execute("SELECT %s FROM regressions WHERE solved_reason='duplicateof' AND solved_entry=(?)" % RegressionBasic.DBCOLS, (regression.regid, )):
             if dbresult:
                 for duplicate_regression in cls.__find_duplicates(dbcursor, cls(*dbresult), recursion_count=recursion_count):
                     yield duplicate_regression
@@ -1523,13 +1527,13 @@ class RegressionBasic():
         dbcursor = DBCON.cursor()
 
         dbresult = dbcursor.execute(
-            'SELECT regressions.* FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.entry=?; ', (entry,)).fetchone()
+            'SELECT %s FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.entry=?; ' % RegressionBasic.DBCOLS, (entry,)).fetchone()
         if dbresult:
             return RegressionBasic(*dbresult)
 
         # fallback for deep threads
         dbresult = dbcursor.execute(
-            'SELECT regressions.* FROM ((actmonitor INNER JOIN regactivity ON regactivity.actimonid = actmonitor.actimonid) INNER JOIN regressions ON actmonitor.regid = regressions.regid) WHERE regactivity.entry=?; ', (entry,)).fetchone()
+            'SELECT %s FROM ((actmonitor INNER JOIN regactivity ON regactivity.actimonid = actmonitor.actimonid) INNER JOIN regressions ON actmonitor.regid = regressions.regid) WHERE regactivity.entry=?; ' % RegressionBasic.DBCOLS, (entry,)).fetchone()
         if dbresult:
             return RegressionBasic(*dbresult)
 
@@ -2194,7 +2198,7 @@ class RegressionFull(RegressionBasic):
     def get_by_entry(entry):
         dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
-            'SELECT regressions.* FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.actimonid = regressions.actimonid AND actmonitor.entry=?', (entry,)).fetchone()
+            'SELECT %s FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.actimonid = regressions.actimonid AND actmonitor.entry=?' % RegressionBasic.DBCOLS, (entry,)).fetchone()
         if dbresult:
             return RegressionFull(*dbresult)
         return None
