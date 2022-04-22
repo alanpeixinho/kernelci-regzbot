@@ -2688,6 +2688,16 @@ def basicressources_repsrces_setup():
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-serial',
                      'lore', 'https://lore.kernel.org/linux-serial/', identifiers='linux-serial@vger.kernel.org')
 
+    ReportSource.add('amd-gfx', 5,
+                     'nntp://nntp.lore.kernel.org/org.freedesktop.lists.amd-gfx',
+                     'lore', 'https://lore.kernel.org/amd-gfx/', identifiers='amd-gfx@lists.freedesktop.org')
+    ReportSource.add('nouveau', 5,
+                     'nntp://nntp.lore.kernel.org/org.freedesktop.lists.nouveau',
+                     'lore', 'https://lore.kernel.org/nouveau/', identifiers='nouveau@lists.freedesktop.org')
+    ReportSource.add('intel-gfx', 5,
+                     'nntp://nntp.lore.kernel.org/org.freedesktop.lists.intel-gfx',
+                     'lore', 'https://lore.kernel.org/intel-gfx/', identifiers='intel-gfxlists.freedesktop.org')
+
 def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
     # constructs the directory paths
     # use default path, unless tmpdir if given; but even then use the default, if the variable is set to 'True'
