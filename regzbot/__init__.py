@@ -2573,130 +2573,151 @@ def basicressources_repsrces_setup():
                          'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
                          'lore', 'https://lore.kernel.org/regressions/', identifiers='regressions@lists.linux.dev',
                          lastchked=190)
+
+    # basics
     ReportSource.add('stable', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.stable',
                      'lore', 'https://lore.kernel.org/stable/', identifiers='stable@vger.kernel.org')
-    ReportSource.add('netdev', 3,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.netdev',
-                     'lore', 'https://lore.kernel.org/netdev/', identifiers='netdev@vger.kernel.org')
-    ReportSource.add('wireless', 4,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-wireless',
-                     'lore', 'https://lore.kernel.org/linux-wireless/', identifiers='linux-wireless@vger.kernel.org')
+    ReportSource.add('mm', 6,
+                     'nntp://nntp.lore.kernel.org/org.kvack.linux-mm',
+                     'lore', 'https://lore.kernel.org/linux-mm/', identifiers='linux-mm@kvack.org')
+
+
+    # arch, mm, and virt
     ReportSource.add('arm', 3,
                      'nntp://nntp.lore.kernel.org/org.infradead.lists.linux-arm-kernel',
                      'lore', 'https://lore.kernel.org/linux-arm-kernel/', identifiers='linux-arm-kernel@lists.infradead.org')
-    ReportSource.add('dri', 3,
-                     'nntp://nntp.lore.kernel.org/org.freedesktop.lists.dri-devel',
-                     'lore', 'https://lore.kernel.org/dri-devel/', identifiers='dri-devel@lists.freedesktop.org')
-    ReportSource.add('block', 3,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-block',
-                     'lore', 'https://lore.kernel.org/linux-block/', identifiers='linux-block@vger.kernel.org')
-    ReportSource.add('fsdevel', 3,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-fsdevel',
-                     'lore', 'https://lore.kernel.org/linux-fsdevel/', identifiers='linux-fsdevel@vger.kernel.org')
-    ReportSource.add('btrfs', 4,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-btrfs',
-                     'lore', 'https://lore.kernel.org/linux-btrfs/', identifiers='linux-btrfs@vger.kernel.org')
-    ReportSource.add('nfs', 4,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-nfs',
-                     'lore', 'https://lore.kernel.org/linux-nfs/', identifiers='linux-nfs@vger.kernel.org')
-    ReportSource.add('xfs', 4,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-xfs',
-                     'lore', 'https://lore.kernel.org/linux-xfs/', identifiers='linux-xfs@vger.kernel.org')
-    ReportSource.add('scsi', 3,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-scsi',
-                     'lore', 'https://lore.kernel.org/linux-scsi/', identifiers='linux-scsi@vger.kernel.org')
-    ReportSource.add('pm', 5,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-pm',
-                     'lore', 'https://lore.kernel.org/linux-pm/', identifiers='linux-pm@vger.kernel.org')
-    ReportSource.add('pci', 5,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-pci',
-                     'lore', 'https://lore.kernel.org/linux-pci/', identifiers='linux-pci@vger.kernel.org')
+    ReportSource.add('kvm', 4,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.kvm',
+                     'lore', 'https://lore.kernel.org/kvm/', identifiers='kvm@vger.kernel.org')
     ReportSource.add('mips', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-mips',
                      'lore', 'https://lore.kernel.org/linux-mips/', identifiers='linux-mips@vger.kernel.org')
     ReportSource.add('ppc-dev', 3,
                      'nntp://nntp.lore.kernel.org/org.ozlabs.lists.linuxppc-dev',
                      'lore', 'https://lore.kernel.org/linuxppc-dev/', identifiers='linuxppc-dev@lists.ozlabs.org')
-    ReportSource.add('alsa', 5,
-                     'nntp://nntp.lore.kernel.org/org.alsa-project.alsa-devel',
-                     'lore', 'https://lore.kernel.org/alsa-devel/', identifiers='alsa-devel@alsa-project.org')
-    ReportSource.add('usb', 5,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-usb',
-                     'lore', 'https://lore.kernel.org/linux-usb/', identifiers='linux-usb@vger.kernel.org')
-    ReportSource.add('media', 5,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-media',
-                     'lore', 'https://lore.kernel.org/linux-media/', identifiers='linux-media@vger.kernel.org')
-    ReportSource.add('i2c', 5,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-i2c',
-                     'lore', 'https://lore.kernel.org/linux-i2c/', identifiers='linux-i2c@vger.kernel.org')
-    ReportSource.add('platform-driver-x86', 5,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.platform-driver-x86',
-                     'lore', 'https://lore.kernel.org/platform-driver-x86/', identifiers='platform-driver-x86@vger.kernel.org')
-    ReportSource.add('hwmon', 6,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-hwmon',
-                     'lore', 'https://lore.kernel.org/linux-hwmon/', identifiers='linux-hwmon@vger.kernel.org')
-    ReportSource.add('input', 6,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-input',
-                     'lore', 'https://lore.kernel.org/linux-input/', identifiers='linux-input@vger.kernel.org')
-    ReportSource.add('edac', 6,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-edac',
-                     'lore', 'https://lore.kernel.org/linux-edac/', identifiers='linux-edac@vger.kernel.org')
-    ReportSource.add('crypto', 6,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-crypto',
-                     'lore', 'https://lore.kernel.org/linux-crypto/', identifiers='linux-crypto@vger.kernel.org')
-    ReportSource.add('iio', 6,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-iio',
-                     'lore', 'https://lore.kernel.org/linux-iio/', identifiers='linux-iio@vger.kernel.org')
-    ReportSource.add('staging', 6,
-                     'nntp://nntp.lore.kernel.org/dev.linux.lists.linux-staging',
-                     'lore', 'https://lore.kernel.org/linux-staging/', identifiers='linux-staging@lists.linux.dev')
-    ReportSource.add('ath10k', 7,
-                     'nntp://nntp.lore.kernel.org/org.infradead.lists.ath10k',
-                     'lore', 'https://lore.kernel.org/ath10k/', identifiers='ath10k@lists.infradead.org')
-    ReportSource.add('ath11k', 7,
-                     'nntp://nntp.lore.kernel.org/org.infradead.lists.ath11k',
-                     'lore', 'https://lore.kernel.org/ath11k/', identifiers='ath10k@lists.infradead.org')
-    ReportSource.add('fbdev', 7,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-fbdev',
-                     'lore', 'https://lore.kernel.org/linux-fbdev/', identifiers='linux-fbdev@vger.kernel.org')
-    ReportSource.add('kvm', 4,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.kvm',
-                     'lore', 'https://lore.kernel.org/kvm/', identifiers='kvm@vger.kernel.org')
-    ReportSource.add('rdma', 4,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-rdma',
-                     'lore', 'https://lore.kernel.org/linux-rdma/', identifiers='linux-rdma@vger.kernel.org')
-    ReportSource.add('bluetooth', 6,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-bluetooth',
-                     'lore', 'https://lore.kernel.org/linux-bluetooth/', identifiers='linux-bluetooth@vger.kernel.org')
-    ReportSource.add('nvme', 6,
-                     'nntp://nntp.lore.kernel.org/org.infradead.lists.linux-nvme',
-                     'lore', 'https://lore.kernel.org/linux-nvme/', identifiers='linux-nvme@lists.infradead.org')
-    ReportSource.add('mm', 6,
-                     'nntp://nntp.lore.kernel.org/org.kvack.linux-mm',
-                     'lore', 'https://lore.kernel.org/linux-mm/', identifiers='linux-mm@kvack.org')
-    ReportSource.add('cifs', 6,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-cifs',
-                     'lore', 'https://lore.kernel.org/linux-cifs/', identifiers='linux-cifs@vger.kernel.org')
-    ReportSource.add('mtd', 6,
-                     'nntp://nntp.lore.kernel.org/org.infradead.lists.linux-mtd',
-                     'lore', 'https://lore.kernel.org/linux-mtd/', identifiers='linux-mtd@lists.infradead.org')
-    ReportSource.add('raid', 6,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-raid',
-                     'lore', 'https://lore.kernel.org/linux-raid/', identifiers='linux-raid@vger.kernel.org')
-    ReportSource.add('serial', 7,
-                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-serial',
-                     'lore', 'https://lore.kernel.org/linux-serial/', identifiers='linux-serial@vger.kernel.org')
 
+
+    # graphics
+    ReportSource.add('dri', 3,
+                     'nntp://nntp.lore.kernel.org/org.freedesktop.lists.dri-devel',
+                     'lore', 'https://lore.kernel.org/dri-devel/', identifiers='dri-devel@lists.freedesktop.org')
     ReportSource.add('amd-gfx', 5,
                      'nntp://nntp.lore.kernel.org/org.freedesktop.lists.amd-gfx',
                      'lore', 'https://lore.kernel.org/amd-gfx/', identifiers='amd-gfx@lists.freedesktop.org')
+    ReportSource.add('fbdev', 7,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-fbdev',
+                     'lore', 'https://lore.kernel.org/linux-fbdev/', identifiers='linux-fbdev@vger.kernel.org')
     ReportSource.add('nouveau', 5,
                      'nntp://nntp.lore.kernel.org/org.freedesktop.lists.nouveau',
                      'lore', 'https://lore.kernel.org/nouveau/', identifiers='nouveau@lists.freedesktop.org')
     ReportSource.add('intel-gfx', 5,
                      'nntp://nntp.lore.kernel.org/org.freedesktop.lists.intel-gfx',
                      'lore', 'https://lore.kernel.org/intel-gfx/', identifiers='intel-gfxlists.freedesktop.org')
+
+    # network
+    ReportSource.add('ath10k', 7,
+                     'nntp://nntp.lore.kernel.org/org.infradead.lists.ath10k',
+                     'lore', 'https://lore.kernel.org/ath10k/', identifiers='ath10k@lists.infradead.org')
+    ReportSource.add('ath11k', 7,
+                     'nntp://nntp.lore.kernel.org/org.infradead.lists.ath11k',
+                     'lore', 'https://lore.kernel.org/ath11k/', identifiers='ath10k@lists.infradead.org')
+    ReportSource.add('netdev', 3,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.netdev',
+                     'lore', 'https://lore.kernel.org/netdev/', identifiers='netdev@vger.kernel.org')
+    ReportSource.add('rdma', 4,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-rdma',
+                     'lore', 'https://lore.kernel.org/linux-rdma/', identifiers='linux-rdma@vger.kernel.org')
+    ReportSource.add('wireless', 4,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-wireless',
+                     'lore', 'https://lore.kernel.org/linux-wireless/', identifiers='linux-wireless@vger.kernel.org')
+
+
+    # storage
+    ReportSource.add('block', 3,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-block',
+                     'lore', 'https://lore.kernel.org/linux-block/', identifiers='linux-block@vger.kernel.org')
+    ReportSource.add('mtd', 6,
+                     'nntp://nntp.lore.kernel.org/org.infradead.lists.linux-mtd',
+                     'lore', 'https://lore.kernel.org/linux-mtd/', identifiers='linux-mtd@lists.infradead.org')
+    ReportSource.add('nvme', 6,
+                     'nntp://nntp.lore.kernel.org/org.infradead.lists.linux-nvme',
+                     'lore', 'https://lore.kernel.org/linux-nvme/', identifiers='linux-nvme@lists.infradead.org')
+    ReportSource.add('raid', 6,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-raid',
+                     'lore', 'https://lore.kernel.org/linux-raid/', identifiers='linux-raid@vger.kernel.org')
+    ReportSource.add('scsi', 3,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-scsi',
+                     'lore', 'https://lore.kernel.org/linux-scsi/', identifiers='linux-scsi@vger.kernel.org')
+
+    # filesystems
+    ReportSource.add('cifs', 6,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-cifs',
+                     'lore', 'https://lore.kernel.org/linux-cifs/', identifiers='linux-cifs@vger.kernel.org')
+    ReportSource.add('btrfs', 4,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-btrfs',
+                     'lore', 'https://lore.kernel.org/linux-btrfs/', identifiers='linux-btrfs@vger.kernel.org')
+    ReportSource.add('fsdevel', 3,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-fsdevel',
+                     'lore', 'https://lore.kernel.org/linux-fsdevel/', identifiers='linux-fsdevel@vger.kernel.org')
+    ReportSource.add('nfs', 4,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-nfs',
+                     'lore', 'https://lore.kernel.org/linux-nfs/', identifiers='linux-nfs@vger.kernel.org')
+    ReportSource.add('xfs', 4,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-xfs',
+                     'lore', 'https://lore.kernel.org/linux-xfs/', identifiers='linux-xfs@vger.kernel.org')
+
+
+    # pci, pm, low-level, etc.
+    ReportSource.add('crypto', 6,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-crypto',
+                     'lore', 'https://lore.kernel.org/linux-crypto/', identifiers='linux-crypto@vger.kernel.org')
+    ReportSource.add('edac', 6,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-edac',
+                     'lore', 'https://lore.kernel.org/linux-edac/', identifiers='linux-edac@vger.kernel.org')
+    ReportSource.add('i2c', 5,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-i2c',
+                     'lore', 'https://lore.kernel.org/linux-i2c/', identifiers='linux-i2c@vger.kernel.org')
+    ReportSource.add('iio', 6,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-iio',
+                     'lore', 'https://lore.kernel.org/linux-iio/', identifiers='linux-iio@vger.kernel.org')
+    ReportSource.add('pci', 5,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-pci',
+                     'lore', 'https://lore.kernel.org/linux-pci/', identifiers='linux-pci@vger.kernel.org')
+    ReportSource.add('pm', 5,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-pm',
+                     'lore', 'https://lore.kernel.org/linux-pm/', identifiers='linux-pm@vger.kernel.org')
+    ReportSource.add('serial', 7,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-serial',
+                     'lore', 'https://lore.kernel.org/linux-serial/', identifiers='linux-serial@vger.kernel.org')
+
+    # other drivers
+    ReportSource.add('alsa', 5,
+                     'nntp://nntp.lore.kernel.org/org.alsa-project.alsa-devel',
+                     'lore', 'https://lore.kernel.org/alsa-devel/', identifiers='alsa-devel@alsa-project.org')
+    ReportSource.add('bluetooth', 6,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-bluetooth',
+                     'lore', 'https://lore.kernel.org/linux-bluetooth/', identifiers='linux-bluetooth@vger.kernel.org')
+    ReportSource.add('hwmon', 6,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-hwmon',
+                     'lore', 'https://lore.kernel.org/linux-hwmon/', identifiers='linux-hwmon@vger.kernel.org')
+    ReportSource.add('input', 6,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-input',
+                     'lore', 'https://lore.kernel.org/linux-input/', identifiers='linux-input@vger.kernel.org')
+    ReportSource.add('media', 5,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-media',
+                     'lore', 'https://lore.kernel.org/linux-media/', identifiers='linux-media@vger.kernel.org')
+    ReportSource.add('platform-driver-x86', 5,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.platform-driver-x86',
+                     'lore', 'https://lore.kernel.org/platform-driver-x86/', identifiers='platform-driver-x86@vger.kernel.org')
+    ReportSource.add('staging', 6,
+                     'nntp://nntp.lore.kernel.org/dev.linux.lists.linux-staging',
+                     'lore', 'https://lore.kernel.org/linux-staging/', identifiers='linux-staging@lists.linux.dev')
+    ReportSource.add('usb', 5,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-usb',
+                     'lore', 'https://lore.kernel.org/linux-usb/', identifiers='linux-usb@vger.kernel.org')
+
+
 
 def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
     # constructs the directory paths
