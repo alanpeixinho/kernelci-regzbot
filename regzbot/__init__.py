@@ -1967,7 +1967,7 @@ class RegressionBasic():
             gittree_start, gitbranch_start = GitTree.commit_find_old(range_start)
             gittree_end, gitbranch_end = GitTree.commit_find_old(range_end)
             # make sure to not sort v5.14.15..v5.15.1 into mainline:
-            if gitbranch_start and gitbranch_start.name == gitbranch_end.name:
+            if gitbranch_start and gitbranch_end and gitbranch_start.name == gitbranch_end.name:
                 return introduced, gittree_end, gitbranch_end, True
             else:
                 return introduced, None, None, True
