@@ -449,6 +449,8 @@ def process_msg(repsrc, msg):
                 if section and section.startswith('http'):
                     url = section
                     break
+        if not url:
+            continue
 
         mailinglist, linked_msgid = process_link(url)
         if linked_msgid is None:
