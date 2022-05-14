@@ -626,46 +626,6 @@ def offltest_0_14(funcname):
         "%s_%s" % (funcname, subcounter), "#regzb unbackburn",  replyto=replyto)
     return True, False, False
 
-def offltest_0_15(funcname):
-    logger.info('%s: check if some attribut changes from a open regression downwards to duplicates' % funcname)
-
-    subcounter = 0
-    dupof = 'test_0_0'
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
-                                        "#regzb title: new title, set via a regression that has duplicates\n",
-                                        replyto='%s' % dupof)
-
-    return True, False, False
-
-def offltest_0_16(funcname):
-    logger.info('%s: create two additional regressions and mark them as duplicate of the one created earlier before changing the title from the latest one' % funcname)
-
-    subcounter = 0
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
-
-    subcounter += 1
-    dupof = 'test_0_3'
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
-                                        "#regzb dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n"  % dupof,
-                                        replyto='%s_%s' % (funcname, subcounter -1 ))
-
-    subcounter += 1
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
-
-    subcounter += 1
-    dupof = '%s_%s' %(funcname, 0)
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
-                                        "#regzb dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n"  % dupof,
-                                        replyto='%s_%s' % (funcname, subcounter -1 ))
-
-    # now set a title to the last regression
-    subcounter += 1
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
-                                        "#regzb title: new title, set via a downstream duplicate\n",
-                                        replyto='%s_%s' % (funcname, subcounter -2 ))
-    return True, False, False
-
-
 # create a mainline regression
 def offltest_1_0(funcname):
     logger.info('%s: creating a mainline regression' % funcname)
