@@ -856,7 +856,10 @@ class RegActivityEvent():
     # reminder: can either get added directly or indirectly via RegActivityMonitor,
     # hence eiher _actimonid or _regid is set
 
-    def __init__(self, gmtime, entry, subject, author, repsrcid, gitbranchid, patchkind, actimonid=None, regid=None, ):
+    DBCOLS = "regactivity.gmtime, regactivity.entry, regactivity.subject, regactivity.author, regactivity.repsrcid, \
+                regactivity.gitbranchid, regactivity.actimonid, regactivity.regid, regactivity.patchkind"
+
+    def __init__(self, gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid, patchkind):
         self.gmtime = gmtime
         self.entry = entry
         self.subject = subject
@@ -915,25 +918,34 @@ class RegActivityEvent():
 
     @staticmethod
     def event(gmtime, entry, subject, author=None, repsrcid=None, gitbranchid=None, actimonid=None, regid=None, patchkind=0):
+        def _getout():
+            import traceback
+            traceback.print_stack()
+            sys.exit(1)
+
         # a few lines from the department of "this should not happen, but better ensure it doesn't":
         if repsrcid is None and gitbranchid is None:
             logger.critical(
                 'this should not happen: RegActivityEvent.event(%s, %s, %s, %s, %s, %s, %s) was called without specifying either repsrcid or gitbranchid; '
                 % (gmtime, entry, subject, repsrcid, gitbranchid, actimonid, regid))
+            _getout()
         if repsrcid and gitbranchid:
             logger.critical(
                 'this should not happen: RegActivityEvent.event(%s, %s, %s, %s, %s, %s, %s) was called with specifying both repsrcid or gitbranchid'
                 % (gmtime, entry, subject, repsrcid, gitbranchid, actimonid, regid))
+            _getout()
 
         # a few lines from the department of "this should not happen, but better ensure it doesn't":
         if actimonid is None and regid is None:
             logger.critical(
                 'this should not happen: RegActivityEvent.event(%s, %s, %s, %s, %s, %s, %s) was called without specifying either actimonid or regid; '
                 % (gmtime, entry, subject, repsrcid, gitbranchid, actimonid, regid))
+            _getout()
         if actimonid and regid:
             logger.critical(
                 'this should not happen: RegActivityEvent.event(%s, %s, %s, %s, %s, %s, %s) was called with specifying both actimonid or regid'
                 % (gmtime, entry, subject, repsrcid, gitbranchid, actimonid, regid))
+            _getout()
 
         patchkind = int(patchkind)
 
@@ -966,10 +978,10 @@ class RegActivityEvent():
 
         dbcursor = DBCON.cursor()
         if onlyonce:
-            for dbresult in dbcursor.execute('SELECT DISTINCT gmtime, entry, subject, author, repsrcid, gitbranchid, patchkind FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % placeholders, replacements):
+            for dbresult in dbcursor.execute('SELECT DISTINCT %s FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % (RegActivityEvent.DBCOLS, placeholders), replacements):
                 yield cls(*dbresult)
         else:
-            for dbresult in dbcursor.execute('SELECT gmtime, entry, subject, author, repsrcid, gitbranchid, patchkind, actimonid, regid FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % placeholders, replacements):
+            for dbresult in dbcursor.execute('SELECT %s FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % (RegActivityEvent.DBCOLS, placeholders), replacements):
                 yield cls(*dbresult)
 
     @classmethod
@@ -1023,7 +1035,7 @@ class RegActivityEvent():
     def remove(actimonid=None):
         dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
-            'SELECT * FROM regactivity WHERE actimonid=(?)', (actimonid, )).fetchone()
+            'SELECT actimonid FROM regactivity WHERE actimonid=(?)', (actimonid, )).fetchone()
         if dbresult is not None:
             dbcursor.execute('''DELETE FROM regactivity
                              WHERE actimonid=(?)''',
@@ -1682,8 +1694,6 @@ class RegressionBasic():
         # make sure this is mentioned in the other regression, too
         RegHistory.event(regression_other.regid, gmtime, msgid, self.solved_subject, author, repsrcid=repsrcid,
                          regzbotcmd='dup: the regression "%s" was marked as duplicate of this' % (self.subject))
-        RegActivityEvent.event(
-            gmtime, msgid, msgsubject, author, repsrcid=repsrcid, regid=regression_other.regid)
 
     def fixed(self, gmtime, commit_hexsha, commit_subject, gitbranchid):
         if self.solved_reason == 'fixed':
