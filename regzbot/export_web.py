@@ -22,7 +22,12 @@ class RegLinkWeb(regzbot.RegLink):
     def __init__(self, *args):
         super().__init__(*args)
 
-    def html(self, yattagdoc):
+        self._for_regression = None
+
+    def set_for_regression(self, regression):
+        self._for_regression = regression
+
+    def html(self, yattagdoc, regression):
         with yattagdoc.tag('i'):
             with yattagdoc.tag('a', href=self.link):
                 yattagdoc.text(self.subject)
@@ -32,6 +37,11 @@ class RegLinkWeb(regzbot.RegLink):
                 yattagdoc.text('%s days ago, by %s' % (days_delta(self.gmtime), self.author))
                 if self.repsrcid and self.entry and regzbot.RegActivityMonitor.ismonitored(self.entry, self.regid, self.repsrcid):
                     yattagdoc.text(" (monitored)")
+                if self._for_regression and not regression.regid == self._for_regression.regid:
+                    yattagdoc.text(" [")
+                    with yattagdoc.tag('a', href='../regression/%s/' % self._for_regression._actim_report.entry):
+                        yattagdoc.text("via dup")
+                    yattagdoc.text("]")
 
         return yattagdoc
 
@@ -91,7 +101,12 @@ class RegActivityEventWeb(regzbot.RegActivityEvent):
     def __init__(self, *args):
         super().__init__(*args)
 
-    def html(self, yattagdoc):
+        self._for_regression = None
+
+    def set_for_regression(self, regression):
+        self._for_regression = regression
+
+    def html(self, yattagdoc, regression):
         with yattagdoc.tag('i'):
             with yattagdoc.tag('a', href=self.url()):
                 yattagdoc.text("%s" % self.subject)
@@ -104,6 +119,11 @@ class RegActivityEventWeb(regzbot.RegActivityEvent):
                      yattagdoc.text('; contains a proper patch')
                 else:
                      yattagdoc.text('; contains a simple patch')
+            if self._for_regression and not regression.regid == self._for_regression.regid:
+                yattagdoc.text(" [")
+                with yattagdoc.tag('a', href='../regression/%s/' % self._for_regression._actim_report.entry):
+                    yattagdoc.text("via dup")
+                yattagdoc.text("]")
 
         return yattagdoc
 
@@ -124,7 +144,6 @@ class RegActivityEventWeb(regzbot.RegActivityEvent):
 
             return yattagdoc
 
-
 class RegressionWeb(regzbot.RegressionFull):
     Reglink = RegLinkWeb
     Reghistory = RegHistoryWeb
@@ -136,7 +155,7 @@ class RegressionWeb(regzbot.RegressionFull):
     def event_intro(self):
         html = yattag.Doc()
         html.text("Regression ")
-        with html.tag('a', href='../regression/%s/' % self.entry):
+        with html.tag('a', href='../regression/%s/' % self._actim_report.entry):
              html.text(self.subject)
         html.text(":")
         return html
@@ -192,8 +211,6 @@ class RegressionWeb(regzbot.RegressionFull):
                     return('resolution')
                 elif self.solved_reason == 'to_be_fixed':
                     return('fix incoming')
-                elif self.solved_reason == 'duplicateof':
-                    return('marked as duplicate')
                 elif self.solved_reason == 'invalid':
                     return('marked invalid')
                 elif self.solved_reason is not None:
@@ -201,38 +218,63 @@ class RegressionWeb(regzbot.RegressionFull):
 
             with yattagdoc_line.tag('details', id='regression-details', style="padding-left: 1em;"):
                 with yattagdoc_line.tag('summary', style="list-style-position: outside;"):
+
+                    actireports = list()
+                    for regression in self, *self._dupes:
+                        actireports.append(regression._actim_report)
+                    actireports_sorted = sorted(actireports, key=lambda x: x.gmtime)
+                    actireports = None
+
+                    actievents = list()
+                    for regression in self, *self._dupes:
+                        for actievent in regression._actievents:
+                            actievent.set_for_regression(regression)
+                            actievents.append(actievent)
+                    actievents_sorted = sorted(actievents, key=lambda x: x.gmtime)
+                    actievents = None
+
+                    links = list()
+                    for regression in self, *self._dupes:
+                        for link in regression._links:
+                            link.set_for_regression(regression)
+                            links.append(link)
+                    links_sorted = sorted(links, key=lambda x: x.gmtime)
+                    links = None
+
                     with yattagdoc.tag('strong'):
                         with yattagdoc.tag('i'):
                             yattagdoc.text(self.subject)
+
                     yattagdoc.text(' by ')
-                    for actireport in self._actireports:
+                    len_actireports = len(actireports_sorted)
+                    for actireport in actireports_sorted:
                             with yattagdoc.tag('a', href=regzbot.ReportSource.get_by_id(actireport.repsrcid).url(actireport.entry)):
                                 yattagdoc.text(actireport.authorname)
-                            if len(self._actireports) > 2 and actireport == self._actireports[-2]:
-                                yattagdoc.text(', and ')
-                            elif len(self._actireports) > 1 and actireport == self._actireports[-2]:
-                                yattagdoc.text(' and ')
-                            elif actireport == self._actireports[-1]:
+                            if len_actireports == 1 or actireport == actireports_sorted[-1]:
                                 pass
+                            elif len_actireports == 2:
+                                yattagdoc.text(' and ')
+                            elif actireport == actireports_sorted[-2]:
+                                yattagdoc.text(', and ')
                             else:
                                 yattagdoc.text(', ')
 
                     with yattagdoc.tag('div'):
                         yattagdoc.text('Earliest & latest ')
-                        with yattagdoc.tag('a', href='../regression/%s/' % self._actievents[0].entry):
+                        with yattagdoc.tag('a', href='../regression/%s/' % actievents_sorted[0].entry):
                              yattagdoc.text('activity')
                         yattagdoc.text(': ')
-                        if self._actievents[0] is self._actievents[-1]:
+                        if actievents_sorted[0] is actievents_sorted[-1]:
                             yattagdoc.text('%s days ago' % days_delta(
-                                self._actievents[0].gmtime))
+                                actievents_sorted[0].gmtime))
                         else:
-                            with yattagdoc.tag('a', href=self._actievents[0].url()):
+                            with yattagdoc.tag('a', href=actievents_sorted[0].url()):
                                 yattagdoc.text('%s' % days_delta(
-                                    self._actievents[0].gmtime))
+                                    actievents_sorted[0].gmtime))
                             yattagdoc.text(' & ')
-                            with yattagdoc.tag('a', href=self._actievents[-1].url()):
+                            with yattagdoc.tag('a', href=actievents_sorted[-1].url()):
                                 yattagdoc.text('%s' % days_delta(
-                                    self._actievents[-1].gmtime))
+                                    actievents_sorted[-1].gmtime))
                             yattagdoc.text(' days ago')
 
                         if self.poked:
@@ -244,31 +286,44 @@ class RegressionWeb(regzbot.RegressionFull):
                         yattagdoc.text('.')
 
                         entered_loop = False
-                        for counter, regressionlink in enumerate(RegLinkWeb.get_all(self.regid, order='DESC'), start=1):
+                        for counter, link in enumerate(links_sorted, start=1):
                             if counter == 1:
                                 entered_loop = True
                                 yattagdoc.text(' Noteworthy: ')
                             else:
                                 yattagdoc.text(', ')
-                            with yattagdoc.tag('a', href=regressionlink.link):
+                            with yattagdoc.tag('a', href=link.link):
                                 yattagdoc.text("[%s]" % counter)
-                        if self.solved_reason:
-                            if not entered_loop:
-                                yattagdoc.text(' Noteworthy: ')
-                                entered_loop = True
-                            else:
-                                yattagdoc.text(', ')
 
-                            with yattagdoc.tag('mark', style='background-color: #D0D0D0;'):
-                                yattagdoc.text('[')
-                                if self.solved_url is None:
-                                    yattagdoc.text(__resolution())
+                        if self.solved_reason or self.solved_duplicateof:
+                            if self.solved_reason:
+                                if not entered_loop:
+                                    yattagdoc.text(' Noteworthy: ')
+                                    entered_loop = True
                                 else:
-                                    with yattagdoc.tag('a', href=self.solved_url):
+                                    yattagdoc.text(', ')
+
+                                with yattagdoc.tag('mark', style='background-color: #D0D0D0;'):
+                                    yattagdoc.text('[')
+                                    if self.solved_url is None:
                                         yattagdoc.text(__resolution())
-                                yattagdoc.text(']')
+                                    else:
+                                        with yattagdoc.tag('a', href=self.solved_url):
+                                            yattagdoc.text(__resolution())
+                                    yattagdoc.text(']')
+                            if self.solved_duplicateof:
+                                if not entered_loop:
+                                    yattagdoc.text(' Noteworthy: ')
+                                    entered_loop = True
+                                else:
+                                    yattagdoc.text(', ')
+
+                                regression_duplicateof=self.get_by_regid(self.solved_duplicateof)
+                                with yattagdoc.tag('a', href='https://linux-regtracking.leemhuis.info/regzbot/regression/%s/' % regression_duplicateof._actim_report.entry):
+                                    with yattagdoc.tag('mark', style='background-color: #D0D0D0;'):
+                                        yattagdoc.text("[is a duplicate]")
                         else:
-                            for actievent in reversed(self._actievents):
+                            for actievent in reversed(actievents_sorted):
                                 if int(actievent.patchkind) == 0:
                                     continue
 
@@ -298,10 +353,10 @@ class RegressionWeb(regzbot.RegressionFull):
                         with yattagdoc.tag('div', style="padding-left: 1em;"):
                              yattagdoc.text('%s days ago, by %s' % (days_delta(self.backburner.gmtime), self.backburner.author))
 
-                for counter, regressionlink in enumerate(RegLinkWeb.get_all(self.regid, order='DESC'), start=1):
+                for counter, link in enumerate(links_sorted, start=1):
                     with yattagdoc.tag('div'):
                         yattagdoc.text('[%s]: ' % counter)
-                        regressionlink.html(yattagdoc)
+                        link.html(yattagdoc, self)
 
                 if self.solved_reason:
                     with yattagdoc.tag('div'):
@@ -334,7 +389,7 @@ class RegressionWeb(regzbot.RegressionFull):
                 else:
                     latest_shown = False
                     earlier_patches = 0
-                    for actievent in reversed(self._actievents):
+                    for actievent in reversed(actievents_sorted):
                         if int(actievent.patchkind) == 0:
                             continue
                         if not latest_shown:
@@ -362,15 +417,14 @@ class RegressionWeb(regzbot.RegressionFull):
                             yattagdoc.text("%s" % earlier_patches)
 
                 with yattagdoc_line.tag('p'):
-                    listcount = len(self._actievents)
-                    if listcount > 5:
+                    if len(actievents_sorted) > 5:
                         yattagdoc.text("Latest five known activities:")
                     else:
                         yattagdoc.text("All known activities:")
                     with yattagdoc_line.tag('ul', style='padding-left: 5px; margin-top: -1em;'):
-                        for actievent in reversed(self._actievents[-5:]):
+                        for actievent in reversed(actievents_sorted[-5:]):
                             with yattagdoc.tag('li', style="list-style-position: inside;"):
-                                actievent.html(yattagdoc)
+                                actievent.html(yattagdoc, self)
 
                 with yattagdoc_line.tag('p'):
                     yattagdoc.text("Regzbot command history:")
@@ -394,7 +448,8 @@ class RegressionWeb(regzbot.RegressionFull):
                                 self.introduced[0:12], commitsummary))
 
                       reports = dict()
-                      for actireport in self._actireports:
+                      for regression in self, *self._dupes:
+                          actireport =  regression._actim_report
                           if not actireport.authorname or not actireport.authormail:
                               # there are a few old database entry where authorname and authormail are missing
                               # just ignore them
@@ -821,9 +876,9 @@ class RegExportWeb():
                 eventslist.append(event)
 
             gmtime_solved = None
-            if regression.solved_reason == 'fixed' or regression.solved_reason == 'invalid' or regression.solved_reason == 'duplicateof':
+            if regression.solved_reason == 'fixed' or regression.solved_reason == 'invalid' or regression.solved_reason == 'duplicateof' or regression.solved_duplicateof:
                 gmtime_solved = regression.solved_gmtime
-            regressionslist.append(cls(regression.entry, regression.gmtime, regression.gmtime_filed,
+            regressionslist.append(cls(regression._actim_report.entry, regression.gmtime, regression.gmtime_filed,
                                                     regression._actievents[-1].gmtime, gmtime_solved, regression.treename,
                                                     regression.versionline, regression.backburner, regression.identified,
                                                     regression.html()))

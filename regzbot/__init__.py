@@ -793,7 +793,7 @@ class RegActivityMonitor():
         return None
 
     @classmethod
-    def getall_by_regid(cls, regid, reports=None, recursion_count=0):
+    def get_by_regid(cls, regid, reports=None):
         dbcursor = DBCON.cursor()
 
         if reports:
@@ -804,15 +804,17 @@ class RegActivityMonitor():
         for dbresult in dbcursor.execute(sqlquery, (regid, )):
             yield RegActivityMonitor(*dbresult)
 
-        # now get dupes
-        if recursion_count > 12:
-            logger.critical("Aborting, recursion limit in RegActivityMonitor.getall_by_regid() exceeded.")
-            sys.exit(1)
-        recursion_count += 1
+    @classmethod
+    def getall_by_regid(cls, regid, reports=None):
+        dbcursor = DBCON.cursor()
 
-        for dbresult in dbcursor.execute('SELECT regid FROM regressions WHERE solved_entry=(?)', (regid, )):
-             for obj in cls.getall_by_regid(dbresult[0], reports=reports, recursion_count=recursion_count):
-                 yield obj
+        if reports:
+            sqlquery = 'SELECT actmonitor.* FROM actmonitor INNER JOIN regressions ON actmonitor.actimonid = regressions.actimonid WHERE regressions.regid=(?) AND actmonitor.actimonid = regressions.actimonid'
+        else:
+            sqlquery = 'SELECT * FROM actmonitor WHERE regid=(?)'
+
+        for dbresult in dbcursor.execute(sqlquery, (regid, )):
+            yield RegActivityMonitor(*dbresult)
 
     @staticmethod
     def get_by_entry(entry):
@@ -957,11 +959,11 @@ class RegActivityEvent():
         logger.debug('[db regactivity] insert (gmtime:%s, entry:"%s", subject:"%s", author:"%s", repsrcid:%s, gitbranchid:%s, actimonid:%s, regid:%s, patchkind:%s)' % (
             gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid, patchkind))
 
-    @staticmethod
-    def getall_by_actimonid(actimonid):
+    @classmethod
+    def getall_by_actimonid(cls, actimonid):
         dbcursor = DBCON.cursor()
         for dbresult in dbcursor.execute('SELECT * FROM regactivity WHERE actimonid=(?)', (actimonid, )):
-            yield RegActivityEvent(*dbresult)
+            yield cls(*dbresult)
 
     @classmethod
     def get_all(cls, regid, onlyonce=True):
@@ -1372,10 +1374,10 @@ class RegLink():
 class RegressionBasic():
     DBCOLS = "regressions.regid, regressions.subject, regressions.introduced, regressions.gitbranchid, regressions.actimonid, \
                    regressions.solved_reason, regressions.solved_gmtime, regressions.solved_entry, regressions.solved_subject, \
-                   regressions.solved_gitbranchid, regressions.solved_repsrcid, regressions.solved_repentry"
+                   regressions.solved_gitbranchid, regressions.solved_repsrcid, regressions.solved_repentry, regressions.solved_duplicateof"
 
     def __init__(self, regid, subject, introduced, gitbranchid, actimonid, solved_reason=None, solved_gmtime=None,
-                 solved_entry=None, solved_subject=None, solved_gitbranchid=None, solved_repsrcid=None, solved_repentry=None):
+                 solved_entry=None, solved_subject=None, solved_gitbranchid=None, solved_repsrcid=None, solved_repentry=None, solved_duplicateof=None):
         self.regid = regid
         self.subject = subject
         self.introduced = str(introduced)
@@ -1389,6 +1391,7 @@ class RegressionBasic():
         self.solved_gitbranchid = solved_gitbranchid
         self.solved_repsrcid = solved_repsrcid
         self.solved_repentry = solved_repentry
+        self.solved_duplicateof = solved_duplicateof
 
     @staticmethod
     def db_create(version, dbcursor):
@@ -1407,17 +1410,18 @@ class RegressionBasic():
                 solved_subject     STRING,
                 solved_gitbranchid INTEGER,
                 solved_repsrcid    INTEGER,
-                solved_repentry    STRING
+                solved_repentry    STRING,
+                solved_duplicateof INTEGER
             )''')
 
     def _db_update_solved(self):
         dbcursor = DBCON.cursor()
         dbcursor.execute('''UPDATE regressions
                             SET solved_reason = (?), solved_gmtime = (?), solved_entry = (?), solved_subject = (?),
-                                solved_gitbranchid = (?), solved_repsrcid = (?) , solved_repentry = (?)
+                                solved_gitbranchid = (?), solved_repsrcid = (?) , solved_repentry = (?), solved_duplicateof = (?)
                             WHERE regid=(?)''',
                          (self.solved_reason, self.solved_gmtime, self.solved_entry, self.solved_subject,
-                             self.solved_gitbranchid, self.solved_repsrcid, self.solved_repentry, self.regid))
+                             self.solved_gitbranchid, self.solved_repsrcid, self.solved_repentry, self.solved_duplicateof, self.regid))
 
         # in case it's on backburner, unbackburn this
         if self.solved_reason != 'to_be_fixed':
@@ -1480,79 +1484,77 @@ class RegressionBasic():
             return cls(*dbresult)
         return None
 
-    @staticmethod
-    def get_by_entry(entry, dbcursor=None):
+    @classmethod
+    def get_by_entry(cls, entry, dbcursor=None):
         if not dbcursor:
             dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
             'SELECT %s FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.entry=? AND actmonitor.actimonid = regressions.actimonid' % RegressionBasic.DBCOLS, (entry,)).fetchone()
         if dbresult:
-            return RegressionBasic(*dbresult)
+            yield cls(*dbresult)
+            return
         return None
 
-    @classmethod
-    def __find_duplicates(cls, dbcursor, regression, recursion_count=0) :
+    def get_dupes(self, *, recursion_count=-1) :
         if recursion_count > 12:
             logger.critical("Aborting, recursion limit in RegActivityMonitor.__walk_duplicates() exceeded.")
             sys.exit(1)
         recursion_count += 1
 
-        yield regression
+        dbcursor = DBCON.cursor()
+        for dbresult in dbcursor.execute("SELECT %s FROM regressions WHERE solved_duplicateof=(?)" % self.DBCOLS, (self.regid, )):
+            regression = self.__class__(*dbresult)
+            yield regression
+            for duplicate in regression.get_dupes(recursion_count=recursion_count):
+                yield duplicate
 
-        # return any duplicates, too
-        for dbresult in dbcursor.execute("SELECT %s FROM regressions WHERE solved_reason='duplicateof' AND solved_entry=(?)" % RegressionBasic.DBCOLS, (regression.regid, )):
-            if dbresult:
-                for duplicate_regression in cls.__find_duplicates(dbcursor, cls(*dbresult), recursion_count=recursion_count):
+    def find_topmost(self, *, recursion_count=-1) :
+        if not self.solved_duplicateof:
+            if recursion_count == -1:
+                # this regression is not a dup of another
+                return
+            else:
+                # we are at the top
+                yield self
+
+        if recursion_count > 12:
+            logger.critical("Aborting, recursion limit in RegActivityMonitor.__walk_duplicates() exceeded.")
+            sys.exit(1)
+        recursion_count += 1
+
+        upper_regression = self.get_by_regid(self.solved_duplicateof)
+        for regression in upper_regression.find_topmost(recursion_count=recursion_count):
+            yield regression
+            return
+
+    @classmethod
+    def getall_by_entry(cls, entry):
+        for primary_regression in cls.get_by_entry(entry):
+            yield primary_regression
+            for topmost_regression in primary_regression.find_topmost():
+                yield topmost_regression
+                for duplicate_regression in topmost_regression, topmost_regression.get_dupes():
                     yield duplicate_regression
 
     @classmethod
-    def getall_by_entry(cls, entry, dbcursor=None, recursion_count=0, regression=None):
-        if not dbcursor:
-            dbcursor = DBCON.cursor()
-
-        if not regression:
-            regression = cls.get_by_entry(entry, dbcursor)
-            if not regression:
-                return
-
-        if regression.solved_reason == 'duplicateof':
-            # return this regression first
-            yield regression
-
-            # now lets find the top-level regression and then walk downwards from there
-            if recursion_count > 12:
-                logger.critical("Aborting, recursion limit in RegActivityMonitor.getall_by_regid() exceeded.")
-                sys.exit(1)
-            recursion_count += 1
-
-            parent_regression = cls.get_by_regid(regression.solved_entry, dbcursor=dbcursor)
-            for duplicate_regression in cls.getall_by_entry(None, dbcursor=dbcursor, recursion_count=recursion_count, regression=parent_regression):
-                if regression.regid != duplicate_regression.regid:
-                    yield duplicate_regression
-        else:
-            # return this regression and all duplicates of it
-            for regression in cls.__find_duplicates(dbcursor, regression):
-                yield regression
-
-    @staticmethod
-    def get_by_regactivity(entry):
+    def get_by_regactivity(cls, entry):
         dbcursor = DBCON.cursor()
 
         dbresult = dbcursor.execute(
             'SELECT %s FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.entry=?; ' % RegressionBasic.DBCOLS, (entry,)).fetchone()
         if dbresult:
-            return RegressionBasic(*dbresult)
+            return cls(*dbresult)
 
         # fallback for deep threads
         dbresult = dbcursor.execute(
             'SELECT %s FROM ((actmonitor INNER JOIN regactivity ON regactivity.actimonid = actmonitor.actimonid) INNER JOIN regressions ON actmonitor.regid = regressions.regid) WHERE regactivity.entry=?; ' % RegressionBasic.DBCOLS, (entry,)).fetchone()
         if dbresult:
-            return RegressionBasic(*dbresult)
+            return cls(*dbresult)
 
         return None
 
-    @staticmethod
-    def get_by_link(link):
+    @classmethod
+    def get_by_link(cls, link):
         tmpstring = link
         if tmpstring.startswith("https://"):
             tmpstring = tmpstring.removeprefix("https://")
@@ -1562,7 +1564,8 @@ class RegressionBasic():
         if tmpstring.startswith("lore.kernel.org/"):
             _, _, tmpstring = tmpstring.split('/', maxsplit=2)
             msgid, _, _ = tmpstring.partition('/')
-            return RegressionBasic.get_by_entry(urldecode(msgid))
+            for regression in cls.get_by_entry(urldecode(msgid)):
+                return regression
         else:
             logger.warning(
                 "RegressionBasic.get_by_link(%s): unsupported domain ", link)
@@ -1576,30 +1579,30 @@ class RegressionBasic():
             pending.append( {"regid": dbresult[0], "solved_entry": dbresult[1]})
         return pending
 
-    @staticmethod
-    def activity_event_monitored(repsrcid, gmtime, entry, subject, author, actimon, *, contains_patch=0):
-        regression = RegressionBasic.get_by_regid(actimon.regid)
+    @classmethod
+    def activity_event_monitored(cls, repsrcid, gmtime, entry, subject, author, actimon, *, contains_patch=0):
+        regression = cls.get_by_regid(actimon.regid)
         RegActivityEvent.event(
             gmtime, entry, subject, author=author, repsrcid=repsrcid, actimonid=actimon.actimonid, patchkind=contains_patch)
         logger.info('regression[%s, "%s"]: activity detected in %s")' % (
             regression.regid, regression.subject, entry))
 
-    @staticmethod
-    def activity_event_linked(repsrcid, gmtime, entry, subject, author, regid):
-        regression = RegressionBasic.get_by_regid(regid)
+    @classmethod
+    def activity_event_linked(cls, repsrcid, gmtime, entry, subject, author, regid):
+        regression = cls.get_by_regid(regid)
         RegActivityEvent.event(
             gmtime, entry, subject, author=author, repsrcid=repsrcid, regid=regid)
         logger.info('regression[%s, "%s"]: link to this regression found in "%s" (%s)' % (
             regid, regression.subject, subject, ReportSource.url_by_id(repsrcid, entry)))
 
-    @staticmethod
-    def __introduced_precheck(introduced, gmtime=None):
+    @classmethod
+    def __introduced_precheck(cls, introduced, gmtime=None):
         # remove everything after the first space, in case someone wrote something like this:
         # regzbot introduced cf68fffb66d6 ("add support for Clang CFI")
         introduced = introduced.split()[0]
 
         # try to find what tree/branch this belongs
-        introduced, _, gitbranch, _ = RegressionBasic._gettree_n_branch(introduced, gmtime=gmtime)
+        introduced, _, gitbranch, _ = cls._gettree_n_branch(introduced, gmtime=gmtime)
 
         if gitbranch:
             return introduced, gitbranch.gitbranchid
@@ -1632,7 +1635,7 @@ class RegressionBasic():
                     regid, subject, entry, introduced)
 
         # check if it already got fixed
-        regression = RegressionBasic.get_by_regid(regid)
+        regression = cls.get_by_regid(regid)
         GitTree.search_references(entry, regression, gmtime=gmtime)
 
         return regression
@@ -1682,11 +1685,9 @@ class RegressionBasic():
             # better a URL as subject than nothing at all:
             self.solved_subject = urldup
 
-        self.solved_reason = 'duplicateof'
-        self.solved_entry = regression_other.regid
         self.solved_gmtime = gmtime
-        self.solved_repsrcid = repsrcid
-        self.solved_repentry = msgid
+        self.solved_duplicateof = regression_other.regid
+
         self._db_update_solved()
 
         logger.info('regression[%s, "%s"]: marked as duplicate of regression Regression[%s, "%s"])',
@@ -1999,10 +2000,14 @@ class RegressionFull(RegressionBasic):
     def __init__(self, *args):
         super().__init__(*args)
 
+        self._dupes = self._init_dupes(list())
+
+        self._actim_report, self._actim_monitored = self._init_actimons(list(), self.Regactivitymonitor)
+        self.gmtime = self._actim_report.gmtime
+
         self._links = self._init_related_objects(list(), self.Reglink)
         self._histevents = self._init_related_objects(list(), self.Reghistory)
         self._actievents = self._init_related_objects(list(), self.Regactivityevent)
-        self.repsrcid, self.entry, self.gmtime, self._actireports = self._init_actireports(self.Regactivitymonitor)
 
         self.backburner = RegBackburner.get_by_regid(self.regid)
 
@@ -2065,18 +2070,19 @@ class RegressionFull(RegressionBasic):
             datalist.append(obj)
         return datalist
 
-    def _init_actireports(self, cls):
-        objlist = list()
-        for obj in cls.getall_by_regid(self.regid, reports=True):
-            objlist.append(obj)
+    def _init_dupes(self, datalist):
+        if not self.solved_duplicateof:
+            for regression in self.get_dupes():
+                datalist.append(regression)
+        return datalist
 
-        repsrcid = objlist[0].repsrcid
-        entry = objlist[0].entry
-
-        objlist.sort(key=lambda x: x.gmtime)
-        gmtime = objlist[0].gmtime
-
-        return repsrcid, entry, gmtime, objlist
+    def _init_actimons(self, datalist, cls):
+        for actimon in cls.get_by_regid(self.regid):
+            if self.actimonid == actimon.actimonid:
+                report = actimon
+            else:
+                datalist.append(actimon)
+        return report, datalist
 
     def _get_poked(self, histevents, actievents):
        if len(histevents) > 0 and \
@@ -2828,7 +2834,9 @@ def redo_regressions(msgids):
             msgids_to_recheck = list()
 
             for msgid in msgids:
-                regression = RegressionBasic.get_by_entry(urldecode(msgid))
+                # we for now only get one
+                for regression in RegressionBasic.get_by_entry(urldecode(msgid)):
+                    break
 
                 # we need to store what we need to recheck
                 for histevent in RegHistory.get_all(regression.regid):

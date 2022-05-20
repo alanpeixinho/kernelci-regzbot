@@ -72,23 +72,27 @@ class RegressionFullCSV(regzbot.RegressionFull):
                            self._introduced_url, self.treename, self._branchname, self.versionline, ', '.join(flags)))
 
         reportlist = list()
-        for actireport in self._actireports:
-            content = ("%s, %s, %s, %s, %s" %
-                            (actireport.gmtime, actireport.subject, actireport.authorname, actireport.authormail,
-                            regzbot.ReportSource.get_by_id(actireport.repsrcid).url(actireport.entry)))
-            if self.repsrcid == actireport.repsrcid and self.entry == actireport.entry:
+        for regression in self, *self._dupes:
+            report = regression._actim_report
+            content = ("%s, %s, %s, %s, %s" % (report.gmtime, report.subject, report.authorname,
+                        report.authormail, regzbot.ReportSource.get_by_id(report.repsrcid).url(report.entry)))
+            if report == self._actim_report:
                 reportlist.insert(0, 'INITIAL_REPORT: %s' % content)
             else:
                 reportlist.append('ADDITIONAL_REPORT: %s' % content)
-        compiled.extend(reportlist)
 
+        compiled.extend(reportlist)
         return compiled
 
     def add_solved(self, compiled):
-        if not self.solved_reason:
-            return compiled
-        compiled.append("SOLVED: %s, %s, %s, %s, %s" %
-                           (self.solved_reason, self.solved_gmtime, self._solved_entry_presentable, self.solved_url, self.solved_subject))
+        if self.solved_duplicateof:
+            duplicatetext = (" [duplicate of %s]" % self.solved_duplicateof)
+        else:
+            duplicatetext = ''
+
+        if self.solved_reason or self.solved_duplicateof:
+            compiled.append("SOLVED: %s, %s, %s, %s, %s%s" %
+                                (self.solved_reason, self.solved_gmtime, self._solved_entry_presentable, self.solved_url, self.solved_subject, duplicatetext))
         return compiled
 
     def add_links(self, compiled):

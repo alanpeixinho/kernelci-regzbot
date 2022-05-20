@@ -74,6 +74,7 @@ def find_regressions(msg):
             for regression in regzbot.RegressionBasic.getall_by_entry(msgid_tocheck):
                 yield regression
 
+
 def find_actimon(msg):
         msgids_tocheck = [email_get_msgid(msg)]
         if 'References' in msg:
@@ -123,15 +124,18 @@ def process_tag(repsrc, tag, msg):
         regzbotcmd = tagcmd
 
     primary_regression = None
-    for regressionb in find_regressions(msg):
-        if not primary_regression:
+    for count, regressionb in enumerate(find_regressions(msg)):
+        if count == 0:
             primary_regression = regressionb
-
-        # only some commands should not affect any duplicates
-        dupallowed = ['title', 'subject', 'introduced',  "^introduced", "^^introduced"]
-        if primary_regression.regid != regressionb.regid:
-            if not tagcmd in dupallowed:
+        elif count == 1:
+            # some commands should not affect duplicates
+            dupes_disallowed = ['link', 'monitor', 'dupof', 'dup-of']
+            if tagcmd in dupes_disallowed:
                 continue
+        else:
+            # we only care about the primary regression (returned first) and
+            # the topmost regression (returned second)
+            break
 
         # create entry in the reghistory before processing the tag, otherwise loops will happen
         # if a monitor commands points to a mail higher up in the same thread
@@ -456,7 +460,9 @@ def process_msg(repsrc, msg):
         if linked_msgid is None:
             continue
 
-        regressionb = regzbot.RegressionBasic.get_by_entry(linked_msgid)
+        regressionb = None
+        for regressionb in regzbot.RegressionBasic.get_by_entry(linked_msgid):
+            break
         if regressionb is None:
             continue
 

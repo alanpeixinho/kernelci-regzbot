@@ -626,6 +626,61 @@ def offltest_0_14(funcname):
         "%s_%s" % (funcname, subcounter), "#regzb unbackburn",  replyto=replyto)
     return True, False, False
 
+def offltest_0_15(funcname):
+    logger.info('%s: create four additional regressions and mark them as duplicate in various way and then fix one marked that is marked as duplicate and has a duplicate' % funcname)
+
+    subcounter = 0
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+
+    subcounter = 1
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+
+    subcounter = 2
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+
+    subcounter = 3
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+
+    replyto = '%s_%s' %(funcname, 1)
+    dupof = '%s_%s' %(funcname, 0)
+    subcounter += 1
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
+                                        "#regzb dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n"  % dupof,
+                                        replyto=replyto)
+
+    replyto = '%s_%s' %(funcname, 3)
+    dupof = '%s_%s' %(funcname, 2)
+    subcounter += 1
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
+                                        "#regzb dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n"  % dupof,
+                                        replyto=replyto)
+
+    replyto = '%s_%s' %(funcname, 2)
+    dupof = '%s_%s' %(funcname, 0)
+    subcounter += 1
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
+                                        "#regzb dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n"  % dupof,
+                                        replyto=replyto)
+
+    replyto = '%s_%s' %(funcname, 2)
+    subcounter += 1
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
+                                        "#regzb fixed-by: %s" % gittrees_testing['mainline'].hashes_known[6],
+                                        replyto=replyto)
+
+    return True, False, False
+
+def offltest_0_16(funcname):
+    logger.info('%s: check if some attribut changes from a open regression downwards to duplicates' % funcname)
+
+    subcounter = 0
+    replyto = 'test_0_15_3'
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
+                                        "#regzb title: new title, set via a duplicate\n",
+                                        replyto='%s' % replyto)
+
+    return True, False, True
+
 # create a mainline regression
 def offltest_1_0(funcname):
     logger.info('%s: creating a mainline regression' % funcname)
@@ -947,6 +1002,19 @@ def offltest_2_13(funcname):
                                         subject="%s_%s: refer to this regression on another mainling list" % (funcname, subcounter))
     return True, False, False
 
+
+def offltest_2_14(funcname):
+    logger.info('%s: mark a regression that monitors some threads as a regression of another' % (
+        funcname))
+
+    replyto = 'test_2_0'
+    dupof = 'test_2_13_0'
+    subcounter = 0
+    emaildirs['primary'].create_email(
+        '%s_%s' % (funcname, subcounter), "#regzb dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com" % dupof,
+        replyto=replyto)
+    replyto_1 = '%s_%s' % (funcname, subcounter)
+    return True, False, False
 
 def offltest_3_0(funcname):
     logger.info('%s: create a regression in next' % funcname)
