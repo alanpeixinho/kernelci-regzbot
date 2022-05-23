@@ -447,26 +447,32 @@ class RegressionWeb(regzbot.RegressionFull):
                             yattagdoc.text('Fixes: %s ("%s")' % (
                                 self.introduced[0:12], commitsummary))
 
-                      reports = dict()
+                      reports = []
                       for regression in self, *self._dupes:
-                          actireport =  regression._actim_report
-                          if not actireport.authorname or not actireport.authormail:
+                          actireport = regression._actim_report
+                          reportedlink = regzbot.ReportSource.get_by_id(actireport.repsrcid).url(actireport.entry, redirector=True)
+                          if not actireport.authorname:
                               # there are a few old database entry where authorname and authormail are missing
                               # just ignore them
-                              continue
-                          reportedby = "Reported-by: %s <%s>" % (actireport.authorname, actireport.authormail)
-                          reportedlink=regzbot.ReportSource.get_by_id(actireport.repsrcid).url(actireport.entry, redirector=True)
-                          if not reportedby in reports.keys():
-                              reports[reportedby] = list()
-                          reports[reportedby].append(reportedlink)
-                      for reports_key in reports:
+                              reportedby = ''
+                          elif actireport.authorname == 'Unknown':
+                              reportedby = ''
+                          else:
+                              reportedby = "Reported-by: %s <%s>" % (actireport.authorname, actireport.authormail)
+                          reports.append((reportedby, reportedlink))
+
+                      reports.sort(key=lambda x: x[0])
+                      lastreporter = None
+                      for report in reports:
+                           if reportedby:
+                               if not report[0] == lastreporter:
+                                   lastreporter = report[0]
+                                   with yattagdoc.tag('li'):
+                                       yattagdoc.text(report[0])
                            with yattagdoc.tag('li'):
-                               yattagdoc.text(reports_key)
-                           for link in reports[reports_key]:
-                               with yattagdoc.tag('li'):
-                                   yattagdoc.text('Link: ')
-                                   with yattagdoc.tag('a', href=link):
-                                       yattagdoc.text(link)
+                                yattagdoc.text('Link: ')
+                                with yattagdoc.tag('a', href=report[1]):
+                                     yattagdoc.text(report[1])
 
         yattagdoc_line = yattag.Doc()
         with yattagdoc_line.tag('td', style="width: 200px;"):
