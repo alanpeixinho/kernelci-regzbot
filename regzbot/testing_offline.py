@@ -427,13 +427,17 @@ def run(resultfilename, tmpdir, testdatadir):
 
     outercount = 0
     while '%s_%s_0' % (testfuncprefix, outercount) in dir(this):
-        # reset
+        # reset git
         for gittree_testing in gittrees_testing:
             gittrees_testing[gittree_testing].reset()
+        update_gittrees()
+
+        # reset email
         for emaildir in emaildirs:
             emaildirs[emaildir].reset()
         regzbot.db_rollback()
 
+        # go
         innercount = 0
         while '%s_%s_%s' % (testfuncprefix, outercount, innercount) in dir(this):
             # remove mails from the last round
@@ -679,7 +683,7 @@ def offltest_0_16(funcname):
                                         "#regzb title: new title, set via a duplicate\n",
                                         replyto='%s' % replyto)
 
-    return True, False, True
+    return True, False, False
 
 # create a mainline regression
 def offltest_1_0(funcname):

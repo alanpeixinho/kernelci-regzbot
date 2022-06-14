@@ -1360,30 +1360,30 @@ LATEST: test_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.
 [offltest_3_2]
 REGRESSION: test_3_0: Lorem ipsum dolor sit amet, b7a9f8146115 (next-20190101^0), https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=b7a9f8146115b087f0d42176af7b686915bdb1f4, next, master, None: culprit indentified
 INITIAL_REPORT: 1546300800, test_3_0: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_3_0@example.com/
-SOLVED: fixed, 1577836803, next-20190102^0, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, This is a next_master commit for testing regzbot, the content doesn't matter.
+SOLVED: fixed, 1577836802, next-20190102^0, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, This is a next_master commit for testing regzbot, the content doesn't matter.
 ACTIVITY: test_3_0: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_0@example.com/, 1546300800, PatchKind.0
 ACTIVITY: test_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_1@example.com/, 1546387200, PatchKind.0
 ACTIVITY: test_3_2: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_2@example.com/, 1546473600, PatchKind.0
-ACTIVITY: fb9bcfaeae8b, the commit specified by 'fixed-by', landed in next, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, 1577836803, PatchKind.0
+ACTIVITY: fb9bcfaeae8b, the commit specified by 'fixed-by', landed in next, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, 1577836802, PatchKind.0
 HISTORY: test_3_0: Lorem ipsum dolor sit amet, 1546300800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_0@example.com/, introduced: next-20190101..next-20190102
 HISTORY: test_3_1: Lorem ipsum dolor sit amet, 1546387200, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_1@example.com/, introduced: b7a9f8146115b087f0d42176af7b686915bdb1f4
 HISTORY: test_3_2: Lorem ipsum dolor sit amet, 1546473600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_2@example.com/, fixed-by: fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90
-HISTORY: This is a next_master commit for testing regzbot, the content doesn't matter., 1577836803, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, fixed: 'fixed-by' commit 'fb9bcfaeae8b' now in 'next'
-LATEST: fb9bcfaeae8b, the commit specified by 'fixed-by', landed in next, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, 1577836803, PatchKind.0
+HISTORY: This is a next_master commit for testing regzbot, the content doesn't matter., 1577836802, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, fixed: 'fixed-by' commit 'fb9bcfaeae8b' now in 'next'
+LATEST: fb9bcfaeae8b, the commit specified by 'fixed-by', landed in next, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, 1577836802, PatchKind.0
 
 [offltest_3_3]
 REGRESSION: test_3_0: Lorem ipsum dolor sit amet, b7a9f8146115 (next-20190101^0), https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=b7a9f8146115b087f0d42176af7b686915bdb1f4, next, master, None: culprit indentified
 INITIAL_REPORT: 1546300800, test_3_0: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_3_0@example.com/
-SOLVED: fixed, 1577836803, next-20190102^0, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, This is a next_master commit for testing regzbot, the content doesn't matter.
+SOLVED: fixed, 1577836802, next-20190102^0, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, This is a next_master commit for testing regzbot, the content doesn't matter.
 ACTIVITY: test_3_0: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_0@example.com/, 1546300800, PatchKind.0
 ACTIVITY: test_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_1@example.com/, 1546387200, PatchKind.0
 ACTIVITY: test_3_2: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_2@example.com/, 1546473600, PatchKind.0
-ACTIVITY: fb9bcfaeae8b, the commit specified by 'fixed-by', landed in next, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, 1577836803, PatchKind.0
+ACTIVITY: fb9bcfaeae8b, the commit specified by 'fixed-by', landed in next, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, 1577836802, PatchKind.0
 HISTORY: test_3_0: Lorem ipsum dolor sit amet, 1546300800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_0@example.com/, introduced: next-20190101..next-20190102
 HISTORY: test_3_1: Lorem ipsum dolor sit amet, 1546387200, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_1@example.com/, introduced: b7a9f8146115b087f0d42176af7b686915bdb1f4
 HISTORY: test_3_2: Lorem ipsum dolor sit amet, 1546473600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_2@example.com/, fixed-by: fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90
-HISTORY: This is a next_master commit for testing regzbot, the content doesn't matter., 1577836803, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, fixed: 'fixed-by' commit 'fb9bcfaeae8b' now in 'next'
-LATEST: fb9bcfaeae8b, the commit specified by 'fixed-by', landed in next, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, 1577836803, PatchKind.0
+HISTORY: This is a next_master commit for testing regzbot, the content doesn't matter., 1577836802, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, fixed: 'fixed-by' commit 'fb9bcfaeae8b' now in 'next'
+LATEST: fb9bcfaeae8b, the commit specified by 'fixed-by', landed in next, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, 1577836802, PatchKind.0
 REGRESSION: test_3_3: Lorem ipsum dolor sit amet, v1.8.1..v1.8.2 (None), None, stable, linux-1.8.y, None: no flags
 INITIAL_REPORT: 1546560000, test_3_3: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_3_3@example.com/
 ACTIVITY: test_3_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_3@example.com/, 1546560000, PatchKind.0
@@ -1393,16 +1393,16 @@ LATEST: test_3_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.
 [offltest_3_4]
 REGRESSION: test_3_0: Lorem ipsum dolor sit amet, b7a9f8146115 (next-20190101^0), https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=b7a9f8146115b087f0d42176af7b686915bdb1f4, next, master, None: culprit indentified
 INITIAL_REPORT: 1546300800, test_3_0: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_3_0@example.com/
-SOLVED: fixed, 1577836803, next-20190102^0, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, This is a next_master commit for testing regzbot, the content doesn't matter.
+SOLVED: fixed, 1577836802, next-20190102^0, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, This is a next_master commit for testing regzbot, the content doesn't matter.
 ACTIVITY: test_3_0: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_0@example.com/, 1546300800, PatchKind.0
 ACTIVITY: test_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_1@example.com/, 1546387200, PatchKind.0
 ACTIVITY: test_3_2: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_2@example.com/, 1546473600, PatchKind.0
-ACTIVITY: fb9bcfaeae8b, the commit specified by 'fixed-by', landed in next, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, 1577836803, PatchKind.0
+ACTIVITY: fb9bcfaeae8b, the commit specified by 'fixed-by', landed in next, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, 1577836802, PatchKind.0
 HISTORY: test_3_0: Lorem ipsum dolor sit amet, 1546300800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_0@example.com/, introduced: next-20190101..next-20190102
 HISTORY: test_3_1: Lorem ipsum dolor sit amet, 1546387200, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_1@example.com/, introduced: b7a9f8146115b087f0d42176af7b686915bdb1f4
 HISTORY: test_3_2: Lorem ipsum dolor sit amet, 1546473600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_2@example.com/, fixed-by: fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90
-HISTORY: This is a next_master commit for testing regzbot, the content doesn't matter., 1577836803, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, fixed: 'fixed-by' commit 'fb9bcfaeae8b' now in 'next'
-LATEST: fb9bcfaeae8b, the commit specified by 'fixed-by', landed in next, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, 1577836803, PatchKind.0
+HISTORY: This is a next_master commit for testing regzbot, the content doesn't matter., 1577836802, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, fixed: 'fixed-by' commit 'fb9bcfaeae8b' now in 'next'
+LATEST: fb9bcfaeae8b, the commit specified by 'fixed-by', landed in next, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, 1577836802, PatchKind.0
 REGRESSION: test_3_3: Lorem ipsum dolor sit amet, 3f48f5b9a5f (v1.8.1^0), https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-1.8.y&id=3f48f5b9a5f, stable, linux-1.8.y, None: culprit indentified
 INITIAL_REPORT: 1546560000, test_3_3: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_3_3@example.com/
 ACTIVITY: test_3_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_3@example.com/, 1546560000, PatchKind.0
@@ -1414,28 +1414,28 @@ LATEST: test_3_4: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.
 [offltest_3_5]
 REGRESSION: test_3_0: Lorem ipsum dolor sit amet, b7a9f8146115 (next-20190101^0), https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=b7a9f8146115b087f0d42176af7b686915bdb1f4, next, master, None: culprit indentified
 INITIAL_REPORT: 1546300800, test_3_0: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_3_0@example.com/
-SOLVED: fixed, 1577836803, next-20190102^0, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, This is a next_master commit for testing regzbot, the content doesn't matter.
+SOLVED: fixed, 1577836802, next-20190102^0, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, This is a next_master commit for testing regzbot, the content doesn't matter.
 ACTIVITY: test_3_0: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_0@example.com/, 1546300800, PatchKind.0
 ACTIVITY: test_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_1@example.com/, 1546387200, PatchKind.0
 ACTIVITY: test_3_2: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_2@example.com/, 1546473600, PatchKind.0
-ACTIVITY: fb9bcfaeae8b, the commit specified by 'fixed-by', landed in next, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, 1577836803, PatchKind.0
+ACTIVITY: fb9bcfaeae8b, the commit specified by 'fixed-by', landed in next, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, 1577836802, PatchKind.0
 HISTORY: test_3_0: Lorem ipsum dolor sit amet, 1546300800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_0@example.com/, introduced: next-20190101..next-20190102
 HISTORY: test_3_1: Lorem ipsum dolor sit amet, 1546387200, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_1@example.com/, introduced: b7a9f8146115b087f0d42176af7b686915bdb1f4
 HISTORY: test_3_2: Lorem ipsum dolor sit amet, 1546473600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_2@example.com/, fixed-by: fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90
-HISTORY: This is a next_master commit for testing regzbot, the content doesn't matter., 1577836803, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, fixed: 'fixed-by' commit 'fb9bcfaeae8b' now in 'next'
-LATEST: fb9bcfaeae8b, the commit specified by 'fixed-by', landed in next, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, 1577836803, PatchKind.0
+HISTORY: This is a next_master commit for testing regzbot, the content doesn't matter., 1577836802, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, fixed: 'fixed-by' commit 'fb9bcfaeae8b' now in 'next'
+LATEST: fb9bcfaeae8b, the commit specified by 'fixed-by', landed in next, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=fb9bcfaeae8b4ff05fa9dd4989ed78c55e410f90, 1577836802, PatchKind.0
 REGRESSION: test_3_3: Lorem ipsum dolor sit amet, 3f48f5b9a5f (v1.8.1^0), https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-1.8.y&id=3f48f5b9a5f, stable, linux-1.8.y, None: culprit indentified
 INITIAL_REPORT: 1546560000, test_3_3: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_3_3@example.com/
-SOLVED: fixed, 1609459203, v1.8.2^0, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-1.8.y&id=3f98da7b235bfe10c0e3f452bd88cc3cc6b50e43, This is a stable_linux-1.8.y commit for testing regzbot, the content doesn't matter.
+SOLVED: fixed, 1609459202, v1.8.2^0, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-1.8.y&id=3f98da7b235bfe10c0e3f452bd88cc3cc6b50e43, This is a stable_linux-1.8.y commit for testing regzbot, the content doesn't matter.
 ACTIVITY: test_3_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_3@example.com/, 1546560000, PatchKind.0
 ACTIVITY: test_3_4: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_4@example.com/, 1546646400, PatchKind.0
 ACTIVITY: test_3_5: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_5@example.com/, 1546732800, PatchKind.0
-ACTIVITY: 3f98da7b235b, the commit specified by 'fixed-by', landed in stable/linux-1.8.y, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-1.8.y&id=3f98da7b235bfe10c0e3f452bd88cc3cc6b50e43, 1609459203, PatchKind.0
+ACTIVITY: 3f98da7b235b, the commit specified by 'fixed-by', landed in stable/linux-1.8.y, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-1.8.y&id=3f98da7b235bfe10c0e3f452bd88cc3cc6b50e43, 1609459202, PatchKind.0
 HISTORY: test_3_3: Lorem ipsum dolor sit amet, 1546560000, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_3@example.com/, introduced: v1.8.1..v1.8.2
 HISTORY: test_3_4: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_4@example.com/, introduced: 3f48f5b9a5f
 HISTORY: test_3_5: Lorem ipsum dolor sit amet, 1546732800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_3_5@example.com/, fixed-by: 3f98da7b235bfe10c0e3f452bd88cc3cc6b50e43
-HISTORY: This is a stable_linux-1.8.y commit for testing regzbot, the content doesn't matter., 1609459203, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-1.8.y&id=3f98da7b235bfe10c0e3f452bd88cc3cc6b50e43, fixed: 'fixed-by' commit '3f98da7b235b' now in 'stable/linux-1.8.y'
-LATEST: 3f98da7b235b, the commit specified by 'fixed-by', landed in stable/linux-1.8.y, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-1.8.y&id=3f98da7b235bfe10c0e3f452bd88cc3cc6b50e43, 1609459203, PatchKind.0
+HISTORY: This is a stable_linux-1.8.y commit for testing regzbot, the content doesn't matter., 1609459202, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-1.8.y&id=3f98da7b235bfe10c0e3f452bd88cc3cc6b50e43, fixed: 'fixed-by' commit '3f98da7b235b' now in 'stable/linux-1.8.y'
+LATEST: 3f98da7b235b, the commit specified by 'fixed-by', landed in stable/linux-1.8.y, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-1.8.y&id=3f98da7b235bfe10c0e3f452bd88cc3cc6b50e43, 1609459202, PatchKind.0
 
 [offltest_4_0]
 REGRESSION: test_4_0_0: Lorem ipsum dolor sit amet, v1.10..v1.11-rc1 (None), None, mainline, master, indevelopment: no flags
@@ -1473,7 +1473,7 @@ INITIAL_REPORT: 1546819200, test_4_0_6: Lorem ipsum dolor sit amet, Regzbot test
 ACTIVITY: test_4_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_6@example.com/, 1546819200, PatchKind.0
 HISTORY: test_4_0_6: Lorem ipsum dolor sit amet, 1546819200, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_6@example.com/, introduced: v1.9..v1.11-rc1
 LATEST: test_4_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_6@example.com/, 1546819200, PatchKind.0
-REGRESSION: test_4_0_7: Lorem ipsum dolor sit amet, v1.10..f47cf3bc9337 (None), None, mainline, master, previous: no flags
+REGRESSION: test_4_0_7: Lorem ipsum dolor sit amet, v1.10..23bde5c338c7 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_4_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_7@example.com/
 ACTIVITY: test_4_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_7@example.com/, 1546905600, PatchKind.0
 HISTORY: test_4_0_7: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_7@example.com/, introduced: v1.10..
@@ -1515,7 +1515,7 @@ INITIAL_REPORT: 1546819200, test_4_0_6: Lorem ipsum dolor sit amet, Regzbot test
 ACTIVITY: test_4_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_6@example.com/, 1546819200, PatchKind.0
 HISTORY: test_4_0_6: Lorem ipsum dolor sit amet, 1546819200, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_6@example.com/, introduced: v1.9..v1.11-rc1
 LATEST: test_4_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_6@example.com/, 1546819200, PatchKind.0
-REGRESSION: test_4_0_7: Lorem ipsum dolor sit amet, v1.10..f47cf3bc9337 (None), None, mainline, master, previous: no flags
+REGRESSION: test_4_0_7: Lorem ipsum dolor sit amet, v1.10..23bde5c338c7 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_4_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_7@example.com/
 ACTIVITY: test_4_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_7@example.com/, 1546905600, PatchKind.0
 HISTORY: test_4_0_7: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_7@example.com/, introduced: v1.10..
@@ -1572,7 +1572,7 @@ INITIAL_REPORT: 1546819200, test_4_0_6: Lorem ipsum dolor sit amet, Regzbot test
 ACTIVITY: test_4_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_6@example.com/, 1546819200, PatchKind.0
 HISTORY: test_4_0_6: Lorem ipsum dolor sit amet, 1546819200, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_6@example.com/, introduced: v1.9..v1.11-rc1
 LATEST: test_4_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_6@example.com/, 1546819200, PatchKind.0
-REGRESSION: test_4_0_7: Lorem ipsum dolor sit amet, v1.10..f47cf3bc9337 (None), None, mainline, master, previous: no flags
+REGRESSION: test_4_0_7: Lorem ipsum dolor sit amet, v1.10..23bde5c338c7 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_4_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_7@example.com/
 ACTIVITY: test_4_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_7@example.com/, 1546905600, PatchKind.0
 HISTORY: test_4_0_7: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_7@example.com/, introduced: v1.10..
@@ -1654,7 +1654,7 @@ INITIAL_REPORT: 1546819200, test_4_0_6: Lorem ipsum dolor sit amet, Regzbot test
 ACTIVITY: test_4_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_6@example.com/, 1546819200, PatchKind.0
 HISTORY: test_4_0_6: Lorem ipsum dolor sit amet, 1546819200, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_6@example.com/, introduced: v1.9..v1.11-rc1
 LATEST: test_4_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_6@example.com/, 1546819200, PatchKind.0
-REGRESSION: test_4_0_7: Lorem ipsum dolor sit amet, v1.10..f47cf3bc9337 (None), None, mainline, master, previous: no flags
+REGRESSION: test_4_0_7: Lorem ipsum dolor sit amet, v1.10..23bde5c338c7 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_4_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_7@example.com/
 ACTIVITY: test_4_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_7@example.com/, 1546905600, PatchKind.0
 HISTORY: test_4_0_7: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_7@example.com/, introduced: v1.10..
@@ -1746,7 +1746,7 @@ INITIAL_REPORT: 1546819200, test_4_0_6: Lorem ipsum dolor sit amet, Regzbot test
 ACTIVITY: test_4_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_6@example.com/, 1546819200, PatchKind.0
 HISTORY: test_4_0_6: Lorem ipsum dolor sit amet, 1546819200, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_6@example.com/, introduced: v1.9..v1.11-rc1
 LATEST: test_4_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_6@example.com/, 1546819200, PatchKind.0
-REGRESSION: test_4_0_7: Lorem ipsum dolor sit amet, v1.10..f47cf3bc9337 (None), None, mainline, master, previous: no flags
+REGRESSION: test_4_0_7: Lorem ipsum dolor sit amet, v1.10..23bde5c338c7 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_4_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_7@example.com/
 ACTIVITY: test_4_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_7@example.com/, 1546905600, PatchKind.0
 HISTORY: test_4_0_7: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_0_7@example.com/, introduced: v1.10..
