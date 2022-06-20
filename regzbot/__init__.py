@@ -603,12 +603,15 @@ class GitTree():
 
     def update(self):
         def process_link(url, foundspot):
-            _, _, msgid = parse_link(url)
-            if msgid:
+            domain, _, msgid = parse_link(url)
+            if domain =='lore.kernel.org' and msgid:
                 return RegressionFull.get_by_entry(msgid)
-            else:
-                logger.debug(
-                    "Skipping link %s (found in %s): Unable to parse", url, foundspot)
+
+            regression = RegressionFull.get_by_entry(url)
+            if regression:
+                return regression
+
+            logger.debug("Could not find a regression for link %s (found in %s)", url, foundspot)
             return None
 
         # update
@@ -1224,7 +1227,7 @@ class RegHistory():
         dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute('SELECT gmtime FROM reghistory WHERE regzbotcmd LIKE (?) AND regid=(?) ORDER BY gmtime', ('%%introduced: %%', regid)).fetchone()
         if not dbresult:
-            return None
+            dbresult = dbcursor.execute('SELECT gmtime FROM reghistory WHERE regid=(?) ORDER BY gmtime', (regid, )).fetchone()
         return dbresult[0]
 
     @classmethod
@@ -1610,11 +1613,10 @@ class RegressionBasic():
             return introduced, None
 
     @classmethod
-    def introduced_create(cls, repsrcid, entry, subject, author, authormail, introduced, gmtime):
-        introduced, gitbranchid = cls.__introduced_precheck(introduced, gmtime)
+    def __create(cls, introduced, gitbranchid, repsrcid, entry, gmtime, subject, authorname, authormail):
+        dbcursor = DBCON.cursor()
 
         # create regression
-        dbcursor = DBCON.cursor()
         dbcursor.execute('''INSERT INTO regressions
                             (subject, introduced, gitbranchid)
                             VALUES (?, ?, ?)''',
@@ -1622,7 +1624,7 @@ class RegressionBasic():
         regid = dbcursor.lastrowid
 
         # create entry for monitoring
-        actimonid = RegActivityMonitor.add(dbcursor.lastrowid, repsrcid, entry, gmtime, subject, author, authormail)
+        actimonid = RegActivityMonitor.add(regid, repsrcid, entry, gmtime, subject, authorname, authormail)
         dbcursor.execute('''UPDATE regressions
                             SET actimonid = (?)
                             WHERE regid = (?)''',
@@ -1639,6 +1641,11 @@ class RegressionBasic():
         GitTree.search_references(entry, regression, gmtime=gmtime)
 
         return regression
+
+    @classmethod
+    def introduced_create(cls, repsrcid, entry, subject, authorname, authormail, introduced, gmtime):
+        introduced, gitbranchid = cls.__introduced_precheck(introduced, gmtime)
+        return cls.__create(introduced, gitbranchid, repsrcid, entry, gmtime, subject, authorname, authormail)
 
     def introduced_update(self, tagload):
         self.introduced, self.gitbranchid = self.__introduced_precheck(tagload)
@@ -1657,7 +1664,19 @@ class RegressionBasic():
         logger.info('regression[%s, "%s"]: setting introduced to "%s"',
                     self.regid, self.subject, self.introduced)
 
-    def dupof(self, tagload, gmtime, msgid, msgsubject, author, repsrcid):
+    def __create_dup(self, url, gmtime):
+        subject = self.subject
+        repsrc, entry = ReportSource.get_by_url(url)
+
+        # defaults that normally will be overridden
+        authorname = 'Unknown'
+        authormail = None
+
+        # create regression
+        return self.__create(self.introduced, self.gitbranchid, repsrc.repsrcid, entry, gmtime, subject, authorname, authormail)
+
+
+    def dupof(self, tagload, gmtime, msgid, msgsubject, authorname, repsrcid, regzbotcmd):
         def parse(tagload):
             tagload = tagload.split(maxsplit=1)
             url = tagload[0]
@@ -1671,13 +1690,9 @@ class RegressionBasic():
 
         regression_other = self.get_by_link(urldup)
         if not regression_other:
-            UnhandledEvent.add(ReportSource.url_by_id(repsrcid, msgid),
-                                           "regression '%s' marked as duplicate of '%s', but could not find a regression for the latter" % (self.subject, tagload))
-            return None
-        elif regression_other.regid == self.regid:
-            UnhandledEvent.add(ReportSource.url_by_id(repsrcid, msgid),
-                                           "cannon mark regression '%s' as a duplicate of itself" % self.subject)
-            return None
+            regression_other = self.__create_dup(urldup, gmtime)
+            RegHistory.event(regression_other.regid, gmtime, msgid, msgsubject, authorname, repsrcid=repsrcid, regzbotcmd="introduced: %s [implicit, due to usage of 'dup-of']" % self.introduced)
+
 
         if self.solved_subject is None:
             self.solved_subject = regression_other.subject
@@ -1693,7 +1708,7 @@ class RegressionBasic():
         logger.info('regression[%s, "%s"]: marked as duplicate of regression Regression[%s, "%s"])',
                     self.regid, self.subject, regression_other.regid, regression_other.subject)
         # make sure this is mentioned in the other regression, too
-        RegHistory.event(regression_other.regid, gmtime, msgid, self.solved_subject, author, repsrcid=repsrcid,
+        RegHistory.event(regression_other.regid, gmtime, msgid, self.solved_subject, authorname, repsrcid=repsrcid,
                          regzbotcmd='dup: the regression "%s" was marked as duplicate of this' % (self.subject))
 
     def fixed(self, gmtime, commit_hexsha, commit_subject, gitbranchid):
@@ -2348,11 +2363,12 @@ class ReportSource():
             yield ReportSource(*dbresult)
 
     @staticmethod
-    def getid_byname(name):
+    def get_by_name(name):
         dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
-            'SELECT repsrcid FROM reportsources WHERE name=(?)', (name, )).fetchone()
-        return dbresult[0]
+            'SELECT * FROM reportsources WHERE name LIKE (?)', (name, )).fetchone()
+        if dbresult:
+             return ReportSource(*dbresult)
 
     @staticmethod
     def get_by_identifier(identifier):
@@ -2372,13 +2388,37 @@ class ReportSource():
             return ReportSource(*dbresult)
         return None
 
+    @classmethod
+    def get_by_url(cls, url):
+        splitted_url = url.split('/')
+        lowered_url = url.lower().split('/')
+
+        if not lowered_url[0].startswith('http'):
+            # whatever you are, I'm taking you just as your are...
+            pass
+        elif lowered_url[2] == 'lore.kernel.org':
+            if lowered_url[3] == 'all':
+                logger.debug('ReportSource.get_by_url: FIXME')
+                sys.exit(1)
+            repsrc = cls.get_byweburl('https://%s/%s/' % (lowered_url[2], lowered_url[3]))
+            if repsrc:
+                return repsrc, splitted_url[4]
+
+        repsrc = cls.get_by_name('generic')
+        if not repsrc:
+            logger.debug('ReportSource.get_by_url: genric entry not found, aborting')
+            sys.exit(1)
+        return repsrc, url
+
     @staticmethod
     def url_by_id(repsrcid, entry):
         repsrc = ReportSource.get_by_id(repsrcid)
         return repsrc.url(entry)
 
     def url(self, entry, *, redirector=None):
-        if self.kind == 'lore':
+        if self.kind == 'generic':
+            return entry
+        elif self.kind == 'lore':
             if redirector:
                 return 'https://lore.kernel.org/r/%s/' % urlencode(entry)
             else:
@@ -2576,6 +2616,8 @@ def basicressources_gittrees_setup(gittreesdir):
 
 
 def basicressources_repsrces_setup():
+    ReportSource.add('generic', 99,'', 'generic', '')
+
     # hardcoded for now
     ReportSource.add('lkml', 1,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-kernel',

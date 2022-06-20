@@ -147,7 +147,7 @@ def process_tag(repsrc, tag, msg):
         elif tagcmd == "unbackburn" or tagcmd == "unbackburner":
             regressionb.backburner_remove()
         elif tagcmd == "dupof" or tagcmd == "dup-of":
-            regressionb.dupof(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid)
+            regressionb.dupof(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid, regzbotcmd)
         elif tagcmd == "fixed-by" or tagcmd == "fixedby:":
             commit_hexsha, commit_subject = spilttag_first_word(tagload)
             regressionb.fixedby(
@@ -167,7 +167,7 @@ def process_tag(repsrc, tag, msg):
         elif tagcmd == "unmonitor":
             regressionb.monitorremove(tagload, gmtime, repsrc, msg)
         elif tagcmd == "poke":
-            # nothing to do, the entry in the history is enough
+            # nothing to do here, the entry in the history is enough
             pass
         elif tagcmd == "subject" or tagcmd == "title":
             regressionb.title(tagload)
@@ -236,7 +236,6 @@ def process_tag(repsrc, tag, msg):
         if tagcmd == "^introduced" or tagcmd == "^^introduced":
              if not regzbot.is_running_citesting('offline'):
                  regzbot.process_thread(parent_msgid, repsrc.repsrcid)
-
 
 def email_get_from(msg):
     from email.utils import parseaddr

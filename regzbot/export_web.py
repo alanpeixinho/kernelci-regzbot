@@ -884,8 +884,12 @@ class RegExportWeb():
             gmtime_solved = None
             if regression.solved_reason == 'fixed' or regression.solved_reason == 'invalid' or regression.solved_reason == 'duplicateof' or regression.solved_duplicateof:
                 gmtime_solved = regression.solved_gmtime
+            if regression._actievents:
+                last_activity=regression._actievents[-1].gmtime
+            else:
+                last_activity=regression._histevents[-1].gmtime
             regressionslist.append(cls(regression._actim_report.entry, regression.gmtime, regression.gmtime_filed,
-                                                    regression._actievents[-1].gmtime, gmtime_solved, regression.treename,
+                                                    last_activity, gmtime_solved, regression.treename,
                                                     regression.versionline, regression.backburner, regression.identified,
                                                     regression.html()))
 

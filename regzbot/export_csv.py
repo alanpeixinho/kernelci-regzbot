@@ -111,7 +111,8 @@ class RegressionFullCSV(regzbot.RegressionFull):
         return compiled
 
     def add_latest(self, compiled):
-        compiled.append("LATEST: " + self._actievents[-1].csv())
+        if self._actievents:
+            compiled.append("LATEST: " + self._actievents[-1].csv())
         return compiled
 
     def dump(self):

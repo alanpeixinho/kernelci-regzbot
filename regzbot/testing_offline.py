@@ -398,6 +398,8 @@ def init_mailsdir(path_tmpmail):
     emaildirs['secondary'] = Emaildir(
         regzbot.ReportSource.get_by_id(repsrcid), 'linux-kernel@example.com', path_tmpmail, 'secondary')
 
+    regzbot.ReportSource.add('generic', 99,'', 'generic', '')
+
 
 def init(tmpdir, testdatadir):
     regzbot.set_citesting('offline')
@@ -685,6 +687,28 @@ def offltest_0_16(funcname):
 
     return True, False, False
 
+def offltest_0_17(funcname):
+    logger.info('%s: create a regression and a duplicate from it' % funcname)
+
+    subcounter = 0
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+    replyto = '%s_%s' %(funcname, subcounter)
+
+    subcounter += 1
+    emaildirs['secondary'].create_email("%s_%s" % (funcname, subcounter), "Hello hello")
+    second_replyto = '%s_%s' %(funcname, subcounter)
+
+    subcounter += 1
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
+                                        "#regzb dup-of: https://lore.kernel.org/lkml/regzbot-testing-%s@example.com\n" % second_replyto,
+                                        replyto=replyto)
+
+    subcounter += 1
+    emaildirs['secondary'].create_email("%s_%s" % (funcname, subcounter), "Hello again",
+                                        replyto=second_replyto)
+
+    return True, False, False
+
 # create a mainline regression
 def offltest_1_0(funcname):
     logger.info('%s: creating a mainline regression' % funcname)
@@ -770,6 +794,22 @@ def offltest_1_8(funcname):
         'Fixes: %s ("Foo bar")' % gittrees_testing['mainline'].hashes_known[-2][0:12])
     return False, True, False
 
+def offltest_1_9(funcname):
+    logger.info('%s: create a regression and a duplicate from it with a unsupported url, then fix with a commit specifying the latter' % funcname)
+
+    subcounter = 0
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+    replyto = '%s_%s' %(funcname, subcounter)
+
+    subcounter += 1
+    link = 'https://somewhere.over.the.rainbow.example.org/regzbot-testing@example.com'
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
+                                        "#regzb dup-of: %s\n" % link,
+                                        replyto=replyto)
+    gittrees_testing['mainline'].mv(
+        'Link: %s' % link)
+
+    return True, True, False
 
 def offltest_2_0(funcname):
     logger.info(
