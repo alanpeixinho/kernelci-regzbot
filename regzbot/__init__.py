@@ -2654,6 +2654,9 @@ def basicressources_repsrces_setup():
     ReportSource.add('ppc-dev', 3,
                      'nntp://nntp.lore.kernel.org/org.ozlabs.lists.linuxppc-dev',
                      'lore', 'https://lore.kernel.org/linuxppc-dev/', identifiers='linuxppc-dev@lists.ozlabs.org')
+    ReportSource.add('virtualization', 5,
+                     'nntp://nntp.lore.kernel.org/org.linuxfoundation.lists.virtualization',
+                     'lore', 'https://lore.kernel.org/virtualization/', identifiers='virtualization@lists.linux-foundation.org')
 
 
     # graphics
@@ -2689,6 +2692,9 @@ def basicressources_repsrces_setup():
     ReportSource.add('wireless', 4,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-wireless',
                      'lore', 'https://lore.kernel.org/linux-wireless/', identifiers='linux-wireless@vger.kernel.org')
+    ReportSource.add('intel-wired-lan', 7,
+                     'nntp://nntp.lore.kernel.org/org.osuosl.intel-wired-lan',
+                     'lore', 'https://lore.kernel.org/intel-wired-lan/', identifiers='intel-wired-lan@lists.osuosl.org')
 
 
     # storage
