@@ -870,6 +870,12 @@ def offltest_2_5(funcname):
     return True, False, False
 
 def offltest_2_6(funcname):
+    replyto = 'test_2_3'
+    logger.info('%s: use a rezbot comment in the thread %s that is now monitored' %
+                (funcname, replyto))
+    emaildirs['secondary'].create_email(funcname, "#regzb title new title set via a monitored thread",
+                                        subject="%s: reply to the thread now monitored with a regzbot command" % funcname,
+                                        replyto=replyto)
     return True, False, False
 
 

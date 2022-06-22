@@ -1489,7 +1489,7 @@ class RegressionBasic():
         if not dbcursor:
             dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
-            'SELECT %s FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.entry=? AND actmonitor.actimonid = regressions.actimonid' % RegressionBasic.DBCOLS, (entry,)).fetchone()
+            'SELECT %s FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.entry=?' % RegressionBasic.DBCOLS, (entry,)).fetchone()
         if dbresult:
             yield cls(*dbresult)
             return
