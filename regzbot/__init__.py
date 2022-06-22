@@ -1226,8 +1226,12 @@ class RegHistory():
     def filed(regid):
         dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute('SELECT gmtime FROM reghistory WHERE regzbotcmd LIKE (?) AND regid=(?) ORDER BY gmtime', ('%%introduced: %%', regid)).fetchone()
+        # fallback, in case introduced command couldn't be found
         if not dbresult:
             dbresult = dbcursor.execute('SELECT gmtime FROM reghistory WHERE regid=(?) ORDER BY gmtime', (regid, )).fetchone()
+        # fallback, in case history entry was not created yet
+        if not dbresult:
+            dbresult = dbcursor.execute('SELECT gmtime FROM actmonitor WHERE regid=(?) ORDER BY gmtime', (regid, )).fetchone()
         return dbresult[0]
 
     @classmethod
