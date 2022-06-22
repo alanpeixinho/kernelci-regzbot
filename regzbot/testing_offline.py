@@ -869,8 +869,11 @@ def offltest_2_5(funcname):
                                         replyto=replyto)
     return True, False, False
 
-
 def offltest_2_6(funcname):
+    return True, False, False
+
+
+def offltest_2_7(funcname):
     replyto = 'test_2_0'
     referencedmail = 'test_2_3'
     logger.info('%s: in the regression created by %s, stop monitoring the thread created in %s' % (
@@ -880,7 +883,7 @@ def offltest_2_6(funcname):
     return True, False, False
 
 
-def offltest_2_7(funcname):
+def offltest_2_8(funcname):
     replyto = 'test_2_3'
     logger.info('%s: add a reply to the thread %s that is now unmonitored' % (
         funcname, replyto))
@@ -890,7 +893,7 @@ def offltest_2_7(funcname):
     return True, False, False
 
 
-def offltest_2_8(funcname):
+def offltest_2_9(funcname):
     replyto = 'test_2_0'
     logger.info('%s: on another mainling list, refer to the regression created in %s with a link tag (will be monitored)' % (
         funcname, replyto))
@@ -899,7 +902,7 @@ def offltest_2_8(funcname):
     return True, False, False
 
 
-def offltest_2_9(funcname):
+def offltest_2_10(funcname):
     replyto = 'test_2_8'
     logger.info('%s: on another mainling list, add a reply to the thread %s that should be monitored now' % (
         funcname, replyto))
@@ -908,7 +911,7 @@ def offltest_2_9(funcname):
                                         replyto=replyto)
     return True, False, False
 
-def offltest_2_10(funcname):
+def offltest_2_11(funcname):
     replyto = 'test_2_0'
     logger.info('%s: on another mainling list, use #regzbot ^backmonitor to get a the regression created in %s monitored' % (
         funcname, replyto))
@@ -922,7 +925,7 @@ def offltest_2_10(funcname):
                                         replyto='%s_0' % funcname)
     return True, False, False
 
-def offltest_2_11(funcname):
+def offltest_2_12(funcname):
     subcounter = 0
     replyto = 'test_2_0'
     logger.info(
@@ -1007,7 +1010,7 @@ index 1aafb43f61d1..3eddcd8ebae2 100644
     return True, False, False
 
 
-def offltest_2_12(funcname):
+def offltest_2_13(funcname):
     replyto = 'test_2_0'
 
     subcounter = 0
@@ -1025,7 +1028,7 @@ def offltest_2_12(funcname):
     return True, False, False
 
 
-def offltest_2_13(funcname):
+def offltest_2_14(funcname):
     logger.info('%s: create two regression and link to them using Link on another mailinglist' % (
         funcname))
 
@@ -1047,7 +1050,7 @@ def offltest_2_13(funcname):
     return True, False, False
 
 
-def offltest_2_14(funcname):
+def offltest_2_15(funcname):
     logger.info('%s: mark a regression that monitors some threads as a regression of another' % (
         funcname))
 
