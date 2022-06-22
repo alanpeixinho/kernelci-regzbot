@@ -999,13 +999,6 @@ class RegActivityEvent():
         if dbresult is not None:
             return dbresult[0]
 
-        # handle mails that only have in-reply-to/references for a mail with #regzbot activity-ignore
-        # example: https://lore.kernel.org/dri-devel/20211206183721.6495-1-dmoulding@me.com/
-        dbresult_hist_regid = dbcursor.execute('SELECT regid FROM reghistory WHERE entry=(?) ORDER BY gmtime', (entry, )).fetchone()
-        if dbresult_hist_regid is not None:
-             dbresult_reg_entry = dbcursor.execute('SELECT actmonitor.entry FROM actmonitor INNER JOIN regressions ON actmonitor.actimonid = regressions.actimonid WHERE regressions.regid=(?) AND actmonitor.actimonid = regressions.actimonid', (dbresult_hist_regid[0], )).fetchone()
-             return cls.get_actimonid_by_entry(dbresult_reg_entry[0])
-
     @staticmethod
     def present(entry, actimonid=None, regid=None, gitbranchid=None):
         if not actimonid and not regid:
