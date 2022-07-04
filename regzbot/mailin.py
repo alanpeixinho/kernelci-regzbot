@@ -7,11 +7,13 @@ __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 # FIXME:
 # - path to testdir is hardcoded
 
+import argparse
 import email
 import re
 import regzbot
 
 from email import policy
+from urllib.parse import urlparse
 
 logger = regzbot.logger
 
@@ -91,6 +93,39 @@ def find_actimon(msg):
         return None
 
 
+def parse_introduced_args(args):
+    def is_uri(uri):
+        try:
+            result = urlparse(uri)
+            return all([result.scheme, result.netloc])
+        except ValueError:
+            pass
+        return False
+
+    def parse(args):
+
+        for arg in args:
+            if not sha1sum and re.search('^[0-9a-fA-F]{8,40}$', arg):
+                sha1sum = arg
+            elif not reporturl and (arg == '^' or arg == '~' or is_uri(arg)):
+                reporturl = arg
+
+            if sha1sum and reporturl:
+                break
+
+        return sha1sum, reporturl
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('parms', nargs='+', type=str)
+    args = parser.parse_args(args.split())
+
+    reporturl = False
+    if len(args.parms) > 1 and (args.parms[1] == '^' or args.parms[1] == '~' or is_uri(args.parms[1])):
+        reporturl = args.parms[1]
+
+    return args.parms[0], reporturl
+
+
 def process_tag(repsrc, tag, msg):
     def spilttag_first_word(tagload):
         tagload = tagload.split(maxsplit=1)
@@ -147,7 +182,7 @@ def process_tag(repsrc, tag, msg):
         elif tagcmd == "unbackburn" or tagcmd == "unbackburner":
             regressionb.backburner_remove()
         elif tagcmd == "dupof" or tagcmd == "dup-of":
-            regressionb.dupof(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid, regzbotcmd)
+            regressionb.dupof(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid)
         elif tagcmd == "fixed-by" or tagcmd == "fixedby:":
             commit_hexsha, commit_subject = spilttag_first_word(tagload)
             regressionb.fixedby(
@@ -179,12 +214,22 @@ def process_tag(repsrc, tag, msg):
             return
 
     if not primary_regression:
+        area_introduced, reporturl = parse_introduced_args(tagload)
+
+        # temp ugly shortcut/hack
+        if tagcmd == "introduced" and (reporturl == '^' or reporturl == '~'):
+            tagcmd = '^introduced'
+
         if tagcmd == "introduced":
-            regressionb = regzbot.RegressionBasic.introduced_create(
-                repsrc.repsrcid, msgid, email_get_cleansubject(msg), authorname, authormail, tagload, gmtime)
+            if not reporturl:
+                regressionb = regzbot.RegressionBasic.introduced_create(
+                    repsrc.repsrcid, msgid, email_get_cleansubject(msg), authorname, authormail, area_introduced, gmtime)
+            elif reporturl:
+                regressionb = regzbot.RegressionBasic.introduced_create(
+                    repsrc.repsrcid, msgid, email_get_cleansubject(msg), None, None, area_introduced, gmtime)
+                regressionb.dupof(reporturl, gmtime, msgid, email_get_cleansubject(msg), None, repsrc.repsrcid)
         elif tagcmd == "^introduced" or tagcmd == "^^introduced":
             parent_msgid = email_get_msgid_parent(msg)
-
             if regzbot.is_running_citesting('offline'):
                 if tagcmd == "^^introduced":
                     if msg['References'] is None:

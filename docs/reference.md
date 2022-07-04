@@ -49,18 +49,17 @@ The following '#regzbot commands' are available. Only the `introduced` commands 
 
 #### commands to make regzbot track a regression
 
- * `#regzbot introduced: <commit-id|range>`
+ * `#regzbot introduced: <commit-id|range> [^|url]`
 
-   Tells regzbot this mail is a report for a regression the mail's author wants to see tracked. The regression was introduced in <commit-id> or <range>:
+   Tells regzbot to track a regression introduced in <commit-id> or <range>. The mail with this tag will be considered the report of the regression, unless a caret or url is provided as second parameter:
 
    `<commit-id>` must be a commit-id at least 8 characters long. Regzbot will try to look the commit-id up in linux-next, linux-mainline, and linux-stable to associate the regression to one of those trees.
 
    `<range>` must be in the format used by git using either tags or commit-ids that ideally should both be present in one of linux-next, linux-mainline, or linux-stable. Ranges thus can look like this: `v5.13..v5.14`, `v5.14-rc1..v5.14-rc2`, `v5.13..1f2e3d4c5d`, `next-20211006..next-20211008`, or `v5.13.8..v5.13.10`. Ranges that use tags from different trees (like stable and mainline, e.g., `v5.13.8..v5.14-rc1`) won't make regzbot fail, but it might associate the regression to the wrong tree or consider it unassociated.
 
- * `#regzbot ^introduced: <commit-id|range>`
+   `^` make regzbot treat the parent mail as the report of the regression (the one specifies in the mail's header as 'In-Reply-To'); useful to make regzbot track a regression someone reported on a mailing list, but forgot to get regzbot involved.
 
-   Like `#regzbot introduced`, but will consider the parent mail as the report of the regression (the one the mail's header specifies as 'In-Reply-To'). Useful to make regzbot track a regression someone reported without getting regzbot involved.
-
+   `url` make regzbot treat that location as report of the regression; useful to make regzbot track regressions you or someone else reported in a bug tracker or somewhere else.
 
 #### commands to update properties of a tracked regression
 

@@ -218,10 +218,22 @@ class RegressionWeb(regzbot.RegressionFull):
 
             with yattagdoc_line.tag('details', id='regression-details', style="padding-left: 1em;"):
                 with yattagdoc_line.tag('summary', style="list-style-position: outside;"):
+                    # hide dupes that where just used for forward a bug and have no relevant activity:
+                    regids_just_forwarded = []
+                    for regression in self, *self._dupes:
+                        activitycount = len(regression._actievents)
+                        if regression.regid != self.regid and activitycount < 2:
+                            if activitycount == 0:
+                                regids_just_forwarded.append(regression.regid)
+                            elif regression._actievents[0].repsrcid == regression._histevents[0].repsrcid and \
+                                     regression._actievents[0].entry == regression._histevents[0].entry:
+                                # the other regression's sole activity was creating this one
+                                regids_just_forwarded.append(regression.regid)
 
                     actireports = list()
                     for regression in self, *self._dupes:
-                        actireports.append(regression._actim_report)
+                        if not regression.regid in regids_just_forwarded:
+                            actireports.append(regression._actim_report)
                     actireports_sorted = sorted(actireports, key=lambda x: x.gmtime)
                     actireports = None
 
@@ -249,7 +261,10 @@ class RegressionWeb(regzbot.RegressionFull):
                     len_actireports = len(actireports_sorted)
                     for actireport in actireports_sorted:
                             with yattagdoc.tag('a', href=regzbot.ReportSource.get_by_id(actireport.repsrcid).url(actireport.entry)):
-                                yattagdoc.text(actireport.authorname)
+                                authorname = actireport.authorname
+                                if not authorname:
+                                    authorname='Unkown'
+                                yattagdoc.text(authorname)
                             if len_actireports == 1 or actireport == actireports_sorted[-1]:
                                 pass
                             elif len_actireports == 2:
@@ -449,6 +464,8 @@ class RegressionWeb(regzbot.RegressionFull):
 
                       reports = []
                       for regression in self, *self._dupes:
+                          if regression.regid in regids_just_forwarded:
+                              continue
                           actireport = regression._actim_report
                           reportedlink = regzbot.ReportSource.get_by_id(actireport.repsrcid).url(actireport.entry, redirector=True)
                           if not actireport.authorname:

@@ -484,7 +484,6 @@ def offltest_0_0(funcname):
         funcname, "#regzb introduced: v1.8..v1.9-rc1")
     return True, False, False
 
-
 def offltest_0_1(funcname):
     replyto = 'test_0_0'
     logger.info('%s: specifying the culprit for the regression created in %s' % (
@@ -708,6 +707,28 @@ def offltest_0_17(funcname):
                                         replyto=second_replyto)
 
     return True, False, False
+
+def offltest_0_18 (funcname):
+    logger.info('%s: creating a mainline regression for an arbitarily url' % funcname)
+    emaildirs['primary'].create_email(
+        funcname, "#regzb introduced: v1.8..v1.9-rc1 https://bugzilla.kernel.org/show_bug.cgi?id=215744")
+    return True, False, False
+
+
+def offltest_0_19(funcname):
+    replyto = funcname
+    logger.info(
+        '%s: send a mail which serves as report for a regression created by a reply later using ^introduced' % funcname)
+
+    subcounter = 0
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "Nothing to see here, move along")
+
+    subcounter += 1
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1 ^",
+                                      replyto=replyto)
+    return True, False, False
+
 
 # create a mainline regression
 def offltest_1_0(funcname):

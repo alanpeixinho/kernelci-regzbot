@@ -1182,11 +1182,11 @@ class RegHistory():
         # a few lines from the department of "this should not happen, but better ensure it doesn't":
         if repsrcid is None and gitbranchid is None:
             logger.critical(
-                'this should not happen: RegActivityEvent.event(%s, %s, %s, %s, %s, %s, %s) was called without specifying either repsrcid or gitbranchid; '
+                'this should not happen: RegHistoryEvent.event(%s, %s, %s, %s, %s, %s, %s) was called without specifying either repsrcid or gitbranchid; '
                 % (gmtime, entry, subject, repsrcid, gitbranchid, regzbotcmd, regid))
         if repsrcid and gitbranchid:
             logger.critical(
-                'this should not happen: RegActivityEvent.event(%s, %s, %s, %s, %s, %s, %s) was called with specifying both repsrcid or gitbranchid'
+                'this should not happen: RegHistoryEvent.event(%s, %s, %s, %s, %s, %s, %s) was called with specifying both repsrcid or gitbranchid'
                 % (gmtime, entry, subject, repsrcid, gitbranchid, regzbotcmd, regid))
 
         RegHistory._event(
@@ -1673,7 +1673,7 @@ class RegressionBasic():
         return self.__create(self.introduced, self.gitbranchid, repsrc.repsrcid, entry, gmtime, subject, authorname, authormail)
 
 
-    def dupof(self, tagload, gmtime, msgid, msgsubject, authorname, repsrcid, regzbotcmd):
+    def dupof(self, tagload, gmtime, msgid, msgsubject, authorname, repsrcid):
         def parse(tagload):
             tagload = tagload.split(maxsplit=1)
             url = tagload[0]
@@ -1689,7 +1689,6 @@ class RegressionBasic():
         if not regression_other:
             regression_other = self.__create_dup(urldup, gmtime)
             RegHistory.event(regression_other.regid, gmtime, msgid, msgsubject, authorname, repsrcid=repsrcid, regzbotcmd="introduced: %s [implicit, due to usage of 'dup-of']" % self.introduced)
-
 
         if self.solved_subject is None:
             self.solved_subject = regression_other.subject

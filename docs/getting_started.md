@@ -44,12 +44,17 @@ There are things you need to be aware of to understand the examples that are abo
 
 ### Make regzbot track an existing report
 
-You want to make regzbot track a regression you or someone else reported already without getting regzbot involved? Then simply reply directly to the mail with the report (if it's yours, you'll find it in your mailer's 'Sent' folder) with a line like this in the body:
+You want to make regzbot track a regression you or someone else reported already without getting regzbot involved? What you do then depends on how it was reported:
 
-`#regzbot ^introduced: v5.13..v5.14-rc1`
+ * If the regression was reported by mail, simply reply to it with regressions@lists.linux.dev in CC and a paragraph that contains something like this:
 
-The caret (^) before the 'introduced' makes regzbot treat the parent mail (the one you reply to) as the report, hence you from now on can use regzbot commands in any replies that are decedents of the report.
+   `#regzbot introduced: v5.13..v5.14-rc1 ^`
 
+   The caret ("^") at the end of the line tells regzbot to treat the parent mail (the one you reply to) as the report.
+
+ * If the regression was reported to some bug tracker, sent a mail to the regression list that roughly outlines the regression and includes a paragraph that contains something like this:
+
+   `#regzbot introduced: v5.13..v5.14-rc1 https://example.com/somewhere/someplace.html`s
 
 ### Update properties of a tracked regression
 
