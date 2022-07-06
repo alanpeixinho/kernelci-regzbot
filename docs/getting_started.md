@@ -129,17 +129,23 @@ As stated earlier, the preferred way to fix a tracked regressionis by linking to
 You can use this as soon as the commit-id is stable, even if the fix hasn't reached the next or mainline tree's yet: regzbot will consider the regression as "to be fixed" then and mark it as fully fixed once the commits hits the tree where the regression occurred.
 
 
-#### Mark a regression as a duplicate
+#### Duplicates
 
-Sometimes multiple people will report the same regressions without knowing about each other. When you notice that, check which of the two seems to be the one which is closer to the root of the problem or even a solution. Let's assume we have two reports tracked by regzbot we call A and B; A is older, but B is more informative, as crucial developers replied there and discussed a solution. Then it's a good idea to mark A as duplicate of B. To do that, send this rezbot command to the thread with the report A, where you replace `foo` with a link to the B in the [mailing list archives on lore.kernel.org](https://lore.kernel.org/all/):
+Sometimes multiple people will report the same regressions without knowing about each other. When you notice that, check which of the two seems to be the one which is closer to the root of the problem or even a solution. Let's assume we have two reports already tracked by regzbot we call A and B; A is older, but B is more informative, as crucial developers replied there and discussed a solution. Then it's a good idea to mark A as duplicate of B. You have to options to do that:
 
-`#regzbot dup-of: foo`
+ * Send this rezbot command to the thread with the report A, where you replace `url` with a link to the B in the [mailing list archives on lore.kernel.org](https://lore.kernel.org/all/):
 
-It thus might look like this:
+   `#regzbot dup-of: url`
 
-`#regzbot dup-of: https://lore.kernel.org/all/30th.anniversary.repost@klaava.Helsinki.FI/`
+   It thus might look like this:
 
-Regzbot nevertheless will continue to track the thread with report A.
+   `#regzbot dup-of: https://lore.kernel.org/all/30th.anniversary.repost@klaava.Helsinki.FI/`
+
+ * Send this rezbot command to the thread with the report B, where you replace `url` with a link to the A in the [mailing list archives on lore.kernel.org](https://lore.kernel.org/all/):
+
+   `#regzbot dup: url`
+
+Regzbot from then on will consider all acitivies of A as if they'd happen for B.
 
 #### Mark a regression as invalid
 

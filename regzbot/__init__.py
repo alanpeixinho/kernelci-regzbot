@@ -1673,6 +1673,41 @@ class RegressionBasic():
         return self.__create(self.introduced, self.gitbranchid, repsrc.repsrcid, entry, gmtime, subject, authorname, authormail)
 
 
+    def duplicate(self, tagload, gmtime, msgid, msgsubject, authorname, repsrcid):
+        def parse(tagload):
+            tagload = tagload.split(maxsplit=1)
+            url = tagload[0]
+            if len(tagload) > 1:
+                subject = tagload[1]
+            else:
+                subject = None
+            return url, subject
+
+        urldup, description = parse(tagload)
+
+        regression_other = self.__create_dup(urldup, gmtime)
+        RegHistory.event(regression_other.regid, gmtime, msgid, msgsubject, authorname, repsrcid=repsrcid, regzbotcmd="introduced: %s [implicit, due to usage of 'duplicate']" % self.introduced)
+        regression_other._dupof_direct(self, gmtime, msgid, msgsubject, authorname, repsrcid, history=False)
+
+    def _dupof_direct(self, regression_other, gmtime, msgid, msgsubject, authorname, repsrcid, *, history=True):
+        if self.solved_subject is None:
+            self.solved_subject = regression_other.subject
+        else:
+            # better a URL as subject than nothing at all:
+            self.solved_subject = urldup
+
+        self.solved_gmtime = gmtime
+        self.solved_duplicateof = regression_other.regid
+
+        self._db_update_solved()
+
+        logger.info('regression[%s, "%s"]: marked as duplicate of regression Regression[%s, "%s"])',
+                    self.regid, self.subject, regression_other.regid, regression_other.subject)
+        if history:
+            # make sure this is mentioned in the other regression, too
+            RegHistory.event(regression_other.regid, gmtime, msgid, self.solved_subject, authorname, repsrcid=repsrcid,
+                             regzbotcmd='dup: the regression "%s" was marked as duplicate of this' % (self.subject))
+
     def dupof(self, tagload, gmtime, msgid, msgsubject, authorname, repsrcid):
         def parse(tagload):
             tagload = tagload.split(maxsplit=1)
@@ -1690,22 +1725,7 @@ class RegressionBasic():
             regression_other = self.__create_dup(urldup, gmtime)
             RegHistory.event(regression_other.regid, gmtime, msgid, msgsubject, authorname, repsrcid=repsrcid, regzbotcmd="introduced: %s [implicit, due to usage of 'dup-of']" % self.introduced)
 
-        if self.solved_subject is None:
-            self.solved_subject = regression_other.subject
-        else:
-            # better a URL as subject than nothing at all:
-            self.solved_subject = urldup
-
-        self.solved_gmtime = gmtime
-        self.solved_duplicateof = regression_other.regid
-
-        self._db_update_solved()
-
-        logger.info('regression[%s, "%s"]: marked as duplicate of regression Regression[%s, "%s"])',
-                    self.regid, self.subject, regression_other.regid, regression_other.subject)
-        # make sure this is mentioned in the other regression, too
-        RegHistory.event(regression_other.regid, gmtime, msgid, self.solved_subject, authorname, repsrcid=repsrcid,
-                         regzbotcmd='dup: the regression "%s" was marked as duplicate of this' % (self.subject))
+        self._dupof_direct(regression_other, gmtime, msgid, msgsubject, authorname, repsrcid)
 
     def fixed(self, gmtime, commit_hexsha, commit_subject, gitbranchid):
         if self.solved_reason == 'fixed':

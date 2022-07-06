@@ -220,15 +220,18 @@ class RegressionWeb(regzbot.RegressionFull):
                 with yattagdoc_line.tag('summary', style="list-style-position: outside;"):
                     # hide dupes that where just used for forward a bug and have no relevant activity:
                     regids_just_forwarded = []
-                    for regression in self, *self._dupes:
-                        activitycount = len(regression._actievents)
-                        if regression.regid != self.regid and activitycount < 2:
-                            if activitycount == 0:
-                                regids_just_forwarded.append(regression.regid)
-                            elif regression._actievents[0].repsrcid == regression._histevents[0].repsrcid and \
-                                     regression._actievents[0].entry == regression._histevents[0].entry:
-                                # the other regression's sole activity was creating this one
-                                regids_just_forwarded.append(regression.regid)
+
+                    # disabled for now, needs rework or removal once proper bugzilla support has setted;
+                    #
+                    # for regression in self, *self._dupes:
+                    #    activitycount = len(regression._actievents)
+                    #    if regression.regid != self.regid and activitycount < 2:
+                    #        if activitycount == 0:
+                    #           regids_just_forwarded.append(regression.regid)
+                    #        elif regression._actievents[0].repsrcid == regression._histevents[0].repsrcid and \
+                    #                 regression._actievents[0].entry == regression._histevents[0].entry:
+                    #            # the other regression's sole activity was creating this one
+                    #            regids_just_forwarded.append(regression.regid)
 
                     actireports = list()
                     for regression in self, *self._dupes:
@@ -276,20 +279,28 @@ class RegressionWeb(regzbot.RegressionFull):
 
                     with yattagdoc.tag('div'):
                         yattagdoc.text('Earliest & latest ')
-                        with yattagdoc.tag('a', href='../regression/%s/' % actievents_sorted[0].entry):
+                        if len(actievents_sorted) > 0:
+                            earliest_event = actievents_sorted[0]
+                            latest_event = actievents_sorted[-1]
+                        else:
+                            # fallback for regressions without any activities
+                            earliest_event = self._histevents[0]
+                            latest_event = self._histevents[-1]
+
+                        with yattagdoc.tag('a', href='../regression/%s/' % earliest_event.entry):
                              yattagdoc.text('activity')
                         yattagdoc.text(': ')
-                        if actievents_sorted[0] is actievents_sorted[-1]:
+                        if earliest_event is latest_event:
                             yattagdoc.text('%s days ago' % days_delta(
-                                actievents_sorted[0].gmtime))
+                                earliest_event.gmtime))
                         else:
-                            with yattagdoc.tag('a', href=actievents_sorted[0].url()):
+                            with yattagdoc.tag('a', href=earliest_event.url()):
                                 yattagdoc.text('%s' % days_delta(
-                                    actievents_sorted[0].gmtime))
+                                    earliest_event.gmtime))
                             yattagdoc.text(' & ')
-                            with yattagdoc.tag('a', href=actievents_sorted[-1].url()):
+                            with yattagdoc.tag('a', href=latest_event.url()):
                                 yattagdoc.text('%s' % days_delta(
-                                    actievents_sorted[-1].gmtime))
+                                    latest_event.gmtime))
                             yattagdoc.text(' days ago')
 
                         if self.poked:
@@ -432,7 +443,9 @@ class RegressionWeb(regzbot.RegressionFull):
                             yattagdoc.text("%s" % earlier_patches)
 
                 with yattagdoc_line.tag('p'):
-                    if len(actievents_sorted) > 5:
+                    if len(actievents_sorted) == 0:
+                        pass
+                    elif len(actievents_sorted) > 5:
                         yattagdoc.text("Latest five known activities:")
                     else:
                         yattagdoc.text("All known activities:")

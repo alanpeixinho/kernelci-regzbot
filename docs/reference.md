@@ -73,7 +73,13 @@ The following '#regzbot commands' are available. Only the `introduced` commands 
 
    `<title>` must be a string.
 
-#### commands to point to related webpages and discussions
+#### commands to point to related discussion, reports and webpages
+
+ * `#regzbot dup: <link>`
+
+   Tells regzbot about another report (e.g. a duplicate) for the tracked issue to be found at `<link>`.
+
+   Regzbot then will create a entry for the report and mark it as duplicate for the regression.
 
  * `#regzbot link: <link> [title]`
 

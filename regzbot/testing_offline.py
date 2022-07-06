@@ -730,6 +730,17 @@ def offltest_0_19(funcname):
     return True, False, False
 
 
+
+def offltest_0_20(funcname):
+    logger.info(
+        '%s: add another report to an existing regression (which creates a new regression entry for the other report and marks it as a duplicate)' % funcname)
+
+    replyto = 'test_0_19'
+    subcounter = 0
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb duplicate: https://bugzilla.kernel.org/show_bug.cgi?id=215744",
+                                      replyto=replyto)
+    return True, False, True
+
 # create a mainline regression
 def offltest_1_0(funcname):
     logger.info('%s: creating a mainline regression' % funcname)

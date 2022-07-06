@@ -164,7 +164,7 @@ def process_tag(repsrc, tag, msg):
             primary_regression = regressionb
         elif count == 1:
             # some commands should not affect duplicates
-            dupes_disallowed = ['link', 'monitor', 'dupof', 'dup-of']
+            dupes_disallowed = ['link', 'monitor', 'dupof', 'dup-of', 'dup', 'duplicate']
             if tagcmd in dupes_disallowed:
                 continue
         else:
@@ -181,6 +181,8 @@ def process_tag(repsrc, tag, msg):
             regressionb.backburner_add(repsrc.repsrcid, msgid, gmtime, authorname, tagload)
         elif tagcmd == "unbackburn" or tagcmd == "unbackburner":
             regressionb.backburner_remove()
+        elif tagcmd == "dup" or tagcmd == "duplicate":
+            regressionb.duplicate(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid)
         elif tagcmd == "dupof" or tagcmd == "dup-of":
             regressionb.dupof(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid)
         elif tagcmd == "fixed-by" or tagcmd == "fixedby:":
