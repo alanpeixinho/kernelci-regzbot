@@ -11,6 +11,7 @@ import argparse
 import email
 import re
 import regzbot
+import regzbot._rbcmd as rbcmd
 
 from email import policy
 from urllib.parse import urlparse
@@ -224,8 +225,10 @@ def process_tag(repsrc, tag, msg):
 
         if tagcmd == "introduced":
             if not reporturl:
-                regressionb = regzbot.RegressionBasic.introduced_create(
-                    repsrc.repsrcid, msgid, email_get_cleansubject(msg), authorname, authormail, area_introduced, gmtime)
+                cmd_origin = rbcmd.RbCmdOrigin(repsrc, msgid, gmtime, authorname, authormail, email_get_cleansubject(msg))
+                cmd_stack = rbcmd.RbCmdStack(cmd_origin, None)
+                cmd_stack.add('introduced', area_introduced)
+                regressionb = cmd_stack.process()
             elif reporturl:
                 regressionb = regzbot.RegressionBasic.introduced_create(
                     repsrc.repsrcid, msgid, email_get_cleansubject(msg), None, None, area_introduced, gmtime)

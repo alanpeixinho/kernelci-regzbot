@@ -739,7 +739,7 @@ def offltest_0_20(funcname):
     subcounter = 0
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb duplicate: https://bugzilla.kernel.org/show_bug.cgi?id=215744",
                                       replyto=replyto)
-    return True, False, True
+    return True, False, False
 
 # create a mainline regression
 def offltest_1_0(funcname):
