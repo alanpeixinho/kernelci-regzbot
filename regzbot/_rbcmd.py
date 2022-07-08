@@ -5,10 +5,16 @@
 __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
 import regzbot
+import argparse
+
+from urllib.parse import urlparse
+
+logger = regzbot.logger
 
 
 class RbCmdOrigin:
     def __init__(self, repsrc, entry, gmtime, authorname, authormail, subject):
+        self.repsrc = repsrc
         self.repsrcid = repsrc.repsrcid
         self.entry = entry
         self.gmtime = gmtime
@@ -31,14 +37,67 @@ class RbCmdSingle:
         self.parameters = parameters
 
     def _introduced(self):
+        def _parse():
+            def is_uri(uri):
+                try:
+                    result = urlparse(uri)
+                    return all([result.scheme, result.netloc])
+                except ValueError:
+                    pass
+                return False
+
+            parser = argparse.ArgumentParser()
+            parser.add_argument('parms', nargs='*', type=str)
+            args = parser.parse_args(self.parameters.split())
+
+            if len(args.parms) == 0:
+                raise NotImplementedError
+
+            parameters = []
+            for parm in args.parms:
+                if len(parameters) == 0:
+                    parameters.append(parm)
+                elif parm == '^' or parm == '~':
+                    parameters.append('^')
+                elif is_uri(parm):
+                    parameters.append(parm)
+                else:
+                    logger.info("Ignoring '%s' parameter '%s'", self.cmd, parm)
+
+            return parameters
+
+        arguments = _parse()
+        area_introduced = arguments.pop(0)
+
+        if len(arguments) == 0:
+            report = self.origin
+        else:
+            report = RbCmdOrigin(
+                self.origin.repsrc,
+                self.origin.entry,
+                self.origin.gmtime,
+                None,
+                None,
+                self.origin.subject)
+
         regression = regzbot.RegressionBasic.introduced_create(
-            self.origin.repsrcid,
-            self.origin.entry,
-            self.origin.subject,
-            self.origin.authorname,
-            self.origin.authormail,
-            self.parameters,
-            self.origin.gmtime)
+            report.repsrcid,
+            report.entry,
+            report.subject,
+            report.authorname,
+            report.authormail,
+            area_introduced,
+            report.gmtime)
+
+        if len(arguments) > 0:
+            regression.dupof(
+                arguments[0],
+                report.gmtime,
+                report.entry,
+                report.subject,
+                None,
+                report.repsrcid)
+
         return regression
 
     def process(self):

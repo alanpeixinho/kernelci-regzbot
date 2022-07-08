@@ -94,7 +94,7 @@ def find_actimon(msg):
         return None
 
 
-def parse_introduced_args(args):
+def toberemoved_parse_introduced_args(args):
     def is_uri(uri):
         try:
             result = urlparse(uri)
@@ -217,22 +217,17 @@ def process_tag(repsrc, tag, msg):
             return
 
     if not primary_regression:
-        area_introduced, reporturl = parse_introduced_args(tagload)
+        area_introduced, reporturl = toberemoved_parse_introduced_args(tagload)
 
         # temp ugly shortcut/hack
         if tagcmd == "introduced" and (reporturl == '^' or reporturl == '~'):
             tagcmd = '^introduced'
 
         if tagcmd == "introduced":
-            if not reporturl:
-                cmd_origin = rbcmd.RbCmdOrigin(repsrc, msgid, gmtime, authorname, authormail, email_get_cleansubject(msg))
-                cmd_stack = rbcmd.RbCmdStack(cmd_origin, None)
-                cmd_stack.add('introduced', area_introduced)
-                regressionb = cmd_stack.process()
-            elif reporturl:
-                regressionb = regzbot.RegressionBasic.introduced_create(
-                    repsrc.repsrcid, msgid, email_get_cleansubject(msg), None, None, area_introduced, gmtime)
-                regressionb.dupof(reporturl, gmtime, msgid, email_get_cleansubject(msg), None, repsrc.repsrcid)
+            cmd_origin = rbcmd.RbCmdOrigin(repsrc, msgid, gmtime, authorname, authormail, email_get_cleansubject(msg))
+            cmd_stack = rbcmd.RbCmdStack(cmd_origin, None)
+            cmd_stack.add('introduced', tagload)
+            regressionb = cmd_stack.process()
         elif tagcmd == "^introduced" or tagcmd == "^^introduced":
             parent_msgid = email_get_msgid_parent(msg)
             if regzbot.is_running_citesting('offline'):
