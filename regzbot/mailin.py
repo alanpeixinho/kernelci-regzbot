@@ -25,6 +25,47 @@ regzbot_tag2_re = re.compile(
 link_re = re.compile(
     r'^(\#regzb |\#regzbot |Link: |.*)?(\n)?((http://|https://)\S*)', re.MULTILINE | re.IGNORECASE)
 
+
+class MailinRbCmdOrgHelper:
+    def __init__(self, msg):
+        self.msg = msg
+
+    @staticmethod
+    def _modify_msgid_orgin(origin, msgid):
+        return rbcmd.RbCmdOrigin(
+            origin.repsrc,
+            msgid,
+            origin.gmtime,
+            origin.authorname,
+            origin.authormail,
+            origin.subject,
+            origin.helper)
+
+    def thread_parent(self, origin):
+        parent_msgid = email_get_msgid_parent(self.msg)
+        if regzbot.is_running_citesting('offline'):
+            return self._modify_msgid_orgin(origin, parent_msgid)
+        return msg_metadata(parent_msgid)
+
+    def thread_root(self, origin):
+        if regzbot.is_running_citesting('offline'):
+            references = email_get_references(self.msg)
+            return self._modify_msgid_orgin(origin, references[0])
+        raise NotImplementedError
+
+    def process_thread(self, report):
+         if not regzbot.is_running_citesting('offline'):
+             regzbot.process_thread(report.entry, report.repsrcid)
+
+def msg_metadata(msgid):
+    repsrc, msg = regzbot.download_msg(regzbot.urlencode(msgid))
+    gmtime = email_get_gmtime(msg)
+    subject = email_get_cleansubject(msg)
+    authorname, authormail = email_get_from(msg)
+    helper = MailinRbCmdOrgHelper(msg)
+    cmd_origin = rbcmd.RbCmdOrigin(repsrc, msgid, gmtime, authorname, authormail, subject, helper)
+    return cmd_origin
+
 def adjust_repsrc(repsrc, msg):
     def get_email_adresses(recipients):
         return re.findall(r'[\w\.-]+@[\w\.-]+', recipients)
@@ -217,70 +258,22 @@ def process_tag(repsrc, tag, msg):
             return
 
     if not primary_regression:
-        area_introduced, reporturl = toberemoved_parse_introduced_args(tagload)
-
-        # temp ugly shortcut/hack
-        if tagcmd == "introduced" and (reporturl == '^' or reporturl == '~'):
-            tagcmd = '^introduced'
+        if tagcmd == "^introduced":
+            tagcmd = 'introduced'
+            tagload = tagload + ' ^'
 
         if tagcmd == "introduced":
-            cmd_origin = rbcmd.RbCmdOrigin(repsrc, msgid, gmtime, authorname, authormail, email_get_cleansubject(msg))
+            origin_helper = MailinRbCmdOrgHelper(msg)
+            cmd_origin = rbcmd.RbCmdOrigin(repsrc, msgid, gmtime, authorname, authormail, email_get_cleansubject(msg), origin_helper)
             cmd_stack = rbcmd.RbCmdStack(cmd_origin, None)
             cmd_stack.add('introduced', tagload)
             regressionb = cmd_stack.process()
-        elif tagcmd == "^introduced" or tagcmd == "^^introduced":
-            parent_msgid = email_get_msgid_parent(msg)
-            if regzbot.is_running_citesting('offline'):
-                if tagcmd == "^^introduced":
-                    if msg['References'] is None:
-                        urltoreport = repsrc.url(msgid)
-                        regzbot.UnhandledEvent.add(
-                            urltoreport, "^^introduced in a thread that has to references tag", gmtime=gmtime, subject=subject)
-                        return False
-                    for reference in msg['References'].split(" "):
-                        tmpmsgid = email_get_msgid(reference)
-                        if tmpmsgid != parent_msgid:
-                            parent_msgid = tmpmsgid
-                            break
-                parent_repsrc = repsrc
-                parent_gmtime = gmtime
-                parent_subject = subject
-                parent_authorname = authorname
-                parent_authormail = authormail
-                parent_cleansubject = subject
-            else:
-                if tagcmd == "^^introduced":
-                    parent_repsrc, parent_msg = regzbot.download_msg(regzbot.urlencode(parent_msgid))
-                    parent_msgid = email_get_msgid_parent(parent_msg)
-                parent_repsrc, parent_msg = regzbot.download_msg(regzbot.urlencode(parent_msgid))
-                parent_gmtime = email_get_gmtime(parent_msg)
-                parent_subject = email_get_subject(parent_msg)
-                parent_authorname, parent_authormail = email_get_from(parent_msg)
-                parent_cleansubject = email_get_cleansubject(parent_msg)
-
-            regressionb = regzbot.RegressionBasic.introduced_create(
-                parent_repsrc.repsrcid, parent_msgid, parent_cleansubject, parent_authorname, parent_authormail, tagload, parent_gmtime)
-            # we need to add the entries for the parent manually
-            actimon = regzbot.RegActivityMonitor.get_by_regid_n_entry(regressionb.regid, parent_msgid)
-            regzbot.RegressionBasic.activity_event_monitored(
-                parent_repsrc.repsrcid, parent_gmtime, parent_msgid, parent_subject, parent_authorname, actimon)
-            regzbot.RegHistory.event(
-                regressionb.regid, parent_gmtime, parent_msgid, parent_subject, parent_authorname, repsrcid=parent_repsrc.repsrcid,
-                regzbotcmd="note: report, added by regzbot due to later %s" % tagcmd)
         else:
             urltoreport = repsrc.url(msgid)
             regzbot.UnhandledEvent.add(
                 urltoreport, "regzbot tag in a thread not associated with a regression", gmtime=gmtime, subject=subject)
             return False
 
-        # create entry in the reghistory now that we know the regid
-        regzbot.RegHistory.event(
-            regressionb.regid, gmtime, msgid, subject, authorname, repsrcid=repsrc.repsrcid, regzbotcmd=regzbotcmd)
-
-        # we might need to recheck the thread, as it can contain msgs we have seen earlier and ignored earlier
-        if tagcmd == "^introduced" or tagcmd == "^^introduced":
-             if not regzbot.is_running_citesting('offline'):
-                 regzbot.process_thread(parent_msgid, repsrc.repsrcid)
 
 def email_get_from(msg):
     from email.utils import parseaddr
@@ -315,6 +308,10 @@ def email_get_msgid_parent(msg):
             msg['message-id'])
         return email_get_msgid(msg)
 
+def email_get_references(msg):
+    if 'References' not in msg:
+        return ""
+    return msg['References'].translate({ ord(c): None for c in "<>" }).split()
 
 def email_get_subject(msg):
     # mails without a subject send greetings

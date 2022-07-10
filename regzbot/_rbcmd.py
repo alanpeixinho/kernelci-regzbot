@@ -13,7 +13,7 @@ logger = regzbot.logger
 
 
 class RbCmdOrigin:
-    def __init__(self, repsrc, entry, gmtime, authorname, authormail, subject):
+    def __init__(self, repsrc, entry, gmtime, authorname, authormail, subject, helper):
         self.repsrc = repsrc
         self.repsrcid = repsrc.repsrcid
         self.entry = entry
@@ -21,6 +21,7 @@ class RbCmdOrigin:
         self.authorname = authorname
         self.authormail = authormail
         self.subject = subject
+        self.helper = helper
 
         self.ignore_activity = False
 
@@ -57,39 +58,80 @@ class RbCmdSingle:
             for parm in args.parms:
                 if len(parameters) == 0:
                     parameters.append(parm)
-                elif parm == '^' or parm == '~':
-                    parameters.append('^')
-                elif is_uri(parm):
+                elif parm in ('^', '~', '/') or is_uri(parm):
                     parameters.append(parm)
                 else:
                     logger.info("Ignoring '%s' parameter '%s'", self.cmd, parm)
 
             return parameters
 
+        def _helper_supports(method):
+            if not self.origin.helper:
+                return False
+            if not getattr(self.origin.helper, method, None):
+                return False
+            if callable(getattr(self.origin.helper, method, None)):
+                return True
+            return False
+
+        def _reports(arguments):
+            if len(arguments) == 0:
+                yield None, self.origin
+                return
+
+            for argument in arguments:
+                if argument in ('^', '~') and _helper_supports('thread_parent'):
+                    report = self.origin.helper.thread_parent(self.origin)
+                elif argument == '/' and _helper_supports('thread_root'):
+                    report = self.origin.helper.thread_root(self.origin)
+                else:
+                    if argument in ('^', '~', '/'):
+                        logger.info("Ignoring '%s' parameter, not supported in this case", argument)
+                    report = RbCmdOrigin(
+                        self.origin.repsrc,
+                        self.origin.entry,
+                        self.origin.gmtime,
+                        None,
+                        None,
+                        self.origin.subject,
+                        self.origin.helper)
+                yield argument, report
+
         arguments = _parse()
         area_introduced = arguments.pop(0)
 
-        if len(arguments) == 0:
-            report = self.origin
-        else:
-            report = RbCmdOrigin(
-                self.origin.repsrc,
-                self.origin.entry,
-                self.origin.gmtime,
-                None,
-                None,
-                self.origin.subject)
+        regressions = []
+        for argument, report in _reports(arguments):
+            regressions.append(regzbot.RegressionBasic.introduced_create(
+                report.repsrcid,
+                report.entry,
+                report.subject,
+                report.authorname,
+                report.authormail,
+                area_introduced,
+                report.gmtime))
+            # create entry in the reghistory now that we know the regid
+            regzbot.RegHistory.event(regressions[-1].regid,
+                                     self.origin.gmtime,
+                                     self.origin.entry,
+                                     self.origin.subject,
+                                     self.origin.authorname,
+                                     repsrcid=self.origin.repsrcid,
+                                     regzbotcmd='%s: %s' % (self.cmd,
+                                                            self.parameters))
+            if argument in ('^', '~', '/'):
+                # we need to add these entries for the parent manually
+                actimon = regzbot.RegActivityMonitor.get_by_regid_n_repsrcid_n_entry(
+                    regressions[-1].regid, report.repsrcid, report.entry)
+                regzbot.RegressionBasic.activity_event_monitored(
+                    report.repsrcid, report.gmtime, report.entry, report.subject, report.authorname, actimon)
 
-        regression = regzbot.RegressionBasic.introduced_create(
-            report.repsrcid,
-            report.entry,
-            report.subject,
-            report.authorname,
-            report.authormail,
-            area_introduced,
-            report.gmtime)
+                # recheck the thread or the report, as it can contain msgs we have seen but ignored earlier
+                if _helper_supports('process_thread'):
+                    self.origin.helper.process_thread(report)
 
-        if len(arguments) > 0:
+        regression = regressions[0]
+        if len(arguments) > 0 and arguments[0] not in ('^', '~', '/'):
             regression.dupof(
                 arguments[0],
                 report.gmtime,
@@ -98,7 +140,7 @@ class RbCmdSingle:
                 None,
                 report.repsrcid)
 
-        return regression
+        return regressions[0]
 
     def process(self):
         if self.cmd == 'introduced':

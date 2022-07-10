@@ -835,6 +835,16 @@ class RegActivityMonitor():
         else:
             return False
 
+    @staticmethod
+    def get_by_regid_n_repsrcid_n_entry(regid, repsrcid, entry):
+        dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute(
+            'SELECT * FROM actmonitor WHERE regid=(?) AND repsrcid=(?) AND entry=(?)', (regid, repsrcid, entry, )).fetchone()
+        if dbresult is not None:
+            return RegActivityMonitor(*dbresult)
+        else:
+            return False
+
     @classmethod
     def get_by_regactivity(cls, entry):
         dbcursor = DBCON.cursor()

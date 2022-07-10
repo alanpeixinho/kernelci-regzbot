@@ -56,11 +56,12 @@ class Emaildir:
         if replyto:
             replyto = '<regzbot-testing-%s@example.com>' % replyto
 
-        new_references = [replyto, ]
+        new_references = []
         if references:
             for reference in references:
                 new_references.append(
                     '<regzbot-testing-%s@example.com>' % reference)
+        new_references.append(replyto)
         references = new_references
 
         file = os.path.join(self._directory, "emailtesting-%s-.regzbot" % str(Emaildir._count).zfill(3))
@@ -562,7 +563,7 @@ def offltest_0_8(funcname):
 
 def offltest_0_9(funcname):
     logger.info(
-        '%s: send a mail which serves as report for a regression created by a reply later using ^^introduced' % funcname)
+        "%s: send a mail which serves as report for a regression created by a reply later using 'introduced ^'" % funcname)
 
     subcounter = 0
     emaildirs['primary'].create_email(
@@ -571,12 +572,12 @@ def offltest_0_9(funcname):
     subcounter += 1
     emaildirs['primary'].create_email(
         "%s_%s" % (funcname, subcounter), "Nothing to see here either, move along",
-        replyto="%s_0" % funcname)
+        replyto="%s_%s" % (funcname, subcounter - 1))
 
     subcounter += 1
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb ^^introduced: v1.8..v1.9-rc1",
-        replyto="%s_1" % funcname, references=("%s_0" % funcname, ))
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1 /",
+        replyto="%s_%s" % (funcname, subcounter - 1), references=("%s_0" % funcname, ))
     return True, False, False
 
 
