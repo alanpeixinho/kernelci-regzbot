@@ -83,11 +83,6 @@ def onlntest_0_2(funcname):
     return False, False, False
 
 
-def onlntest_0_3(funcname):
-    regzbot.process_msg('7a27099a-efae-be50-bc88-1ee02bf0461c@leemhuis.info')
-    return False, False, False
-
-
 def onlntest_1_0(funcname):
     # uses ^introduced for a report in 5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com
     regzbot.process_msg('ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info')

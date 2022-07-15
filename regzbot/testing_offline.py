@@ -405,7 +405,7 @@ def init_mailsdir(path_tmpmail):
 def init(tmpdir, testdatadir):
     regzbot.set_citesting('offline')
 
-    databasedir, gittreesdir, _ = regzbot.basicressources_get_dirs(
+    _, databasedir, gittreesdir, _ = regzbot.basicressources_get_dirs(
         tmpdir=tmpdir, databasedir=os.path.join(tmpdir, 'db-offlinetsts'))
     mailsdir = os.path.join(tmpdir, 'mails')
 
@@ -484,6 +484,7 @@ def offltest_0_0(funcname):
     emaildirs['primary'].create_email(
         funcname, "#regzb introduced: v1.8..v1.9-rc1")
     return True, False, False
+
 
 def offltest_0_1(funcname):
     replyto = 'test_0_0'
@@ -712,8 +713,8 @@ def offltest_0_17(funcname):
 def offltest_0_18 (funcname):
     logger.info('%s: creating a mainline regression for an arbitarily url' % funcname)
     emaildirs['primary'].create_email(
-        funcname, "#regzb introduced: v1.8..v1.9-rc1 https://bugzilla.kernel.org/show_bug.cgi?id=215744")
-    return True, False, False
+        funcname, "#regzb introduced: v1.8..v1.9-rc1 https://bugzilla.example.com/show_bug.cgi?id=215744")
+    return True, False, True
 
 
 def offltest_0_19(funcname):
@@ -728,7 +729,7 @@ def offltest_0_19(funcname):
     subcounter += 1
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1 ^",
                                       replyto=replyto)
-    return True, False, False
+    return True, False, True
 
 
 
@@ -738,9 +739,9 @@ def offltest_0_20(funcname):
 
     replyto = 'test_0_19'
     subcounter = 0
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb duplicate: https://bugzilla.kernel.org/show_bug.cgi?id=215744",
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb duplicate: https://bugzilla.example.com/show_bug.cgi?id=215744",
                                       replyto=replyto)
-    return True, False, False
+    return True, False, True
 
 # create a mainline regression
 def offltest_1_0(funcname):

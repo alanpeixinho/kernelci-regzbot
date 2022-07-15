@@ -4,29 +4,14 @@
 # Copyright (C) 2022 by Thorsten Leemhuis
 __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
-import regzbot
 import argparse
+import regzbot
+import regzbot._bugzilla as bz
 
 from urllib.parse import urlparse
 
+
 logger = regzbot.logger
-
-
-class RbCmdOrigin:
-    def __init__(self, repsrc, entry, gmtime, authorname, authormail, subject, helper):
-        self.repsrc = repsrc
-        self.repsrcid = repsrc.repsrcid
-        self.entry = entry
-        self.gmtime = gmtime
-        self.authorname = authorname
-        self.authormail = authormail
-        self.subject = subject
-        self.helper = helper
-
-        self.ignore_activity = False
-
-    def ignore_activity(self):
-        self.ignore_activity = True
 
 
 class RbCmdSingle:
@@ -84,24 +69,42 @@ class RbCmdSingle:
                     report = self.origin.helper.thread_parent(self.origin)
                 elif argument == '/' and _helper_supports('thread_root'):
                     report = self.origin.helper.thread_root(self.origin)
+                elif bz.get_bug_id(argument):
+                    report = bz.BzOrigin.get(url=argument)
                 else:
                     if argument in ('^', '~', '/'):
                         logger.info("Ignoring '%s' parameter, not supported in this case", argument)
-                    report = RbCmdOrigin(
-                        self.origin.repsrc,
-                        self.origin.entry,
+                        continue
+
+                    repsrc, entry = regzbot.ReportSource.get_by_url(argument)
+                    report = regzbot.RbCmdOrigin(
+                        repsrc,
+                        entry,
                         self.origin.gmtime,
                         None,
                         None,
                         self.origin.subject,
-                        self.origin.helper)
+                        None)
                 yield argument, report
+
+        def _create_histentry(regression):
+            regzbot.RegHistory.event(regression.regid,
+                                     self.origin.gmtime,
+                                     self.origin.entry,
+                                     self.origin.subject,
+                                     self.origin.authorname,
+                                     repsrcid=self.origin.repsrcid,
+                                     regzbotcmd='%s: %s' % (self.cmd,
+                                                            self.parameters))
 
         arguments = _parse()
         area_introduced = arguments.pop(0)
 
         regressions = []
         for argument, report in _reports(arguments):
+            if len(regressions) == 0:
+                first_report = report
+
             regressions.append(regzbot.RegressionBasic.introduced_create(
                 report.repsrcid,
                 report.entry,
@@ -111,34 +114,52 @@ class RbCmdSingle:
                 area_introduced,
                 report.gmtime))
             # create entry in the reghistory now that we know the regid
-            regzbot.RegHistory.event(regressions[-1].regid,
-                                     self.origin.gmtime,
-                                     self.origin.entry,
-                                     self.origin.subject,
-                                     self.origin.authorname,
-                                     repsrcid=self.origin.repsrcid,
-                                     regzbotcmd='%s: %s' % (self.cmd,
-                                                            self.parameters))
+            _create_histentry(regressions[-1])
+
             if argument in ('^', '~', '/'):
-                # we need to add these entries for the parent manually
+                # we need to add create the activity event for the parent manually and
+                # recheck the thread, as it may contain msgs we saw and ignored earlier
                 actimon = regzbot.RegActivityMonitor.get_by_regid_n_repsrcid_n_entry(
                     regressions[-1].regid, report.repsrcid, report.entry)
                 regzbot.RegressionBasic.activity_event_monitored(
                     report.repsrcid, report.gmtime, report.entry, report.subject, report.authorname, actimon)
-
                 # recheck the thread or the report, as it can contain msgs we have seen but ignored earlier
                 if _helper_supports('process_thread'):
                     self.origin.helper.process_thread(report)
+            elif bz.get_bug_id(argument):
+                report.process_comments()
 
-        regression = regressions[0]
-        if len(arguments) > 0 and arguments[0] not in ('^', '~', '/'):
-            regression.dupof(
-                arguments[0],
-                report.gmtime,
-                report.entry,
-                report.subject,
+            # mark regressions as dupes
+            if regressions[0] != regressions[-1]:
+                regressions[-1]._dupof_direct(
+                    regressions[0],
+                    self.origin.gmtime,
+                    self.origin.entry,
+                    self.origin.subject,
+                    self.origin.authorname,
+                    self.origin.repsrcid)
+
+        if arguments and arguments[0] not in ('^', '~', '/'):
+            # create an entry for the report with the introduced command as well
+            # leave author out, as it's just forwarding
+            regressions.append(regzbot.RegressionBasic.introduced_create(
+                self.origin.repsrcid,
+                self.origin.entry,
+                self.origin.subject,
                 None,
-                report.repsrcid)
+                None,
+                area_introduced,
+                self.origin.gmtime))
+
+            _create_histentry(regressions[-1])
+
+            regressions[-1]._dupof_direct(
+                regressions[0],
+                self.origin.gmtime,
+                self.origin.entry,
+                self.origin.subject,
+                first_report.authorname,
+                self.origin.repsrcid)
 
         return regressions[0]
 

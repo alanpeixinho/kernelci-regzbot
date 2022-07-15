@@ -32,7 +32,7 @@ class MailinRbCmdOrgHelper:
 
     @staticmethod
     def _modify_msgid_orgin(origin, msgid):
-        return rbcmd.RbCmdOrigin(
+        return regzbot.RbCmdOrigin(
             origin.repsrc,
             msgid,
             origin.gmtime,
@@ -63,7 +63,7 @@ def msg_metadata(msgid):
     subject = email_get_cleansubject(msg)
     authorname, authormail = email_get_from(msg)
     helper = MailinRbCmdOrgHelper(msg)
-    cmd_origin = rbcmd.RbCmdOrigin(repsrc, msgid, gmtime, authorname, authormail, subject, helper)
+    cmd_origin = regzbot.RbCmdOrigin(repsrc, msgid, gmtime, authorname, authormail, subject, helper)
     return cmd_origin
 
 def adjust_repsrc(repsrc, msg):
@@ -264,7 +264,7 @@ def process_tag(repsrc, tag, msg):
 
         if tagcmd == "introduced":
             origin_helper = MailinRbCmdOrgHelper(msg)
-            cmd_origin = rbcmd.RbCmdOrigin(repsrc, msgid, gmtime, authorname, authormail, email_get_cleansubject(msg), origin_helper)
+            cmd_origin = regzbot.RbCmdOrigin(repsrc, msgid, gmtime, authorname, authormail, email_get_cleansubject(msg), origin_helper)
             cmd_stack = rbcmd.RbCmdStack(cmd_origin, None)
             cmd_stack.add('introduced', tagload)
             regressionb = cmd_stack.process()

@@ -3,6 +3,7 @@
 # Copyright (C) 2021 by Thorsten Leemhuis
 __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
+import configparser
 import datetime
 import difflib
 from enum import IntFlag
@@ -22,6 +23,7 @@ __VERSION__ = '0.0.1-dev'
 __CITESTING__ = False
 DBCON = None
 REPOSDIR = None
+CONFIGURATION = None
 REPORT_SUBJECT_PREFIX = 'Linux regressions report '
 LATEST_VERSIONS = None
 WEBPAGEDIR = None
@@ -826,6 +828,12 @@ class RegActivityMonitor():
             return RegActivityMonitor(*dbresult)
 
     @staticmethod
+    def get_by_repsrc_n_entry(repsrc, entry):
+        dbcursor = DBCON.cursor()
+        for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE repsrcid=(?) AND entry=(?)', (repsrc.repsrcid, entry)):
+            return RegActivityMonitor(*dbresult)
+
+    @staticmethod
     def get_by_regid_n_entry(regid, entry):
         dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
@@ -871,12 +879,13 @@ class RegActivityEvent():
     # reminder: can either get added directly or indirectly via RegActivityMonitor,
     # hence eiher _actimonid or _regid is set
 
-    DBCOLS = "regactivity.gmtime, regactivity.entry, regactivity.subject, regactivity.author, regactivity.repsrcid, \
+    DBCOLS = "regactivity.gmtime, regactivity.entry, regactivity.subentry, regactivity.subject, regactivity.author, regactivity.repsrcid, \
                 regactivity.gitbranchid, regactivity.actimonid, regactivity.regid, regactivity.patchkind"
 
-    def __init__(self, gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid, patchkind):
+    def __init__(self, gmtime, entry, subentry, subject, author, repsrcid, gitbranchid, actimonid, regid, patchkind):
         self.gmtime = gmtime
         self.entry = entry
+        self.subentry = subentry
         self.subject = subject
         self.author = author
         self.repsrcid = repsrcid
@@ -902,7 +911,8 @@ class RegActivityEvent():
                 gitbranchid  INTEGER,
                 actimonid    INTEGER,
                 regid        INTEGER,
-                patchkind    INTEGER
+                patchkind    INTEGER,
+                subentry     STRING
             )''')
 
     def delete(self, dbcursor=None):
@@ -932,7 +942,7 @@ class RegActivityEvent():
 
 
     @staticmethod
-    def event(gmtime, entry, subject, author=None, repsrcid=None, gitbranchid=None, actimonid=None, regid=None, patchkind=0):
+    def event(gmtime, entry, subject, author=None, repsrcid=None, gitbranchid=None, actimonid=None, regid=None, patchkind=0, subentry=None):
         def _getout():
             import traceback
             traceback.print_stack()
@@ -964,18 +974,18 @@ class RegActivityEvent():
 
         patchkind = int(patchkind)
 
+        logger.debug('[db regactivity] insert (gmtime:%s, entry:"%s", subject:"%s", author:"%s", repsrcid:%s, gitbranchid:%s, actimonid:%s, regid:%s, patchkind:%s, subentry:%s)' % (
+            gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid, patchkind, subentry))
         dbcursor = DBCON.cursor()
         dbcursor.execute('''INSERT INTO regactivity
-                        (gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid, patchkind)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-                         (gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid, patchkind))
-        logger.debug('[db regactivity] insert (gmtime:%s, entry:"%s", subject:"%s", author:"%s", repsrcid:%s, gitbranchid:%s, actimonid:%s, regid:%s, patchkind:%s)' % (
-            gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid, patchkind))
+                        (gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid, patchkind, subentry)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                         (gmtime, entry, subject, author, repsrcid, gitbranchid, actimonid, regid, patchkind, subentry))
 
     @classmethod
     def getall_by_actimonid(cls, actimonid):
         dbcursor = DBCON.cursor()
-        for dbresult in dbcursor.execute('SELECT * FROM regactivity WHERE actimonid=(?)', (actimonid, )):
+        for dbresult in dbcursor.execute('SELECT %s FROM regactivity WHERE actimonid=(?)' % RegActivityEvent.DBCOLS, (actimonid, )):
             yield cls(*dbresult)
 
     @classmethod
@@ -1010,7 +1020,21 @@ class RegActivityEvent():
             return dbresult[0]
 
     @staticmethod
-    def present(entry, actimonid=None, regid=None, gitbranchid=None):
+    def present_alt(repsrcid, entry, subentry):
+        dbcursor = DBCON.cursor()
+        if subentry:
+            dbresult = dbcursor.execute(
+               'SELECT * FROM regactivity WHERE repsrcid=(?) AND entry=(?) AND subentry=(?)', (repsrcid, entry, subentry)).fetchone()
+        else:
+            dbresult = dbcursor.execute(
+               'SELECT * FROM regactivity WHERE repsrcid=(?) AND entry=(?) AND subentry=(?)', (repsrcid, entry, subentry)).fetchone()
+        if dbresult is None:
+            return False
+        else:
+            return True
+
+    @staticmethod
+    def present(entry, actimonid=None, regid=None, gitbranchid=None, subentry=None):
         if not actimonid and not regid:
             logger.critical("Aborting, RegActivitaEvent.present() called with neither actimonid or regid.")
             sys.exit(1)
@@ -1056,7 +1080,7 @@ class RegActivityEvent():
     def url(self):
         if self.repsrcid is None:
             return GitBranch.url_by_id(self.gitbranchid, self.entry)
-        return ReportSource.url_by_id(self.repsrcid, self.entry)
+        return ReportSource.url_by_id(self.repsrcid, self.entry, subentry=self.subentry)
 
 class RegBackburner():
     def __init__(self, regid, repsrcid, entry, gmtime, author, subject, timelimit):
@@ -2418,10 +2442,20 @@ class ReportSource():
     def get_by_url(cls, url):
         splitted_url = url.split('/')
         lowered_url = url.lower().split('/')
+        if url.startswith('http://'):
+            lowered_wo_protocol = url.lower().removeprefix('http://')
+        elif url.startswith('https://'):
+            lowered_wo_protocol = url.lower().removeprefix('https://')
 
         if not lowered_url[0].startswith('http'):
             # whatever you are, I'm taking you just as your are...
             pass
+        elif lowered_wo_protocol.startswith('bugzilla.kernel.org/show_bug.cgi?id='):
+            repsrc = cls.get_byweburl('https://bugzilla.kernel.org/show_bug.cgi?id=')
+            if repsrc:
+                ticketid = lowered_wo_protocol.removeprefixremoveprefix('bugzilla.kernel.org/show_bug.cgi?id=')
+                repsrc = cls.get_byweburl('https://bugzilla.kernel.org/show_bug.cgi?id=')
+                return repsrc, ticketid
         elif lowered_url[2] == 'lore.kernel.org':
             if lowered_url[3] == 'all':
                 logger.debug('ReportSource.get_by_url: FIXME')
@@ -2437,13 +2471,17 @@ class ReportSource():
         return repsrc, url
 
     @staticmethod
-    def url_by_id(repsrcid, entry):
+    def url_by_id(repsrcid, entry, subentry=None):
         repsrc = ReportSource.get_by_id(repsrcid)
-        return repsrc.url(entry)
+        return repsrc.url(entry, subentry=subentry)
 
-    def url(self, entry, *, redirector=None):
+    def url(self, entry, *, redirector=None, subentry=None):
         if self.kind == 'generic':
             return entry
+        elif self.kind == 'bko':
+            if subentry and subentry < 10000:
+                return '%s%s#c%s' % (self.weburl, entry, subentry)
+            return '%s%s' % (self.weburl, entry)
         elif self.kind == 'lore':
             if redirector:
                 return 'https://lore.kernel.org/r/%s/' % urlencode(entry)
@@ -2459,6 +2497,22 @@ class ReportSource():
         dbcursor.execute('''UPDATE reportsources SET lastchked = (?) WHERE repsrcid=(?)''',
                          (self.lastchked, self.repsrcid))
 
+
+class RbCmdOrigin:
+    def __init__(self, repsrc, entry, gmtime, authorname, authormail, subject, helper):
+        self.repsrc = repsrc
+        self.repsrcid = repsrc.repsrcid
+        self.entry = entry
+        self.gmtime = gmtime
+        self.authorname = authorname
+        self.authormail = authormail
+        self.subject = subject
+        self.helper = helper
+
+        self.ignore_activity = False
+
+    def ignore_activity(self):
+        self.ignore_activity = True
 
 def db_close():
     global DBCON
@@ -2815,6 +2869,7 @@ def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=Non
 
     homedir = pathlib.Path.home()
     cachedir = os.path.join(homedir, '.cache/regzbot/')
+    configfile = os.path.join(homedir, '.config/regzbot/regzbot.cfg')
 
     if not databasedir and tmpdir:
         databasedir = os.path.join(tmpdir, 'database')
@@ -2831,11 +2886,11 @@ def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=Non
     elif not websitesdir or websitesdir is True:
         websitesdir = os.path.join(cachedir, 'websites')
 
-    return databasedir, gittreesdir, websitesdir
+    return configfile, databasedir, gittreesdir, websitesdir
 
 
 def basicressources_setup(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
-    databasedir, gittreesdir, websitesdir = basicressources_get_dirs(
+    _, databasedir, gittreesdir, websitesdir = basicressources_get_dirs(
         databasedir, gittreesdir, websitesdir, tmpdir)
 
     db_create(databasedir)
@@ -2853,8 +2908,13 @@ def basicressources_setup(databasedir=None, gittreesdir=None, websitesdir=None, 
 def basicressources_init(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
     from random import randrange
 
-    databasedir, gittreesdir, websitesdir = basicressources_get_dirs(
+    configfile, databasedir, gittreesdir, websitesdir  = basicressources_get_dirs(
         databasedir, gittreesdir, websitesdir, tmpdir)
+
+    global CONFIGURATION
+    CONFIGURATION = configparser.ConfigParser()
+    if os.path.exists(configfile):
+        CONFIGURATION.read(configfile)
 
     dbconnection = RegzbotDbMeta.init(databasedir)
 

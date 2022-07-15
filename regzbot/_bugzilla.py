@@ -9,14 +9,19 @@ import base64
 import bugzilla
 import pprint
 import datetime
+import regzbot
 import sys
 
 
 from bugzilla import bug as pybugzilla_bug
+from regzbot import ReportSource
 from regzbot import PatchKind
+from urllib.parse import urlparse
 
 
+_BZCONNECTIONS = dict()
 _BZUSERCACHE = dict()
+logger = regzbot.logger
 
 
 class BZActivity():
@@ -29,13 +34,14 @@ class BZActivity():
         self.patchkind = patchkind
         self.subject = subject
 
-        self.autorname, self.authormail = BZUser.author_details(bzcon, creator)
+        self.authorname, self.authormail = BZUser.author_details(bzcon, creator)
+        self.gmtime = int(_bztime_to_datetime(creation_time).timestamp())
 
 
 class BZAttachment():
     @staticmethod
-    def get_attachment(bzcon, attachmentid):
-        return bzcon.get_attachments(None, attachmentid)
+    def get_attachment(bzcon, attachmentid, include_fields=None, exclude_fields=None):
+        return bzcon.get_attachments(None, attachmentid, include_fields, exclude_fields)
 
 
 class BZBug(pybugzilla_bug.Bug):
@@ -46,27 +52,44 @@ class BZBug(pybugzilla_bug.Bug):
         for key, value in bug.__dict__.items():
             self.__dict__[key] = value
 
-        bzuser = BZUser.getuser(self.bugzilla, bug.creator)
-        self.autorname = bzuser.real_name
-        self.authormail = bzuser.email
+        self.authorname, self.authormail = BZUser.author_details(self.bugzilla, self.creator)
+        self.gmtime = int(_bztime_to_datetime(self.creation_time).timestamp())
+        self.subject = self.summary
+
+        parsedurl = urlparse(bug.bugzilla.url)
+        self.netloc = parsedurl.netloc
 
     def _retrieve_comments(self, gmtime_from, gmtime_to):
+        def _check_attachment(comment):
+            if not comment['attachment_id']:
+                return 0
+
+            attachment_id_str = str(comment['attachment_id'])
+            attachment_info = BZAttachment.get_attachment(
+                self.bugzilla, comment['attachment_id'], exclude_fields='data')
+            attachment_details = attachment_info['attachments'][attachment_id_str]
+            if attachment_details['size'] > 25000 or \
+                    attachment_details['content_type'] != 'text/plain':
+                return 0
+
+            attachment_data_raw = BZAttachment.get_attachment(
+                self.bugzilla, comment['attachment_id'], include_fields='data')
+            attachment_data_dec = base64.b64decode(
+                attachment_data_raw['attachments'][attachment_id_str]['data']).decode('utf-8')
+
+            return int(PatchKind.getby_content(attachment_data_dec))
+
         # reminder: comments will be processed in reverse order, which as of now doesn't matter anywhere in this file
         for comment in reversed(self.getcomments()):
             if gmtime_to or gmtime_from:
-                comment_gmtime = int(bztime_to_datetime(comment['creation_time']).timestamp())
+                comment_gmtime = int(_bztime_to_datetime(comment['creation_time']).timestamp())
                 if gmtime_to and comment_gmtime > gmtime_to:
                     continue
                 elif gmtime_from and comment_gmtime < gmtime_from:
                     break
 
-            # check if attachments was added in parallel
-            patchkind = None
-            if comment['attachment_id']:
-                attachment_raw = BZAttachment.get_attachment(self.bugzilla, comment['attachment_id'])
-                attachment_data = base64.b64decode(attachment_raw['attachments'][str(
-                    comment['attachment_id'])]['data']).decode('utf-8')
-                patchkind = int(PatchKind.getby_content(attachment_data))
+            # check attachments added in parallel
+            patchkind = _check_attachment(comment)
 
             yield BZActivity(self.bugzilla, comment['bug_id'], comment['creator'], comment['creation_time'],
                              self.summary, comment_nr=comment['count'], patchkind=patchkind)
@@ -77,7 +100,7 @@ class BZBug(pybugzilla_bug.Bug):
         for historyevent in history['bugs'][0]['history']:
             for change in historyevent['changes']:
                 if change['field_name'] == 'status':
-                    change_gmtime = int(bztime_to_datetime(historyevent['when']).timestamp())
+                    change_gmtime = int(_bztime_to_datetime(historyevent['when']).timestamp())
                     if gmtime_to and change_gmtime > gmtime_to:
                         continue
                     elif gmtime_from and change_gmtime < gmtime_from:
@@ -101,10 +124,40 @@ class BZBug(pybugzilla_bug.Bug):
         for key in status_changes.keys():
             yield status_changes[key]
 
+    def process_activities(self, *, repsrc=None, entry=None):
+        actimon = regzbot.RegActivityMonitor.get_by_repsrc_n_entry(repsrc, entry)
+
+        for activity in self.get_activities():
+            subj_details = []
+            if activity.comment_nr:
+                subj_details.append('new comment(#%s)' % activity.comment_nr)
+            if activity.newstatus:
+                subj_details.append("status now '%s'" % activity.newstatus)
+            subject = '%s bug %s: %s' % (self.netloc, activity.bug_id, '; '.join(subj_details))
+
+            if activity.comment_nr:
+                subentry = activity.comment_nr
+            else:
+                subentry = activity.gmtime
+
+            if regzbot.RegActivityEvent.present_alt(repsrc.repsrcid, entry, subentry):
+                logger.warning('Activity already present, not adding again: Bug %s, %s', self.bug_id, subject)
+                continue
+
+            regzbot.RegActivityEvent.event(
+                activity.gmtime,
+                entry,
+                subject,
+                activity.authorname,
+                repsrc.repsrcid,
+                actimonid=actimon.actimonid,
+                patchkind=activity.patchkind,
+                subentry=subentry)
+
     @classmethod
     def get(cls, bzcon, *, gmtime_from=None, bugstocheck=None):
         query = bzcon.build_query()
-        query["include_fields"] = ["id", "summary", "creator", 'status', 'resolution']
+        query["include_fields"] = ["id", "summary", "creator", 'creation_time', 'status', 'resolution']
         if bugstocheck:
             try:
                 _ = iter(bugstocheck)
@@ -135,27 +188,48 @@ class BZUser():
     @classmethod
     def author_details(cls, bzcon, username):
         bzuser = cls.getuser(bzcon, username)
-        return bzuser.real_name, bzuser.email
+        if bzuser.real_name:
+            real_name = bzuser.real_name
+        else:
+            real_name = bzuser.email.split('@', 1)[0]
+        return real_name, bzuser.email
 
 
 class _BZServer():
+    # will be set at runtime after all subclasses initialized:
+    _subclasses = []
+
+    # to be set by subclasses
     domainname = None
 
     @classmethod
     def connect(cls, api_key):
-        return bugzilla.Bugzilla(
-            cls.domainname, force_rest=True, api_key=api_key)
+        global _BZCONNECTIONS
+        if cls.domainname not in _BZCONNECTIONS.keys():
+            _BZCONNECTIONS[cls.domainname] = bugzilla.Bugzilla(cls.domainname, force_rest=True, api_key=api_key)
+        return _BZCONNECTIONS[cls.domainname]
 
     @classmethod
     def _check_bug(cls, bzcon, testvals):
+        print("Checking bug")
         # checking just one bug
+        entered = None
         for bzbug in BZBug.get(bzcon, bugstocheck=testvals['bug']['id']):
+            entered = True
             if not cls._validate_bug:
                 print("Bugcheck [%s] failed: Summary does not match" % bzbug.bug_id)
                 pprint.pprint(vars(bzbug))
                 return False
 
+        if not entered:
+            print("Bugcheck [%s] failed: Didn't get any bug")
+            return False
+
+        return True
+
+    @classmethod
     def _check_activities(cls, bzcon, testvals):
+        print("Checking activities")
         # checking for bugs with changes
         testbugs = [testvals['bug']['id'] - 1,
                     testvals['bug']['id'],
@@ -171,6 +245,7 @@ class _BZServer():
 
     @classmethod
     def _check_user(cls, bzcon, testvals):
+        print("Checking user")
         user = BZUser.getuser(bzcon, testvals['user']['id'])
         # do it again to check the cached version
         user = BZUser.getuser(bzcon, testvals['user']['id'])
@@ -183,8 +258,9 @@ class _BZServer():
     @staticmethod
     def _check_command(bzcon, command, testvals):
         if command == 'attachment':
-            for attachment in BZAttachment.get_attachment(testvals['attachment']['id']):
-                pprint.pprint(attachment)
+            pprint.pprint(BZAttachment.get_attachment(bzcon, testvals['attachment']['id']))
+        elif command == 'bugzilla':
+            pprint.pprint(vars(bzcon))
         elif command == 'user':
             pprint.pprint(vars(BZUser.getuser(bzcon, testvals['user']['id'])))
         elif command in ('bug', 'activities', 'history', 'shortcut'):
@@ -204,6 +280,26 @@ class _BZServer():
             sys.exit(1)
 
     @classmethod
+    def get_bug(cls, url):
+        subclass, bzid = cls.get_bug_id(url)
+        return subclass._get_bug(bzid)
+
+    @classmethod
+    def get_bug_id(cls, url):
+        if not cls._subclasses:
+            cls._set_subclasses()
+        for subclass in cls._subclasses:
+            bzid = subclass._get_ticketid(url)
+            if bzid:
+                return subclass, bzid
+        return None, None
+
+    @classmethod
+    def _set_subclasses(cls):
+        for subclass in cls.__subclasses__():
+            cls._subclasses.append(subclass)
+
+    @classmethod
     def _testbugzilla(cls, apikey, command):
         bzcon = cls.connect(apikey)
         if command:
@@ -212,6 +308,7 @@ class _BZServer():
             if not cls._check_user(bzcon, cls.testvals) or not \
                     cls._check_bug(bzcon, cls.testvals) or not \
                     cls._check_activities(bzcon, cls.testvals):
+                print('Aborting.')
                 sys.exit(1)
             print('All tests succeeded')
 
@@ -233,6 +330,34 @@ class BZServer_bko(_BZServer):
     }
 
     @classmethod
+    def _get_ticketid(cls, url):
+        parsed = urlparse(url)
+        if not parsed.netloc == 'bugzilla.kernel.org':
+            return False
+        if not parsed.path == '/show_bug.cgi':
+            return False
+        if not parsed.query.startswith('id='):
+            return False
+        else:
+            return int(parsed.query.replace('id=', ''))
+        return None
+
+    @classmethod
+    def _get_bug(cls, bzid):
+        if not bzid:
+            return None
+
+        if cls.domainname not in regzbot.CONFIGURATION.sections():
+            logger.warn('No configuration found for %s' % cls.domainname)
+            sys.exit(1)
+        if 'apikey' not in regzbot.CONFIGURATION[cls.domainname].keys():
+            logger.debug('Aborting, no apikey found for %s' % cls.domainname)
+            sys.exit(1)
+
+        bzcon = cls.connect(regzbot.CONFIGURATION[cls.domainname]['apikey'])
+        return BZBug.get(bzcon, bugstocheck=bzid)
+
+    @classmethod
     def _validate_activities(cls, activities):
         if len(activities) != 8:
             print("Activitycheck failed: expected 8 results, but got %s" % len(activities))
@@ -240,7 +365,7 @@ class BZServer_bko(_BZServer):
                 print('%s:' % counter)
                 pprint.pprint(vars(activity))
             return False
-        elif activities[4].patchkind != 7 or activities[4].comment_nr != 35 or activities[4].autorname != 'Hans de Goede':
+        elif activities[4].patchkind != 7 or activities[4].comment_nr != 35 or activities[4].authorname != 'Hans de Goede':
             print("Activitycheck failed: comment 0 doesn't look liked expected:")
             pprint.pprint(vars(activities[4]))
             return False
@@ -252,8 +377,8 @@ class BZServer_bko(_BZServer):
 
     @classmethod
     def _validate_bug(cls, bzbug):
-        if (bzbug.bug_id == cls.testvals['bug']['id'] and
-                bzbug.summary == 'Touchpad is not working anymore after suspend to RAM since kernel 5.14 - AMD Ryzen 5 4600H)'):
+        if (bzbug.bug_id == cls.testvals['bug']['id'] and bzbug.summary ==
+                'Touchpad is not working anymore after suspend to RAM since kernel 5.14 - AMD Ryzen 5 4600H)'):
             return True
 
     @classmethod
@@ -263,8 +388,38 @@ class BZServer_bko(_BZServer):
             return True
 
 
-def bztime_to_datetime(bztime):
+class BzOrigin(regzbot.RbCmdOrigin):
+    def __init__(self, repsrc, entry, bug):
+        self._bug = bug
+        super().__init__(
+            repsrc,
+            entry,
+            self._bug.gmtime,
+            self._bug.authorname,
+            self._bug.authormail,
+            self._bug.subject,
+            None)
+
+    @classmethod
+    def get(cls, *, url=None):
+        repsrc, entry = ReportSource.get_by_url(url)
+
+        bug = None
+        for bug in _BZServer.get_bug(url):
+            break
+        return cls(repsrc, entry, bug)
+
+    def process_comments(self):
+        self._bug.process_activities(repsrc=self.repsrc, entry=self.entry)
+
+
+def _bztime_to_datetime(bztime):
     return datetime.datetime.fromisoformat(bztime[:-1] + '+00:00')
+
+
+def get_bug_id(url):
+    _, bug_id = _BZServer.get_bug_id(url)
+    return bug_id
 
 
 def _test():
