@@ -714,7 +714,7 @@ def offltest_0_18 (funcname):
     logger.info('%s: creating a mainline regression for an arbitarily url' % funcname)
     emaildirs['primary'].create_email(
         funcname, "#regzb introduced: v1.8..v1.9-rc1 https://bugzilla.example.com/show_bug.cgi?id=215744")
-    return True, False, True
+    return True, False, False
 
 
 def offltest_0_19(funcname):
@@ -729,8 +729,7 @@ def offltest_0_19(funcname):
     subcounter += 1
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1 ^",
                                       replyto=replyto)
-    return True, False, True
-
+    return True, False, False
 
 
 def offltest_0_20(funcname):
@@ -741,7 +740,8 @@ def offltest_0_20(funcname):
     subcounter = 0
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb duplicate: https://bugzilla.example.com/show_bug.cgi?id=215744",
                                       replyto=replyto)
-    return True, False, True
+    return True, False, False
+
 
 # create a mainline regression
 def offltest_1_0(funcname):

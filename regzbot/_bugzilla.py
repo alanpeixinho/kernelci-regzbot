@@ -41,6 +41,8 @@ class BZActivity():
 class BZAttachment():
     @staticmethod
     def get_attachment(bzcon, attachmentid, include_fields=None, exclude_fields=None):
+        logger.debug('[bugzilla] getting attachment %s (include_fields=%s, exclude_fields=%s)',
+                     attachmentid, include_fields, exclude_fields)
         return bzcon.get_attachments(None, attachmentid, include_fields, exclude_fields)
 
 
@@ -52,12 +54,28 @@ class BZBug(pybugzilla_bug.Bug):
         for key, value in bug.__dict__.items():
             self.__dict__[key] = value
 
-        self.authorname, self.authormail = BZUser.author_details(self.bugzilla, self.creator)
+        # avoid unnessary queries and only set these when needed
+        self.authorname = None
+        self.authormail = None
+
         self.gmtime = int(_bztime_to_datetime(self.creation_time).timestamp())
         self.subject = self.summary
 
         parsedurl = urlparse(bug.bugzilla.url)
         self.netloc = parsedurl.netloc
+
+    def _set_author_details(self):
+        self.authorname, self.authormail = BZUser.author_details(self.bugzilla, self.creator)
+
+    def get_authorname(self):
+        if not self.authorname:
+            self._set_author_details()
+        return self.authorname
+
+    def get_authormail(self):
+        if not self.authormail:
+            self._set_author_details()
+        return self.authormail
 
     def _retrieve_comments(self, gmtime_from, gmtime_to):
         def _check_attachment(comment):
@@ -80,6 +98,7 @@ class BZBug(pybugzilla_bug.Bug):
             return int(PatchKind.getby_content(attachment_data_dec))
 
         # reminder: comments will be processed in reverse order, which as of now doesn't matter anywhere in this file
+        logger.debug('[bugzilla] retrieving comments for bug %s', self.bug_id)
         for comment in reversed(self.getcomments()):
             if gmtime_to or gmtime_from:
                 comment_gmtime = int(_bztime_to_datetime(comment['creation_time']).timestamp())
@@ -91,11 +110,16 @@ class BZBug(pybugzilla_bug.Bug):
             # check attachments added in parallel
             patchkind = _check_attachment(comment)
 
-            yield BZActivity(self.bugzilla, comment['bug_id'], comment['creator'], comment['creation_time'],
-                             self.summary, comment_nr=comment['count'], patchkind=patchkind)
+            if not comment['count']:
+                yield BZActivity(self.bugzilla, comment['bug_id'], comment['creator'], comment['creation_time'],
+                                 self.summary, newstatus='creation', patchkind=patchkind)
+            else:
+                yield BZActivity(self.bugzilla, comment['bug_id'], comment['creator'], comment['creation_time'],
+                                 self.summary, comment_nr=comment['count'], patchkind=patchkind)
 
     def _retrieve_status_changes(self, gmtime_from, gmtime_to):
         status_changes = {}
+        logger.debug('[bugzilla] retrieving history for bug %s', self.bug_id)
         history = self.get_history_raw()
         for historyevent in history['bugs'][0]['history']:
             for change in historyevent['changes']:
@@ -106,7 +130,8 @@ class BZBug(pybugzilla_bug.Bug):
                     elif gmtime_from and change_gmtime < gmtime_from:
                         break
                     status_changes[historyevent['when']] = BZActivity(
-                        self.bugzilla, self.bug_id, historyevent['who'], historyevent['when'], self.summary, newstatus=change['added'])
+                        self.bugzilla, self.bug_id, historyevent['who'], historyevent['when'],
+                        self.summary, newstatus=change['added'])
         return status_changes
 
     def get_activities(self, *, gmtime_from=None, gmtime_to=None):
@@ -124,15 +149,16 @@ class BZBug(pybugzilla_bug.Bug):
         for key in status_changes.keys():
             yield status_changes[key]
 
-    def process_activities(self, *, repsrc=None, entry=None):
-        actimon = regzbot.RegActivityMonitor.get_by_repsrc_n_entry(repsrc, entry)
-
-        for activity in self.get_activities():
+    def process_activities(self, actimon, repsrc, entry, *, gmtime_from=None):
+        for activity in self.get_activities(gmtime_from=gmtime_from):
             subj_details = []
             if activity.comment_nr:
                 subj_details.append('new comment(#%s)' % activity.comment_nr)
             if activity.newstatus:
-                subj_details.append("status now '%s'" % activity.newstatus)
+                if activity.newstatus == 'creation':
+                    subj_details.append("submission")
+                else:
+                    subj_details.append("status now '%s'" % activity.newstatus)
             subject = '%s bug %s: %s' % (self.netloc, activity.bug_id, '; '.join(subj_details))
 
             if activity.comment_nr:
@@ -170,9 +196,11 @@ class BZBug(pybugzilla_bug.Bug):
             query["chfieldfrom"] = datetimestr_from
             query["chfieldto"] = 'Now'
 
+        logger.debug('[bugzilla] queryng for bugs (gmtime_from=%s, bugstocheck=%s)', gmtime_from, bugstocheck)
         for bzbug in bzcon.query(query):
-            if bzbug.id in bugstocheck:
-                yield cls(bzbug)
+            if bugstocheck and bzbug.id not in bugstocheck:
+                continue
+            yield cls(bzbug)
 
 
 class BZUser():
@@ -182,6 +210,7 @@ class BZUser():
         if bzcon.url not in _BZUSERCACHE.keys():
             _BZUSERCACHE[bzcon.url] = {}
         if username not in _BZUSERCACHE[bzcon.url]:
+            logger.debug('[bugzilla] retrieving details for user %s', username)
             _BZUSERCACHE[bzcon.url][username] = bzcon.getuser(username)
         return _BZUSERCACHE[bzcon.url][username]
 
@@ -195,7 +224,7 @@ class BZUser():
         return real_name, bzuser.email
 
 
-class _BZServer():
+class BZServer():
     # will be set at runtime after all subclasses initialized:
     _subclasses = []
 
@@ -206,6 +235,7 @@ class _BZServer():
     def connect(cls, api_key):
         global _BZCONNECTIONS
         if cls.domainname not in _BZCONNECTIONS.keys():
+            logger.debug('bugzilla: connecting to %s', cls.domainname)
             _BZCONNECTIONS[cls.domainname] = bugzilla.Bugzilla(cls.domainname, force_rest=True, api_key=api_key)
         return _BZCONNECTIONS[cls.domainname]
 
@@ -282,6 +312,10 @@ class _BZServer():
     @classmethod
     def get_bug(cls, url):
         subclass, bzid = cls.get_bug_id(url)
+        if not subclass:
+            return None
+
+        logger.debug('[bugzilla] getting bug %s from %s', bzid, subclass.domainname)
         return subclass._get_bug(bzid)
 
     @classmethod
@@ -293,6 +327,22 @@ class _BZServer():
             if bzid:
                 return subclass, bzid
         return None, None
+
+    @classmethod
+    def _check_updates(cls, gmtime):
+        raise NotImplementedError
+
+    @classmethod
+    def updateall(cls):
+        if not cls._subclasses:
+            cls._set_subclasses()
+
+        for subclass in cls._subclasses:
+            gmtime_now = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
+            gmtime_from = regzbot.RegzbotState.get('%s_lastchktime' % subclass.domainname)
+            if gmtime_from:
+                subclass._check_updates(gmtime_from)
+            regzbot.RegzbotState.set('%s_lastchktime' % subclass.domainname, gmtime_now)
 
     @classmethod
     def _set_subclasses(cls):
@@ -313,7 +363,7 @@ class _BZServer():
             print('All tests succeeded')
 
 
-class BZServer_bko(_BZServer):
+class BZServer_bko(BZServer):
     domainname = "bugzilla.kernel.org"
     testvals = {
         'attachment': {
@@ -328,6 +378,21 @@ class BZServer_bko(_BZServer):
             'id': 'regressions@leemhuis.info',
         }
     }
+
+    @classmethod
+    def _check_updates(cls, gmtime_from):
+        repsrc = ReportSource.get_by_serverurl('https://%s' % cls.domainname)
+        if not repsrc:
+            logger.warning('No repsrc entry found for %s, not checking for updates', cls.domainname)
+            return
+
+        bzcon = cls.connect(regzbot.CONFIGURATION[cls.domainname]['apikey'])
+
+        for bug in BZBug.get(bzcon, gmtime_from=gmtime_from):
+            actimon = regzbot.RegActivityMonitor.get_by_repsrc_n_entry(repsrc, bug.bug_id)
+            if not actimon:
+                continue
+            bug.process_activities(actimon, repsrc, bug.bug_id, gmtime_from=gmtime_from)
 
     @classmethod
     def _get_ticketid(cls, url):
@@ -395,8 +460,8 @@ class BzOrigin(regzbot.RbCmdOrigin):
             repsrc,
             entry,
             self._bug.gmtime,
-            self._bug.authorname,
-            self._bug.authormail,
+            self._bug.get_authorname(),
+            self._bug.get_authormail(),
             self._bug.subject,
             None)
 
@@ -405,12 +470,13 @@ class BzOrigin(regzbot.RbCmdOrigin):
         repsrc, entry = ReportSource.get_by_url(url)
 
         bug = None
-        for bug in _BZServer.get_bug(url):
+        for bug in BZServer.get_bug(url):
             break
         return cls(repsrc, entry, bug)
 
     def process_comments(self):
-        self._bug.process_activities(repsrc=self.repsrc, entry=self.entry)
+        actimon = regzbot.RegActivityMonitor.get_by_repsrc_n_entry(self.repsrc, self.entry)
+        self._bug.process_activities(actimon, self.repsrc, self.entry)
 
 
 def _bztime_to_datetime(bztime):
@@ -418,7 +484,7 @@ def _bztime_to_datetime(bztime):
 
 
 def get_bug_id(url):
-    _, bug_id = _BZServer.get_bug_id(url)
+    _, bug_id = BZServer.get_bug_id(url)
     return bug_id
 
 

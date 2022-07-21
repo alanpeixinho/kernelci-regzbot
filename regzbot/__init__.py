@@ -2453,7 +2453,7 @@ class ReportSource():
         elif lowered_wo_protocol.startswith('bugzilla.kernel.org/show_bug.cgi?id='):
             repsrc = cls.get_byweburl('https://bugzilla.kernel.org/show_bug.cgi?id=')
             if repsrc:
-                ticketid = lowered_wo_protocol.removeprefixremoveprefix('bugzilla.kernel.org/show_bug.cgi?id=')
+                ticketid = lowered_wo_protocol.removeprefix('bugzilla.kernel.org/show_bug.cgi?id=')
                 repsrc = cls.get_byweburl('https://bugzilla.kernel.org/show_bug.cgi?id=')
                 return repsrc, ticketid
         elif lowered_url[2] == 'lore.kernel.org':
@@ -2478,7 +2478,7 @@ class ReportSource():
     def url(self, entry, *, redirector=None, subentry=None):
         if self.kind == 'generic':
             return entry
-        elif self.kind == 'bko':
+        elif self.kind == 'bugzilla':
             if subentry and subentry < 10000:
                 return '%s%s#c%s' % (self.weburl, entry, subentry)
             return '%s%s' % (self.weburl, entry)
@@ -2697,6 +2697,10 @@ def basicressources_gittrees_setup(gittreesdir):
 
 def basicressources_repsrces_setup():
     ReportSource.add('generic', 99,'', 'generic', '')
+
+    ReportSource.add('bugzilla.kernel.org', 0,
+                     'https://bugzilla.kernel.org',
+                     'lore', 'https://bugzilla.kernel.org/show_bug.cgi?id=', identifiers='linux-kernel@vger.kernel.org')
 
     # hardcoded for now
     ReportSource.add('lkml', 1,
@@ -3019,6 +3023,9 @@ def run():
     import lore
     lore.run()
     db_commit()
+
+    # check bugzilla instances
+    BZServer.updateall()
 
     # check for new commits
     GitTree.updateall()
