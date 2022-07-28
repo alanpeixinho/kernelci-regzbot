@@ -53,19 +53,24 @@ class RegressionMailReport(regzbot.RegressionFull):
         report = list()
         report.append(subject)
         report.append('-'*len(subject))
-        report.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s/' % self.entry)
-        report.append(regzbot.ReportSource.get_by_id(self.repsrcid).url(self.entry))
+        report.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s/' % self._actim_report.entry)
+        report.append(regzbot.ReportSource.get_by_id(self._actim_report.repsrcid).url(self._actim_report.entry))
+        for regression in self._dupes:
+            report.append(regzbot.ReportSource.get_by_id(regression._actim_report.repsrcid).url(regression._actim_report.entry))
 
         statusline = []
+        actireports = list()
+        for regression in self, *self._dupes:
+            actireports.append(regression._actim_report)
 
         statusline.append("\nBy ")
-        for actireport in self._actireports:
+        for actireport in actireports:
             statusline.append(actireport.authorname)
-            if len(self._actireports) > 2 and actireport == self._actireports[-2]:
+            if len(actireports) > 2 and actireport == actireports[-2]:
                 statusline.append(', and ')
-            elif len(self._actireports) > 1 and actireport == self._actireports[-2]:
+            elif len(actireports) > 1 and actireport == actireports[-2]:
                 statusline.append(' and ')
-            elif actireport == self._actireports[-1]:
+            elif actireport == actireports[-1]:
                 pass
             else:
                 statusline.append(', ')
@@ -433,8 +438,12 @@ class RegExportMailReport():
             elif last_activity_days > 91:
                 # ignore due to inactivity for ~three months
                 continue
-            regressionslist.append(cls(regression.entry, regression.gmtime, regression.gmtime_filed,
-                                                    regression._actievents[-1].gmtime, regression.treename, regression.versionline,
+            if regression._actievents:
+                last_activity=regression._actievents[-1].gmtime
+            else:
+                last_activity=regression._histevents[-1].gmtime
+            regressionslist.append(cls(regression._actim_report.entry, regression.gmtime, regression.gmtime_filed,
+                                                    last_activity, regression.treename, regression.versionline,
                                                     regression.backburner, regression.identified, regression.mailreport(lastreport_gmtime)))
 
         regressionslist.sort(key=lambda x: x.gmtime_activity, reverse=True)
