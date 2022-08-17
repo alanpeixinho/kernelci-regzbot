@@ -603,6 +603,10 @@ def process_thread(msgid_interested, repsrcid):
     actimonid = None
 
     for msg in lore.download_thread(msgid_interested, repsrcid):
+        if not msg['message-id']:
+            logger.warning("[mailin.process_thread] skipping mail %s, no message-id found", msg['subject'])
+            continue
+
         msgid_current = email_get_msgid(msg['message-id'])
 
         if not actimonid:
