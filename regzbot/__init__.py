@@ -2700,7 +2700,7 @@ def basicressources_repsrces_setup():
 
     ReportSource.add('bugzilla.kernel.org', 0,
                      'https://bugzilla.kernel.org',
-                     'lore', 'https://bugzilla.kernel.org/show_bug.cgi?id=', identifiers='linux-kernel@vger.kernel.org')
+                     'bugzilla', 'https://bugzilla.kernel.org/show_bug.cgi?id=', identifiers='linux-kernel@vger.kernel.org')
 
     # hardcoded for now
     ReportSource.add('lkml', 1,
@@ -3025,7 +3025,7 @@ def run():
     db_commit()
 
     # check bugzilla instances
-    BZServer.updateall()
+    _bugzilla.BZServer.updateall()
 
     # check for new commits
     GitTree.updateall()
