@@ -101,6 +101,7 @@ class RbCmdSingle:
         area_introduced = arguments.pop(0)
 
         regressions = []
+        primary_regression_origin = None
         for argument, report in _reports(arguments):
             if len(regressions) == 0:
                 first_report = report
@@ -116,6 +117,9 @@ class RbCmdSingle:
             # create entry in the reghistory now that we know the regid
             _create_histentry(regressions[-1])
 
+            if not primary_regression_origin:
+                primary_regression_origin = report
+
             if argument in ('^', '~', '/'):
                 # we need to add create the activity event for the parent manually and
                 # recheck the thread, as it may contain msgs we saw and ignored earlier
@@ -129,7 +133,7 @@ class RbCmdSingle:
             elif bz.get_bug_id(argument):
                 report.process_comments()
 
-            # mark regressions as dupes
+            # mark regressions as dupe
             if regressions[0] != regressions[-1]:
                 regressions[-1]._dupof_direct(
                     regressions[0],
@@ -141,13 +145,13 @@ class RbCmdSingle:
 
         if arguments and arguments[0] not in ('^', '~', '/'):
             # create an entry for the report with the introduced command as well
-            # leave author out, as it's just forwarding
+            # take author from the first report
             regressions.append(regzbot.RegressionBasic.introduced_create(
                 self.origin.repsrcid,
                 self.origin.entry,
                 self.origin.subject,
-                None,
-                None,
+                primary_regression_origin.authorname,
+                primary_regression_origin.authormail,
                 area_introduced,
                 self.origin.gmtime))
 

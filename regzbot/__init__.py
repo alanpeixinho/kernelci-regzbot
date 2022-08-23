@@ -607,14 +607,18 @@ class GitTree():
         def process_link(url, foundspot):
             domain, _, msgid = parse_link(url)
             if domain =='lore.kernel.org' and msgid:
-                return RegressionFull.get_by_entry(msgid)
+                regressions = RegressionFull.get_by_entry(msgid)
+            elif domain =='bugzilla.kernel.org' and msgid:
+                repsrc = ReportSource.get_by_name('bugzilla.kernel.org')
+                regressions = RegressionFull.get_by_repsrc_n_entry(repsrc, msgid)
+            else:
+                regressions = RegressionFull.get_by_entry(url)
 
-            regression = RegressionFull.get_by_entry(url)
-            if regression:
-                return regression
-
-            logger.debug("Could not find a regression for link %s (found in %s)", url, foundspot)
-            return None
+            if regressions:
+                return regressions
+            else:
+                logger.debug("Could not find a regression for link %s (found in %s)", url, foundspot)
+                return None
 
         # update
         repo = self.repo()
@@ -667,13 +671,13 @@ class GitTree():
 
                 # does the commit link to a tracked regression?
                 for match in re_link.finditer(commit.message):
-                    regressionfull = process_link(match.group(2), "%s, %s, %s" % (
+                    regression = process_link(match.group(2), "%s, %s, %s" % (
                         self.name, gitbranch.name, commit))
-                    if not regressionfull:
+                    if not regression:
                         logger.debug(
                             "Saw link to %s, but not aware of any regressions about it", match.group(2))
                     else:
-                        regressionfull.commitmention(self, gitbranch, commit)
+                        regression.commitmention(self, gitbranch, commit)
 
 
                 # now check if this commit contains a Fixed: tag that mentions a commit known to cause a regression
@@ -1527,6 +1531,16 @@ class RegressionBasic():
         if dbresult:
             yield cls(*dbresult)
             return
+        return None
+
+    @classmethod
+    def get_by_repsrc_n_entry(cls, repsrc, entry, dbcursor=None):
+        if not dbcursor:
+            dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute(
+            'SELECT %s FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.repsrcid=? AND actmonitor.entry=?' % RegressionBasic.DBCOLS, (repsrc.repsrcid, entry,)).fetchone()
+        if dbresult:
+            return cls(*dbresult)
         return None
 
     def get_dupes(self, *, recursion_count=-1) :
@@ -2650,6 +2664,14 @@ def parse_link(url):
             else:
                 # FIXMELATER: this is the lore redirector; for now just assume it redirecting to LKML, which likely needs fixing later
                 mlist = 'lkml'
+    elif tmpstring.startswith("bugzilla.kernel.org"):
+        bugid = tmpstring.removeprefix('bugzilla.kernel.org/show_bug.cgi?id=')
+        if bugid.isnumeric():
+            msgid = bugid
+            domain = 'bugzilla.kernel.org'
+        else:
+            logger.debug(
+                "Tried to get bugid from %s, but failed", url)
     else:
         logger.debug(
             "Tried to get msgid from %s, but don't known how to handle that domain", url)
@@ -2700,7 +2722,7 @@ def basicressources_repsrces_setup():
 
     ReportSource.add('bugzilla.kernel.org', 0,
                      'https://bugzilla.kernel.org',
-                     'bugzilla', 'https://bugzilla.kernel.org/show_bug.cgi?id=', identifiers='linux-kernel@vger.kernel.org')
+                     'bugzilla', 'https://bugzilla.kernel.org/show_bug.cgi?id=')
 
     # hardcoded for now
     ReportSource.add('lkml', 1,

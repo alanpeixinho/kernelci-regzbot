@@ -497,13 +497,29 @@ def process_msg(repsrc, msg):
         if not url:
             continue
 
-        mailinglist, linked_msgid = process_link(url)
-        if linked_msgid is None:
-            continue
-
+        # FIXME: this is ugly and needs to be cleaned up
         regressionb = None
-        for regressionb in regzbot.RegressionBasic.get_by_entry(linked_msgid):
-            break
+        if 'lore.kernel.org' in url or 'lkml.kernel.org' in url:
+            mailinglist, linked_msgid = process_link(url)
+            if linked_msgid is None:
+                continue
+
+            for regressionb in regzbot.RegressionBasic.get_by_entry(linked_msgid):
+                break
+        elif 'bugzilla.kernel.org' in url:
+            if url.startswith("https://"):
+                tmpstring = url.removeprefix("https://")
+            elif url.startswith("http://"):
+                tmpstring = url.removeprefix("http://")
+
+            bugid = tmpstring.removeprefix('bugzilla.kernel.org/show_bug.cgi?id=')
+            if bugid.isnumeric():
+                repsrc = regzbot.ReportSource.get_by_name('bugzilla.kernel.org')
+                regressionb = regzbot.RegressionBasic.get_by_repsrc_n_entry(repsrc, bugid)
+            else:
+                logger.debug(
+                    "Tried to get bugid from %s, but failed", url)
+
         if regressionb is None:
             continue
 
@@ -551,7 +567,8 @@ def process_msg(repsrc, msg):
                                          regzbotcmd="monitor: 'Link:' to this regression in `%s`"
                                          % subject)
                 # check thread, maybe it got added later via a recheck of an msgid
-                process_thread(msgid, repsrcid=repsrc.repsrcid)
+                if not regzbot.is_running_citesting('offline'):
+                    process_thread(msgid, repsrcid=repsrc.repsrcid)
         elif url:
             # just add the event to the regression
             regzbot.RegressionBasic.activity_event_linked(
