@@ -2166,7 +2166,7 @@ class RegressionFull(RegressionBasic):
     def _get_poked(self, histevents, actievents):
        if len(histevents) > 0 and \
                histevents[-1].regzbotcmd.startswith('poke') and \
-               histevents[-1].gmtime > actievents[-1].gmtime:
+               ( len(actievents) > 0 and histevents[-1].gmtime > actievents[-1].gmtime ):
            return histevents[-1]
        return False
 
