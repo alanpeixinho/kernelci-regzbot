@@ -65,7 +65,10 @@ class RegressionMailReport(regzbot.RegressionFull):
 
         statusline.append("\nBy ")
         for actireport in actireports:
-            statusline.append(actireport.authorname)
+            if actireport.authorname:
+                statusline.append(actireport.authorname)
+            else:
+                statusline.append('Unkown')
             if len(actireports) > 2 and actireport == actireports[-2]:
                 statusline.append(', and ')
             elif len(actireports) > 1 and actireport == actireports[-2]:
@@ -79,9 +82,11 @@ class RegressionMailReport(regzbot.RegressionFull):
         statusline.append(str(regzbot.days_delta(self.gmtime)))
         statusline.append(" days ago; ")
         statusline.append(str(len(self._actievents)))
-        statusline.append(" activities, latest ")
-        statusline.append(str(regzbot.days_delta(self._actievents[-1].gmtime)))
-        statusline.append(" days ago")
+        statusline.append(" activities")
+        if len(self._actievents) > 0:
+            statusline.append(", latest ")
+            statusline.append(str(regzbot.days_delta(self._actievents[-1].gmtime)))
+            statusline.append(" days ago")
 
         if self.poked:
             statusline.append('; poked %s days ago' % regzbot.days_delta(self.poked.gmtime))
@@ -431,7 +436,11 @@ class RegExportMailReport():
 
         for regression in RegressionMailReport.get_all(only_unsolved=True):
             # ignore some
-            last_activity_days = regzbot.days_delta(regression._actievents[-1].gmtime)
+            if regression._actievents:
+                last_activity=regression._actievents[-1].gmtime
+            else:
+                last_activity=regression._histevents[-1].gmtime
+            last_activity_days = regzbot.days_delta(last_activity)
             if regression.treename != 'mainline':
                 # for now only generate reports for mainline
                 continue
