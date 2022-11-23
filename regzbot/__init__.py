@@ -2745,6 +2745,9 @@ def basicressources_repsrces_setup():
     ReportSource.add('mm', 6,
                      'nntp://nntp.lore.kernel.org/org.kvack.linux-mm',
                      'lore', 'https://lore.kernel.org/linux-mm/', identifiers='linux-mm@kvack.org')
+    ReportSource.add('arch', 6,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-arch',
+                     'lore', 'https://lore.kernel.org/linux-arch/', identifiers='linux-arch@vger.kernel.org')
 
 
     # arch, mm, and virt
@@ -2827,6 +2830,9 @@ def basicressources_repsrces_setup():
     ReportSource.add('btrfs', 4,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-btrfs',
                      'lore', 'https://lore.kernel.org/linux-btrfs/', identifiers='linux-btrfs@vger.kernel.org')
+    ReportSource.add('ext4', 4,
+                     'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-ext4',
+                     'lore', 'https://lore.kernel.org/linux-ext4/', identifiers='linux-ext4@vger.kernel.org')
     ReportSource.add('fsdevel', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-fsdevel',
                      'lore', 'https://lore.kernel.org/linux-fsdevel/', identifiers='linux-fsdevel@vger.kernel.org')
@@ -2851,6 +2857,9 @@ def basicressources_repsrces_setup():
     ReportSource.add('iio', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-iio',
                      'lore', 'https://lore.kernel.org/linux-iio/', identifiers='linux-iio@vger.kernel.org')
+    ReportSource.add('iommu', 6,
+                     'nntp://nntp.lore.kernel.org/dev.linux.lists.iommu',
+                     'lore', 'https://lore.kernel.org/linux-iommu/', identifiers='iommu@lists.linux.dev')
     ReportSource.add('pci', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-pci',
                      'lore', 'https://lore.kernel.org/linux-pci/', identifiers='linux-pci@vger.kernel.org')
