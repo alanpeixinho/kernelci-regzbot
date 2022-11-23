@@ -853,11 +853,11 @@ class RegExportWeb():
 
         for regression in regressionlist:
             last_activity_days = regzbot.days_delta(regression.gmtime_activity)
-            if regression.backburner and \
+            if regression.gmtime_solved:
+                categories['resolved']['default']['entries'].append(regression)
+            elif regression.backburner and \
                     last_activity_days < 180: # things on backburner are allowed to get a little older
                 categories[regression.treename]['backburner']['entries'].append(regression)
-            elif regression.gmtime_solved:
-                categories['resolved']['default']['entries'].append(regression)
             elif last_activity_days > 90:
                 categories['dormant']['default']['entries'].append(regression)
             elif regression.treename == 'next' or regression.treename == 'stable':
