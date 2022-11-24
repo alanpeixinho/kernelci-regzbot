@@ -175,10 +175,9 @@ class TestingGitTree:
             logger.critical("Aborting")
             sys.exit(1)
 
-    def __commit(self, commitmsg_tag):
-        commitmsg = "This is a %s commit for testing regzbot, the content doesn't matter." % self._description
-        if commitmsg_tag is not None:
-            commitmsg += '\n\n' + commitmsg_tag + '\n'
+    def __commit(self, commitmsg):
+        if commitmsg is None:
+            commitmsg = "This is a %s commit for testing regzbot, the content doesn't matter." % self._description
 
         commitdate = datetime.datetime.fromtimestamp(
             self._startdate + self._count, tz=datetime.timezone.utc)
@@ -756,7 +755,7 @@ def offltest_1_1(funcname):
     logger.info('%s: creating a git commit that links to the regression created in %s, which should mark is as fixed' % (
         funcname, replyto))
     gittrees_testing['mainline'].mv(
-        'Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com' % replyto)
+        'Testcommit %s\n\nLink: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n' % (funcname, replyto))
     return False, True, False
 
 
@@ -792,7 +791,7 @@ def offltest_1_4(funcname):
     emaildirs['primary'].create_email(
         funcname, "#regzb introduced: v1.8..v1.9-rc1")
     gittrees_testing['next'].mv(
-        'Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com' % funcname)
+        'Testcommit %s\n\nLink: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n' % (funcname, funcname))
     return True, True, False
 
 
@@ -802,14 +801,14 @@ def offltest_1_5(funcname):
     emaildirs['primary'].create_email(
         funcname, "#regzb introduced: v1.8..v1.9-rc1")
     gittrees_testing['linux-1.8.y'].mv(
-        'Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com' % funcname)
+        'Testcommit %s\n\nLink: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n' % (funcname, funcname))
     return True, True, False
 
 def offltest_1_6(funcname):
     logger.info(
         '%s: create a mainline commit which a "Fixes: %s" for a culprit of a regression introduced later' % (funcname, gittrees_testing['mainline'].hashes_known[-1][0:12]))
     gittrees_testing['mainline'].mv(
-        'Fixes: %s ("Foo bar")' % gittrees_testing['mainline'].hashes_known[-1][0:12])
+        'Testcommit %s\n\nFixes: %s ("Foo bar")\n' % (funcname, gittrees_testing['mainline'].hashes_known[-1][0:12]))
     return False, True, False
 
 
@@ -825,7 +824,7 @@ def offltest_1_8(funcname):
     logger.info(
         '%s: create a mainline commit which a Fixed: for a culprit of a present regression' % funcname)
     gittrees_testing['mainline'].mv(
-        'Fixes: %s ("Foo bar")' % gittrees_testing['mainline'].hashes_known[-2][0:12])
+        'Testcommit %s\n\nFixes: %s ("Foo bar")\n' % (funcname, gittrees_testing['mainline'].hashes_known[-2][0:12]))
     return False, True, False
 
 def offltest_1_9(funcname):
@@ -841,9 +840,10 @@ def offltest_1_9(funcname):
                                         "#regzb dup-of: %s\n" % link,
                                         replyto=replyto)
     gittrees_testing['mainline'].mv(
-        'Link: %s' % link)
+        'Testcommit %s\n\nLink: %s\n' % (funcname, link))
 
     return True, True, False
+
 
 
 def offltest_2_0(funcname):
@@ -1321,7 +1321,7 @@ def offltest_4_4(funcname):
     emaildirs['primary'].create_email(
         "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10..v1.11-rc1")
     gittrees_testing['next'].mv(
-        'Link: https://lore.kernel.org/regressions/regzbot-testing-%s_%s@example.com' % (funcname, subcounter))
+        'Testcommit %s\n\nLink: https://lore.kernel.org/regressions/regzbot-testing-%s_%s@example.com\n' % (funcname, funcname, subcounter))
 
     return True, True, False
 
