@@ -772,7 +772,7 @@ def offltest_1_2(funcname):
     gittrees_testing['mainline'].mv()
 
     subcounter += 1
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb fixed-by: %s" %
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb fix: %s" %
                                       gittrees_testing['mainline'].hashes_known[-1], replyto="%s_%s" % (funcname, subcounter - 1))
 
     # the second False ensure that the tree is not check yet:
@@ -844,6 +844,7 @@ def offltest_1_9(funcname):
         'Link: %s' % link)
 
     return True, True, False
+
 
 def offltest_2_0(funcname):
     logger.info(

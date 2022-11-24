@@ -1822,7 +1822,7 @@ class RegressionBasic():
     def lookup_fixedby_everywhere(self, commit_hexsha, gmtime=None):
         for gittree, gitbranch in GitTree.commit_find_new(commit_hexsha, ascending=False):
             _, culprit_gittree, _ , _ = self._gettree_n_branch(self.introduced)
-            logger.debug('[regression.fixedby] found fixed-by commit %s in %s/%s', commit_hexsha[0:12], gittree.name, gitbranch.name)
+            logger.debug("[regression.fixedby] specified fix '%s' found in %s/%s", commit_hexsha[0:12], gittree.name, gitbranch.name)
             if culprit_gittree and gittree.priority > culprit_gittree.priority:
                 # this is a commit in a downstream repo we can ignore
                 continue
@@ -1830,7 +1830,7 @@ class RegressionBasic():
 
     def fixedby_found(self, gittree, gitbranch, commit_hexsha, culprit_gittree=None, gmtime=None):
         def add_activity(gittree, gitbranch, commit, mergedate, author):
-            RegActivityEvent.event(mergedate, commit.hexsha, "%s, the commit specified by 'fixed-by', landed in %s" % (
+            RegActivityEvent.event(mergedate, commit.hexsha, "%s, the fix specified through '#regzbot fix:' earlier landed in %s" % (
                     commit.hexsha[0:12], gitbranch.describe(gittree.name)), gitbranchid=gitbranch.gitbranchid, regid=self.regid, author=author)
 
         def add_history(gittree, gitbranch, commit, mergedate, regzbotcmd, author):
@@ -1854,7 +1854,7 @@ class RegressionBasic():
 
         if RegActivityEvent.present(commit.hexsha, regid=self.regid, gitbranchid=gitbranch.gitbranchid):
             # we noticed this one already
-            # update data in case a fixed-by came after we noticed it
+            # update data in case a fix came after we noticed it
             if not self.solved_subject:
                 update_solved_data(gitbranch, commit, mergedate)
             return
@@ -1864,7 +1864,7 @@ class RegressionBasic():
             # this can happen if something get's commited to mainline and later shows up in next
             return True
 
-        historytext_post = "'fixed-by' commit '%s' now in '%s'" % (
+        historytext_post = "'fix' commit '%s' now in '%s'" % (
                           commit.hexsha[0:12], gitbranch.describe(gittree.name))
 
         if gmtime and gmtime > mergedate:
@@ -2285,7 +2285,7 @@ class RegressionFull(RegressionBasic):
                  return
 
             RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, author,
-                gitbranchid=gitbranch.gitbranchid, regzbotcmd='fixed-by: %s' % regzbotcmd)
+                gitbranchid=gitbranch.gitbranchid, regzbotcmd='fix: %s' % regzbotcmd)
             self.fixedby(
                 mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid, lookup=False)
 

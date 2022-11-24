@@ -124,7 +124,7 @@ Just like the monitor command this will help people that look into the regressio
 
 As stated earlier, the preferred way to fix a tracked regressionis by linking to the regression's report using `Link:` in the fixes commit message. Sometimes someone will forget to do that; other times a developer might have committed the fix already when someone reports a regression. Hence, if regzbot is tracking a regression, let it know about this:
 
-`#regzbot fixed-by: 1f2e3d4c5d`
+`#regzbot fix: 1f2e3d4c5d`
 
 You can use this as soon as the commit-id is stable, even if the fix hasn't reached the next or mainline tree's yet: regzbot will consider the regression as "to be fixed" then and mark it as fully fixed once the commits hits the tree where the regression occurred.
 

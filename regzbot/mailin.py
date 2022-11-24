@@ -227,7 +227,7 @@ def process_tag(repsrc, tag, msg):
             regressionb.duplicate(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid)
         elif tagcmd == "dupof" or tagcmd == "dup-of":
             regressionb.dupof(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid)
-        elif tagcmd == "fixed-by" or tagcmd == "fixedby:":
+        elif tagcmd == "fix" or tagcmd == "fixed-by" or tagcmd == "fixedby:":
             commit_hexsha, commit_subject = spilttag_first_word(tagload)
             regressionb.fixedby(
                 gmtime, commit_hexsha, commit_subject, repsrcid=repsrc.repsrcid, repentry=msgid)
