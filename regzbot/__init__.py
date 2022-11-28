@@ -663,7 +663,8 @@ class GitTree():
             for commit in repo.iter_commits(('--reverse', gitbranch.lastchked + '..' + repobranch.commit.hexsha)):
                 # is this a commit we are waiting for?
                 for expected_fix in expected_fixes:
-                    if commit.hexsha.startswith(expected_fix['solved_entry']):
+                    if (expected_fix['solved_entry'] and commit.hexsha.startswith(expected_fix['solved_entry'])) \
+                            or (expected_fix['solved_subject'] and commit.summary == expected_fix['solved_subject']):
                          regression = RegressionBasic.get_by_regid(expected_fix['regid'])
                          if regression.fixedby_found(self, gitbranch, commit):
                              # this was fixed, no need to look closer at the commit
@@ -1602,6 +1603,13 @@ class RegressionBasic():
         return None
 
     @classmethod
+    def get_expected_by_subject(cls, subject):
+        dbcursor = DBCON.cursor()
+        for dbresult in dbcursor.execute('SELECT %s FROM regressions WHERE solved_reason=? AND solved_subject LIKE (?)' % RegressionBasic.DBCOLS, ('to_be_fixed', subject,)):
+            if dbresult:
+                yield cls(*dbresult)
+
+    @classmethod
     def get_by_link(cls, link):
         tmpstring = link
         if tmpstring.startswith("https://"):
@@ -1623,9 +1631,10 @@ class RegressionBasic():
     def fixes_expected():
         dbcursor = DBCON.cursor()
         pending = []
-        for dbresult in dbcursor.execute('SELECT regid, solved_entry FROM regressions WHERE solved_reason=?', ('to_be_fixed',)):
-            pending.append( {"regid": dbresult[0], "solved_entry": dbresult[1]})
+        for dbresult in dbcursor.execute('SELECT regid, solved_entry, solved_subject FROM regressions WHERE solved_reason=?', ('to_be_fixed',)):
+            pending.append( {"regid": dbresult[0], "solved_entry": dbresult[1], "solved_subject": dbresult[2]})
         return pending
+
 
     @classmethod
     def activity_event_monitored(cls, repsrcid, gmtime, entry, subject, author, actimon, *, contains_patch=0):
@@ -1814,7 +1823,7 @@ class RegressionBasic():
                     self.subject, self.solved_reason, self.solved_entry, self.solved_subject)
 
         # look the commit up, in case it was commited already
-        if lookup:
+        if lookup and commit_hexsha:
             self.lookup_fixedby_everywhere(commit_hexsha, gmtime=gmtime)
 
         return True

@@ -135,6 +135,14 @@ def find_actimon(msg):
         return None
 
 
+def _tagless_emailsubject(subject):
+    m = re.search('^( ?\[.*?\] ?)(.*)', subject)
+    if m:
+        # there might be more than one tag:
+        return _tagless_emailsubject(m.group(2))
+    return subject
+
+
 def toberemoved_parse_introduced_args(args):
     def is_uri(uri):
         try:
@@ -228,9 +236,14 @@ def process_tag(repsrc, tag, msg):
         elif tagcmd == "dupof" or tagcmd == "dup-of":
             regressionb.dupof(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid)
         elif tagcmd == "fix" or tagcmd == "fixed-by" or tagcmd == "fixedby:":
-            commit_hexsha, commit_subject = spilttag_first_word(tagload)
+            commit_specifier, commit_subject = spilttag_first_word(tagload)
+            if re.search('^[0-9a-fA-F]{8,40}', commit_specifier) is None:
+                # looks like this is no hexsha, so assume it's a commit summary
+                commit_specifier = None
+                commit_subject = tagload
+            commit_subject = remove_commit_summary_quoting(commit_subject)
             regressionb.fixedby(
-                gmtime, commit_hexsha, commit_subject, repsrcid=repsrc.repsrcid, repentry=msgid)
+                gmtime, commit_specifier, commit_subject, repsrcid=repsrc.repsrcid, repentry=msgid)
         elif tagcmd == "from":
             regressionb.update_author(msgid, tagload)
         elif tagcmd == "invalid":
@@ -462,6 +475,21 @@ def process_msg(repsrc, msg):
        # we are done here
        return
 
+    # monitor thread if this mail has a subject of a fix we are expecting
+    for regressionb in regzbot.RegressionBasic.get_expected_by_subject(_tagless_emailsubject(subject)):
+        actimon = find_actimon(msg)
+        if actimon and actimon.regid == regressionb.regid:
+            # already monitored, nothing to do
+            return
+
+        regressionb.monitoradd_direct(
+            repsrc.repsrcid, gmtime, msgid, subject, authorname, contains_patch)
+        regzbot.RegHistory.event(regressionb.regid, gmtime, msgid, subject, authorname, repsrcid=repsrc.repsrcid,
+                                 regzbotcmd="monitor: regzbot noticed a mail with a subject of an expected fix")
+        # check thread, maybe we saw some messages already
+        if not regzbot.is_running_citesting('offline'):
+            process_thread(msgid, repsrcid=repsrc.repsrcid)
+
     # check this mail for links that point to tracked regressions
     for match in link_re.finditer(re.sub(r'^>.*\n?', '', msgcontent, flags=re.MULTILINE)):
         linktag = False
@@ -646,3 +674,10 @@ def processmsg_file(repsrc, file):
     with open(file, "r") as f:
         msg = email.message_from_file(f, policy=policy.default)
         process_msg(repsrc, msg)
+
+def remove_commit_summary_quoting(commitsummary):
+    if commitsummary:
+        for character in (('(', ')'), "'", '"'):
+            if commitsummary.startswith(character[0]) and commitsummary.endswith(character[-1]):
+                commitsummary = commitsummary[1:-1]
+    return commitsummary

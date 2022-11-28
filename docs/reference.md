@@ -111,9 +111,11 @@ The following '#regzbot commands' are available. Only the `introduced` commands 
 
    `<link>` must point to a report of a tracked regression in the lore message archiver service and might look like this: `https://lore.kernel.org/lkml/30th.anniversary.repost@klaava.Helsinki.FI/`
 
- * `#regzbot fix: <commit-id>`
+ * `#regzbot fix: <patch subject>|<commit-id>`
 
-   Tells regzbot the regression is fixed or is going to be fixed by commit <commit-id>. If the commit is found in the tree where the regression occurred, regzbot will mark the regression immediately as 'fixed'; for all other cases it will consider the regression as 'to be fixed', until the commit shows up in the appropriate tree.
+   Tells regzbot the regression is fixed or is going to be fixed by by a commit with the git summary <patch subject> or the specified <commit-id>. If the commit is found in the tree where the regression occurred, regzbot will mark the regression immediately as 'fixed'; for all other cases it will consider the regression as 'fix incoming' and look out for mails with <patch subject>, until the commit shows up in the appropriate tree.
+
+   The <git commit summary> can be quoted, but doesn't have to be.
 
  * `#regzbot invalid: [reason]`
 
