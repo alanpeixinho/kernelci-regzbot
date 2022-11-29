@@ -857,7 +857,16 @@ def offltest_1_10(funcname):
 
     gittrees_testing['mainline'].mv(commitmsg=testfix_subject)
 
-    return True, True, True
+    return True, True, False
+
+def offltest_1_11(funcname):
+    logger.info('%s: create a regression with a fix specified by a git summary that already in the tree' % funcname)
+    testfix_subject = "This is a test 123456789" # that's the commit for the previous test
+
+    subcounter = 0
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1\n#regzb fix: %s" % testfix_subject)
+
+    return True, False, False
 
 
 def offltest_2_0(funcname):

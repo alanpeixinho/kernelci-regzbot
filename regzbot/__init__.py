@@ -342,6 +342,35 @@ class GitBranch():
             logger.critical(err.args)
             return None
 
+    def subject_exists(self, subject, gittree=None, repo=None):
+        if repo is None or gittree is None:
+            gittree = GitTree.get_by_id(self.gittreeid)
+            if repo is None:
+                gittree = GitTree.get_by_id(self.gittreeid)
+                repo = gittree.repo()
+
+        # try to find a merge-base to speed things up a bit
+        mergebase = None
+        if gittree.name == 'next':
+            # the branch with mainline is called stable in next
+            mergebase = repo.git.merge_base('origin/stable', self.lookupname)
+        elif gittree.name == 'stable':
+            # the branch with mainline is called master in stable
+            mergebase = repo.git.merge_base('origin/master', self.lookupname)
+
+        if mergebase:
+            iterrange='%s..%s' % (mergebase, self.lookupname)
+        else:
+            if gittree.name != 'mainline':
+                logger.warning('GitBranch.subject_exists(): could not find a merge base for the tree %s branch %s', gittree.name, self.name)
+            iterrange=self.lookupname
+
+        # now search for a commit with the subject
+        for commit in repo.iter_commits(iterrange):
+            if commit.summary == subject:
+                return commit.hexsha
+        return False
+
     def url(self, entry, gittree=None):
         if gittree is None:
             gittree = GitTree.get_by_id(self.gittreeid)
@@ -440,7 +469,7 @@ class GitTree():
 
     @staticmethod
     # commitdesc can be a tag or a hexsha
-    def commit_find_new(hexsha, ascending=True):
+    def commit_find_new(hexsha=None, subject=None, ascending=True):
         if ascending:
            sortorder='ORDER BY priority ASC'
         else:
@@ -449,8 +478,14 @@ class GitTree():
         for gittree in GitTree.getall(FIXME=sortorder):
             repo = gittree.repo()
             for gitbranch in GitBranch.getall_by_gittreeid(gittree.gittreeid):
-                if gitbranch.commit_exists(hexsha, repo):
-                    yield gittree, gitbranch
+                if hexsha and gitbranch.commit_exists(hexsha, repo):
+                    yield gittree, gitbranch, hexsha
+                    continue
+                if subject:
+                    hexsha = gitbranch.subject_exists(subject, gittree=gittree, repo=repo)
+                    if hexsha:
+                        yield gittree, gitbranch, hexsha
+                        continue
 
     @staticmethod
     def commit_summary(hexsha):
@@ -1823,13 +1858,13 @@ class RegressionBasic():
                     self.subject, self.solved_reason, self.solved_entry, self.solved_subject)
 
         # look the commit up, in case it was commited already
-        if lookup and commit_hexsha:
-            self.lookup_fixedby_everywhere(commit_hexsha, gmtime=gmtime)
+        if lookup:
+            self.lookup_fixedby_everywhere(self.solved_entry, self.solved_subject, gmtime=self.solved_gmtime)
 
         return True
 
-    def lookup_fixedby_everywhere(self, commit_hexsha, gmtime=None):
-        for gittree, gitbranch in GitTree.commit_find_new(commit_hexsha, ascending=False):
+    def lookup_fixedby_everywhere(self, commit_hexsha, subject, gmtime=None):
+        for gittree, gitbranch,commit_hexsha in GitTree.commit_find_new(hexsha=commit_hexsha, subject=subject, ascending=False):
             _, culprit_gittree, _ , _ = self._gettree_n_branch(self.introduced)
             logger.debug("[regression.fixedby] specified fix '%s' found in %s/%s", commit_hexsha[0:12], gittree.name, gitbranch.name)
             if culprit_gittree and gittree.priority > culprit_gittree.priority:

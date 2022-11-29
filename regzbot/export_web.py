@@ -394,10 +394,14 @@ class RegressionWeb(regzbot.RegressionFull):
                         def solved_explanation(yattagdoc):
                             with yattagdoc.tag('i'):
                                 if self.solved_reason == 'fixed' or self.solved_reason == 'to_be_fixed':
-                                    yattagdoc.text('%s' %
+                                    if self.solved_entry:
+                                        yattagdoc.text('%s' %
                                                    self.solved_entry[:12])
-                                    if self.solved_subject:
+                                    if self.solved_subject and self.solved_entry:
                                         yattagdoc.text(' ("%s")' %
+                                                       self.solved_subject)
+                                    elif self.solved_subject:
+                                        yattagdoc.text('%s' %
                                                        self.solved_subject)
                                 elif self.solved_subject:
                                     yattagdoc.text(self.solved_subject)
