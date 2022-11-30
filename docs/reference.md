@@ -117,9 +117,15 @@ The following '#regzbot commands' are available. Only the `introduced` commands 
 
    The `<patch subject>` can be quoted, but doesn't have to be.
 
+ * `#regzbot inconclusive: [reason]`
+
+   Mark the entry for the regression as inconclusive. Use this when the regression is unlikely to be resolved because nobody is able to find the culprit in reasonable time.
+
+   `[reason]` is a string and optional, but strongly recommended, as a brief explanation of why the regressions is considered resolved will help anyone who looks into the issue later.
+
  * `#regzbot resolve: [reason]`
 
-   Makes regzbot mark the entry for the regression as resolved.
+   Makes regzbot mark the entry for the regression as resolved; use this whenever the regression doesn't need any further tracking because it was solved without any code changes.
 
    `[reason]` is a string and optional, but strongly recommended, as a brief explanation of why the regressions is considered resolved will help anyone who looks into the issue later.
 

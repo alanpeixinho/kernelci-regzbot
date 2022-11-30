@@ -213,6 +213,8 @@ class RegressionWeb(regzbot.RegressionFull):
                     return('fix incoming')
                 elif self.solved_reason == 'resolved' or self.solved_reason == 'invalid':
                     return('marked resolved')
+                elif self.solved_reason == 'inconclusive':
+                    return('marked inconclusive')
                 elif self.solved_reason is not None:
                     return('%s' % self.solved_reason)
 
@@ -549,7 +551,7 @@ class UnhandledEventWeb(regzbot.UnhandledEvent):
 class RegExportWeb():
     eventslist = list()
 
-    def __init__(self, entry, gmtime_report, gmtime_filed, gmtime_activity, gmtime_solved, treename, versionline, backburner, identified, htmlsnippet):
+    def __init__(self, entry, gmtime_report, gmtime_filed, gmtime_activity, gmtime_solved, treename, versionline, solved_reason, backburner, identified, htmlsnippet):
         self.entry = entry
         self.gmtime_report = gmtime_report
         self.gmtime_filed = gmtime_filed
@@ -557,6 +559,7 @@ class RegExportWeb():
         self.gmtime_solved = gmtime_solved
         self.treename = treename
         self.versionline = versionline
+        self.solved_reason = solved_reason
         self.backburner = backburner
         self.identified = identified
         self.htmlsnippet = htmlsnippet
@@ -708,7 +711,7 @@ class RegExportWeb():
                                 regressionweb.htmlsnippet.getvalue())
                             if (pagename == 'all'
                                     or pagename == 'resolved'
-                                    or pagename == 'dormant'):
+                                    or pagename == 'inconclusive'):
                                 with yattagdoc.tag('td', style="width: 100px;"):
                                     yattagdoc.text(regressionweb.treename)
             cls.outpage_footer(yattagdoc, unhandled_count)
@@ -841,7 +844,7 @@ class RegExportWeb():
                     'entries': list(),
                 },
             },
-            'dormant': {
+            'inconclusive': {
                 'default': {
                     'desc': '',
                     'entries': list(),
@@ -857,13 +860,15 @@ class RegExportWeb():
 
         for regression in regressionlist:
             last_activity_days = regzbot.days_delta(regression.gmtime_activity)
-            if regression.gmtime_solved:
+            if regression.solved_reason == 'inconclusive':
+                categories['inconclusive']['default']['entries'].append(regression)
+            elif regression.gmtime_solved:
                 categories['resolved']['default']['entries'].append(regression)
             elif regression.backburner and \
                     last_activity_days < 180: # things on backburner are allowed to get a little older
                 categories[regression.treename]['backburner']['entries'].append(regression)
             elif last_activity_days > 90:
-                categories['dormant']['default']['entries'].append(regression)
+                categories['inconclusive']['default']['entries'].append(regression)
             elif regression.treename == 'next' or regression.treename == 'stable':
                 if regression.identified:
                     categories[regression.treename]['identified']['entries'].append(regression)
@@ -898,7 +903,7 @@ class RegExportWeb():
 
         # these are the pages we are going to create
         htmlpages = ('next', 'mainline', 'stable',
-                     'dormant', 'resolved', 'new', 'all')
+                     'inconclusive', 'resolved', 'new', 'all')
 
         # handle this page first, as we need something from it anyway
         unhandled_count = cls.create_unhandled(regzbot.WEBPAGEDIR, htmlpages)
@@ -916,7 +921,7 @@ class RegExportWeb():
                 eventslist.append(event)
 
             gmtime_solved = None
-            if regression.solved_reason == 'fixed' or regression.solved_reason == 'resolved' or regression.solved_reason == 'invalid' or regression.solved_reason == 'duplicateof' or regression.solved_duplicateof:
+            if regression.solved_reason == 'fixed' or regression.solved_reason == 'resolved' or regression.solved_reason == 'invalid' or regression.solved_reason == 'inconclusive' or regression.solved_reason == 'duplicateof' or regression.solved_duplicateof:
                 gmtime_solved = regression.solved_gmtime
             if regression._actievents:
                 last_activity=regression._actievents[-1].gmtime
@@ -924,7 +929,7 @@ class RegExportWeb():
                 last_activity=regression._histevents[-1].gmtime
             regressionslist.append(cls(regression._actim_report.entry, regression.gmtime, regression.gmtime_filed,
                                                     last_activity, gmtime_solved, regression.treename,
-                                                    regression.versionline, regression.backburner, regression.identified,
+                                                    regression.versionline, regression.solved_reason, regression.backburner, regression.identified,
                                                     regression.html()))
 
         eventslist.sort(key=lambda x: x['gmtime'], reverse=True)

@@ -1934,13 +1934,19 @@ class RegressionBasic():
         return returnval
 
 
-    def resolve(self, tagload, gmtime, msgid, repsrcid):
-        self.solved_reason = 'resolved'
+    def _solve_reason(self, reason, tagload, gmtime, msgid, repsrcid):
+        self.solved_reason = reason
         self.solved_gmtime = gmtime
         self.solved_subject = tagload
         self.solved_repsrcid = repsrcid
         self.solved_repentry = msgid
         self._db_update_solved()
+
+    def resolve(self, tagload, gmtime, msgid, repsrcid):
+        return self._solve_reason('resolved', tagload, gmtime, msgid, repsrcid)
+
+    def inconclusive(self, tagload, gmtime, msgid, repsrcid):
+        return self._solve_reason('inconclusive', tagload, gmtime, msgid, repsrcid)
 
     def backburner_add(self, repsrcid, entry, gmtime, author, subject ):
         RegBackburner.add(self.regid, repsrcid, entry, gmtime, author, subject)

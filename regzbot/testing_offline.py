@@ -742,6 +742,12 @@ def offltest_0_20(funcname):
     return True, False, False
 
 
+def offltest_0_21(funcname):
+    logger.info('%s: create a regression and mark it as inconclusive', funcname)
+    emaildirs['primary'].create_email("%s" % funcname, "#regzb introduced: v1.8..v1.9-rc1\n#regzb inconclusive: some reason")
+    return True, False, False
+
+
 # create a mainline regression
 def offltest_1_0(funcname):
     logger.info('%s: creating a mainline regression' % funcname)

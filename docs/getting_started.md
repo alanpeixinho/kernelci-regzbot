@@ -157,3 +157,11 @@ A tracked regression for some reason turns out to not need a fix? There are vari
 `#regzbot resolve: nothing is broken, by hardware was faulty`
 
 The explanation is optional, but strongly recommended, as it will help anyone who looks into the issue later.
+
+#### Mark a regression as inconclusive
+
+Occasionally a tracked regression can't be resolved, for example when nobody is able to track down the change that causes the regression in reasonable time. Leaving such issues in the list of unresolved regressions clutters things and distracts from more pressing issues; marking such a regressions as resolved to avoid that would be unsuitable and make the issue hard to find for other people that run the same issue later. To avoid both, mark such regressions as inconclusive:
+
+`#regzbot inconclusive: reporter since the report is MIA an ignored further inquiries`
+
+The explanation is optional, but strongly recommended, as it will help anyone who looks into the issue later.

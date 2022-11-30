@@ -250,6 +250,8 @@ def process_tag(repsrc, tag, msg):
             regressionb.resolve(tagload, gmtime, msgid, repsrc.repsrcid)
         elif tagcmd == "introduced" or tagcmd == "^introduced"  or tagcmd == "^^introduced":
             regressionb.introduced_update(tagload)
+        elif tagcmd == "inconclusive":
+            regressionb.inconclusive(tagload, gmtime, msgid, repsrc.repsrcid)
         elif tagcmd == "link":
             regressionb.linkadd(tagload, gmtime, authorname)
         elif tagcmd == "unlink":
