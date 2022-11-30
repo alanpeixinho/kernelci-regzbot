@@ -211,8 +211,8 @@ class RegressionWeb(regzbot.RegressionFull):
                     return('resolution')
                 elif self.solved_reason == 'to_be_fixed':
                     return('fix incoming')
-                elif self.solved_reason == 'invalid':
-                    return('marked invalid')
+                elif self.solved_reason == 'invalid' or self.solved_reason == 'invalid':
+                    return('marked resolved')
                 elif self.solved_reason is not None:
                     return('%s' % self.solved_reason)
 
@@ -916,7 +916,7 @@ class RegExportWeb():
                 eventslist.append(event)
 
             gmtime_solved = None
-            if regression.solved_reason == 'fixed' or regression.solved_reason == 'invalid' or regression.solved_reason == 'duplicateof' or regression.solved_duplicateof:
+            if regression.solved_reason == 'fixed' or regression.solved_reason == 'resolved' or regression.solved_reason == 'invalid' or regression.solved_reason == 'duplicateof' or regression.solved_duplicateof:
                 gmtime_solved = regression.solved_gmtime
             if regression._actievents:
                 last_activity=regression._actievents[-1].gmtime

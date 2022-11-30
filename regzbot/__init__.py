@@ -1934,8 +1934,8 @@ class RegressionBasic():
         return returnval
 
 
-    def invalid(self, tagload, gmtime, msgid, repsrcid):
-        self.solved_reason = 'invalid'
+    def resolve(self, tagload, gmtime, msgid, repsrcid):
+        self.solved_reason = 'resolved'
         self.solved_gmtime = gmtime
         self.solved_subject = tagload
         self.solved_repsrcid = repsrcid

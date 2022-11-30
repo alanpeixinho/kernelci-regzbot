@@ -546,9 +546,9 @@ def offltest_0_6(funcname):
 
 def offltest_0_7(funcname):
     replyto = 'test_0_6'
-    logger.info('%s: mark the regression created in %s as invalid' %
+    logger.info('%s: mark the regression created in %s as resolved' %
                 (funcname, replyto))
-    emaildirs['primary'].create_email(funcname, "#regzb invalid: some reason",
+    emaildirs['primary'].create_email(funcname, "#regzb resolve: some reason",
                                       replyto=replyto)
     return True, False, False
 
@@ -1337,7 +1337,7 @@ def offltest_4_4(funcname):
     emaildirs['primary'].create_email(
         "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10..v1.11-rc1")
     subcounter += 1
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb invalid: some reason",
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb resolve: some reason",
                                       replyto="%s_%s" % (funcname, subcounter-1))
 
     subcounter += 1

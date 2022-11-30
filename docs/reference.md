@@ -117,11 +117,11 @@ The following '#regzbot commands' are available. Only the `introduced` commands 
 
    The `<patch subject>` can be quoted, but doesn't have to be.
 
- * `#regzbot invalid: [reason]`
+ * `#regzbot resolve: [reason]`
 
-   Makes regzbot close the entry for the regression.
+   Makes regzbot mark the entry for the regression as resolved.
 
-   `[reason]` is a string and optional, but recommend to specify the reason this entry is considered 'invalid'.
+   `[reason]` is a string and optional, but strongly recommended, as a brief explanation of why the regressions is considered resolved will help anyone who looks into the issue later.
 
 #### commands users and developers normally shouldn't use
 

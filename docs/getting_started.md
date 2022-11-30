@@ -23,7 +23,7 @@ See below for a few other examples how to specify ranges, how to modify the vers
 
 Regzbot is designed to normally not create any additional chores for Linux kernel developers like you. But for that to work it's important you do something the [Linux kernel documentation specifies for a while already](https://www.kernel.org/doc/html/latest/process/submitting-patches.html): when fixing a regression, include a `Link:` tag with the URL to the report in the [mailing list archives on lore.kernel.org](https://lore.kernel.org/). This aspect is important for regzbot, as it allows the bot to connect the fix with the regression's report. That's needed so regzbot can do things automatically that otherwise would mean manual work for somebody — like marking the regression as resolved once the fix hits mainline.
 
-But sometimes you might want to do more with regzbot, like telling it about the causing commit or marking the report as invalid. Te text below explains these and other things; the instructions there also will tell you how to use regzbot to track regressions for your own code or the subsystem you maintain, as that will make sure none fall through the cracks unnoticed.
+But sometimes you might want to do more with regzbot, like specifiying a culprit exactly after a bisection or marking a regression as resolved. The text below explains how to do these and other things; the instructions there also will tell you how to use regzbot to track regressions for your own code or the subsystem you maintain, as that will make sure none fall through the cracks unnoticed.
 
 
 ## More regzbot features relevant for both reporters and developers
@@ -150,10 +150,10 @@ Sometimes multiple people will report the same regressions without knowing about
 
 Regzbot from then on will consider all acitivies of A as if they'd happen for B.
 
-#### Mark a regression as invalid
+#### Mark a regression as resolved
 
-A tracked regression turns out to not actually be a regression? Don't worry, this can happen for various reasons. In that case just tell the world about it in a reply where you also let regzbot know like this:
+A tracked regression for some reason turns out to not need a fix? There are various reasons why this might happen, for example when a tracked issue turns our to not be a regression at all. In such cases just tell the world about it in a reply where you tell regzbot about it like this:
 
-`#regzbot invalid: nothing is broken, by hardware was faulty`
+`#regzbot resolve: nothing is broken, by hardware was faulty`
 
-The explanation is optional.
+The explanation is optional, but strongly recommended, as it will help anyone who looks into the issue later.
