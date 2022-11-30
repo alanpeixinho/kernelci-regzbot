@@ -211,7 +211,7 @@ class RegressionWeb(regzbot.RegressionFull):
                     return('resolution')
                 elif self.solved_reason == 'to_be_fixed':
                     return('fix incoming')
-                elif self.solved_reason == 'invalid' or self.solved_reason == 'invalid':
+                elif self.solved_reason == 'resolved' or self.solved_reason == 'invalid':
                     return('marked resolved')
                 elif self.solved_reason is not None:
                     return('%s' % self.solved_reason)
