@@ -580,8 +580,8 @@ class RegExportWeb():
 
                 # put a seperator here, because new and all contain
                 # entries are also show on the previous pages
-                if htmlpage == 'new' or htmlpage == 'all' :
-                    yattagdoc.text('|')
+                if htmlpage == 'new' or htmlpage == 'all' or htmlpage == 'resolved':
+                    yattagdoc.text('•')
                     yattagdoc.asis("&nbsp;")
 
                 # print
@@ -903,7 +903,7 @@ class RegExportWeb():
 
         # these are the pages we are going to create
         htmlpages = ('next', 'mainline', 'stable',
-                     'inconclusive', 'resolved', 'new', 'all')
+                     'new', 'all', 'resolved', 'inconclusive')
 
         # handle this page first, as we need something from it anyway
         unhandled_count = cls.create_unhandled(regzbot.WEBPAGEDIR, htmlpages)
