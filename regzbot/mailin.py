@@ -95,6 +95,10 @@ def adjust_repsrc(repsrc, msg):
         except ValueError as err:
             # see above
             logger.warning('Ignoring "CC" in %s due to and exception: "ValueError: %s"',  email_get_msgid(msg), err)
+        except IndexError as err:
+            # workaround for the "=?utf-8?q?=2C?=linux-arm-msm@vger.kernel.org" in
+            # https://lore.kernel.org/linux-pci/166983076821.2517843.6476270112700027226.robh@kernel.org/raw
+            logger.warning('Ignoring "CC" in %s due to an exception: "HeaderParseError: %s"',  email_get_msgid(msg), err)
 
     for adress in adresses:
         tmprepsrc = regzbot.ReportSource.get_by_identifier(adress)
