@@ -213,6 +213,17 @@ class RegExportMailReport():
     def pagecreate(cls, categories, treename, lastreport_msgid):
         def repintro(report, number_issues, treename):
             intro = list()
+
+            print("Enter/Paste your intro for %s and hit Ctrl-D to save it." % treename)
+            while True:
+                try:
+                    line = input()
+                except EOFError:
+                    break
+                intro.append(line)
+            if report:
+                intro.append('\n---\n')
+
             intro.append("Hi, this is regzbot, the Linux kernel regression tracking bot.")
             intro.append("\nCurrently I'm aware of %s regressions in linux-%s. Find the" % (number_issues, treename))
             intro.append("current status below and the latest on the web:")
@@ -257,6 +268,16 @@ class RegExportMailReport():
 
         number_issues = 0
         report = list()
+
+        if treename == 'resolved' or treename == 'unassociated' or treename == 'dormant':
+            # no reports for those
+            return report
+        elif treename == 'next' or treename == 'stable':
+            # ignore those for now; when changing this, remember to update
+            # the regzbot.RegzbotState.set stuff as well
+            return report
+
+
         for category in categories.keys():
             if not categories[category]['entries']:
                 # nothing to do
@@ -461,19 +482,11 @@ class RegExportMailReport():
         report_gmtime = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
         with tempfile.TemporaryDirectory() as tmpdirname:
             for counter, treename in enumerate(categories.keys()):
-                if treename == 'resolved' or treename == 'unassociated' or treename == 'dormant':
-                    # no reports for those
-                    continue
-                elif treename == 'next' or treename == 'stable':
-                    # ignore those for now; when changing this, remember to update
-                    # the regzbot.RegzbotState.set stuff as well
-                    continue
                 report = cls.pagecreate(categories[treename], treename, lastreport_msgid)
 
                 if not report:
                     logger.info('Nothing to report for %s' % treename)
                     continue
-
 
                 filename = os.path.join(tmpdirname, "%s-regzbotreport-%s" % (counter, treename))
                 msg = cls.__create_mail(report, treename)
