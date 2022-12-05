@@ -2328,8 +2328,13 @@ class RegressionFull(RegressionBasic):
             RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, author,
                  gitbranchid=gitbranch.gitbranchid, regzbotcmd='fixed: %s' % regzbotcmd)
         else:
-            # downstream only
+            # downstream? then just add a note
             if self.gittree and gittree.priority > self.gittree.priority:
+                 RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, author,
+                     gitbranchid=gitbranch.gitbranchid, regzbotcmd='note: %s' % regzbotcmd)
+                 return
+            # upstream and already fixed? then just add a note
+            elif self.solved_reason == 'fixed' and self.gittree and gittree.priority < self.gittree.priority:
                  RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, author,
                      gitbranchid=gitbranch.gitbranchid, regzbotcmd='note: %s' % regzbotcmd)
                  return
