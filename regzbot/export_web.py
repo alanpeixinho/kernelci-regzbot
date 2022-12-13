@@ -34,7 +34,8 @@ class RegLinkWeb(regzbot.RegLink):
 
         if self.author:
             with yattagdoc.tag('div', style="padding-left: 3em;"):
-                yattagdoc.text('%s days ago, by %s' % (days_delta(self.gmtime), self.author))
+                yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % self.gmtime)
+                yattagdoc.text(', by %s' % self.author)
                 if self.repsrcid and self.entry and regzbot.RegActivityMonitor.ismonitored(self.entry, self.regid, self.repsrcid):
                     yattagdoc.text(" (monitored)")
                 if self._for_regression and not regression.regid == self._for_regression.regid:
@@ -64,8 +65,8 @@ class RegHistoryWeb(regzbot.RegHistory):
                     yattagdoc.text("%s" % self.subject)
 
         with yattagdoc.tag('div', style="padding-left: 2em;"):
-             yattagdoc.text("%s days ago" % days_delta(
-                             self.gmtime))
+             yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % self.gmtime)
+
              if self.author:
                  yattagdoc.text(", by %s" % self.author)
 
@@ -83,13 +84,12 @@ class RegHistoryWeb(regzbot.RegHistory):
                     else:
                         regzbotcmd = self.regzbotcmd
                     with yattagdoc.tag('a', href=self.url()):
-                        yattagdoc.text("%s" % regzbotcmd)
+                        yattagdoc.text("%s; " % regzbotcmd)
                 else:
                     with yattagdoc.tag('a', href=self.url()):
-                        yattagdoc.text("%s" % self.subject)
+                        yattagdoc.text("%s; " % self.subject)
 
-            yattagdoc.text("; %s hours ago" % hours_delta(
-                                 self.gmtime))
+            yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % self.gmtime)
             if self.author:
                 yattagdoc.text(", by %s" % self.author)
 
@@ -111,7 +111,8 @@ class RegActivityEventWeb(regzbot.RegActivityEvent):
             with yattagdoc.tag('a', href=self.url()):
                 yattagdoc.text("%s" % self.subject)
         with yattagdoc.tag('div', style="padding-left: 2em;"):
-            yattagdoc.text("%s days ago, by %s" % (days_delta(self.gmtime), self.author))
+            yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % self.gmtime)
+            yattagdoc.text(", by %s" % self.author)
             if int(self.patchkind) > 0:
                 if (PatchKind.DIFF | PatchKind.SUBJECT | PatchKind.SIGNEDOFF) in self.patchkind:
                      yattagdoc.text('; contains a signed-off patch')
@@ -133,7 +134,9 @@ class RegActivityEventWeb(regzbot.RegActivityEvent):
             with yattagdoc.tag('i'):
                 with yattagdoc.tag('a', href=self.url()):
                     yattagdoc.text("%s" % self.subject)
-            yattagdoc.text("; %s hours ago, by %s" % (hours_delta(self.gmtime), self.author))
+            yattagdoc.text("; ")
+            yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % self.gmtime)
+            yattagdoc.text(", by %s" % self.author)
             if int(self.patchkind) > 0:
                 if (PatchKind.DIFF | PatchKind.SUBJECT | PatchKind.SIGNEDOFF) in self.patchkind:
                      yattagdoc.text('; contains a signed-off patch')
@@ -293,23 +296,18 @@ class RegressionWeb(regzbot.RegressionFull):
                              yattagdoc.text('activity')
                         yattagdoc.text(': ')
                         if earliest_event is latest_event:
-                            yattagdoc.text('%s days ago' % days_delta(
-                                earliest_event.gmtime))
+                            yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % earliest_event.gmtime)
                         else:
                             with yattagdoc.tag('a', href=earliest_event.url()):
-                                yattagdoc.text('%s' % days_delta(
-                                    earliest_event.gmtime))
+                                yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % earliest_event.gmtime)
                             yattagdoc.text(' & ')
                             with yattagdoc.tag('a', href=latest_event.url()):
-                                yattagdoc.text('%s' % days_delta(
-                                    latest_event.gmtime))
-                            yattagdoc.text(' days ago')
+                                yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % latest_event.gmtime)
 
                         if self.poked:
                             yattagdoc.text('; poked ')
                             with yattagdoc.tag('a', href=self.poked.url()):
-                                yattagdoc.text('%s' % days_delta(self.poked.gmtime))
-                            yattagdoc.text(' days ago')
+                                yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % self.poked.gmtime)
 
                         yattagdoc.text('.')
 
@@ -379,7 +377,8 @@ class RegressionWeb(regzbot.RegressionFull):
                             with yattagdoc.tag('a', href=self.backburner.report_url()):
                                 yattagdoc.text("%s" % self.backburner.subject)
                         with yattagdoc.tag('div', style="padding-left: 1em;"):
-                             yattagdoc.text('%s days ago, by %s' % (days_delta(self.backburner.gmtime), self.backburner.author))
+                            yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % self.backburner.gmtime)
+                            yattagdoc.text(', by %s' % self.backburner.author)
 
                 for counter, link in enumerate(links_sorted, start=1):
                     with yattagdoc.tag('div'):
@@ -414,8 +413,7 @@ class RegressionWeb(regzbot.RegressionFull):
                                 solved_explanation(yattagdoc)
 
                         with yattagdoc.tag('div', style="padding-left: 3em;"):
-                            yattagdoc.text('%s days ago' % days_delta(
-                                self.solved_gmtime))
+                            yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % self.solved_gmtime)
                             if self.solved_entry and self._solved_entry_presentable and not self._solved_entry_presentable == self.solved_entry[:12]:
                                 yattagdoc.text(' in %s' % self._solved_entry_presentable)
                 else:
@@ -430,7 +428,8 @@ class RegressionWeb(regzbot.RegressionFull):
                             with yattagdoc.tag('a', href=actievent.url()):
                                 yattagdoc.text("%s" % actievent.subject)
                             with yattagdoc.tag('div', style="padding-left: 3em;"):
-                                yattagdoc.text("%s days ago, by %s; " % (days_delta(actievent.gmtime), actievent.author))
+                                yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % actievent.gmtime)
+                                yattagdoc.text(", by %s; " % actievent.author)
                                 if (PatchKind.DIFF | PatchKind.SUBJECT | PatchKind.SIGNEDOFF) in actievent.patchkind:
                                     yattagdoc.text('signed-off-by present')
                                 elif (PatchKind.DIFF | PatchKind.SUBJECT) in actievent.patchkind:
@@ -567,6 +566,7 @@ class RegExportWeb():
 
     @staticmethod
     def outpage_header(yattagdoc, htmlpages, pagename, relpath=''):
+        yattagdoc.asis('<script src="%s../relativetime.js" type="text/javascript"></script>' % relpath)
         with yattagdoc.tag('h1'):
             yattagdoc.text('Linux kernel regression status')
         with yattagdoc.tag('h2'):
@@ -742,6 +742,40 @@ class RegExportWeb():
         # write out
         with open(os.path.join(directory, 'index.html'), 'w') as outputfile:
             outputfile.write(yattagdoc.getvalue())
+
+    @staticmethod
+    def create_scriptfile_reldate():
+        with open(os.path.join(regzbot.WEBPAGEDIR, 'relativetime.js'), 'w') as outputfile:
+            outputfile.write('''const timeAgoCurrentDate = new Date()
+
+const timeAgoFormatter = new Intl.RelativeTimeFormat("en", {
+  numeric: 'always'
+})
+
+const timeAgoDIVS = [
+  { amount: 60, offset: 300, name: 'minutes' },
+  { amount: 24, offset: 72, name: 'hours' },
+  { amount: 7, offset: 28, name: 'days' },
+  { amount: 4.34524, offset: 16, name: 'weeks' },
+  { amount: 12, offset: 48, name: 'months' },
+  { amount: Number.POSITIVE_INFINITY, offset: Number.POSITIVE_INFINITY, name: 'years' }
+]
+
+function timeAgo(provided_date) {
+  date = new Date(provided_date)
+  let duration = (date - timeAgoCurrentDate) / 1000 / 60
+  for (let i = 0; i <= timeAgoDIVS.length; i++) {
+    if (Math.abs(duration) < timeAgoDIVS[i].offset) {
+      // console.log('Time ago: ' + timeAgoFormatter.format(Math.round(duration), timeAgoDIVS[i].name))
+      document.write(timeAgoFormatter.format(Math.round(duration), timeAgoDIVS[i].name))
+      return(timeAgoFormatter.format(Math.round(duration), timeAgoDIVS[i].name))
+    }
+    duration /=  timeAgoDIVS[i].amount
+  }
+}
+// timeAgo("2022-10-05T08:00:00Z")
+''')
+
 
     @classmethod
     def create_unhandled(cls, directory, htmlpages):
@@ -931,6 +965,8 @@ class RegExportWeb():
                                                     last_activity, gmtime_solved, regression.treename,
                                                     regression.versionline, regression.solved_reason, regression.backburner, regression.identified,
                                                     regression.html()))
+
+        cls.create_scriptfile_reldate()
 
         eventslist.sort(key=lambda x: x['gmtime'], reverse=True)
         cls.create_events(regzbot.WEBPAGEDIR, unhandled_count, htmlpages, eventslist)
