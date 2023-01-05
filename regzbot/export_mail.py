@@ -410,8 +410,10 @@ class RegExportMailReport():
             elif last_activity_days > 90:
                 continue
             elif regression.treename == 'next' or regression.treename == 'stable':
-                # only create reports for mainline for now
+                #
+                # for now only create reports for mainline regressions
                 continue
+                #
                 if regression.identified:
                     categories[regression.treename]['identified']['entries'].append(regression)
                 else:
@@ -422,6 +424,11 @@ class RegExportMailReport():
                            categories[regression.treename]['identified_indevelopment']['entries'].append(regression)
                     else:
                            categories[regression.treename]['unidentified_indevelopment']['entries'].append(regression)
+                #
+                # for now only create reports for regression introduced in the current cycle
+                elif True:
+                    continue
+                #
                 elif regression.versionline == 'latest' and regression.identified:
                      categories[regression.treename]['identified_latest']['entries'].append(regression)
                 elif regression.versionline == 'latest' and last_activity_days < 21:
@@ -462,12 +469,6 @@ class RegExportMailReport():
             else:
                 last_activity=regression._histevents[-1].gmtime
             last_activity_days = regzbot.days_delta(last_activity)
-            if regression.treename != 'mainline':
-                # for now only generate reports for mainline
-                continue
-            elif last_activity_days > 91:
-                # ignore due to inactivity for ~three months
-                continue
             if regression._actievents:
                 last_activity=regression._actievents[-1].gmtime
             else:
