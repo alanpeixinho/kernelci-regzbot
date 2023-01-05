@@ -1542,7 +1542,7 @@ class RegressionBasic():
         dbcursor = DBCON.cursor()
 
         if only_unsolved:
-            for dbresult in dbcursor.execute('SELECT %s FROM regressions WHERE solved_reason IS NULL OR solved_reason IS "to_be_fixed" ORDER BY %s' % (RegressionBasic.DBCOLS, order)):
+            for dbresult in dbcursor.execute('SELECT %s FROM regressions WHERE (solved_reason IS NULL AND solved_duplicateof IS NULL) OR solved_reason IS "to_be_fixed" ORDER BY %s' % (RegressionBasic.DBCOLS, order)):
                 yield cls(*dbresult)
         else:
             for dbresult in dbcursor.execute('SELECT %s FROM regressions ORDER BY %s' % (RegressionBasic.DBCOLS, order)):
