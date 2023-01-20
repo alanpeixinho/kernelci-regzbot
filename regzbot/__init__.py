@@ -482,6 +482,7 @@ class GitTree():
                     yield gittree, gitbranch, hexsha
                     continue
                 if subject:
+                    logger.debug("gittree, %s, %s: searching for subject '%s'", gittree.name, gitbranch.name, subject)
                     hexsha = gitbranch.subject_exists(subject, gittree=gittree, repo=repo)
                     if hexsha:
                         yield gittree, gitbranch, hexsha
@@ -1841,7 +1842,7 @@ class RegressionBasic():
 
     def fixedby(self, gmtime, commit_hexsha, commit_subject, gitbranchid=None, repsrcid=None, repentry=None, lookup=True):
         # mark the commit as fixed, unless it's already considered fixed
-        if self.solved_reason == 'fixed' and self.solved_entry.startswith(commit_hexsha):
+        if self.solved_reason == 'fixed' and commit_hexsha and self.solved_entry.startswith(commit_hexsha):
             return True
 
         self.solved_reason = 'to_be_fixed'
