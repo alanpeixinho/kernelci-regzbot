@@ -74,6 +74,7 @@ def run():
 
         # update database
         repsrc.set_lastchked(group_lastid)
+        regzbot.db_commit()
 
 
 def download_thread_old(msgid, repsrcid = None):
