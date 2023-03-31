@@ -306,7 +306,7 @@ class BZServer():
                 # nothing currently
                 pass
         else:
-            print('Unkown command: %s', command)
+            print('Unknown command: %s', command)
             sys.exit(1)
 
     @classmethod
