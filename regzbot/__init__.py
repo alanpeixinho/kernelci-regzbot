@@ -1800,6 +1800,12 @@ class RegressionBasic():
         regression_other._dupof_direct(self, gmtime, msgid, msgsubject, authorname, repsrcid, history=False)
 
     def _dupof_direct(self, regression_other, gmtime, msgid, msgsubject, authorname, repsrcid, *, history=True):
+        if self.regid == regression_other.regid:
+            logger.warning('regression[%s, "%s"]: request to mark this a as duplicate of ourselves; aborting',
+                    self.regid, self.subject)
+            # FIXME properly
+            sys.exit(1)
+
         if self.solved_subject is None:
             self.solved_subject = regression_other.subject
         else:
