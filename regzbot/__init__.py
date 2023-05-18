@@ -313,6 +313,20 @@ class GitBranch():
             print(err.args)
             return None
 
+    def is_abandoned(self, repo=None):
+        if is_running_citesting():
+            return False
+
+        if repo is None:
+            gittree = GitTree.get_by_id(self.gittreeid)
+            repo = gittree.repo()
+
+        date_offset = int(datetime.datetime.now(datetime.timezone.utc).timestamp()) - 86400 * 63
+        date_head = repo.commit(self.lookupname).committed_date
+        if date_head < date_offset:
+            return True
+        return False
+
     def merge_date(self, hexsha, repo=None):
         def get_date(repo, hexsha):
             return repo.commit(hexsha).committed_date
@@ -478,6 +492,9 @@ class GitTree():
         for gittree in GitTree.getall(FIXME=sortorder):
             repo = gittree.repo()
             for gitbranch in GitBranch.getall_by_gittreeid(gittree.gittreeid):
+                if gitbranch.is_abandoned():
+                    logger.debug("gittree, %s, %s: branch abandoned, skipping lookup", gittree.name, gitbranch.name)
+                    continue
                 if hexsha and gitbranch.commit_exists(hexsha, repo):
                     yield gittree, gitbranch, hexsha
                     continue
