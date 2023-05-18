@@ -8,6 +8,7 @@ __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 # - path to testdir is hardcoded
 
 import argparse
+import datetime
 import email
 import re
 import regzbot
@@ -411,7 +412,13 @@ def process_msg(repsrc, msg):
           return
 
     authorname, authormail = email_get_from(msg)
-    gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(msg['Date']))
+    try:
+          gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(msg['Date']))
+    except TypeError as err:
+          # occured (IIRC) with https://lore.kernel.org/all/266661e5-ac86-1590-55d9-5f14e6486557@perex.cz/raw
+          logger.warning("[mailin] using current time for %s, as parsing date failed: %s", msgid, err)
+          gmtime = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
+
     ignoreactivity = False
 
     logger.info("[mailin] processing mail %s: subject:'%s'; from:%s'; :",
