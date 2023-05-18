@@ -24,7 +24,7 @@ regzbot_tag_re = re.compile(
 regzbot_tag2_re = re.compile(
     r'^#(regzb|regzbot) (.*)$', re.MULTILINE | re.IGNORECASE)
 link_re = re.compile(
-    r'^(\#regzb |\#regzbot |Link: |.*)?(\n)?((http://|https://)\S*)', re.MULTILINE | re.IGNORECASE)
+    r'^(\#regzb |\#regzbot |Link: |Closes: |.*)?(\n)?((http://|https://)\S*)', re.MULTILINE | re.IGNORECASE)
 
 
 class MailinRbCmdOrgHelper:
@@ -509,7 +509,7 @@ def process_msg(repsrc, msg):
         backmonitor = False
         url = False
 
-        if match.group(0).startswith('Link'):
+        if match.group(0).startswith('Link') or match.group(0).startswith('Closes'):
             if re.search(r'\#regzb.*\^backmonitor', msgcontent):
                 # backmonitor implies ignore-activity, so skip this
                 continue
@@ -527,7 +527,7 @@ def process_msg(repsrc, msg):
                 # avoid catching URLs we already dealt with
                continue
         else:
-            if 'Link:' in match.group(0):
+            if 'Link:' in match.group(0) or 'Closes:' in match.group(0):
                 # Link should be at the beginning of the line; it's not, so it's
                 # likely quoted or somethng and can be ignored
                 continue

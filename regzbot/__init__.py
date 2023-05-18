@@ -618,7 +618,7 @@ class GitTree():
 
         regressionfull = None
         for gittree in cls.getall(FIXME='ORDER BY priority ASC'):
-            searchstring = "Link:.*%s" % msgid
+            searchstring = "\(Link\|Closes\):.*%s" % msgid
             logger.debug("[GitTree] Trying to find '%s' in gittree %s", searchstring, gittree.name)
             for commit_hexsha in gittree.greplogmsgs(searchstring):
                 for gitbranch in GitBranch.getall_by_gittreeid(gittree.gittreeid):
@@ -712,7 +712,7 @@ class GitTree():
 
             # now check new commits for links
             re_link = re.compile(
-                r'(^\s*Link:\s*)(http(.*))\s*\n', re.MULTILINE)
+                r'(^\s*Link:\s*|^\s*Closes:\s*)(http(.*))\s*\n', re.MULTILINE)
             for commit in repo.iter_commits(('--reverse', gitbranch.lastchked + '..' + repobranch.commit.hexsha)):
                 # is this a commit we are waiting for?
                 for expected_fix in expected_fixes:

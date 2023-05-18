@@ -1912,10 +1912,10 @@ HISTORY: This is a test 123456789, 1547164800, Regzbot Testing, https://git.kern
 LATEST: test_1_11_0: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_11_0@example.com/, 1547164800, PatchKind.0
 REGRESSION: test_1_12_0: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: culprit indentified
 INITIAL_REPORT: 1547251200, test_1_12_0: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_1_12_0@example.com/
-SOLVED: fixed, 1546300817, fcc3f25c8c91, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=fcc3f25c8c91c75d172adf60e1568bf3c3baa469, Testcommit test_1_12_0
-ACTIVITY: Commit fcc3f25c8c91 in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=fcc3f25c8c91c75d172adf60e1568bf3c3baa469, 1546300817, PatchKind.0
+SOLVED: fixed, 1546300817, 69f878de4706, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=69f878de4706c24efc96d376fbafe7a19dc5022a, Testcommit test_1_12_0
+ACTIVITY: Commit 69f878de4706 in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=69f878de4706c24efc96d376fbafe7a19dc5022a, 1546300817, PatchKind.0
 ACTIVITY: test_1_12_0: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_12_0@example.com/, 1547251200, PatchKind.0
-HISTORY: Testcommit test_1_12_0, 1546300817, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=fcc3f25c8c91c75d172adf60e1568bf3c3baa469, fixed: fcc3f25c8c91 in mainline referred to this regression
+HISTORY: Testcommit test_1_12_0, 1546300817, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=69f878de4706c24efc96d376fbafe7a19dc5022a, fixed: 69f878de4706 in mainline referred to this regression
 HISTORY: test_1_12_0: Lorem ipsum dolor sit amet, 1547251200, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_12_0@example.com/, introduced: v1.8..v1.9-rc1
 LATEST: test_1_12_0: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_12_0@example.com/, 1547251200, PatchKind.0
 
