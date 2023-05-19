@@ -875,6 +875,19 @@ def offltest_1_11(funcname):
     return True, False, False
 
 
+def offltest_1_12(funcname):
+    subcounter = 0
+    logger.info(
+        '%s_%s: create a mainline regression and use Link tag to resolve it' % (funcname, subcounter))
+
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+    gittrees_testing['mainline'].mv(
+        'Testcommit %s_%s\n\nLink: https://lore.kernel.org/regressions/regzbot-testing-%s_%s@example.com\n' % (funcname, subcounter, funcname, subcounter))
+
+    return True, True, False
+
+
 def offltest_2_0(funcname):
     logger.info(
         '%s: creating a mainline regression and add a link to it ' % funcname)
@@ -1132,6 +1145,22 @@ def offltest_2_15(funcname):
         replyto=replyto)
     replyto_1 = '%s_%s' % (funcname, subcounter)
     return True, False, False
+
+
+def offltest_2_16(funcname):
+    logger.info('%s: create a regression and refer to it on another list using a link tag (will be monitored)' % (
+        funcname))
+
+    subcounter = 0
+    emaildirs['primary'].create_email(
+        '%s_%s' % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+    replyto = '%s_%s' % (funcname, subcounter)
+
+    subcounter += 1
+    emaildirs['secondary'].create_email(funcname, "Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com" % replyto,
+                                        subject="%s: refer to newly created regression on another mainling list" % funcname)
+    return True, False, False
+
 
 def offltest_3_0(funcname):
     logger.info('%s: create a regression in next' % funcname)
