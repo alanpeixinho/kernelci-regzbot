@@ -76,7 +76,7 @@ class RbCmdSingle:
                         logger.info("Ignoring '%s' parameter, not supported in this case", argument)
                         continue
 
-                    repsrc, entry = regzbot.ReportSource.get_by_url(argument)
+                    repsrc, entry = regzbot.ReportSourceRaw.get_by_url(argument)
                     report = regzbot.RbCmdOrigin(
                         repsrc,
                         entry,

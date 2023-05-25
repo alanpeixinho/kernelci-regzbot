@@ -75,7 +75,7 @@ class RegressionFullCSV(regzbot.RegressionFull):
         for regression in self, *self._dupes:
             report = regression._actim_report
             content = ("%s, %s, %s, %s, %s" % (report.gmtime, report.subject, report.authorname,
-                        report.authormail, regzbot.ReportSource.get_by_id(report.repsrcid).url(report.entry)))
+                        report.authormail, regzbot.ReportSourceRaw.get_by_id(report.repsrcid).url(report.entry)))
             if report == self._actim_report:
                 reportlist.insert(0, 'INITIAL_REPORT: %s' % content)
             else:

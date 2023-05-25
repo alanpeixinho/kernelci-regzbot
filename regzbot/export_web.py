@@ -268,7 +268,7 @@ class RegressionWeb(regzbot.RegressionFull):
                     yattagdoc.text(' by ')
                     len_actireports = len(actireports_sorted)
                     for actireport in actireports_sorted:
-                            with yattagdoc.tag('a', href=regzbot.ReportSource.get_by_id(actireport.repsrcid).url(actireport.entry)):
+                            with yattagdoc.tag('a', href=regzbot.ReportSourceRaw.get_by_id(actireport.repsrcid).url(actireport.entry)):
                                 authorname = actireport.authorname
                                 if not authorname:
                                     authorname='Unkown'
@@ -485,7 +485,7 @@ class RegressionWeb(regzbot.RegressionFull):
                           if regression.regid in regids_just_forwarded:
                               continue
                           actireport = regression._actim_report
-                          reportedlink = regzbot.ReportSource.get_by_id(actireport.repsrcid).url(actireport.entry, redirector=True)
+                          reportedlink = regzbot.ReportSourceRaw.get_by_id(actireport.repsrcid).url(actireport.entry, redirector=True)
                           if not actireport.authorname:
                               # there are a few old database entry where authorname and authormail are missing
                               # just ignore them

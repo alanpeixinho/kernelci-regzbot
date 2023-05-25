@@ -102,7 +102,7 @@ def adjust_repsrc(repsrc, msg):
             logger.warning('Ignoring "CC" in %s due to an exception: "HeaderParseError: %s"',  email_get_msgid(msg), err)
 
     for adress in adresses:
-        tmprepsrc = regzbot.ReportSource.get_by_identifier(adress)
+        tmprepsrc = regzbot.ReportSourceRaw.get_by_identifier(adress)
         if tmprepsrc is None:
             continue
         elif repsrc is None or tmprepsrc.priority < repsrc.priority:
@@ -271,7 +271,7 @@ def process_tag(repsrc, tag, msg):
         elif tagcmd == "subject" or tagcmd == "title":
             regressionb.title(tagload)
         else:
-            reportsource = regzbot.ReportSource.get_by_id(repsrc.repsrcid)
+            reportsource = regzbot.ReportSourceRaw.get_by_id(repsrc.repsrcid)
             urltoreport = reportsource.url(msgid)
             regzbot.UnhandledEvent.add(
                 urltoreport, "unkown regzbot command: %s" % tagcmd, gmtime=gmtime, subject=subject)
@@ -555,7 +555,7 @@ def process_msg(repsrc, msg):
 
             bugid = tmpstring.removeprefix('bugzilla.kernel.org/show_bug.cgi?id=')
             if bugid.isnumeric():
-                repsrc = regzbot.ReportSource.get_by_name('bugzilla.kernel.org')
+                repsrc = regzbot.ReportSourceRaw.get_by_name('bugzilla.kernel.org')
                 regressionb = regzbot.RegressionBasic.get_by_repsrc_n_entry(repsrc, bugid)
             else:
                 logger.debug(
