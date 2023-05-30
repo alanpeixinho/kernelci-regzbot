@@ -610,7 +610,7 @@ class GitTree():
         return self.__repo
 
     @classmethod
-    def search_references(cls, msgid, regression, gmtime=None):
+    def search_references(cls, repsrc, regression, gmtime=None):
         def getregression(regression, regid):
            if regressionfull:
                return regressionfull
@@ -618,7 +618,9 @@ class GitTree():
 
         regressionfull = None
         for gittree in cls.getall(FIXME='ORDER BY priority ASC'):
-            searchstring = "\(Link\|Closes\):.*%s" % msgid
+            searchprefix = "\(Link\|Closes\):"
+            searchmain = repsrc.get_searchpattern()
+            searchstring = "%s.*%s" % (searchprefix, searchmain)
             logger.debug("[GitTree] Trying to find '%s' in gittree %s", searchstring, gittree.name)
             for commit_hexsha in gittree.greplogmsgs(searchstring):
                 for gitbranch in GitBranch.getall_by_gittreeid(gittree.gittreeid):
@@ -1745,7 +1747,8 @@ class RegressionBasic():
 
         # check if it already got fixed
         regression = cls.get_by_regid(regid)
-        GitTree.search_references(entry, regression, gmtime=gmtime)
+        repsrc = ReportSource.get_by_id_n_entry(repsrcid, entry)
+        GitTree.search_references(repsrc, regression, gmtime=gmtime)
 
         return regression
 
@@ -2036,13 +2039,13 @@ class RegressionBasic():
                 self.regid, self.subject, errormsg))
             return self.monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime)
 
-        target_repsrc, target_msg = get_msg(target_msgid)
-        if target_repsrc and target_msg:
+        target_repsrcraw, target_msg = get_msg(target_msgid)
+        if target_repsrcraw and target_msg:
             target_gmtime = mailin.email_get_gmtime(target_msg)
             target_subject = mailin.email_get_subject(target_msg)
             target_author, target_authormail = mailin.email_get_from(target_msg)
             self.monitoradd_direct(
-                target_repsrc.repsrcid, target_gmtime, target_msgid, target_subject, target_author, target_authormail)
+                target_repsrcraw.repsrcid, target_gmtime, target_msgid, target_subject, target_author, target_authormail)
         else:
             repsrc = ReportSourceRaw.get_byweburl(
                 '%%%s/%s%%' % (domain, mailinglist))
@@ -2056,9 +2059,12 @@ class RegressionBasic():
 
         if not is_running_citesting('offline'):
             lore.process_replies(target_msgid)
+        else:
+            target_repsrcraw, _ = ReportSourceRaw.get_by_url(link)
 
         # check if a reference to this was mentioned in the git logs
-        GitTree.search_references(target_msgid, self)
+        target_repsrc = ReportSource.get_by_id_n_entry(target_repsrcraw.repsrcid, target_msgid)
+        GitTree.search_references(target_repsrc, self)
 
     def monitorremove(self, tagload, gmtime, report_repsrc, report_msg):
         link, _ = self.linkparse(tagload)
@@ -2479,15 +2485,15 @@ class ReportSourceRaw():
             return True
         return False
 
-    @staticmethod
-    def get_by_id(repsrcid, dbcursor=None):
+    @classmethod
+    def get_by_id(cls, repsrcid, dbcursor=None):
         if not dbcursor:
             dbcursor = DBCON.cursor()
 
         dbresult = dbcursor.execute(
             'SELECT * FROM reportsources WHERE repsrcid=(?)', (repsrcid, )).fetchone()
         if dbresult:
-            return ReportSourceRaw(*dbresult)
+            return cls(*dbresult)
         return None
 
     @staticmethod
@@ -2589,6 +2595,38 @@ class ReportSourceRaw():
         dbcursor = DBCON.cursor()
         dbcursor.execute('''UPDATE reportsources SET lastchked = (?) WHERE repsrcid=(?)''',
                          (self.lastchked, self.repsrcid))
+
+
+class ReportSource(ReportSourceRaw):
+    def __init__(self, *args):
+        self.entryid = None
+        super().__init__(*args)
+
+    @classmethod
+    def get_by_id_n_entry(cls, repsrcid, entryid, dbcursor=None):
+        repsrc = cls.get_by_id(repsrcid, dbcursor)
+        repsrc.entryid = entryid
+        return repsrc
+
+    @classmethod
+    def get_by_url(cls, url):
+        cls, self.entryid = super().get_by_url(url)
+        return cls
+
+    def get_searchpattern(self):
+        if not self.entryid:
+            logger.critical(
+                "ReportSource.get_searchpattern() called while self.entryid is unset")
+            sys.exit(1)
+        elif self.kind == 'generic':
+            return self.entryid
+        elif self.kind == 'bugzilla':
+            return '%s%s' % (self.weburl, self.entryid)
+        elif self.kind == 'lore':
+            return 'https://lore.kernel.org/.*/%s' % urlencode(self.entryid)
+        logger.critical(
+            "ReportSource.get_searchpattern() doesn't yet known how to return a URL for %s", self.kind)
+        return None
 
 
 class RbCmdOrigin:
