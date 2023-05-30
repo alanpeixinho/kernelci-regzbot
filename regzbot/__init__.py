@@ -3192,6 +3192,17 @@ def run():
     db_close()
 
 
+def generate_web():
+    basicressources_init()
+
+    # update webpages
+    from export_web import RegExportWeb
+    RegExportWeb.compile()
+
+    # we are done
+    db_close()
+
+
 def report():
     from export_mail import RegExportMailReport
 

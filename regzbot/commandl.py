@@ -38,6 +38,9 @@ def cmd_recheck(cmdargs):
 def cmd_run(cmdargs):
     regzbot.run()
 
+def cmd_pages(cmdargs):
+    regzbot.generate_web()
+
 def cmd_report(cmdargs):
     regzbot.report()
 
@@ -85,6 +88,10 @@ def cmd():
     # run
     sparser_run = subparsers.add_parser('run', help='Run regzbot')
     sparser_run.set_defaults(func=cmd_run)
+
+    # export web pages
+    sparser_run = subparsers.add_parser('pages', help='Generate regzbot HTML pages')
+    sparser_run.set_defaults(func=cmd_pages)
 
     # recheck
     sparser_recheck = subparsers.add_parser('recheck', help='Recheck messages')
