@@ -14,6 +14,8 @@ If you want to interact with regzbot, check out
 [getting started with regzbot](docs/getting_started.md) or the bots
 [reference documentation](docs/reference.md).
 
+To install or develop for regzbot, see the [installation documentation](docs/installation.md).
+
 ## Licensing
 
 Rezbot is available under the APGL 3.0; see the file COPYING for details. If
