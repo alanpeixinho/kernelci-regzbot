@@ -82,6 +82,10 @@ def onlntest_0_2(funcname):
     regzbot.process_msg('438d711b-094b-fcfd-79e3-69f03a14df21@leemhuis.info')
     return False, False, False
 
+# the last mail in the thread will only find the report by walking the thread
+def onlntest_0_3(funcname):
+    regzbot.process_msg('5f445dab-a152-bcaa-4462-1665998c3e2e@gmail.com')
+    return False, False, False
 
 def onlntest_1_0(funcname):
     # uses ^introduced for a report in 5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com

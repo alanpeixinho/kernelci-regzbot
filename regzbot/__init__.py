@@ -1582,11 +1582,16 @@ class RegressionBasic():
     def get_by_entry(cls, entry, dbcursor=None):
         if not dbcursor:
             dbcursor = DBCON.cursor()
+
         dbresult = dbcursor.execute(
             'SELECT %s FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.entry=?' % RegressionBasic.DBCOLS, (entry,)).fetchone()
+        if not dbresult:
+            # fallback for deep threads
+            dbresult = dbcursor.execute(
+                'SELECT %s FROM ((actmonitor INNER JOIN regactivity ON regactivity.actimonid = actmonitor.actimonid) INNER JOIN regressions ON actmonitor.regid = regressions.regid) WHERE regactivity.entry=?; ' % RegressionBasic.DBCOLS, (entry,)).fetchone()
+
         if dbresult:
             yield cls(*dbresult)
-            return
         return None
 
     @classmethod
