@@ -66,7 +66,11 @@ class RbCmdSingle:
 
             for argument in arguments:
                 if argument in ('^', '~') and _helper_supports('thread_parent'):
-                    report = self.origin.helper.thread_parent(self.origin)
+                    try:
+                        report = self.origin.helper.thread_parent(self.origin)
+                    except regzbot.lore.LoreDownloadError:
+                        # parent not found; using current mail as report
+                        report = self.origin
                 elif argument == '/' and _helper_supports('thread_root'):
                     report = self.origin.helper.thread_root(self.origin)
                 elif bz.get_bug_id(argument):

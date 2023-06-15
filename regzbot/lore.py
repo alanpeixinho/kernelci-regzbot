@@ -22,6 +22,8 @@ logger = regzbot.logger
 # might be a bug in the public-inbox code behind lore
 nntplib._MAXLINE = 65536
 
+class LoreDownloadError(Exception):
+    pass
 
 def _group(nntp_connection, nntpurl):
     _, _, nntp_server, nntp_group = nntpurl.split('/', maxsplit=3)
@@ -122,9 +124,8 @@ def download_msg(msgid):
                 shutil.copyfileobj(response, tmpfile)
                 return True
         except urllib.error.HTTPError as err:
-            # for now just fail
-            logger.critical('lore] aborting, failed to download msg %s: %s"', msgid, err)
-            sys.exit(1)
+            logger.warning('[lore] could not download msg %s: %s"', msgid, err)
+            raise LoreDownloadError()
 
     with tempfile.NamedTemporaryFile() as tmpfile:
         download_this('https://lore.kernel.org/all/%s/raw' % msgid, tmpfile)
