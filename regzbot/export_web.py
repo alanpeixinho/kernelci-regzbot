@@ -271,7 +271,7 @@ class RegressionWeb(regzbot.RegressionFull):
                             with yattagdoc.tag('a', href=regzbot.ReportSourceRaw.get_by_id(actireport.repsrcid).url(actireport.entry)):
                                 authorname = actireport.authorname
                                 if not authorname:
-                                    authorname='Unkown'
+                                    authorname='Unknown'
                                 yattagdoc.text(authorname)
                             if len_actireports == 1 or actireport == actireports_sorted[-1]:
                                 pass
@@ -822,7 +822,7 @@ function timeAgo(provided_date) {
                    'entries': list(),
                 },
                 'default': {
-                    'desc': 'culprit unkown',
+                    'desc': 'culprit unknown',
                     'entries': list(),
                 },
                 'backburner': {
@@ -836,7 +836,7 @@ function timeAgo(provided_date) {
                     'entries': list(),
                 },
                 'unidentified_indevelopment': {
-                    'desc': "current cycle (%s.. aka %s), unkown culprit" % (regzbot.LATEST_VERSIONS['latest'], indevelopment_descriptive),
+                    'desc': "current cycle (%s.. aka %s), unknown culprit" % (regzbot.LATEST_VERSIONS['latest'], indevelopment_descriptive),
                     'entries': list(),
                 },
                 'identified_latest': {
@@ -848,15 +848,15 @@ function timeAgo(provided_date) {
                    'entries': list(),
                 },
                 'unidentified_latest': {
-                    'desc': "previous cycle (%s..%s), unkown culprit, with activity in the past three weeks" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
+                    'desc': "previous cycle (%s..%s), unknown culprit, with activity in the past three weeks" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
                     'entries': list(),
                 },
                 'unidentified_old': {
-                    'desc': 'older cycles (..%s), unkown culprit, with activity in the past three weeks' % regzbot.LATEST_VERSIONS['previous'],
+                    'desc': 'older cycles (..%s), unknown culprit, with activity in the past three weeks' % regzbot.LATEST_VERSIONS['previous'],
                     'entries': list(),
                 },
                 'default': {
-                    'desc': 'all others with unkown culprit and activity in the past three months',
+                    'desc': 'all others with unknown culprit and activity in the past three months',
                     'entries': list(),
                 },
                 'backburner': {
@@ -870,7 +870,7 @@ function timeAgo(provided_date) {
                    'entries': list(),
                 },
                 'default': {
-                    'desc': 'culprit unkown',
+                    'desc': 'culprit unknown',
                     'entries': list(),
                 },
                 'backburner': {

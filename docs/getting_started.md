@@ -23,7 +23,7 @@ See below for a few other examples how to specify ranges, how to modify the vers
 
 Regzbot is designed to normally not create any additional chores for Linux kernel developers like you. But for that to work it's important you do something the [Linux kernel documentation specifies for a while already](https://www.kernel.org/doc/html/latest/process/submitting-patches.html): when fixing a regression, include a `Link:` tag with the URL to the report in the [mailing list archives on lore.kernel.org](https://lore.kernel.org/). This aspect is important for regzbot, as it allows the bot to connect the fix with the regression's report. That's needed so regzbot can do things automatically that otherwise would mean manual work for somebody — like marking the regression as resolved once the fix hits mainline.
 
-But sometimes you might want to do more with regzbot, like specifiying a culprit exactly after a bisection or marking a regression as resolved. The text below explains how to do these and other things; the instructions there also will tell you how to use regzbot to track regressions for your own code or the subsystem you maintain, as that will make sure none fall through the cracks unnoticed.
+But sometimes you might want to do more with regzbot, like specifying a culprit exactly after a bisection or marking a regression as resolved. The text below explains how to do these and other things; the instructions there also will tell you how to use regzbot to track regressions for your own code or the subsystem you maintain, as that will make sure none fall through the cracks unnoticed.
 
 
 ## More regzbot features relevant for both reporters and developers
@@ -77,7 +77,7 @@ Simply write a reply to the report that uses the 'introduced' command again. Jus
 
 `#regzbot introduced: next-20211006..next-20211008`
 
-Note: to associate the regression to a tree, rezbot will look version tags and commits up in the Git trees for the Linux mainline, stable and next; if it can't a proper match, it might miss-file the regression. Thus stick to the format used in the examples and do not put any spaces before or after the `..`.
+Note: to associate the regression to a tree, regzbot will look version tags and commits up in the Git trees for the Linux mainline, stable and next; if it can't a proper match, it might miss-file the regression. Thus stick to the format used in the examples and do not put any spaces before or after the `..`.
 
 Reminder: Linux distributors often modify or enhance their Linux based kernels, hence any problems you face with such kernels might be caused by these changes. That's why the Linux kernel developers [mainly care about regression happening with unmodified kernels, which are often called 'upstream kernel', 'official kernel', or 'vanilla'](https://www.kernel.org/doc/html/latest/admin-guide/reporting-issues.html#make-sure-you-re-using-the-upstream-linux-kernel). Regzbot thus focuses on these, too. It thus only understand version tags used by the upstream Linux kernel developers and doesn't handle version numbers like `5.13.12-200.fc34.x86_64` (Fedora) or `5.4.0-12.15-generic` (Ubuntu). If you face a regression with these kernels you should report them to your distributor; alternatively, you can recheck if they occur with a upstream kernel and them report to the Linux kernel developers.
 
@@ -148,7 +148,7 @@ Sometimes multiple people will report the same regressions without knowing about
 
    `#regzbot dup: url`
 
-Regzbot from then on will consider all acitivies of A as if they'd happen for B.
+Regzbot from then on will consider all activies of A as if they'd happen for B.
 
 #### Mark a regression as resolved
 

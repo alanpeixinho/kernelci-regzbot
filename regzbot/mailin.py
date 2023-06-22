@@ -274,7 +274,7 @@ def process_tag(repsrc, tag, msg):
             reportsource = regzbot.ReportSourceRaw.get_by_id(repsrc.repsrcid)
             urltoreport = reportsource.url(msgid)
             regzbot.UnhandledEvent.add(
-                urltoreport, "unkown regzbot command: %s" % tagcmd, gmtime=gmtime, subject=subject)
+                urltoreport, "unknown regzbot command: %s" % tagcmd, gmtime=gmtime, subject=subject)
             return
 
     if not primary_regression:

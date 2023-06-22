@@ -168,7 +168,7 @@ class TestingGitTree:
 
     def __check_sha1sum(self, commit, commitnr):
         if commitnr >= len(self.hashes_known):
-            self.__add_unkown_hash(str(self.repo.head.commit))
+            self.__add_unknown_hash(str(self.repo.head.commit))
         elif str(commit) != self.hashes_known[commitnr]:
             logger.critical("Sha1 for the latest commit (%s) to %s doesn't match expected sha1 (%s)." % (
                 commit, self._branchname, self.hashes_known[commitnr]))
@@ -186,7 +186,7 @@ class TestingGitTree:
         self.__check_sha1sum(self.repo.head.commit, self._count)
         self._count += 1
 
-    def __add_unkown_hash(self, sha1sum):
+    def __add_unknown_hash(self, sha1sum):
         # see comment in __init() for why this is disabled
         #
         # with open(self._filename_hashes_known, 'a') as file:
@@ -1398,7 +1398,7 @@ def offltest_5_1(funcname):
 
     subcounter = 0
     logger.info(
-        '%s_%s: use a unkown regzbot command' % (funcname, subcounter))
+        '%s_%s: use a unknown regzbot command' % (funcname, subcounter))
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb foobar: 123456789",
                                       replyto=replyto)
 

@@ -68,7 +68,7 @@ class RegressionMailReport(regzbot.RegressionFull):
             if actireport.authorname:
                 statusline.append(actireport.authorname)
             else:
-                statusline.append('Unkown')
+                statusline.append('Unknown')
             if len(actireports) > 2 and actireport == actireports[-2]:
                 statusline.append(', and ')
             elif len(actireports) > 1 and actireport == actireports[-2]:
@@ -323,7 +323,7 @@ class RegExportMailReport():
                    'entries': list(),
                 },
                 'default': {
-                    'desc': 'culprit unkown',
+                    'desc': 'culprit unknown',
                     'entries': list(),
                 },
                 'backburner': {
@@ -337,7 +337,7 @@ class RegExportMailReport():
                     'entries': list(),
                 },
                 'unidentified_indevelopment': {
-                    'desc': "current cycle (%s.. aka %s), unkown culprit" % (regzbot.LATEST_VERSIONS['latest'], indevelopment_descriptive),
+                    'desc': "current cycle (%s.. aka %s), unknown culprit" % (regzbot.LATEST_VERSIONS['latest'], indevelopment_descriptive),
                     'entries': list(),
                 },
                 'identified_latest': {
@@ -349,15 +349,15 @@ class RegExportMailReport():
                    'entries': list(),
                 },
                 'unidentified_latest': {
-                    'desc': "previous cycle (%s..%s), unkown culprit, with activity in the past three weeks" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
+                    'desc': "previous cycle (%s..%s), unknown culprit, with activity in the past three weeks" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
                     'entries': list(),
                 },
                 'unidentified_old': {
-                    'desc': 'older cycles (..%s), unkown culprit, with activity in the past three weeks' % regzbot.LATEST_VERSIONS['previous'],
+                    'desc': 'older cycles (..%s), unknown culprit, with activity in the past three weeks' % regzbot.LATEST_VERSIONS['previous'],
                     'entries': list(),
                 },
                 'default': {
-                    'desc': 'all others with unkown culprit and activity in the past three months',
+                    'desc': 'all others with unknown culprit and activity in the past three months',
                     'entries': list(),
                 },
                 'backburner': {
@@ -371,7 +371,7 @@ class RegExportMailReport():
                    'entries': list(),
                 },
                 'default': {
-                    'desc': 'culprit unkown',
+                    'desc': 'culprit unknown',
                     'entries': list(),
                 },
             },
