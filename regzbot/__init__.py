@@ -18,6 +18,7 @@ import sys
 
 import git
 
+from functools import cached_property
 
 __VERSION__ = '0.0.1-dev'
 __CITESTING__ = False
@@ -780,6 +781,10 @@ class RegActivityMonitor():
         self.authorname = authorname
         self.authormail = authormail
         self.lastchk = lastchk
+
+    @cached_property
+    def repsrc(self):
+        return ReportSource.get_by_id_n_entry(self.repsrcid, self.entry)
 
     @staticmethod
     def db_create(version, dbcursor):
@@ -2444,6 +2449,12 @@ class ReportSourceRaw():
         self.identifiers = identifiers
         self.lastchked = lastchked
         self.priority = priority
+
+    @cached_property
+    def generic_name(self):
+        if self.kind == 'lore':
+            return self.kind
+        return self.name
 
     def db_create(version, dbcursor):
         logger.debug('Initializing new dbtable "reportsources"')

@@ -123,7 +123,8 @@ class RegActivityEventWeb(regzbot.RegActivityEvent):
                      yattagdoc.text('; contains a simple patch')
             if self._for_regression and not regression.regid == self._for_regression.regid:
                 yattagdoc.text(" [")
-                with yattagdoc.tag('a', href='../regression/%s/' % self._for_regression._actim_report.entry):
+                repsrc = self._for_regression._actim_report.repsrc
+                with yattagdoc.tag('a', href='../regression/%s/%s/' % (repsrc.generic_name, repsrc.entryid)):
                     yattagdoc.text("via dup")
                 yattagdoc.text("]")
 
@@ -159,7 +160,8 @@ class RegressionWeb(regzbot.RegressionFull):
     def event_intro(self):
         html = yattag.Doc()
         html.text("Regression ")
-        with html.tag('a', href='../regression/%s/' % self._actim_report.entry):
+        report_repsrc = self._actim_report.repsrc
+        with html.tag('a', href='../regression/%s/%s/' % (report_repsrc.generic_name, report_repsrc.entryid)):
              html.text(self.subject)
         html.text(":")
         return html
@@ -293,7 +295,8 @@ class RegressionWeb(regzbot.RegressionFull):
                             earliest_event = self._histevents[0]
                             latest_event = self._histevents[-1]
 
-                        with yattagdoc.tag('a', href='../regression/%s/' % earliest_event.entry):
+                        report_repsrc = actireport.repsrc
+                        with yattagdoc.tag('a', href='../regression/%s/%s/' % (report_repsrc.generic_name, report_repsrc.entryid)):
                              yattagdoc.text('activity')
                         yattagdoc.text(': ')
                         if earliest_event is latest_event:
@@ -346,7 +349,8 @@ class RegressionWeb(regzbot.RegressionFull):
                                     yattagdoc.text(', ')
 
                                 regression_duplicateof=self.get_by_regid(self.solved_duplicateof)
-                                with yattagdoc.tag('a', href='https://linux-regtracking.leemhuis.info/regzbot/regression/%s/' % regression_duplicateof._actim_report.entry):
+                                __dup_report_repsrc = regression_duplicateof._actim_report.repsrc
+                                with yattagdoc.tag('a', href='https://linux-regtracking.leemhuis.info/regzbot/regression/%s/%s/' % (__dup_report_repsrc.generic_name, __dup_report_repsrc.entryid)):
                                     with yattagdoc.tag('mark', style='background-color: #D0D0D0;'):
                                         yattagdoc.text("[is a duplicate]")
                         else:
@@ -551,8 +555,8 @@ class UnhandledEventWeb(regzbot.UnhandledEvent):
 class RegExportWeb():
     eventslist = list()
 
-    def __init__(self, entry, gmtime_report, gmtime_filed, gmtime_activity, gmtime_solved, treename, versionline, solved_reason, backburner, identified, htmlsnippet):
-        self.entry = entry
+    def __init__(self, repsrc, gmtime_report, gmtime_filed, gmtime_activity, gmtime_solved, treename, versionline, solved_reason, backburner, identified, htmlsnippet):
+        self.repsrc = repsrc
         self.gmtime_report = gmtime_report
         self.gmtime_filed = gmtime_filed
         self.gmtime_activity = gmtime_activity
@@ -676,7 +680,7 @@ class RegExportWeb():
         yattagdoc = yattag.Doc()
         cls.outpage_head(yattagdoc)
         with yattagdoc.tag('body'):
-            yattagdoc.asis('<base href="../">')
+            yattagdoc.asis('<base href="../../">')
             cls.outpage_header(yattagdoc, htmlpages, None)
             with yattagdoc.tag('table', style="width:100%;"):
                 with yattagdoc.tag('tr', style="vertical-align:top;"):
@@ -687,7 +691,7 @@ class RegExportWeb():
 
             yattagdoc.asis("<script>document.getElementById('regression-details').open = true;</script>")
             cls.outpage_footer(yattagdoc, unhandled_count)
-            cls.outpage_write('regression/%s' % regression.entry, yattagdoc)
+            cls.outpage_write('regression/%s/%s' % (regression.repsrc.generic_name, regression.repsrc.entryid), yattagdoc)
 
 
     @classmethod
@@ -1002,7 +1006,7 @@ function timeAgo(provided_date) {
                 last_activity=regression._actievents[-1].gmtime
             else:
                 last_activity=regression._histevents[-1].gmtime
-            regressionslist.append(cls(regression._actim_report.entry, regression.gmtime, regression.gmtime_filed,
+            regressionslist.append(cls(regression._actim_report.repsrc, regression.gmtime, regression.gmtime_filed,
                                                     last_activity, gmtime_solved, regression.treename,
                                                     regression.versionline, regression.solved_reason, regression.backburner, regression.identified,
                                                     regression.html()))
