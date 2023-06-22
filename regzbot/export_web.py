@@ -5,6 +5,7 @@
 __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
 import datetime
+import json
 import pathlib
 import os
 
@@ -930,6 +931,44 @@ function timeAgo(provided_date) {
 
         return categories
 
+    @classmethod
+    def regression_to_json(cls, regression):
+        regzbot_commands = list()
+        for h in regression._histevents:
+            regzbot_commands.append(
+                {
+                    "command": h.regzbotcmd,
+                    "author": h.author,
+                    "url": h.url(),
+                    "timestamp": datetime.datetime.fromtimestamp(h.gmtime, datetime.timezone.utc).isoformat(),
+                }
+            )
+
+        if regression.solved_gmtime:
+            solved_tstamp = datetime.datetime.fromtimestamp(regression.solved_gmtime, datetime.timezone.utc).isoformat()
+        else:
+            solved_tstamp = None
+        solved = {
+                "reason": regression.solved_reason,
+                "commit": regression.solved_entry,
+                "subject": regression.solved_subject,
+                "url": regression.solved_url,
+                "git_readable": regression._solved_entry_presentable,
+                "timestamp": solved_tstamp,
+            }
+
+        return {
+                "id": regression.regid,
+                "introduced": regression.introduced,
+                "subject": regression.subject,
+                "tree": regression.treename,
+                "timestamp": datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc).isoformat(),
+                "entry": regression._actim_report.entry,
+                "indentified": regression.identified,
+                "introduced_url": regression._introduced_url,
+                "regzbot_commands": regzbot_commands,
+                "solved": solved,
+        }
 
     @classmethod
     def compile(cls):
@@ -949,7 +988,9 @@ function timeAgo(provided_date) {
         if regzbot.is_running_citesting('offline'):
             events_gmtime_offset = 604800*52*10
 
+        json_data = list()
         for regression in RegressionWeb.get_all():
+            json_data.append(cls.regression_to_json(regression))
             event_intro = regression.event_intro()
             for event in regression.events(events_gmtime_offset, event_intro):
                 eventslist.append(event)
@@ -1026,5 +1067,8 @@ function timeAgo(provided_date) {
             publishscript = os.path.join(pathlib.Path.home(), '.local/share/regzbot/', 'pusblishwebsites.sh')
             if os.path.exists(publishscript):
                 os.system(publishscript)
+
+        with open(os.path.join(regzbot.WEBPAGEDIR, 'regressions.json'), 'w') as jsonfile:
+             jsonfile.write(json.dumps(json_data))
 
         logger.debug("[webpages] generated")
