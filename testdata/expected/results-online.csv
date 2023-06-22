@@ -629,7 +629,7 @@ HISTORY: Re: virtio-net: kernel panic in virtio_net.c, 1633679996, Thorsten Leem
 HISTORY: Re: virtio-net: kernel panic in virtio_net.c, 1634042690, Thorsten Leemhuis, https://lore.kernel.org/regressions/e2d474a4-c307-9f8e-d896-48d8d3acc9cb@leemhuis.info/, fixed-by: 732b74d647048668f0f8dc0c848f0746c69e2e2f
 HISTORY: virtio-net: fix for skb_over_panic inside big mode, 1634250099, Xuan Zhuo, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, fixed: 'fix' commit '732b74d64704' now in 'mainline'
 LATEST: 732b74d64704, the fix specified through '#regzbot fix:' earlier landed in mainline, Xuan Zhuo, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, 1634250099, PatchKind.0
-UNHANDLED: 1, https://lore.kernel.org/regressions/ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info/, unkown regzbot command: ignore-activitiy, 1633679996, None, Re: virtio-net: kernel panic in virtio_net.c, None, None, None
+UNHANDLED: 1, https://lore.kernel.org/regressions/ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info/, unknown regzbot command: ignore-activitiy, 1633679996, None, Re: virtio-net: kernel panic in virtio_net.c, None, None, None
 
 [onlntest_1_1]
 REGRESSION: virtio-net: kernel panic in virtio_net.c, v5.13..v5.14-rc1 (None), None, mainline, master, previous: culprit indentified
@@ -659,6 +659,6 @@ HISTORY: Re: virtio-net: kernel panic in virtio_net.c, 1633679996, Thorsten Leem
 HISTORY: Re: virtio-net: kernel panic in virtio_net.c, 1634042690, Thorsten Leemhuis, https://lore.kernel.org/regressions/e2d474a4-c307-9f8e-d896-48d8d3acc9cb@leemhuis.info/, fixed-by: 732b74d647048668f0f8dc0c848f0746c69e2e2f
 HISTORY: virtio-net: fix for skb_over_panic inside big mode, 1634250099, Xuan Zhuo, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, fixed: 'fix' commit '732b74d64704' now in 'mainline'
 LATEST: 732b74d64704, the fix specified through '#regzbot fix:' earlier landed in mainline, Xuan Zhuo, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=732b74d647048668f0f8dc0c848f0746c69e2e2f, 1634250099, PatchKind.0
-UNHANDLED: 1, https://lore.kernel.org/regressions/ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info/, unkown regzbot command: ignore-activitiy, 1633679996, None, Re: virtio-net: kernel panic in virtio_net.c, None, None, None
-UNHANDLED: 2, https://lore.kernel.org/regressions/ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info/, unkown regzbot command: ignore-activitiy, 1633679996, None, Re: virtio-net: kernel panic in virtio_net.c, None, None, None
+UNHANDLED: 1, https://lore.kernel.org/regressions/ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info/, unknown regzbot command: ignore-activitiy, 1633679996, None, Re: virtio-net: kernel panic in virtio_net.c, None, None, None
+UNHANDLED: 2, https://lore.kernel.org/regressions/ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info/, unknown regzbot command: ignore-activitiy, 1633679996, None, Re: virtio-net: kernel panic in virtio_net.c, None, None, None
 
