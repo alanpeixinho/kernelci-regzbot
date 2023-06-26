@@ -968,7 +968,7 @@ function timeAgo(provided_date) {
                 "tree": regression.treename,
                 "timestamp": datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc).isoformat(),
                 "url_regzbot": "https://linux-regtracking.leemhuis.info/regzbot/regression/%s/%s/" % (regression._actim_report.repsrc.generic_name, regression._actim_report.repsrc.entryid),
-                "indentified": regression.identified,
+                "identified": regression.identified,
                 "introduced_url": regression._introduced_url,
                 "regzbot_commands": regzbot_commands,
                 "solved": solved,
