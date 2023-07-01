@@ -19,7 +19,7 @@ In both cases ensure a blank line separates the line with this 'regzbot command'
 
 See below for a few other examples how to specify ranges, how to modify the version range later, or make regzbot and its consumers aware of additional places with further details.
 
-## How to let regzbot you are fixing a Linux kernel regression it tracks
+## How to inform regzbot you are fixing a Linux kernel regression it tracks
 
 Regzbot is designed to normally not create any additional chores for Linux kernel developers like you. But for that to work it's important you do something the [Linux kernel documentation specifies for a while already](https://www.kernel.org/doc/html/latest/process/submitting-patches.html): when fixing a regression, include a `Link:` tag with the URL to the report in the [mailing list archives on lore.kernel.org](https://lore.kernel.org/). This aspect is important for regzbot, as it allows the bot to connect the fix with the regression's report. That's needed so regzbot can do things automatically that otherwise would mean manual work for somebody — like marking the regression as resolved once the fix hits mainline.
 
