@@ -555,8 +555,8 @@ def process_msg(repsrc, msg):
 
             bugid = tmpstring.removeprefix('bugzilla.kernel.org/show_bug.cgi?id=')
             if bugid.isnumeric():
-                repsrc = regzbot.ReportSourceRaw.get_by_name('bugzilla.kernel.org')
-                regressionb = regzbot.RegressionBasic.get_by_repsrc_n_entry(repsrc, bugid)
+                target_repsrc = regzbot.ReportSourceRaw.get_by_name('bugzilla.kernel.org')
+                regressionb = regzbot.RegressionBasic.get_by_repsrc_n_entry(target_repsrc, bugid)
             else:
                 logger.debug(
                     "Tried to get bugid from %s, but failed", url)
