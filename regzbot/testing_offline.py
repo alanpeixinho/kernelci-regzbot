@@ -1138,7 +1138,7 @@ def offltest_2_15(funcname):
         funcname))
 
     replyto = 'test_2_0'
-    dupof = 'test_2_13_0'
+    dupof = 'test_2_14_0'
     subcounter = 0
     emaildirs['primary'].create_email(
         '%s_%s' % (funcname, subcounter), "#regzb dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com" % dupof,
