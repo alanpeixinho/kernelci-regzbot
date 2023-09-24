@@ -497,6 +497,8 @@ class RegressionWeb(regzbot.RegressionFull):
                               reportedby = ''
                           elif actireport.authorname == 'Unknown':
                               reportedby = ''
+                          elif not actireport.authormail:
+                              reportedby = "Reported-by: %s" % (actireport.authorname, )
                           else:
                               reportedby = "Reported-by: %s <%s>" % (actireport.authorname, actireport.authormail)
                           reports.append((reportedby, reportedlink))
