@@ -53,7 +53,7 @@ class RegressionMailReport(regzbot.RegressionFull):
         report = list()
         report.append(subject)
         report.append('-'*len(subject))
-        report.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s/%s/' % self._actim_report.repsrc.generic_name, self._actim_report.repsrc.entryid)
+        report.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s/%s/' % (self._actim_report.repsrc.generic_name, self._actim_report.repsrc.entryid))
         report.append(regzbot.ReportSourceRaw.get_by_id(self._actim_report.repsrcid).url(self._actim_report.entry))
         for regression in self._dupes:
             report.append(regzbot.ReportSourceRaw.get_by_id(regression._actim_report.repsrcid).url(regression._actim_report.entry))
