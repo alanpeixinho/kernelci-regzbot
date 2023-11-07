@@ -4,11 +4,12 @@
 # Copyright (C) 2021 by Thorsten Leemhuis
 __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
+import datetime
 import os
 import sys
 
 import regzbot
-import regzbot.lore
+import regzbot._trackers._gitlab as _gitlab
 import regzbot.export_csv
 
 logger = regzbot.logger
@@ -17,22 +18,21 @@ logger = regzbot.logger
 def init(tmpdir):
     regzbot.set_citesting('online')
     regzbot.basicressources_setup(
-        tmpdir=tmpdir, gittreesdir=True, databasedir=os.path.join(tmpdir, 'db-onlinetsts'))
+        tmpdir=tmpdir, gittreesdir=True, databasedir=os.path.join(tmpdir, 'db-trackertsts'))
     regzbot.basicressources_init(
-        tmpdir=tmpdir, gittreesdir=True, databasedir=os.path.join(tmpdir, 'db-onlinetsts'))
+        tmpdir=tmpdir, gittreesdir=True, databasedir=os.path.join(tmpdir, 'db-trackertsts'))
+    regzbot.GitTree.updateall()
 
 
 def run(resultfilename, tmpdir, _):
     init(tmpdir)
 
-    regzbot.GitTree.updateall()
-
     resultfile = open(resultfilename, 'a')
-    testfuncprefix = 'onlntest'
+    testfuncprefix = 'trackertest'
     this = sys.modules[__name__]
 
     outercount = 0
-    while '%s_%s_0' % (testfuncprefix, outercount) in dir(this):
+    while '%s_%s_0' % (testfuncprefix, outercount) in dir(sys.modules[__name__]):
         regzbot.db_rollback()
 
         innercount = 0
@@ -40,7 +40,7 @@ def run(resultfilename, tmpdir, _):
             # run test
             callfunction = getattr(this, '%s_%s_%s' %
                                    (testfuncprefix, outercount, innercount))
-            chk_mail, chk_git, wait = callfunction(
+            chk_git, wait = callfunction(
                 'test_%s_%s' % (outercount, innercount))
 
             if chk_git:
@@ -68,31 +68,9 @@ def run(resultfilename, tmpdir, _):
     regzbot.db_close()
 
 
-def onlntest_0_0(funcname):
-    regzbot.process_msg('a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info')
-    return False, False, False
+def trackertest_0_0(funcname):
+    instance = _gitlab.GlInstance("https://gitlab.com/", 'foobar')
+    project = instance.get_project('knurd42/linux')
+    project.scan(datetime.datetime.fromisoformat('2023-11-01T00:00:00.00Z'))
+    return False, True
 
-
-def onlntest_0_1(funcname):
-    regzbot.process_msg('6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info')
-    return False, False, False
-
-
-def onlntest_0_2(funcname):
-    regzbot.process_msg('438d711b-094b-fcfd-79e3-69f03a14df21@leemhuis.info')
-    return False, False, False
-
-# the last mail in the thread will only find the report by walking the thread
-def onlntest_0_3(funcname):
-    regzbot.process_msg('5f445dab-a152-bcaa-4462-1665998c3e2e@gmail.com')
-    return False, False, False
-
-def onlntest_1_0(funcname):
-    # uses ^introduced for a report in 5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com
-    regzbot.process_msg('ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info')
-    return False, False, False
-
-
-def onlntest_1_1(funcname):
-    regzbot.redo_regressions(['5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com', ])
-    return False, False, False

@@ -14,6 +14,7 @@ import sys
 
 import regzbot
 import regzbot.testing
+import regzbot._trackers
 
 logger = regzbot.logger
 
@@ -46,14 +47,17 @@ def cmd_report(cmdargs):
 
 def cmd_test(cmdargs):
     # which tests to run
-    testmodes = {
-        'offline': True,
-        'online': True,
-        }
-    if cmdargs.offline:
-        testmodes['online'] = False
-    if cmdargs.online:
-        testmodes['offline'] = False
+    cmdargs_dict = vars(cmdargs)
+    testmodes = {}
+    only = ''
+    for mode in regzbot.testing.SUPPORTED_TESTMODES.keys():
+        if cmdargs_dict[mode]:
+            only = mode
+    for mode in regzbot.testing.SUPPORTED_TESTMODES.keys():
+        if only and only != mode:
+            testmodes[mode] = False
+        else:
+            testmodes[mode] = True
 
     # run
     if cmdargs.tmpdir:
@@ -107,10 +111,9 @@ def cmd():
         sparser_test = subparsers.add_parser('test', help='run tests')
         sparser_test.add_argument(
             '--tmpdir', dest='tmpdir', default=None, help='Directory for creating repos and mails for testing')
-        sparser_test.add_argument(
-            '--offline', action='store_true', default=False, help='Run only offline tests')
-        sparser_test.add_argument(
-            '--online', action='store_true', default=False, help='Run only online tests')
+        for mode in regzbot.testing.SUPPORTED_TESTMODES.keys():
+            sparser_test.add_argument(
+                '--%s' % mode, action='store_true', default=False, help='Run only %s tests' % mode)
         sparser_test.set_defaults(func=cmd_test)
 
     # parse

@@ -16,26 +16,30 @@ import sys
 import shutil
 
 import regzbot
-import regzbot.testing_offline as offlinetst
-import regzbot.testing_online as onlinetst
+import regzbot.testing_offline
+import regzbot.testing_online
+import regzbot.testing_trackers
+
+SUPPORTED_TESTMODES = {
+        'offline': regzbot.testing_offline,
+        'online': regzbot.testing_online,
+#        'trackers': regzbot.testing_trackers
+    }
 
 logger = regzbot.logger
 
-
-def get_resultfiles(path_testdata, path_tmpdir):
+def __get_resultfiles(path_testdata, path_tmpdir):
     if not os.path.isdir(path_testdata):
         logger.critical("Directory for expexted results and template %s doesn't exist. Aborting.",
                         path_testdata)
         sys.exit(1)
 
-    results_expected = {
-        'offline': os.path.join(path_testdata, 'expected/results-offline.csv'),
-        'online': os.path.join(path_testdata, 'expected/results-online.csv'),
-    }
-    results_generated = {
-        'offline': os.path.join(os.path.join(path_tmpdir, 'testresults-offline.csv')),
-        'online': os.path.join(os.path.join(path_tmpdir, 'testresults-online.csv')),
-    }
+    results_expected = {}
+    results_generated = {}
+    for mode in SUPPORTED_TESTMODES.keys():
+        results_expected[mode] = os.path.join(path_testdata, 'expected/results-%s.csv' % mode)
+        results_generated[mode] = os.path.join(path_tmpdir, 'testresults-%s.csv' % mode)
+
     return results_expected, results_generated
 
 
@@ -66,17 +70,13 @@ def init(tmpdir):
 
 
 def run(testmodes, testdatapath, tmpdir):
-    results_expected, results_generated = get_resultfiles(
+    results_expected, results_generated = __get_resultfiles(
         testdatapath, tmpdir)
 
-    if testmodes['offline']:
-        offlinetst.run(results_generated['offline'], tmpdir, testdatapath)
+    for mode in SUPPORTED_TESTMODES.keys():
+        if testmodes[mode]:
+            SUPPORTED_TESTMODES[mode].run(results_generated[mode], tmpdir, testdatapath)
 
-    if testmodes['online']:
-        onlinetst.run(results_generated['online'], tmpdir)
-
-    if testmodes['offline']:
-        check_results(results_expected['offline'],
-                      results_generated['offline'])
-    if testmodes['online']:
-        check_results(results_expected['online'], results_generated['online'])
+    for mode in SUPPORTED_TESTMODES.keys():
+        if testmodes[mode]:
+            check_results(results_expected[mode], results_generated[mode])
