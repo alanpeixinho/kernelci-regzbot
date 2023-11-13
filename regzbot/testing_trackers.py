@@ -69,8 +69,10 @@ def run(resultfilename, tmpdir, _):
 
 
 def trackertest_0_0(funcname):
-    instance = _gitlab.GlInstance("https://gitlab.com/", 'foobar')
-    project = instance.get_project('knurd42/linux')
-    project.scan(datetime.datetime.fromisoformat('2023-11-01T00:00:00.00Z'))
+    regzbot.ReportSourceRaw.add('knurd42', 3,
+                 'https://gitlab.com/knurd42/linux',
+                 'gitlab', '<unused>')
+    regzbot.ReportSourceRaw.examine('https://gitlab.com/knurd42/linux/-/issues/1')
     return False, True
+
 

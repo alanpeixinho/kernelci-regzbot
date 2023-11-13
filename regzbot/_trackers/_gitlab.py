@@ -9,7 +9,9 @@ import gitlab
 import sys
 import urllib.parse
 
+
 import regzbot._rbcmd
+from regzbot import PatchKind
 import _trackers._base
 
 # ACCESS_TOKEN='glpat-_suzds25GyH9xdysFUyd'
@@ -27,26 +29,47 @@ else:
 
 
 class GlActivity(_trackers._base._activity):
-    def __init__(self, gl_issue, *, comment=None, commit=None, event=None):
-        self.gl_issue = gl_issue
+    def __init__(self, gl_issue, *, comment=None, comment_number=None, commit=None, event=None):
         self._glpy_comment = comment
         self._glpy_event = event
+        self.gl_issue = gl_issue
 
-        if self._glpy_comment:
+        self.comment_id = None
+        self.repsrc = self.gl_issue.repsrc
+        self.issue_id = self.gl_issue.id
+        self.patchkind = 0
+
+        summary_prefix = '%s, issue %s' % (self.gl_issue.gl_project.longname, self.issue_id)
+
+        if not any((comment, commit, event)):
+            self.created_at = gl_issue.created_at
+            self.message = gl_issue.message
+            self.realname = gl_issue.realname
+            self.summary = '%s: creation' % summary_prefix
+            self.username = gl_issue.username
+            self.web_url = gl_issue.web_url
+        elif self._glpy_comment:
+            import pprint
+            pprint.pprint(vars(self._glpy_comment))
+
             self.created_at = datetime.datetime.fromisoformat(self._glpy_comment.created_at)
+            self.comment_id = self._glpy_comment.id
             self.message = self._glpy_comment.body
             self.realname = self._glpy_comment.author['name']
             if commit:
-                self.summary = 'Commit referenced this issue'
+                self.patchkind = int(PatchKind.getby_commit_header(commit.message))
+                self.summary = '%s: gitlab noticed a commit referencing this issue' % summary_prefix
             else:
-                self.summary = 'New comment'
+                self.summary = '%s: new comment' % summary_prefix
+                if comment_number:
+                    self.summary = self.summary + '(#%s)' % comment_number
             self.username = self._glpy_comment.author['username']
-            self.web_url = '%s#note_%s' % (self.gl_issue.web_url, self._glpy_comment.id)
+            self.web_url = '%s#note_%s' % (self.gl_issue.web_url, self.comment_id)
         elif self._glpy_event:
             self.created_at = datetime.datetime.fromisoformat(self._glpy_event.created_at)
             self.message = ''
             self.realname = self._glpy_event.user['name']
-            self.summary = "State changed to: %s" % self._glpy_event.state
+            self.summary = "%s: state changed to: %s" % (summary_prefix, self._glpy_event.state)
             self.username = self._glpy_event.user['username']
             self.web_url = self.gl_issue.web_url
         else:
@@ -54,14 +77,16 @@ class GlActivity(_trackers._base._activity):
             sys.exit(1)
 
 
+
 class GlInstance():
-    def __init__(self, netloc, token):
-        logger.debug('[gitlab] %s: connecting', netloc.removeprefix('https://'))
-        self._glpy_instance = gitlab.Gitlab(netloc, token)
+    def __init__(self, netloc, token, repsrc):
+        logger.debug('[gitlab] %s: connecting', netloc)
+        self._glpy_instance = gitlab.Gitlab('https://%s' % netloc, token)
+        self.repsrc = repsrc
         self.web_url = netloc
 
     def get_project(self, projectname):
-        logger.debug('[gitlab] %s: opening project %s', self.web_url[8:], projectname)
+        logger.debug('[gitlab] %s: opening project %s', self.web_url, projectname)
         return GlProject(self, self._glpy_instance.projects.get(projectname))
 
 
@@ -71,10 +96,12 @@ class GlIssue(_trackers._base._issue):
         self.gl_project = gl_project
 
         self.created_at = datetime.datetime.fromisoformat(glpy_issue.created_at)
-        self.realname = glpy_issue.author['name']
+        self.id = glpy_issue.iid
         self.message = glpy_issue.description
+        self.realname = glpy_issue.author['name']
+        self.repsrc = gl_project.repsrc
         self.state = glpy_issue.state
-        self.title = glpy_issue.title
+        self.summary = glpy_issue.title
         self.username = glpy_issue.author['username']
         self.web_url = glpy_issue.web_url
 
@@ -94,7 +121,7 @@ class GlIssue(_trackers._base._issue):
             if '@' in commit_def:
                 projectname, hexsha = commit_def.split('@')
                 if '/' not in projectname:
-                    projectname = '%s/%s' % (self.gl_project.namespace_name, projectname)
+                    projectname = '%s/%s' % (self.gl_project.namespace_path, projectname)
                 gl_instance = self.gl_project.gl_instance
                 project = gl_instance.get_project(projectname)
             else:
@@ -105,10 +132,20 @@ class GlIssue(_trackers._base._issue):
         # walk comments (and thus commits) first, then events; that they will be raised out
         # of order is not a problem for now
         if not self.__acitivities:
+            # include issue creation as an activity
+            self.__acitivities.append(GlActivity(self))
+
             logger.debug('[gitlab] %s: retrieving comments', self.web_url[8:])
+            comment_counter = 0
             for comment in self._glpy_issue.notes.list(sort='asc', iterator=True):
                 commit = _get_commit(comment)
-                self.__acitivities.append(GlActivity(self, comment=comment, commit=commit))
+                # ignore all other system notes (e.g. notes about changes to the object, like
+                # assignee changes or changes to the issue's description)
+                if not commit and comment.system:
+                    continue
+                if not commit:
+                    comment_counter += 1
+                self.__acitivities.append(GlActivity(self, comment=comment, comment_number=comment_counter, commit=commit))
 
             logger.debug('[gitlab] %s: retrieving events', self.web_url[8:])
             for event in self._glpy_issue.resourcestateevents.list(sort='asc', iterator=True):
@@ -124,10 +161,12 @@ class GlProject(_trackers._base._project):
     def __init__(self, instance, project):
         self.gl_instance = instance
         self._glpy_project = project
-        self.name = self._glpy_project.name
+
+        self.longname = self._glpy_project.path_with_namespace
+        self.namespace_path = self._glpy_project.namespace['path']
+        self.repsrc = self.gl_instance.repsrc
+        self.shortname = self._glpy_project.name
         self.web_url = self._glpy_project.web_url
-        self.path_with_namespace = self._glpy_project.path_with_namespace
-        self.namespace_name = self._glpy_project.namespace['name']
 
     def get_commit(self, hexsha):
         logger.debug('[gitlab] %s: retrieving commit %s', self.web_url[8:], hexsha)
@@ -151,15 +190,15 @@ class GlProject(_trackers._base._project):
         for searchresult in self._glpy_project.search(gitlab.const.SearchScope.ISSUES, pattern, order_by='updated_at', sort='asc', iterator=True):
             if datetime.datetime.fromisoformat(searchresult['created_at']) < since:
                 continue
-            yield GhPossibleSearchHit(self, searchresult['iid'], pattern, since, is_hit_in_submission=True)
+            yield GlPossibleSearchHit(self, searchresult['iid'], pattern, since, is_hit_in_submission=True)
         logger.debug("[gitlab] %s: searching for '%s' in comments%s", self.web_url[8:], pattern, additional_msg)
         for searchresult in self._glpy_project.search(gitlab.const.SearchScope.PROJECT_NOTES, pattern, order_by='updated_at', sort='asc', iterator=True):
             if datetime.datetime.fromisoformat(searchresult['created_at']) < since:
                 continue
-            yield GhPossibleSearchHit(self, searchresult['noteable_iid'], pattern, since)
+            yield GlPossibleSearchHit(self, searchresult['noteable_iid'], pattern, since)
 
 
-class GhPossibleSearchHit(_trackers._base._possible_search_result):
+class GlPossibleSearchHit(_trackers._base._possible_search_result):
     def __init__(self, gl_project, issue_id, pattern, since, *, is_hit_in_submission=False):
         self._gl_project = gl_project
         self._issue = None
@@ -176,6 +215,54 @@ class GhPossibleSearchHit(_trackers._base._possible_search_result):
         return self._hit_in_submission
 
 
+class GlReportSource(regzbot.ReportSourceRaw):
+    @staticmethod
+    def _parse_serverurl(url):
+        parsed_url = urllib.parse.urlparse(url)
+        instancename = parsed_url.netloc
+        path = parsed_url.path.strip("/")
+        return instancename, path
+
+    def examine(self, url):
+        name_instance, name_project = self._parse_serverurl(self.serverurl)
+        url_instance, url_path = self._parse_serverurl(url)
+        issueid = url_path.removeprefix('%s/-/issues/' % name_project )
+
+        if name_instance != url_instance:
+            logger.critical('Instance name (%s) for this ReportSourceRaw and instance name for url (%s) do not match', name_instance, name_project)
+            sys.exit(1)
+        if not url_path.startswith(name_project):
+            logger.critical('Project name (%s) for this ReportSourceRaw and project name for url (%s) do not match', name_project, url_path)
+            sys.exit(1)
+        if not issueid.isdigit():
+            logger.critical("Parsing the IssueID of %s failed, '%s' is not an init", url, issueid)
+            sys.exit(1)
+
+        instance = GlInstance(name_instance, regzbot.CONFIGURATION[name_instance]['token'], self)
+        project = instance.get_project(name_project)
+        issue = project.get_issue(issueid)
+        issue.examine()
+
+    def get_searchpattern(self):
+        if not self.entryid:
+            logger.critical(
+                "ReportSource.get_searchpattern() called while self.entryid is unset")
+            sys.exit(1)
+        elif self.kind == 'generic':
+            return self.entryid
+        elif self.kind == 'bugzilla':
+            return '%s%s' % (self.weburl, self.entryid)
+        elif self.kind == 'lore':
+            return 'https://lore.kernel.org/.*/%s' % urlencode(self.entryid)
+        logger.critical(
+            "ReportSource.get_searchpattern() doesn't yet known how to return a URL for %s", self.kind)
+        return None
+
+    def supports_url(self, url):
+        if url.startswith(self.serverurl):
+            return True
+
+
 def __test():
     # main issue used for testing (chosen without much thought): https://gitlab.freedesktop.org/drm/intel/-/issues/8357
     TESTDATA = {
@@ -183,7 +270,7 @@ def __test():
         'issue': {
             'total': 17,
             'issue_id': 8357,
-            'expected': '''<class '__main__.GlIssue'> => {'created_at': '2023-04-11 16:17:04.368000+00:00', 'message': 'I'm working on a "hatch/jinlon" Chromebook which is a Cometlake-U device, and h…', 'realname': 'Ross Zwisler', 'state': 'closed', 'title': 'CML-U: external 5120x2160 monitor can't play video', 'username': 'zwisler', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/8357'}'''
+            'expected': '''<class '__main__.GlIssue'> => {'created_at': '2023-04-11 16:17:04.368000+00:00', 'message': 'I'm working on a "hatch/jinlon" Chromebook which is a Cometlake-U device, and h…', 'realname': 'Ross Zwisler', 'state': 'closed', 'summary': 'CML-U: external 5120x2160 monitor can't play video', 'username': 'zwisler', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/8357'}'''
         },
         'comments_recent': {
             'since': datetime.datetime.fromisoformat('2023-04-18T16:37:00.000Z'),
@@ -208,7 +295,7 @@ def __test():
             'pattern': '805f04d42a6b5f4187935b43c9c39ae03ccfa761',
             'since': datetime.datetime.fromisoformat('2022-08-26 00:00:01+00:00'),
             'total': 2,
-            'expected': '''<class '__main__.GlIssue'> => {'created_at': '2022-08-26 04:24:15.380000+00:00', 'message': 'I have a new Framework Laptop with an i7-1280P and Xe graphics, running Debian …', 'realname': 'Brian Tarricone', 'state': 'closed', 'title': '[regression] [bisected] Mouse cursor stuttering/jerkiness on Alder Lake with 5.…', 'username': 'kelnos', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/6679'}'''
+            'expected': '''<class '__main__.GlIssue'> => {'created_at': '2022-08-26 04:24:15.380000+00:00', 'message': 'I have a new Framework Laptop with an i7-1280P and Xe graphics, running Debian …', 'realname': 'Brian Tarricone', 'state': 'closed', 'summary': '[regression] [bisected] Mouse cursor stuttering/jerkiness on Alder Lake with 5.…', 'username': 'kelnos', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/6679'}'''
         },
         'search_days_updated': 1
     }
@@ -237,7 +324,7 @@ def __test():
         sys.exit(1)
 
     parsed_url = urllib.parse.urlparse(TESTDATA['project'])
-    name_instance = "%s://%s" % (parsed_url.scheme, parsed_url.netloc)
+    name_instance = parsed_url.netloc
     name_project = parsed_url.path.strip("/")
     instance = GlInstance(name_instance, sys.argv[1])
     project = instance.get_project(name_project)
@@ -299,7 +386,7 @@ def __test():
     print('All issues updated in the past %s days:' % TESTDATA['search_days_updated'])
     since = datetime.datetime.now() - datetime.timedelta(days=TESTDATA['search_days_updated'])
     for issue in project.get_issues_updated(since):
-        print('', issue.web_url, issue.title[0:80])
+        print('', issue.web_url, issue.summary[0:80])
 
 
 if __name__ == "__main__":

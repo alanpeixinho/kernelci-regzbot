@@ -7,6 +7,7 @@ __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
 import re
 
+import regzbot
 import regzbot._rbcmd as rbcmd
 
 
@@ -14,33 +15,35 @@ class _activity():
     def __str__(self):
         return _describe(self, ('created_at', 'message', 'realname', 'summary', 'username', 'web_url'))
 
+    # this should be removed once datetime objects are used everywhere
+    @property
+    def gmtime(self):
+        return int(self.created_at.timestamp())
+
+
 
 class _issue():
     def __str__(self):
-        return _describe(self, ('created_at', 'message', 'realname', 'state', 'title', 'username', 'web_url'))
+        return _describe(self, ('created_at', 'message', 'realname', 'state', 'summary', 'username', 'web_url'))
 
-    def scan(self, since):
-        def _scan_commands(body):
-            for foo in re.finditer('^(#regzbot ).*$', body, re.MULTILINE):
-                print(body, foo)
-        
-        _scan_command(self.message)
-        for activity in self.get_activities():
-            _contains_command(activity.message)
-            
+    def examine(self, since=None):
+        for activity in self.get_activities(since=since):
+            report_issue = regzbot.Report(self.repsrc, self.created_at, self.id, self.realname, self.summary, self.username, get_activities=self.get_activities())
+            report_rgzcmd = regzbot.Report(self.repsrc, activity.created_at, self.id, activity.realname, activity.summary, activity.username)
+            rbcmd.RbCmdStackNew.process_input(report_issue, report_rgzcmd, activity.message)
+
 
 
 class _project():
     def scan(self, since):
-        # 
-        # FIXME: check for updates
         #
-        
+        # FIXME: check for updates to already tracked tickets
+        #
+
         for searchresult in self.search('#regzbot', since):
-            # 
+            #
             # FIXME: ignore if issue is tracked already
             #
-
             issue = searchresult.issue
             issue.scan(since)
 

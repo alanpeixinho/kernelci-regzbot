@@ -38,7 +38,21 @@ class PatchKind(IntFlag):
     SIGNEDOFF = 4
 
     @staticmethod
-    def getby_content(content, subject=None):
+    def _checkfor_signed_off(content):
+        if re.search(r'^Signed-[oO]ff-[Bb]y: ', content, re.MULTILINE):
+            return PatchKind.SIGNEDOFF
+        return 0
+
+    @classmethod
+    def getby_commit_header(cls, content):
+        # diff and subject are always true here:
+        # diff and subject are always true here:
+        patchkind = PatchKind(PatchKind.DIFF | PatchKind.SUBJECT)
+        patchkind |= cls._checkfor_signed_off(content)
+        return patchkind
+
+    @classmethod
+    def getby_content(cls, content, subject=None):
         def checkfor_diff(content):
             if re.search(r'^\-\-\- .*\n\+\+\+.*\n@@', content, re.MULTILINE | re.DOTALL):
                 return PatchKind.DIFF
@@ -51,15 +65,10 @@ class PatchKind(IntFlag):
                 return PatchKind.SUBJECT
             return 0
 
-        def checkfor_signed_off(text):
-            if re.search(r'^Signed-[oO]ff-[Bb]y: ', content, re.MULTILINE):
-                return PatchKind.SIGNEDOFF
-            return 0
-
         patchkind = PatchKind(0)
         patchkind |= checkfor_diff(content)
         patchkind |= checkfor_subject(content, subject)
-        patchkind |= checkfor_signed_off(content)
+        patchkind |= cls._checkfor_signed_off(content)
 
         return patchkind
 
@@ -2450,6 +2459,12 @@ class ReportSourceRaw():
         self.lastchked = lastchked
         self.priority = priority
 
+    def __new__(cls, *args, **kwargs):
+        if args[4] == 'gitlab':
+            return super().__new__(_trackers._gitlab.GlReportSource)
+        else:
+            return super().__new__(cls)
+
     @cached_property
     def generic_name(self):
         if self.kind == 'lore':
@@ -2495,6 +2510,12 @@ class ReportSourceRaw():
         logger.debug('[db reportsources] failed to deleted entry (%s)', dbresult)
         return False
 
+    @staticmethod
+    def examine(url):
+        repsrc = ReportSourceRaw.get_by_url_new(url)
+        if not repsrc:
+            return False
+        return repsrc.examine(url)
 
     def ismail(self):
         if self.kind == 'lore':
@@ -2520,6 +2541,12 @@ class ReportSourceRaw():
         if dbresult:
             return ReportSourceRaw(*dbresult)
         return None
+
+    @staticmethod
+    def getall():
+        dbcursor = DBCON.cursor()
+        for dbresult in dbcursor.execute('SELECT * FROM reportsources'):
+            yield ReportSourceRaw(*dbresult)
 
     @staticmethod
     def getall_bykind(kind):
@@ -2554,7 +2581,18 @@ class ReportSourceRaw():
         return None
 
     @classmethod
+    def get_by_url_new(cls, url):
+        # FIXME:
+        # famous last words: hopefully I'll get around to remove the old "get_by_url" method and
+        # remove the new prefix from this one once some other bits on the roadmap fall into place
+        dbcursor = DBCON.cursor()
+        for repsrc in cls.getall():
+            if repsrc.supports_url(url):
+                return repsrc
+
+    @classmethod
     def get_by_url(cls, url):
+        # old code for classes not yet converted
         splitted_url = url.split('/')
         lowered_url = url.lower().split('/')
         if url.startswith('http://'):
@@ -2602,6 +2640,8 @@ class ReportSourceRaw():
                 return 'https://lore.kernel.org/r/%s/' % urlencode(entry)
             else:
                 return '%s%s/' % (self.weburl, urlencode(entry))
+        elif self.kind == 'gitlab':
+            return '%s/-/issues/%s' % (self.serverurl.removeprefix('/'), entry)
         logger.critical(
             "ReportSourceRaw doesn't yet known how to return a URL for %s", self.kind)
         return None
@@ -2612,11 +2652,31 @@ class ReportSourceRaw():
         dbcursor.execute('''UPDATE reportsources SET lastchked = (?) WHERE repsrcid=(?)''',
                          (self.lastchked, self.repsrcid))
 
+    def supports_url(self, url):
+        return False
+
+
+class Report():
+    def __init__(self, repsrc, created_at, entryid, realname, summary, username, *, get_activities=None):
+        self.repsrc = repsrc
+        self.created_at = created_at
+        self.entryid = entryid
+        self.get_activities = get_activities
+        self.gmtime = int(created_at.timestamp())
+        self.realname = realname
+        self.username = username
+        self.summary = summary
+
 
 class ReportSource(ReportSourceRaw):
     def __init__(self, *args):
         self.entryid = None
         super().__init__(*args)
+
+    def __new__(cls, *args, **kwargs):
+        # until this class can die: override the overridden ReportSourceRaw __new__,
+        # as we otherwise get classes like GlReportSource
+        return object.__new__(cls)
 
     @classmethod
     def get_by_id_n_entry(cls, repsrcid, entryid, dbcursor=None):
@@ -2640,6 +2700,8 @@ class ReportSource(ReportSourceRaw):
             return '%s%s' % (self.weburl, self.entryid)
         elif self.kind == 'lore':
             return 'https://lore.kernel.org/.*/%s' % urlencode(self.entryid)
+        elif self.kind == 'gitlab':
+            return '%s/-/issues/%s' % (self.serverurl.removeprefix('/'), self.entryid)
         logger.critical(
             "ReportSource.get_searchpattern() doesn't yet known how to return a URL for %s", self.kind)
         return None

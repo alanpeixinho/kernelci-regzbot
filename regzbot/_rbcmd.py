@@ -5,20 +5,25 @@
 __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
 import argparse
-import regzbot
-import regzbot._bugzilla as bz
-
+import re
 from urllib.parse import urlparse
 
-
-logger = regzbot.logger
+if __name__ != "__main__":
+    import regzbot
+    import regzbot._bugzilla as bz
+    logger = regzbot.logger
+else:
+    import logging
+    logger = logging
+    #if False:
+    if True:
+        logger.basicConfig(level=logging.DEBUG)
 
 
 class RbCmdSingle:
     def __init__(self, cmdsource, cmd, parameters):
         self.cmdsource = cmdsource
         self.origin = cmdsource.origin
-        self.regression = cmdsource.regression
         self.cmd = cmd
         self.parameters = parameters
 
@@ -208,3 +213,147 @@ class RbCmdStack:
             cmd.process()
 
         return self.regression
+
+
+class RbCmdSingleNew:
+    def __init__(self, rbcmd_stack, cmd, parameters):
+        self.rbcmd_stack = rbcmd_stack
+        self.report_issue = rbcmd_stack.report_issue
+        self.report_rzbcmd = rbcmd_stack.report_rzbcmd
+        self.cmd = cmd
+        self.parameters = parameters
+
+    def _introduced(self):
+        # add regression
+        regression = regzbot.RegressionBasic.introduced_create(
+                self.report_issue.repsrc.repsrcid,
+                self.report_issue.entryid,
+                self.report_issue.summary,
+                self.report_issue.realname,
+                self.report_issue.username,
+                self.parameters,
+                self.report_issue.gmtime)
+
+        # add all existing activities for the newly created regression
+        for activity in self.report_issue.get_activities:
+            regzbot.RegActivityEvent.event(
+                activity.gmtime,
+                activity.issue_id,
+                activity.summary,
+                activity.realname,
+                activity.repsrc.repsrcid,
+                actimonid=regression.actimonid,
+                patchkind=activity.patchkind,
+                subentry=activity.comment_id)
+
+        # add history event
+        return regression
+
+    def _add_history_event(self, regression):
+        regzbot.RegHistory.event(
+                regression.regid,
+                self.report_rzbcmd.gmtime,
+                self.report_rzbcmd.entryid,
+                self.report_rzbcmd.summary,
+                self.report_rzbcmd.realname,
+                repsrcid=self.report_rzbcmd.repsrc.repsrcid,
+                regzbotcmd='%s: %s' % (self.cmd, self.parameters))
+
+
+    def process(self, regression):
+        if self.cmd == 'introduced':
+            regression = self._introduced()
+        # finish up with adding the history event
+        self._add_history_event(regression)
+
+
+class RbCmdStackNew:
+    def __init__(self, report_issue, report_rzbcmd):
+        self._commands = []
+        self.regression = None
+        self.report_issue = report_issue
+        self.report_rzbcmd = report_rzbcmd
+
+    def _add_command(self, cmd, parameters):
+        cmdobj = RbCmdSingleNew(self, cmd, parameters)
+        self._commands.append(cmdobj)
+
+    def process_commands(self):
+        def _walk_commands():
+            # raise introduced commands first, poke commands last
+            for single_command in self._commands:
+                if single_command.cmd == 'introduced':
+                    yield single_command
+            for single_command in self._commands:
+                if single_command.cmd == 'introduced' or single_command.cmd == 'poke':
+                    continue
+                yield single_command
+            for single_command in self._commands:
+                if single_command.cmd == 'poke':
+                    yield single_command
+
+        for single_command in _walk_commands():
+            if single_command.cmd == 'introduced':
+                self.regression = single_command.process(None)
+            elif not self.regression:
+                raise RuntimeError
+            else:
+                single_command.process()
+
+        return self.regression
+
+    @staticmethod
+    def _parse(cmd_section):
+        # the following re has to deal with:
+        # - mails where a long regzbot commands will have a line break in them
+        # - mails or tickets, where multiple regzbot commands are separated by a semicolon
+        # hence:
+        # - "((^|\n|;\s+)#regzbot\s+)": find a '#regzbot' at the
+        #   * the beginning of the line
+        #   * after a newline
+        #   * after something like an '; '
+        # - (.*?): will contain the command we are looking for
+        # - (?=(;?\n\s*$|(;?\n|;\s)+#regzbot)): lookahead assertion to stop on
+        #   * the end of the section, as indicated by two newlines; optionally with a ; before the first and
+        #     space characters before the second)
+        #   * either a newline or a combination of semicolon and space characters that are followed '#regzbot'
+        for cmd_line_raw in re.finditer(r'((^|\n|;\s+)#regzbot\s+)(.*?)(?=(;?\n\s*$|;?\s+#regzbot))', cmd_section, re.MULTILINE | re.IGNORECASE | re.DOTALL):
+            # guess there is a better way to handle "#regzbot activity-\nignore" better, but whatever
+            cmd_line = re.sub(r'\-\n', '-', cmd_line_raw[3])
+            # remove linebreaks
+            cmd_line = re.sub(r'\s?\n', ' ', cmd_line)
+            # following split could be handled by above RE as well, but for the sake of readability is likely
+            # better kept separate:
+            # - ([\w-]+): will match the command
+            # - (:?\n?\s+): commands can end in a colon and are separated from parameters using at least one space;
+            #             optional, as not every command has parameters (optional)
+            # - (.*)?: the parameters (optional)
+            splitted = re.split(r'^([\w-]+)(:?\n?\s+)?(.*)?$', cmd_line)
+            yield(splitted[1], splitted[3])
+
+
+    @classmethod
+    def process_input(cls, report_issue, report_rzbcmd, body):
+        cmd_stack = None
+        # the following loop locates sections with regzbot commands; it adds a newline at the start and two at the end
+        # of the processed string, as the regzbot command might be right at the start or the end of the processed input
+        for cmd_section in re.finditer(r'^\n#regzbot.*\n\s*\n$', '\n' + body + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
+            for command, parameter in cls._parse(cmd_section[0]):
+                if not cmd_stack:
+                    cmd_stack = cls(report_issue, report_rzbcmd)
+                cmd_stack._add_command(command, parameter)
+            if cmd_stack:
+                cmd_stack.process_commands()
+
+
+if __name__ == "__main__":
+    __TESTDATA=[]
+    #__TESTDATA.append("#regzbot introduced foo")
+    #__TESTDATA.append("#regzbot introduced foo\n#regzbot title bar")
+    __TESTDATA.append("#regzbot  introduced\nfoo bar \nand more for and bar; and foobar, too;\n#regzbot ignore; #regzbot title foo;\n#regzbot title: baz;")
+    for i in __TESTDATA:
+        print('#########')
+        print('"""\n%s """' % i)
+        print()
+        RbCmdStackNew.process(i)
+        print('\n')
