@@ -223,31 +223,38 @@ class RbCmdSingleNew:
         self.cmd = cmd
         self.parameters = parameters
 
-    def _introduced(self):
-        # add regression
-        regression = regzbot.RegressionBasic.introduced_create(
-                self.report_issue.repsrc.repsrcid,
-                self.report_issue.entryid,
-                self.report_issue.summary,
-                self.report_issue.realname,
-                self.report_issue.username,
-                self.parameters,
-                self.report_issue.gmtime)
+    def _introduced(self, regression):
+        def _introduced_create():
+            # add regression
+            regression = regzbot.RegressionBasic.introduced_create(
+                    self.report_issue.repsrc.repsrcid,
+                    self.report_issue.entryid,
+                    self.report_issue.summary,
+                    self.report_issue.realname,
+                    self.report_issue.username,
+                    self.parameters,
+                    self.report_issue.gmtime)
+            # add all existing activities for the newly created regression
+            for activity in self.report_issue.get_activities:
+                regzbot.RegActivityEvent.event(
+                    activity.gmtime,
+                    activity.issue_id,
+                    activity.summary,
+                    activity.realname,
+                    activity.repsrc.repsrcid,
+                    actimonid=regression.actimonid,
+                    patchkind=activity.patchkind,
+                    subentry=activity.comment_id)
+            # return newly created regression
+            return regression
 
-        # add all existing activities for the newly created regression
-        for activity in self.report_issue.get_activities:
-            regzbot.RegActivityEvent.event(
-                activity.gmtime,
-                activity.issue_id,
-                activity.summary,
-                activity.realname,
-                activity.repsrc.repsrcid,
-                actimonid=regression.actimonid,
-                patchkind=activity.patchkind,
-                subentry=activity.comment_id)
+        def _introduced_update(regression):
+            regression.introduced_update(self.parameters)
 
-        # add history event
-        return regression
+        if not regression:
+            return _introduced_create()
+        return _introduced_update(regression)
+
 
     def _add_history_event(self, regression):
         regzbot.RegHistory.event(
@@ -261,10 +268,19 @@ class RbCmdSingleNew:
 
 
     def process(self, regression):
+        regression_created = False
         if self.cmd == 'introduced':
-            regression = self._introduced()
+            regression_created = self._introduced(regression)
+            if regression_created:
+                regression = regression_created
+
         # finish up with adding the history event
         self._add_history_event(regression)
+
+        # return the regression, which might have been created if a introduced command was used
+        if regression_created:
+            return regression
+        return None
 
 
 class RbCmdStackNew:
@@ -292,14 +308,14 @@ class RbCmdStackNew:
                 if single_command.cmd == 'poke':
                     yield single_command
 
+        self.regression = regzbot.RegressionBasic.get_by_repsrc_n_entry(self.report_issue.repsrc, self.report_issue.entryid)
         for single_command in _walk_commands():
             if single_command.cmd == 'introduced':
-                self.regression = single_command.process(None)
+                self.regression = single_command.process(self.regression)
             elif not self.regression:
                 raise RuntimeError
             else:
                 single_command.process()
-
         return self.regression
 
     @staticmethod

@@ -49,9 +49,6 @@ class GlActivity(_trackers._base._activity):
             self.username = gl_issue.username
             self.web_url = gl_issue.web_url
         elif self._glpy_comment:
-            import pprint
-            pprint.pprint(vars(self._glpy_comment))
-
             self.created_at = datetime.datetime.fromisoformat(self._glpy_comment.created_at)
             self.comment_id = self._glpy_comment.id
             self.message = self._glpy_comment.body
