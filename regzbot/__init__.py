@@ -2038,9 +2038,13 @@ class RegressionBasic():
 
     @staticmethod
     def monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime):
-        urltoreport = report_repsrc.url(report_msg['message-id'][1:-1])
-        UnhandledEvent.add(
-            urltoreport, errormsg, gmtime=gmtime, subject=report_msg['subject'])
+        if report_msg:
+            urltoreport = report_repsrc.url(report_msg['message-id'][1:-1])
+            UnhandledEvent.add(
+                urltoreport, errormsg, gmtime=gmtime, subject=report_msg['subject'])
+        else:
+            UnhandledEvent.add(
+                'unkown', errormsg, gmtime=gmtime)
         return False
 
     def monitoradd(self, tagload, gmtime, report_repsrc, report_msg):

@@ -223,6 +223,19 @@ class RbCmdSingleNew:
         self.cmd = cmd
         self.parameters = parameters
 
+    def _add_history_event(self, regression):
+        regzbotcmd = '%s' % self.cmd
+        if self.parameters:
+            regzbotcmd = '%s: %s' % (regzbotcmd, self.parameters)
+        regzbot.RegHistory.event(
+                regression.regid,
+                self.report_rzbcmd.gmtime,
+                self.report_rzbcmd.entryid,
+                self.report_rzbcmd.summary,
+                self.report_rzbcmd.realname,
+                repsrcid=self.report_rzbcmd.repsrc.repsrcid,
+                regzbotcmd=regzbotcmd)
+
     def _backburn(self, regression):
         regression.backburner_add(
                 self.report_rzbcmd.repsrc.repsrcid,
@@ -282,9 +295,26 @@ class RbCmdSingleNew:
                 commit_specifier,
                 commit_subject,
                 repsrcid=self.report_rzbcmd.repsrc.repsrcid,
-                repentry=self.report_rzbcmd.entryid
+                repentry=self.report_rzbcmd.entryid,
                 )
 
+    def _from(self, regression):
+        regression.update_author(
+                self.report_rzbcmd.entryid,
+                self.parameters,
+                )
+
+    def _inconclusive(self, regression):
+        regression.inconclusive(
+                self.parameters,
+                self.report_rzbcmd.gmtime,
+                self.report_rzbcmd.entryid,
+                self.report_issue.repsrc.repsrcid,
+                )
+
+    def _ignore_activity(self, regression):
+        # nothing to do here, handled elsewhere
+        pass
 
     def _introduced(self, regression):
         def _introduced_create():
@@ -296,7 +326,8 @@ class RbCmdSingleNew:
                     self.report_issue.realname,
                     self.report_issue.username,
                     self.parameters,
-                    self.report_issue.gmtime)
+                    self.report_issue.gmtime,
+                    )
             # add all existing activities for the newly created regression
             for activity in self.report_issue.get_activities:
                 regzbot.RegActivityEvent.event(
@@ -307,7 +338,8 @@ class RbCmdSingleNew:
                     activity.repsrc.repsrcid,
                     actimonid=regression.actimonid,
                     patchkind=activity.patchkind,
-                    subentry=activity.comment_id)
+                    subentry=activity.comment_id,
+                    )
             # return newly created regression
             return regression
 
@@ -318,25 +350,41 @@ class RbCmdSingleNew:
             return _introduced_create()
         return _introduced_update(regression)
 
+    def _link(self, regression):
+        regression.linkadd(
+                self.parameters,
+                self.report_rzbcmd.gmtime,
+                self.report_rzbcmd.realname,
+                )
+
+    def _monitor(self, regression):
+        regression.monitoradd(
+                self.parameters,
+                self.report_issue.gmtime,
+                self.report_issue.repsrc,
+                None,
+                )
+
+    def _poke(self, regression):
+        # nothing to do here, handled elsewhere
+        pass
+
     def _summary(self, regression):
         regression.title(self.parameters)
 
     def _unbackburn(self, regression):
         regression.backburner_remove()
 
-    def _add_history_event(self, regression):
-        regzbotcmd = '%s' % self.cmd
-        if self.parameters:
-            regzbotcmd = '%s: %s' % (regzbotcmd, self.parameters)
-        regzbot.RegHistory.event(
-                regression.regid,
-                self.report_rzbcmd.gmtime,
-                self.report_rzbcmd.entryid,
-                self.report_rzbcmd.summary,
-                self.report_rzbcmd.realname,
-                repsrcid=self.report_rzbcmd.repsrc.repsrcid,
-                regzbotcmd=regzbotcmd)
+    def _unlink(self, regression):
+        regression.linkremove(self.parameters)
 
+    def _unmonitor(self, regression):
+        regression.monitorremove(
+                self.parameters,
+                self.report_issue.gmtime,
+                self.report_issue.repsrc,
+                None,
+                )
 
     def process(self, regression):
         regression_created = False
@@ -344,10 +392,27 @@ class RbCmdSingleNew:
             regression_created = self._introduced(regression)
             if regression_created:
                 regression = regression_created
-        elif self.cmd in ('backburn', 'duplicate', 'duplicateof', 'fix', 'summary', 'unbackburn', ):
+        elif self.cmd in (
+                'backburn',
+                'duplicate',
+                'duplicateof',
+                'fix',
+                'from',
+                'link',
+                'ignore-activity',
+                'inconclusive',
+                'monitor',
+                'poke',
+                'resolve',
+                'summary',
+                'unbackburn',
+                'unlink',
+                'unmonitor',
+                ):
             getattr(self, '_%s' % self.cmd)(regression)
         else:
-            raise RuntimeError
+            regzbot.UnhandledEvent.add(
+                self.report_rzbcmd.web_url, "unknown regzbot command: %s" % self.cmd, gmtime=self.report_rzbcmd.gmtime, subject=self.report_rzbcmd.summary)
 
         # finish up with adding the history event
         self._add_history_event(regression)
@@ -375,6 +440,8 @@ class RbCmdStackNew:
             cmd = 'duplicate'
         elif cmd in ('dupof', 'duplicate-of'):
             cmd = 'duplicateof'
+        elif cmd in ('resolved', 'invalid'):
+            cmd = 'resolve'
         elif cmd in ('fixedby', 'fixed-by'):
             cmd = 'fix'
         elif cmd in ('subject', 'title'):
