@@ -223,6 +223,69 @@ class RbCmdSingleNew:
         self.cmd = cmd
         self.parameters = parameters
 
+    def _backburn(self, regression):
+        regression.backburner_add(
+                self.report_rzbcmd.repsrc.repsrcid,
+                self.report_rzbcmd.entryid,
+                self.report_rzbcmd.gmtime,
+                self.report_rzbcmd.realname,
+                self.parameters)
+
+    def _duplicate(self, regression):
+        regression.duplicate(
+                self.parameters,
+                self.report_rzbcmd.gmtime,
+                self.report_rzbcmd.entryid,
+                self.report_issue.summary,
+                self.report_rzbcmd.realname,
+                self.report_rzbcmd.repsrc.repsrcid)
+
+    def _duplicateof(self, regression):
+        regression.dupof(
+                self.parameters,
+                self.report_rzbcmd.gmtime,
+                self.report_rzbcmd.entryid,
+                self.report_issue.summary,
+                self.report_rzbcmd.realname,
+                self.report_rzbcmd.repsrc.repsrcid)
+
+    def _fix(self, regression):
+        # FIXME: this should not be here
+        def _remove_quoting_chars(pattern):
+            for character in (('(', ')'), "'", '"'):
+                if pattern.startswith(character[0]) and pattern.endswith(character[-1]):
+                    pattern = pattern[1:-1]
+            return pattern
+
+       # FIXME: this should not be here
+        def _spilttag_first_word(pattern):
+            pattern = pattern.split(maxsplit=1)
+            firstpart = pattern[0]
+            if len(pattern) > 1:
+                secondpart = pattern[1]
+            else:
+                secondpart = None
+            return firstpart, secondpart
+
+        # FIXME: this should not be here
+        commit_specifier, commit_subject = _spilttag_first_word(self.parameters)
+        if re.search('^[0-9a-fA-F]{8,40}', commit_specifier) is None:
+            # looks like this is no hexsha, so assume it's a commit summary
+            commit_specifier = None
+            commit_subject = _remove_quoting_chars(self.parameters)
+        else:
+            # ignore subject
+            commit_subject = None
+
+        regression.fixedby(
+                self.report_rzbcmd.gmtime,
+                commit_specifier,
+                commit_subject,
+                repsrcid=self.report_rzbcmd.repsrc.repsrcid,
+                repentry=self.report_rzbcmd.entryid
+                )
+
+
     def _introduced(self, regression):
         def _introduced_create():
             # add regression
@@ -255,8 +318,16 @@ class RbCmdSingleNew:
             return _introduced_create()
         return _introduced_update(regression)
 
+    def _summary(self, regression):
+        regression.title(self.parameters)
+
+    def _unbackburn(self, regression):
+        regression.backburner_remove()
 
     def _add_history_event(self, regression):
+        regzbotcmd = '%s' % self.cmd
+        if self.parameters:
+            regzbotcmd = '%s: %s' % (regzbotcmd, self.parameters)
         regzbot.RegHistory.event(
                 regression.regid,
                 self.report_rzbcmd.gmtime,
@@ -264,7 +335,7 @@ class RbCmdSingleNew:
                 self.report_rzbcmd.summary,
                 self.report_rzbcmd.realname,
                 repsrcid=self.report_rzbcmd.repsrc.repsrcid,
-                regzbotcmd='%s: %s' % (self.cmd, self.parameters))
+                regzbotcmd=regzbotcmd)
 
 
     def process(self, regression):
@@ -273,6 +344,10 @@ class RbCmdSingleNew:
             regression_created = self._introduced(regression)
             if regression_created:
                 regression = regression_created
+        elif self.cmd in ('backburn', 'duplicate', 'duplicateof', 'fix', 'summary', 'unbackburn', ):
+            getattr(self, '_%s' % self.cmd)(regression)
+        else:
+            raise RuntimeError
 
         # finish up with adding the history event
         self._add_history_event(regression)
@@ -291,6 +366,22 @@ class RbCmdStackNew:
         self.report_rzbcmd = report_rzbcmd
 
     def _add_command(self, cmd, parameters):
+        cmd = cmd.lower()
+
+        # catch a few frequent typos and handle renamed commands
+        if cmd in ('backburner', 'back-burner'):
+            cmd = 'backburn'
+        elif cmd in ('dup', ):
+            cmd = 'duplicate'
+        elif cmd in ('dupof', 'duplicate-of'):
+            cmd = 'duplicateof'
+        elif cmd in ('fixedby', 'fixed-by'):
+            cmd = 'fix'
+        elif cmd in ('subject', 'title'):
+            cmd = 'summary'
+        elif cmd in ('unback-burner', 'back-burner'):
+            cmd = 'unbackburn'
+
         cmdobj = RbCmdSingleNew(self, cmd, parameters)
         self._commands.append(cmdobj)
 
@@ -315,7 +406,7 @@ class RbCmdStackNew:
             elif not self.regression:
                 raise RuntimeError
             else:
-                single_command.process()
+                single_command.process(self.regression)
         return self.regression
 
     @staticmethod
