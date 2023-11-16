@@ -331,41 +331,22 @@ class RbCmdSingleNew:
                 )
 
     def _introduced(self, regression):
-        def __add_related_activities(regression):
-            # when creating a regression, add existing activities to the database; but only
-            # handle regzbot commands in activities that happened after the regression was
-            # added; this way we also won't process the commands in the activity
-            # we currently process, which might be in this list
-            actimon = regression.get_actimon()
-            for activity in self.activity_regression_report.all_related_activities():
-                if _ignore_activity(activity.message):
-                    pass
-                elif activity.created_at <= self.activity_containing_rzbcmd.created_at:
-                    actimon.add_activity(activity)
-                else:
-                    process_activity(activity)
+        # update exiting regression
+        if regression:
+            regression.introduced_update(self.parameters)
+            return None
 
-        def _introduced_create():
-            # add regression
-            regression = regzbot.RegressionBasic.introduced_create(
-                    self.activity_regression_report.repsrc.repsrcid,
-                    self.activity_regression_report.entryid,
-                    self.activity_regression_report.summary,
-                    self.activity_regression_report.realname,
-                    self.activity_regression_report.username,
-                    self.parameters,
-                    self.activity_regression_report.gmtime,
-                    )
-
-            return regression
-
-        if not regression:
-            regression = _introduced_create()
-            __add_related_activities(regression)
-            return regression
-
-        regression.introduced_update(self.parameters)
-        return None
+        # add regression
+        regression = regzbot.RegressionBasic.introduced_create(
+                self.activity_regression_report.repsrc.repsrcid,
+                self.activity_regression_report.entryid,
+                self.activity_regression_report.summary,
+                self.activity_regression_report.realname,
+                self.activity_regression_report.username,
+                self.parameters,
+                self.activity_regression_report.gmtime,
+                )
+        return regression
 
     def _link(self, regression):
         regression.linkadd(
@@ -534,13 +515,18 @@ def _parse(cmd_section):
         splitted = re.split(r'^([\w-]+)(:?\n?\s+)?(.*)?$', cmd_line)
         yield(splitted[1], splitted[3])
 
-def process_activity(activity):
+def process_activity(activity, rgzbcmds_since):
     # add activity when something is montitoring this
     for actimon in regzbot.RegActivityMonitor.get_by_activity(activity):
         # check for flags before adding a activity; note that the RE used below is derivated from one in
         # RbCmdStackNew._parse and explained in more detail there
         if not _ignore_activity(activity.message):
             actimon.add_activity(activity)
+
+    # when a regression is added and all activities walked, we in some cases only want to handle regzbot commands
+    # in acitivies that happened after the report was added
+    if rgzbcmds_since and activity.created_at <= rgzbcmds_since:
+        return
 
     # the following loop locates sections with regzbot commands seperated by newlines;
     # note, it adds a newline at the start and two at the end of the processed input, as the

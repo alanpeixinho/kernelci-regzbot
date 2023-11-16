@@ -29,6 +29,9 @@ class _activity():
         raise NotImplementedError
 
 class _issue():
+    def __init__(self):
+        self.__in_examine_already = False
+
     def __str__(self):
         return _describe(self, ('created_at', 'message', 'realname', 'state', 'summary', 'username', 'web_url'))
 
@@ -37,16 +40,20 @@ class _issue():
         # must be overridden by subclasses
         raise NotImplementedError
 
-    def examine(self, since=None):
+    def examine(self, *, rgzbcmds_since=None):
+        activity = None
         try:
-            for activity in self.get_activities(since=since):
-                rbcmd.process_activity(activity)
+            for activity in self.get_activities():
+                rbcmd.process_activity(activity, rgzbcmds_since=rgzbcmds_since)
         except rbcmd.RegressionCreatedException:
-            # this aborts the loop in case a regression for the issue has been newly created, as that will search and
-            # process all related activities using self.get_activities(), hence continuing here would process
-            # them a second time
-            pass
-
+            # the handled activity contained a #regzbot introduced that created a regression for this issue; in that
+            # case all activities (older and later ones) for it need to be added, so just do that; but only handle
+            # commands in newer activities, which will avoid that we run into an endless loop here
+            if self.__in_examine_already:
+                logger.critical('Endless loop detected, aborting.')
+                raise RuntimeError
+            self.__in_examine_already = True
+            self.examine(rgzbcmds_since=activity.created_at)
 
 
 class _project():

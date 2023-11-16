@@ -92,6 +92,7 @@ class GlInstance():
 
 class GlIssue(_trackers._base._issue):
     def __init__(self, gl_project, glpy_issue):
+        super().__init__()
         self._glpy_issue = glpy_issue
         self.gl_project = gl_project
 
