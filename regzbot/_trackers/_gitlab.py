@@ -54,7 +54,7 @@ class GlActivity(_trackers._base._activity):
             self.message = self._glpy_comment.body
             self.realname = self._glpy_comment.author['name']
             if commit:
-                self.patchkind = int(PatchKind.getby_commit_header(commit.message))
+                self.patchkind = PatchKind.getby_commit_header(commit.message)
                 self.summary = '%s: gitlab noticed a commit referencing this issue' % summary_prefix
             else:
                 self.summary = '%s: new comment' % summary_prefix
@@ -73,6 +73,9 @@ class GlActivity(_trackers._base._activity):
             logger.critical('[gitlab] GlActivity called with something unknown; aborting.')
             sys.exit(1)
 
+    def all_related_activities(self):
+        for acitiviy in self.gl_issue.get_activities():
+            yield acitiviy
 
 
 class GlInstance():

@@ -20,17 +20,32 @@ class _activity():
     def gmtime(self):
         return int(self.created_at.timestamp())
 
+    @property
+    def entryid(self):
+        return self.issue_id
 
+    def all_related_activities(self):
+        # must be overridden by subclasses
+        raise NotImplementedError
 
 class _issue():
     def __str__(self):
         return _describe(self, ('created_at', 'message', 'realname', 'state', 'summary', 'username', 'web_url'))
 
+    @classmethod
+    def get_activities(cls, *, since=None):
+        # must be overridden by subclasses
+        raise NotImplementedError
+
     def examine(self, since=None):
-        for activity in self.get_activities(since=since):
-            report_issue = regzbot.Report(self.repsrc, self.created_at, self.id, self.realname, self.summary, self.username, get_activities=self.get_activities())
-            report_rgzcmd = regzbot.Report(self.repsrc, activity.created_at, self.id, activity.realname, activity.summary, activity.username)
-            rbcmd.RbCmdStackNew.process_input(report_issue, report_rgzcmd, activity.message)
+        try:
+            for activity in self.get_activities(since=since):
+                rbcmd.process_activity(activity)
+        except rbcmd.RegressionCreatedException:
+            # this aborts the loop in case a regression for the issue has been newly created, as that will search and
+            # process all related activities using self.get_activities(), hence continuing here would process
+            # them a second time
+            pass
 
 
 

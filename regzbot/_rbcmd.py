@@ -20,6 +20,9 @@ else:
         logger.basicConfig(level=logging.DEBUG)
 
 
+class RegressionCreatedException(Exception):
+    pass
+
 class RbCmdSingle:
     def __init__(self, cmdsource, cmd, parameters):
         self.cmdsource = cmdsource
@@ -217,11 +220,26 @@ class RbCmdStack:
 
 class RbCmdSingleNew:
     def __init__(self, rbcmd_stack, cmd, parameters):
-        self.rbcmd_stack = rbcmd_stack
-        self.report_issue = rbcmd_stack.report_issue
-        self.report_rzbcmd = rbcmd_stack.report_rzbcmd
-        self.cmd = cmd
+        self.activity_regression_report = rbcmd_stack.activity_regression_report
+        self.activity_containing_rzbcmd = rbcmd_stack.activity_containing_rzbcmd
         self.parameters = parameters
+
+        # handle frequent typos, alternatives, and renamed commands
+        self.cmd = cmd.lower()
+        if self.cmd in ('backburner', 'back-burner'):
+            self.cmd = 'backburn'
+        elif self.cmd in ('dup', ):
+            self.cmd = 'duplicate'
+        elif self.cmd in ('dupof', 'duplicate-of'):
+            self.cmd = 'duplicateof'
+        elif self.cmd in ('resolved', 'invalid'):
+            self.cmd = 'resolve'
+        elif self.cmd in ('fixedby', 'fixed-by'):
+            self.cmd = 'fix'
+        elif self.cmd in ('subject', 'title'):
+            self.cmd = 'summary'
+        elif self.cmd in ('unback-burner', 'back-burner'):
+            self.cmd = 'unbackburn'
 
     def _add_history_event(self, regression):
         regzbotcmd = '%s' % self.cmd
@@ -229,38 +247,38 @@ class RbCmdSingleNew:
             regzbotcmd = '%s: %s' % (regzbotcmd, self.parameters)
         regzbot.RegHistory.event(
                 regression.regid,
-                self.report_rzbcmd.gmtime,
-                self.report_rzbcmd.entryid,
-                self.report_rzbcmd.summary,
-                self.report_rzbcmd.realname,
-                repsrcid=self.report_rzbcmd.repsrc.repsrcid,
+                self.activity_containing_rzbcmd.gmtime,
+                self.activity_containing_rzbcmd.entryid,
+                self.activity_containing_rzbcmd.summary,
+                self.activity_containing_rzbcmd.realname,
+                repsrcid=self.activity_containing_rzbcmd.repsrc.repsrcid,
                 regzbotcmd=regzbotcmd)
 
     def _backburn(self, regression):
         regression.backburner_add(
-                self.report_rzbcmd.repsrc.repsrcid,
-                self.report_rzbcmd.entryid,
-                self.report_rzbcmd.gmtime,
-                self.report_rzbcmd.realname,
+                self.activity_containing_rzbcmd.repsrc.repsrcid,
+                self.activity_containing_rzbcmd.entryid,
+                self.activity_containing_rzbcmd.gmtime,
+                self.activity_containing_rzbcmd.realname,
                 self.parameters)
 
     def _duplicate(self, regression):
         regression.duplicate(
                 self.parameters,
-                self.report_rzbcmd.gmtime,
-                self.report_rzbcmd.entryid,
-                self.report_issue.summary,
-                self.report_rzbcmd.realname,
-                self.report_rzbcmd.repsrc.repsrcid)
+                self.activity_containing_rzbcmd.gmtime,
+                self.activity_containing_rzbcmd.entryid,
+                self.activity_regression_report.summary,
+                self.activity_containing_rzbcmd.realname,
+                self.activity_containing_rzbcmd.repsrc.repsrcid)
 
     def _duplicateof(self, regression):
         regression.dupof(
                 self.parameters,
-                self.report_rzbcmd.gmtime,
-                self.report_rzbcmd.entryid,
-                self.report_issue.summary,
-                self.report_rzbcmd.realname,
-                self.report_rzbcmd.repsrc.repsrcid)
+                self.activity_containing_rzbcmd.gmtime,
+                self.activity_containing_rzbcmd.entryid,
+                self.activity_regression_report.summary,
+                self.activity_containing_rzbcmd.realname,
+                self.activity_containing_rzbcmd.repsrc.repsrcid)
 
     def _fix(self, regression):
         # FIXME: this should not be here
@@ -291,83 +309,78 @@ class RbCmdSingleNew:
             commit_subject = None
 
         regression.fixedby(
-                self.report_rzbcmd.gmtime,
+                self.activity_containing_rzbcmd.gmtime,
                 commit_specifier,
                 commit_subject,
-                repsrcid=self.report_rzbcmd.repsrc.repsrcid,
-                repentry=self.report_rzbcmd.entryid,
+                repsrcid=self.activity_containing_rzbcmd.repsrc.repsrcid,
+                repentry=self.activity_containing_rzbcmd.entryid,
                 )
 
     def _from(self, regression):
         regression.update_author(
-                self.report_rzbcmd.entryid,
+                self.activity_containing_rzbcmd.entryid,
                 self.parameters,
                 )
 
     def _inconclusive(self, regression):
         regression.inconclusive(
                 self.parameters,
-                self.report_rzbcmd.gmtime,
-                self.report_rzbcmd.entryid,
-                self.report_issue.repsrc.repsrcid,
+                self.activity_containing_rzbcmd.gmtime,
+                self.activity_containing_rzbcmd.entryid,
+                self.activity_regression_report.repsrc.repsrcid,
                 )
 
-    def _ignore_activity(self, regression):
-        # nothing to do here, handled elsewhere
-        pass
-
     def _introduced(self, regression):
+        def __add_related_activities(regression):
+            # when creating a regression, add existing activities to the database; but only
+            # handle regzbot commands in activities that happened after the regression was
+            # added; this way we also won't process the commands in the activity
+            # we currently process, which might be in this list
+            actimon = regression.get_actimon()
+            for activity in self.activity_regression_report.all_related_activities():
+                if _ignore_activity(activity.message):
+                    pass
+                elif activity.created_at <= self.activity_containing_rzbcmd.created_at:
+                    actimon.add_activity(activity)
+                else:
+                    process_activity(activity)
+
         def _introduced_create():
             # add regression
             regression = regzbot.RegressionBasic.introduced_create(
-                    self.report_issue.repsrc.repsrcid,
-                    self.report_issue.entryid,
-                    self.report_issue.summary,
-                    self.report_issue.realname,
-                    self.report_issue.username,
+                    self.activity_regression_report.repsrc.repsrcid,
+                    self.activity_regression_report.entryid,
+                    self.activity_regression_report.summary,
+                    self.activity_regression_report.realname,
+                    self.activity_regression_report.username,
                     self.parameters,
-                    self.report_issue.gmtime,
+                    self.activity_regression_report.gmtime,
                     )
-            # add all existing activities for the newly created regression
-            for activity in self.report_issue.get_activities:
-                regzbot.RegActivityEvent.event(
-                    activity.gmtime,
-                    activity.issue_id,
-                    activity.summary,
-                    activity.realname,
-                    activity.repsrc.repsrcid,
-                    actimonid=regression.actimonid,
-                    patchkind=activity.patchkind,
-                    subentry=activity.comment_id,
-                    )
-            # return newly created regression
+
             return regression
 
-        def _introduced_update(regression):
-            regression.introduced_update(self.parameters)
-
         if not regression:
-            return _introduced_create()
-        return _introduced_update(regression)
+            regression = _introduced_create()
+            __add_related_activities(regression)
+            return regression
+
+        regression.introduced_update(self.parameters)
+        return None
 
     def _link(self, regression):
         regression.linkadd(
                 self.parameters,
-                self.report_rzbcmd.gmtime,
-                self.report_rzbcmd.realname,
+                self.activity_containing_rzbcmd.gmtime,
+                self.activity_containing_rzbcmd.realname,
                 )
 
     def _monitor(self, regression):
         regression.monitoradd(
                 self.parameters,
-                self.report_issue.gmtime,
-                self.report_issue.repsrc,
+                self.activity_regression_report.gmtime,
+                self.activity_regression_report.repsrc,
                 None,
                 )
-
-    def _poke(self, regression):
-        # nothing to do here, handled elsewhere
-        pass
 
     def _summary(self, regression):
         regression.title(self.parameters)
@@ -381,17 +394,23 @@ class RbCmdSingleNew:
     def _unmonitor(self, regression):
         regression.monitorremove(
                 self.parameters,
-                self.report_issue.gmtime,
-                self.report_issue.repsrc,
+                self.activity_regression_report.gmtime,
+                self.activity_regression_report.repsrc,
                 None,
                 )
 
     def process(self, regression):
-        regression_created = False
+        regression_created = None
         if self.cmd == 'introduced':
             regression_created = self._introduced(regression)
             if regression_created:
                 regression = regression_created
+        elif self.cmd in (
+                'poke',
+                'ignore-activity',
+                ):
+            # these are flags releavent and handled when processing activities, so nothing to do here
+            pass
         elif self.cmd in (
                 'backburn',
                 'duplicate',
@@ -399,10 +418,8 @@ class RbCmdSingleNew:
                 'fix',
                 'from',
                 'link',
-                'ignore-activity',
                 'inconclusive',
                 'monitor',
-                'poke',
                 'resolve',
                 'summary',
                 'unbackburn',
@@ -412,23 +429,22 @@ class RbCmdSingleNew:
             getattr(self, '_%s' % self.cmd)(regression)
         else:
             regzbot.UnhandledEvent.add(
-                self.report_rzbcmd.web_url, "unknown regzbot command: %s" % self.cmd, gmtime=self.report_rzbcmd.gmtime, subject=self.report_rzbcmd.summary)
+                self.activity_containing_rzbcmd.web_url, "unknown regzbot command: %s" % self.cmd, gmtime=self.report_rzbcmd.gmtime, subject=self.report_rzbcmd.summary)
 
-        # finish up with adding the history event
-        self._add_history_event(regression)
+        # create the history event
+        if self.cmd is not 'ignore-activity':
+            self._add_history_event(regression)
 
-        # return the regression, which might have been created if a introduced command was used
-        if regression_created:
-            return regression
-        return None
+        # let caller know if we created a regression
+        return regression_created
 
 
 class RbCmdStackNew:
-    def __init__(self, report_issue, report_rzbcmd):
+    def __init__(self, activity):
         self._commands = []
-        self.regression = None
-        self.report_issue = report_issue
-        self.report_rzbcmd = report_rzbcmd
+        self.activity_containing_rzbcmd = activity
+        self.activity_regression_report = activity
+        self.regression = self._locate_regression()
 
     def _add_command(self, cmd, parameters):
         cmd = cmd.lower()
@@ -452,6 +468,9 @@ class RbCmdStackNew:
         cmdobj = RbCmdSingleNew(self, cmd, parameters)
         self._commands.append(cmdobj)
 
+    def _locate_regression(self):
+        return regzbot.RegressionBasic.get_by_activity(self.activity_regression_report)
+
     def process_commands(self):
         def _walk_commands():
             # raise introduced commands first, poke commands last
@@ -466,58 +485,77 @@ class RbCmdStackNew:
                 if single_command.cmd == 'poke':
                     yield single_command
 
-        self.regression = regzbot.RegressionBasic.get_by_repsrc_n_entry(self.report_issue.repsrc, self.report_issue.entryid)
+        regression_created = False
+        assert (self.activity_regression_report)
         for single_command in _walk_commands():
             if single_command.cmd == 'introduced':
-                self.regression = single_command.process(self.regression)
-            elif not self.regression:
-                raise RuntimeError
+                regression_created = single_command.process(self.regression)
+                if regression_created:
+                    self.regression = self._locate_regression()
+                    assert (self.regression)
             else:
+                assert (self.regression)
                 single_command.process(self.regression)
-        return self.regression
-
-    @staticmethod
-    def _parse(cmd_section):
-        # the following re has to deal with:
-        # - mails where a long regzbot commands will have a line break in them
-        # - mails or tickets, where multiple regzbot commands are separated by a semicolon
-        # hence:
-        # - "((^|\n|;\s+)#regzbot\s+)": find a '#regzbot' at the
-        #   * the beginning of the line
-        #   * after a newline
-        #   * after something like an '; '
-        # - (.*?): will contain the command we are looking for
-        # - (?=(;?\n\s*$|(;?\n|;\s)+#regzbot)): lookahead assertion to stop on
-        #   * the end of the section, as indicated by two newlines; optionally with a ; before the first and
-        #     space characters before the second)
-        #   * either a newline or a combination of semicolon and space characters that are followed '#regzbot'
-        for cmd_line_raw in re.finditer(r'((^|\n|;\s+)#regzbot\s+)(.*?)(?=(;?\n\s*$|;?\s+#regzbot))', cmd_section, re.MULTILINE | re.IGNORECASE | re.DOTALL):
-            # guess there is a better way to handle "#regzbot activity-\nignore" better, but whatever
-            cmd_line = re.sub(r'\-\n', '-', cmd_line_raw[3])
-            # remove linebreaks
-            cmd_line = re.sub(r'\s?\n', ' ', cmd_line)
-            # following split could be handled by above RE as well, but for the sake of readability is likely
-            # better kept separate:
-            # - ([\w-]+): will match the command
-            # - (:?\n?\s+): commands can end in a colon and are separated from parameters using at least one space;
-            #             optional, as not every command has parameters (optional)
-            # - (.*)?: the parameters (optional)
-            splitted = re.split(r'^([\w-]+)(:?\n?\s+)?(.*)?$', cmd_line)
-            yield(splitted[1], splitted[3])
+        return regression_created
 
 
-    @classmethod
-    def process_input(cls, report_issue, report_rzbcmd, body):
-        cmd_stack = None
-        # the following loop locates sections with regzbot commands; it adds a newline at the start and two at the end
-        # of the processed string, as the regzbot command might be right at the start or the end of the processed input
-        for cmd_section in re.finditer(r'^\n#regzbot.*\n\s*\n$', '\n' + body + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
-            for command, parameter in cls._parse(cmd_section[0]):
-                if not cmd_stack:
-                    cmd_stack = cls(report_issue, report_rzbcmd)
-                cmd_stack._add_command(command, parameter)
-            if cmd_stack:
-                cmd_stack.process_commands()
+def _ignore_activity(body):
+    # this RE is derivated from the one in _parse() and there explained in more detail
+    if re.search(r'((^|\n|;\s+)#regzbot\s+)(ignore-activity|poke)(?=(;?\n\s*$|;?\s+#regzbot))', '\n' + body + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
+        return True
+    return False
+
+
+def _parse(cmd_section):
+    # the following re has to deal with:
+    # - mails where a long regzbot commands will have a line break in them
+    # - mails or tickets, where multiple regzbot commands are separated by a semicolon
+    # hence:
+    # - "((^|\n|;\s+)#regzbot\s+)": find a '#regzbot' at the
+    #   * the beginning of the line
+    #   * after a newline
+    #   * after something like an '; '
+    # - (.*?): will contain the command we are looking for
+    # - (?=(;?\n\s*$|(;?\n|;\s)+#regzbot)): lookahead assertion to stop on
+    #   * the end of the section, as indicated by two newlines; optionally with a ; before the first and
+    #     space characters before the second)
+    #   * either a newline or a combination of semicolon and space characters that are followed '#regzbot'
+    for cmd_line_raw in re.finditer(r'((^|\n|;\s+)#regzbot\s+)(.*?)(?=(;?\n\s*$|;?\s+#regzbot))', cmd_section, re.MULTILINE | re.IGNORECASE | re.DOTALL):
+        # guess there is a better way to handle "#regzbot activity-\nignore" better, but whatever
+        cmd_line = re.sub(r'\-\n', '-', cmd_line_raw[3])
+        # remove linebreaks
+        cmd_line = re.sub(r'\s?\n', ' ', cmd_line)
+        # following split could be handled by above RE as well, but for the sake of readability is likely
+        # better kept separate:
+        # - ([\w-]+): will match the command
+        # - (:?\n?\s+): commands can end in a colon and are separated from parameters using at least one space;
+        #             optional, as not every command has parameters (optional)
+        # - (.*)?: the parameters (optional)
+        splitted = re.split(r'^([\w-]+)(:?\n?\s+)?(.*)?$', cmd_line)
+        yield(splitted[1], splitted[3])
+
+def process_activity(activity):
+    # add activity when something is montitoring this
+    for actimon in regzbot.RegActivityMonitor.get_by_activity(activity):
+        # check for flags before adding a activity; note that the RE used below is derivated from one in
+        # RbCmdStackNew._parse and explained in more detail there
+        if not _ignore_activity(activity.message):
+            actimon.add_activity(activity)
+
+    # the following loop locates sections with regzbot commands seperated by newlines;
+    # note, it adds a newline at the start and two at the end of the processed input, as the
+    # regzbot command might be right at its start or end
+    regression_created = None
+    for cmd_section in re.finditer(r'^\n#regzbot.*\n\s*\n$', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
+        cmd_stack = RbCmdStackNew(activity)
+        for command, parameter in _parse(cmd_section[0]):
+            cmd_stack._add_command(command, parameter)
+        regression_created = cmd_stack.process_commands()
+
+    # let the caller know when a regression was introduced, as it likely mus stop processing related acitivies now, a
+    # they were processed already when the regression was added to pick up all related (incuding earlier) activities
+    if regression_created:
+        raise RegressionCreatedException
 
 
 if __name__ == "__main__":

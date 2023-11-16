@@ -791,6 +791,25 @@ class RegActivityMonitor():
         self.authormail = authormail
         self.lastchk = lastchk
 
+    def add_activity(self, activity):
+        RegActivityEvent.event(
+            activity.gmtime,
+            activity.issue_id,
+            activity.summary,
+            activity.realname,
+            activity.repsrc.repsrcid,
+            patchkind=activity.patchkind,
+            subentry=activity.comment_id,
+            actimonid=self.actimonid,
+            )
+
+    @staticmethod
+    def get_by_activity(activity):
+        dbcursor = DBCON.cursor()
+        for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE repsrcid=(?) AND entry=(?)', (activity.repsrc.repsrcid, activity.entryid)):
+            yield RegActivityMonitor(*dbresult)
+
+
     @cached_property
     def repsrc(self):
         return ReportSource.get_by_id_n_entry(self.repsrcid, self.entry)
@@ -814,9 +833,6 @@ class RegActivityMonitor():
 
     @staticmethod
     def add(regid, repsrcid, entry, gmtime, subject, authorname, authormail):
-        logger.debug('[db actmonitor] inserting (regid:%s, repsrcid:%s, entry:%s, gmtime:%s, subject:%s, authorname:%s, authormail:%s)' % (
-            regid, repsrcid, entry, gmtime, subject, authorname, authormail))
-
         dbcursor = DBCON.cursor()
         dbcursor.execute('''INSERT INTO actmonitor
                             (regid, repsrcid, entry, gmtime, subject, authorname, authormail)
@@ -1501,6 +1517,9 @@ class RegressionBasic():
         self.solved_repentry = solved_repentry
         self.solved_duplicateof = solved_duplicateof
 
+    def get_actimon(self):
+        return RegActivityMonitor.get_by_entry(self.actimonid)
+
     @staticmethod
     def db_create(version, dbcursor):
         logger.debug('Initializing new dbtable "regressions"')
@@ -1606,6 +1625,15 @@ class RegressionBasic():
 
         if dbresult:
             yield cls(*dbresult)
+        return None
+
+    @classmethod
+    def get_by_activity(cls, activity):
+        dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute(
+            'SELECT %s FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.repsrcid=? AND actmonitor.entry=?' % RegressionBasic.DBCOLS, (activity.repsrc.repsrcid, activity.entryid)).fetchone()
+        if dbresult:
+            return cls(*dbresult)
         return None
 
     @classmethod
@@ -2658,18 +2686,6 @@ class ReportSourceRaw():
 
     def supports_url(self, url):
         return False
-
-
-class Report():
-    def __init__(self, repsrc, created_at, entryid, realname, summary, username, *, get_activities=None):
-        self.repsrc = repsrc
-        self.created_at = created_at
-        self.entryid = entryid
-        self.get_activities = get_activities
-        self.gmtime = int(created_at.timestamp())
-        self.realname = realname
-        self.username = username
-        self.summary = summary
 
 
 class ReportSource(ReportSourceRaw):
