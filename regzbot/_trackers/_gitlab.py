@@ -216,7 +216,7 @@ class GlPossibleSearchHit(_trackers._base._possible_search_result):
         return self._hit_in_submission
 
 
-class GlReportSource(regzbot.ReportSourceRaw):
+class GlReportSource(regzbot.ReportSource):
     @staticmethod
     def _parse_serverurl(url):
         parsed_url = urllib.parse.urlparse(url)
@@ -224,40 +224,24 @@ class GlReportSource(regzbot.ReportSourceRaw):
         path = parsed_url.path.strip("/")
         return instancename, path
 
-    def examine(self, url):
+    def get_entry(self, url):
         name_instance, name_project = self._parse_serverurl(self.serverurl)
         url_instance, url_path = self._parse_serverurl(url)
         issueid = url_path.removeprefix('%s/-/issues/' % name_project )
 
         if name_instance != url_instance:
-            logger.critical('Instance name (%s) for this ReportSourceRaw and instance name for url (%s) do not match', name_instance, name_project)
+            logger.critical('Instance name (%s) for this ReportSource and instance name for url (%s) do not match', name_instance, name_project)
             sys.exit(1)
         if not url_path.startswith(name_project):
-            logger.critical('Project name (%s) for this ReportSourceRaw and project name for url (%s) do not match', name_project, url_path)
+            logger.critical('Project name (%s) for this ReportSource and project name for url (%s) do not match', name_project, url_path)
             sys.exit(1)
         if not issueid.isdigit():
             logger.critical("Parsing the IssueID of %s failed, '%s' is not an init", url, issueid)
             sys.exit(1)
-
         instance = GlInstance(name_instance, regzbot.CONFIGURATION[name_instance]['token'], self)
         project = instance.get_project(name_project)
-        issue = project.get_issue(issueid)
-        issue.examine()
+        return project.get_issue(issueid)
 
-    def get_searchpattern(self):
-        if not self.entryid:
-            logger.critical(
-                "ReportSource.get_searchpattern() called while self.entryid is unset")
-            sys.exit(1)
-        elif self.kind == 'generic':
-            return self.entryid
-        elif self.kind == 'bugzilla':
-            return '%s%s' % (self.weburl, self.entryid)
-        elif self.kind == 'lore':
-            return 'https://lore.kernel.org/.*/%s' % urlencode(self.entryid)
-        logger.critical(
-            "ReportSource.get_searchpattern() doesn't yet known how to return a URL for %s", self.kind)
-        return None
 
     def supports_url(self, url):
         if url.startswith(self.serverurl):

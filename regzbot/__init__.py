@@ -674,7 +674,7 @@ class GitTree():
             if domain =='lore.kernel.org' and msgid:
                 regressions = RegressionFull.get_by_entry(msgid)
             elif domain =='bugzilla.kernel.org' and msgid:
-                repsrc = ReportSourceRaw.get_by_name('bugzilla.kernel.org')
+                repsrc = ReportSource.get_by_name('bugzilla.kernel.org')
                 regressions = RegressionFull.get_by_repsrc_n_entry(repsrc, msgid)
             else:
                 regressions = RegressionFull.get_by_entry(url)
@@ -812,7 +812,7 @@ class RegActivityMonitor():
 
     @cached_property
     def repsrc(self):
-        return ReportSource.get_by_id_n_entry(self.repsrcid, self.entry)
+        return ReportSourceObsolete.get_by_id_n_entry(self.repsrcid, self.entry)
 
     @staticmethod
     def db_create(version, dbcursor):
@@ -1010,7 +1010,7 @@ class RegActivityEvent():
             dbcursor = DBCON.cursor()
 
         # delete related activities
-        if self.repsrcid and ReportSourceRaw.get_by_id(self.repsrcid, dbcursor).ismail():
+        if self.repsrcid and ReportSource.get_by_id(self.repsrcid, dbcursor).ismail():
             RecordProcessedMsgids.delete(self.entry)
 
         # delete
@@ -1170,7 +1170,7 @@ class RegActivityEvent():
     def url(self):
         if self.repsrcid is None:
             return GitBranch.url_by_id(self.gitbranchid, self.entry)
-        return ReportSourceRaw.url_by_id(self.repsrcid, self.entry, subentry=self.subentry)
+        return ReportSource.url_by_id(self.repsrcid, self.entry, subentry=self.subentry)
 
 class RegBackburner():
     def __init__(self, regid, repsrcid, entry, gmtime, author, subject, timelimit):
@@ -1237,7 +1237,7 @@ class RegBackburner():
         return False
 
     def report_url(self):
-        return ReportSourceRaw.url_by_id(self.repsrcid, self.entry)
+        return ReportSource.url_by_id(self.repsrcid, self.entry)
 
 
 class RegHistory():
@@ -1274,7 +1274,7 @@ class RegHistory():
         if not dbcursor:
             dbcursor = DBCON.cursor()
 
-        if self.repsrcid and ReportSourceRaw.get_by_id(self.repsrcid, dbcursor).ismail():
+        if self.repsrcid and ReportSource.get_by_id(self.repsrcid, dbcursor).ismail():
             RecordProcessedMsgids.delete(self.entry)
 
         dbcursor.execute('''DELETE FROM reghistory
@@ -1371,7 +1371,7 @@ class RegHistory():
         if self.gitbranchid is not None:
             return GitBranch.url_by_id(self.gitbranchid, self.entry)
         elif self.repsrcid is not None:
-            return ReportSourceRaw.url_by_id(self.repsrcid, self.entry)
+            return ReportSource.url_by_id(self.repsrcid, self.entry)
         return None
 
 
@@ -1387,7 +1387,7 @@ class RegLink():
         if link is not None:
             self.link = link
         else:
-            self.link = ReportSourceRaw.url_by_id(self.repsrcid, self.entry)
+            self.link = ReportSource.url_by_id(self.repsrcid, self.entry)
 
     @staticmethod
     def db_create(version, dbcursor):
@@ -1573,7 +1573,7 @@ class RegressionBasic():
             link.delete(dbcursor=dbcursor)
 
         # FIXME: tmp disabled
-        # if self.repsrcid and ReportSourceRaw.get_by_id(self.repsrcid, dbcursor).ismail():
+        # if self.repsrcid and ReportSource.get_by_id(self.repsrcid, dbcursor).ismail():
         #    RecordProcessedMsgids.delete(self.entry)
 
         dbcursor.execute('''DELETE FROM regressions
@@ -1752,7 +1752,7 @@ class RegressionBasic():
         RegActivityEvent.event(
             gmtime, entry, subject, author=author, repsrcid=repsrcid, regid=regid)
         logger.info('regression[%s, "%s"]: link to this regression found in "%s" (%s)' % (
-            regid, regression.subject, subject, ReportSourceRaw.url_by_id(repsrcid, entry)))
+            regid, regression.subject, subject, ReportSource.url_by_id(repsrcid, entry)))
 
     @classmethod
     def __introduced_precheck(cls, introduced, gmtime=None):
@@ -1794,7 +1794,7 @@ class RegressionBasic():
 
         # check if it already got fixed
         regression = cls.get_by_regid(regid)
-        repsrc = ReportSource.get_by_id_n_entry(repsrcid, entry)
+        repsrc = ReportSourceObsolete.get_by_id_n_entry(repsrcid, entry)
         GitTree.search_references(repsrc, regression, gmtime=gmtime)
 
         return regression
@@ -1823,7 +1823,7 @@ class RegressionBasic():
 
     def __create_dup(self, url, gmtime):
         subject = self.subject
-        repsrc, entry = ReportSourceRaw.get_by_url(url)
+        repsrc, entry = ReportSource.get_by_url(url)
 
         # defaults that normally will be overridden
         authorname = 'Unknown'
@@ -1833,7 +1833,7 @@ class RegressionBasic():
         return self.__create(self.introduced, self.gitbranchid, repsrc.repsrcid, entry, gmtime, subject, authorname, authormail)
 
 
-    def duplicate(self, tagload, gmtime, msgid, msgsubject, authorname, repsrcid):
+    def cmd_duplicate_obsolete(self, tagload, gmtime, msgid, msgsubject, authorname, repsrcid):
         def parse(tagload):
             tagload = tagload.split(maxsplit=1)
             url = tagload[0]
@@ -2098,7 +2098,7 @@ class RegressionBasic():
             self.monitoradd_direct(
                 target_repsrcraw.repsrcid, target_gmtime, target_msgid, target_subject, target_author, target_authormail)
         else:
-            repsrc = ReportSourceRaw.get_byweburl(
+            repsrc = ReportSource.get_byweburl(
                 '%%%s/%s%%' % (domain, mailinglist))
             if repsrc is None:
                 errormsg = "unable to monitor thread %s, mailinglist unkown" % link
@@ -2111,10 +2111,10 @@ class RegressionBasic():
         if not is_running_citesting('offline'):
             lore.process_replies(target_msgid)
         else:
-            target_repsrcraw, _ = ReportSourceRaw.get_by_url(link)
+            target_repsrcraw, _ = ReportSource.get_by_url(link)
 
         # check if a reference to this was mentioned in the git logs
-        target_repsrc = ReportSource.get_by_id_n_entry(target_repsrcraw.repsrcid, target_msgid)
+        target_repsrc = ReportSourceObsolete.get_by_id_n_entry(target_repsrcraw.repsrcid, target_msgid)
         GitTree.search_references(target_repsrc, self)
 
     def monitorremove(self, tagload, gmtime, report_repsrc, report_msg):
@@ -2127,7 +2127,7 @@ class RegressionBasic():
                             self.regid, self.subject, errormsg)
             return self.monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime)
 
-        repsrc = ReportSourceRaw.get_byweburl('%%%s/%s%%' % (domain, mailinglist))
+        repsrc = ReportSource.get_byweburl('%%%s/%s%%' % (domain, mailinglist))
         if repsrc is None:
             errormsg = "unable to unmonitor thread %s, mailinglist unkown" % link
             logger.critical('regression[%s, "%s"]: %s',
@@ -2136,7 +2136,7 @@ class RegressionBasic():
 
         if RegActivityMonitor.remove(self.regid, repsrc.repsrcid, msgid):
             logger.info('regression[%s, "%s"]: stopped monitoring %s' % (
-                self.regid, self.subject, ReportSourceRaw.url_by_id(repsrc.repsrcid, msgid)))
+                self.regid, self.subject, ReportSource.url_by_id(repsrc.repsrcid, msgid)))
             return True
         else:
             errormsg = "thread %s is not monitored, thus unable to unmonitor it" % link
@@ -2270,7 +2270,7 @@ class RegressionFull(RegressionBasic):
         # FIXMELATER: link to fixes in next that are supposed to fix this, but haven't reach master yet
         #
         elif self.solved_repsrcid:
-            self.solved_url = ReportSourceRaw.url_by_id(
+            self.solved_url = ReportSource.url_by_id(
                 self.solved_repsrcid, self.solved_repentry)
         else:
             self.solved_url = None
@@ -2480,7 +2480,7 @@ class UnhandledEvent():
             yield cls(*dbresult)
 
 
-class ReportSourceRaw():
+class ReportSource():
     def __init__(self, repsrcid, priority, name, serverurl, kind, weburl, identifiers, lastchked):
         self.repsrcid = repsrcid
         self.name = name
@@ -2544,10 +2544,10 @@ class ReportSourceRaw():
 
     @staticmethod
     def examine(url):
-        repsrc = ReportSourceRaw.get_by_url_new(url)
-        if not repsrc:
+        repentry = ReportThread.from_url(url)
+        if not repentry:
             return False
-        return repsrc.examine(url)
+        return repentry.examine()
 
     def ismail(self):
         if self.kind == 'lore':
@@ -2571,20 +2571,20 @@ class ReportSourceRaw():
         dbresult = dbcursor.execute(
             'SELECT * FROM reportsources WHERE weburl LIKE (?)', (url, )).fetchone()
         if dbresult:
-            return ReportSourceRaw(*dbresult)
+            return ReportSource(*dbresult)
         return None
 
     @staticmethod
     def getall():
         dbcursor = DBCON.cursor()
         for dbresult in dbcursor.execute('SELECT * FROM reportsources'):
-            yield ReportSourceRaw(*dbresult)
+            yield ReportSource(*dbresult)
 
     @staticmethod
     def getall_bykind(kind):
         dbcursor = DBCON.cursor()
         for dbresult in dbcursor.execute('SELECT * FROM reportsources WHERE kind=(?) ORDER BY priority ASC', (kind, )):
-            yield ReportSourceRaw(*dbresult)
+            yield ReportSource(*dbresult)
 
     @staticmethod
     def get_by_name(name):
@@ -2592,7 +2592,7 @@ class ReportSourceRaw():
         dbresult = dbcursor.execute(
             'SELECT * FROM reportsources WHERE name LIKE (?)', (name, )).fetchone()
         if dbresult:
-             return ReportSourceRaw(*dbresult)
+             return ReportSource(*dbresult)
 
     @staticmethod
     def get_by_identifier(identifier):
@@ -2600,7 +2600,7 @@ class ReportSourceRaw():
         dbresult = dbcursor.execute(
             'SELECT * FROM reportsources WHERE identifiers LIKE (?)', ('%%%s%%' % identifier, )).fetchone()
         if dbresult:
-            return ReportSourceRaw(*dbresult)
+            return ReportSource(*dbresult)
         return None
 
     @staticmethod
@@ -2609,18 +2609,8 @@ class ReportSourceRaw():
         dbresult = dbcursor.execute(
             'SELECT * FROM reportsources WHERE serverurl LIKE (?)', (serverurl, )).fetchone()
         if dbresult:
-            return ReportSourceRaw(*dbresult)
+            return ReportSource(*dbresult)
         return None
-
-    @classmethod
-    def get_by_url_new(cls, url):
-        # FIXME:
-        # famous last words: hopefully I'll get around to remove the old "get_by_url" method and
-        # remove the new prefix from this one once some other bits on the roadmap fall into place
-        dbcursor = DBCON.cursor()
-        for repsrc in cls.getall():
-            if repsrc.supports_url(url):
-                return repsrc
 
     @classmethod
     def get_by_url(cls, url):
@@ -2643,7 +2633,7 @@ class ReportSourceRaw():
                 return repsrc, ticketid
         elif lowered_url[2] == 'lore.kernel.org':
             if lowered_url[3] == 'all':
-                logger.debug('ReportSourceRaw.get_by_url: FIXME')
+                logger.debug('ReportSource.get_by_url: FIXME')
                 sys.exit(1)
             repsrc = cls.get_byweburl('https://%s/%s/' % (lowered_url[2], lowered_url[3]))
             if repsrc:
@@ -2651,13 +2641,13 @@ class ReportSourceRaw():
 
         repsrc = cls.get_by_name('generic')
         if not repsrc:
-            logger.debug('ReportSourceRaw.get_by_url: genric entry not found, aborting')
+            logger.debug('ReportSource.get_by_url: genric entry not found, aborting')
             sys.exit(1)
         return repsrc, url
 
     @staticmethod
     def url_by_id(repsrcid, entry, subentry=None):
-        repsrc = ReportSourceRaw.get_by_id(repsrcid)
+        repsrc = ReportSource.get_by_id(repsrcid)
         return repsrc.url(entry, subentry=subentry)
 
     def url(self, entry, *, redirector=None, subentry=None):
@@ -2675,7 +2665,7 @@ class ReportSourceRaw():
         elif self.kind == 'gitlab':
             return '%s/-/issues/%s' % (self.serverurl.removeprefix('/'), entry)
         logger.critical(
-            "ReportSourceRaw doesn't yet known how to return a URL for %s", self.kind)
+            "ReportSource doesn't yet known how to return a URL for %s", self.kind)
         return None
 
     def set_lastchked(self, lastchked):
@@ -2688,13 +2678,24 @@ class ReportSourceRaw():
         return False
 
 
-class ReportSource(ReportSourceRaw):
+class ReportThread():
+    @classmethod
+    def from_url(cls, url):
+        for repsrc in ReportSource.getall():
+            if repsrc.supports_url(url):
+                return repsrc.get_entry(url)
+
+
+class ReportSourceUnsupported(Exception):
+    pass
+
+class ReportSourceObsolete(ReportSource):
     def __init__(self, *args):
         self.entryid = None
         super().__init__(*args)
 
     def __new__(cls, *args, **kwargs):
-        # until this class can die: override the overridden ReportSourceRaw __new__,
+        # until this class can die: override the overridden ReportSource __new__,
         # as we otherwise get classes like GlReportSource
         return object.__new__(cls)
 
@@ -2712,7 +2713,7 @@ class ReportSource(ReportSourceRaw):
     def get_searchpattern(self):
         if not self.entryid:
             logger.critical(
-                "ReportSource.get_searchpattern() called while self.entryid is unset")
+                "ReportSourceObsolete.get_searchpattern() called while self.entryid is unset")
             sys.exit(1)
         elif self.kind == 'generic':
             return self.entryid
@@ -2723,7 +2724,7 @@ class ReportSource(ReportSourceRaw):
         elif self.kind == 'gitlab':
             return '%s/-/issues/%s' % (self.serverurl.removeprefix('/'), self.entryid)
         logger.critical(
-            "ReportSource.get_searchpattern() doesn't yet known how to return a URL for %s", self.kind)
+            "ReportSourceObsolete.get_searchpattern() doesn't yet known how to return a URL for %s", self.kind)
         return None
 
 
@@ -2766,7 +2767,7 @@ def db_create(directory):
         RegBackburner.db_create(1, dbcursor)
         RegHistory.db_create(1, dbcursor)
         RegLink.db_create(1, dbcursor)
-        ReportSourceRaw.db_create(1, dbcursor)
+        ReportSource.db_create(1, dbcursor)
         UnhandledEvent.db_create(1, dbcursor)
 
     if not basicressource_checkdir_exists(directory, create=True):
@@ -2933,181 +2934,181 @@ def basicressources_gittrees_setup(gittreesdir):
 
 
 def basicressources_repsrces_setup():
-    ReportSourceRaw.add('generic', 99,'', 'generic', '')
+    ReportSource.add('generic', 99,'', 'generic', '')
 
-    ReportSourceRaw.add('bugzilla.kernel.org', 0,
+    ReportSource.add('bugzilla.kernel.org', 0,
                      'https://bugzilla.kernel.org',
                      'bugzilla', 'https://bugzilla.kernel.org/show_bug.cgi?id=')
 
     # hardcoded for now
-    ReportSourceRaw.add('lkml', 1,
+    ReportSource.add('lkml', 1,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-kernel',
                      'lore', 'https://lore.kernel.org/lkml/', identifiers='linux-kernel@vger.kernel.org')
     if is_running_citesting():
-        ReportSourceRaw.add('regressions', 2,
+        ReportSource.add('regressions', 2,
                          'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
                          'lore', 'https://lore.kernel.org/regressions/', identifiers='regressions@lists.linux.dev')
     else:
-        ReportSourceRaw.add('regressions', 2,
+        ReportSource.add('regressions', 2,
                          'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
                          'lore', 'https://lore.kernel.org/regressions/', identifiers='regressions@lists.linux.dev',
                          lastchked=190)
 
     # basics
-    ReportSourceRaw.add('stable', 3,
+    ReportSource.add('stable', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.stable',
                      'lore', 'https://lore.kernel.org/stable/', identifiers='stable@vger.kernel.org')
-    ReportSourceRaw.add('mm', 6,
+    ReportSource.add('mm', 6,
                      'nntp://nntp.lore.kernel.org/org.kvack.linux-mm',
                      'lore', 'https://lore.kernel.org/linux-mm/', identifiers='linux-mm@kvack.org')
-    ReportSourceRaw.add('arch', 6,
+    ReportSource.add('arch', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-arch',
                      'lore', 'https://lore.kernel.org/linux-arch/', identifiers='linux-arch@vger.kernel.org')
 
 
     # arch, mm, and virt
-    ReportSourceRaw.add('arm', 3,
+    ReportSource.add('arm', 3,
                      'nntp://nntp.lore.kernel.org/org.infradead.lists.linux-arm-kernel',
                      'lore', 'https://lore.kernel.org/linux-arm-kernel/', identifiers='linux-arm-kernel@lists.infradead.org')
-    ReportSourceRaw.add('kvm', 4,
+    ReportSource.add('kvm', 4,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.kvm',
                      'lore', 'https://lore.kernel.org/kvm/', identifiers='kvm@vger.kernel.org')
-    ReportSourceRaw.add('mips', 3,
+    ReportSource.add('mips', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-mips',
                      'lore', 'https://lore.kernel.org/linux-mips/', identifiers='linux-mips@vger.kernel.org')
-    ReportSourceRaw.add('ppc-dev', 3,
+    ReportSource.add('ppc-dev', 3,
                      'nntp://nntp.lore.kernel.org/org.ozlabs.lists.linuxppc-dev',
                      'lore', 'https://lore.kernel.org/linuxppc-dev/', identifiers='linuxppc-dev@lists.ozlabs.org')
-    ReportSourceRaw.add('virtualization', 5,
+    ReportSource.add('virtualization', 5,
                      'nntp://nntp.lore.kernel.org/org.linuxfoundation.lists.virtualization',
                      'lore', 'https://lore.kernel.org/virtualization/', identifiers='virtualization@lists.linux-foundation.org')
 
 
     # graphics
-    ReportSourceRaw.add('dri', 3,
+    ReportSource.add('dri', 3,
                      'nntp://nntp.lore.kernel.org/org.freedesktop.lists.dri-devel',
                      'lore', 'https://lore.kernel.org/dri-devel/', identifiers='dri-devel@lists.freedesktop.org')
-    ReportSourceRaw.add('amd-gfx', 5,
+    ReportSource.add('amd-gfx', 5,
                      'nntp://nntp.lore.kernel.org/org.freedesktop.lists.amd-gfx',
                      'lore', 'https://lore.kernel.org/amd-gfx/', identifiers='amd-gfx@lists.freedesktop.org')
-    ReportSourceRaw.add('fbdev', 7,
+    ReportSource.add('fbdev', 7,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-fbdev',
                      'lore', 'https://lore.kernel.org/linux-fbdev/', identifiers='linux-fbdev@vger.kernel.org')
-    ReportSourceRaw.add('nouveau', 5,
+    ReportSource.add('nouveau', 5,
                      'nntp://nntp.lore.kernel.org/org.freedesktop.lists.nouveau',
                      'lore', 'https://lore.kernel.org/nouveau/', identifiers='nouveau@lists.freedesktop.org')
-    ReportSourceRaw.add('intel-gfx', 5,
+    ReportSource.add('intel-gfx', 5,
                      'nntp://nntp.lore.kernel.org/org.freedesktop.lists.intel-gfx',
                      'lore', 'https://lore.kernel.org/intel-gfx/', identifiers='intel-gfxlists.freedesktop.org')
 
     # network
-    ReportSourceRaw.add('ath10k', 7,
+    ReportSource.add('ath10k', 7,
                      'nntp://nntp.lore.kernel.org/org.infradead.lists.ath10k',
                      'lore', 'https://lore.kernel.org/ath10k/', identifiers='ath10k@lists.infradead.org')
-    ReportSourceRaw.add('ath11k', 7,
+    ReportSource.add('ath11k', 7,
                      'nntp://nntp.lore.kernel.org/org.infradead.lists.ath11k',
                      'lore', 'https://lore.kernel.org/ath11k/', identifiers='ath10k@lists.infradead.org')
-    ReportSourceRaw.add('netdev', 3,
+    ReportSource.add('netdev', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.netdev',
                      'lore', 'https://lore.kernel.org/netdev/', identifiers='netdev@vger.kernel.org')
-    ReportSourceRaw.add('rdma', 4,
+    ReportSource.add('rdma', 4,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-rdma',
                      'lore', 'https://lore.kernel.org/linux-rdma/', identifiers='linux-rdma@vger.kernel.org')
-    ReportSourceRaw.add('wireless', 4,
+    ReportSource.add('wireless', 4,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-wireless',
                      'lore', 'https://lore.kernel.org/linux-wireless/', identifiers='linux-wireless@vger.kernel.org')
-    ReportSourceRaw.add('intel-wired-lan', 7,
+    ReportSource.add('intel-wired-lan', 7,
                      'nntp://nntp.lore.kernel.org/org.osuosl.intel-wired-lan',
                      'lore', 'https://lore.kernel.org/intel-wired-lan/', identifiers='intel-wired-lan@lists.osuosl.org')
 
 
     # storage
-    ReportSourceRaw.add('block', 3,
+    ReportSource.add('block', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-block',
                      'lore', 'https://lore.kernel.org/linux-block/', identifiers='linux-block@vger.kernel.org')
-    ReportSourceRaw.add('mtd', 6,
+    ReportSource.add('mtd', 6,
                      'nntp://nntp.lore.kernel.org/org.infradead.lists.linux-mtd',
                      'lore', 'https://lore.kernel.org/linux-mtd/', identifiers='linux-mtd@lists.infradead.org')
-    ReportSourceRaw.add('nvme', 6,
+    ReportSource.add('nvme', 6,
                      'nntp://nntp.lore.kernel.org/org.infradead.lists.linux-nvme',
                      'lore', 'https://lore.kernel.org/linux-nvme/', identifiers='linux-nvme@lists.infradead.org')
-    ReportSourceRaw.add('raid', 6,
+    ReportSource.add('raid', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-raid',
                      'lore', 'https://lore.kernel.org/linux-raid/', identifiers='linux-raid@vger.kernel.org')
-    ReportSourceRaw.add('scsi', 3,
+    ReportSource.add('scsi', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-scsi',
                      'lore', 'https://lore.kernel.org/linux-scsi/', identifiers='linux-scsi@vger.kernel.org')
 
     # filesystems
-    ReportSourceRaw.add('cifs', 6,
+    ReportSource.add('cifs', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-cifs',
                      'lore', 'https://lore.kernel.org/linux-cifs/', identifiers='linux-cifs@vger.kernel.org')
-    ReportSourceRaw.add('btrfs', 4,
+    ReportSource.add('btrfs', 4,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-btrfs',
                      'lore', 'https://lore.kernel.org/linux-btrfs/', identifiers='linux-btrfs@vger.kernel.org')
-    ReportSourceRaw.add('ext4', 4,
+    ReportSource.add('ext4', 4,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-ext4',
                      'lore', 'https://lore.kernel.org/linux-ext4/', identifiers='linux-ext4@vger.kernel.org')
-    ReportSourceRaw.add('fsdevel', 3,
+    ReportSource.add('fsdevel', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-fsdevel',
                      'lore', 'https://lore.kernel.org/linux-fsdevel/', identifiers='linux-fsdevel@vger.kernel.org')
-    ReportSourceRaw.add('nfs', 4,
+    ReportSource.add('nfs', 4,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-nfs',
                      'lore', 'https://lore.kernel.org/linux-nfs/', identifiers='linux-nfs@vger.kernel.org')
-    ReportSourceRaw.add('xfs', 4,
+    ReportSource.add('xfs', 4,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-xfs',
                      'lore', 'https://lore.kernel.org/linux-xfs/', identifiers='linux-xfs@vger.kernel.org')
 
 
     # pci, pm, low-level, etc.
-    ReportSourceRaw.add('crypto', 6,
+    ReportSource.add('crypto', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-crypto',
                      'lore', 'https://lore.kernel.org/linux-crypto/', identifiers='linux-crypto@vger.kernel.org')
-    ReportSourceRaw.add('edac', 6,
+    ReportSource.add('edac', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-edac',
                      'lore', 'https://lore.kernel.org/linux-edac/', identifiers='linux-edac@vger.kernel.org')
-    ReportSourceRaw.add('i2c', 5,
+    ReportSource.add('i2c', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-i2c',
                      'lore', 'https://lore.kernel.org/linux-i2c/', identifiers='linux-i2c@vger.kernel.org')
-    ReportSourceRaw.add('iio', 6,
+    ReportSource.add('iio', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-iio',
                      'lore', 'https://lore.kernel.org/linux-iio/', identifiers='linux-iio@vger.kernel.org')
-    ReportSourceRaw.add('iommu', 6,
+    ReportSource.add('iommu', 6,
                      'nntp://nntp.lore.kernel.org/dev.linux.lists.iommu',
                      'lore', 'https://lore.kernel.org/linux-iommu/', identifiers='iommu@lists.linux.dev')
-    ReportSourceRaw.add('pci', 5,
+    ReportSource.add('pci', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-pci',
                      'lore', 'https://lore.kernel.org/linux-pci/', identifiers='linux-pci@vger.kernel.org')
-    ReportSourceRaw.add('pm', 5,
+    ReportSource.add('pm', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-pm',
                      'lore', 'https://lore.kernel.org/linux-pm/', identifiers='linux-pm@vger.kernel.org')
-    ReportSourceRaw.add('serial', 7,
+    ReportSource.add('serial', 7,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-serial',
                      'lore', 'https://lore.kernel.org/linux-serial/', identifiers='linux-serial@vger.kernel.org')
 
     # other drivers
-    ReportSourceRaw.add('alsa', 5,
+    ReportSource.add('alsa', 5,
                      'nntp://nntp.lore.kernel.org/org.alsa-project.alsa-devel',
                      'lore', 'https://lore.kernel.org/alsa-devel/', identifiers='alsa-devel@alsa-project.org')
-    ReportSourceRaw.add('bluetooth', 6,
+    ReportSource.add('bluetooth', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-bluetooth',
                      'lore', 'https://lore.kernel.org/linux-bluetooth/', identifiers='linux-bluetooth@vger.kernel.org')
-    ReportSourceRaw.add('hwmon', 6,
+    ReportSource.add('hwmon', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-hwmon',
                      'lore', 'https://lore.kernel.org/linux-hwmon/', identifiers='linux-hwmon@vger.kernel.org')
-    ReportSourceRaw.add('input', 6,
+    ReportSource.add('input', 6,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-input',
                      'lore', 'https://lore.kernel.org/linux-input/', identifiers='linux-input@vger.kernel.org')
-    ReportSourceRaw.add('media', 5,
+    ReportSource.add('media', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-media',
                      'lore', 'https://lore.kernel.org/linux-media/', identifiers='linux-media@vger.kernel.org')
-    ReportSourceRaw.add('platform-driver-x86', 5,
+    ReportSource.add('platform-driver-x86', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.platform-driver-x86',
                      'lore', 'https://lore.kernel.org/platform-driver-x86/', identifiers='platform-driver-x86@vger.kernel.org')
-    ReportSourceRaw.add('staging', 6,
+    ReportSource.add('staging', 6,
                      'nntp://nntp.lore.kernel.org/dev.linux.lists.linux-staging',
                      'lore', 'https://lore.kernel.org/linux-staging/', identifiers='linux-staging@lists.linux.dev')
-    ReportSourceRaw.add('usb', 5,
+    ReportSource.add('usb', 5,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-usb',
                      'lore', 'https://lore.kernel.org/linux-usb/', identifiers='linux-usb@vger.kernel.org')
 

@@ -102,7 +102,7 @@ def adjust_repsrc(repsrc, msg):
             logger.warning('Ignoring "CC" in %s due to an exception: "HeaderParseError: %s"',  email_get_msgid(msg), err)
 
     for adress in adresses:
-        tmprepsrc = regzbot.ReportSourceRaw.get_by_identifier(adress)
+        tmprepsrc = regzbot.ReportSource.get_by_identifier(adress)
         if tmprepsrc is None:
             continue
         elif repsrc is None or tmprepsrc.priority < repsrc.priority:
@@ -237,7 +237,7 @@ def process_tag(repsrc, tag, msg):
         elif tagcmd == "unbackburn" or tagcmd == "unbackburner":
             regressionb.backburner_remove()
         elif tagcmd == "dup" or tagcmd == "duplicate":
-            regressionb.duplicate(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid)
+            regressionb.cmd_duplicate_obsolete(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid)
         elif tagcmd == "dupof" or tagcmd == "dup-of":
             regressionb.dupof(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid)
         elif tagcmd == "fix" or tagcmd == "fixed-by" or tagcmd == "fixedby:":
@@ -271,7 +271,7 @@ def process_tag(repsrc, tag, msg):
         elif tagcmd == "subject" or tagcmd == "title":
             regressionb.title(tagload)
         else:
-            reportsource = regzbot.ReportSourceRaw.get_by_id(repsrc.repsrcid)
+            reportsource = regzbot.ReportSource.get_by_id(repsrc.repsrcid)
             urltoreport = reportsource.url(msgid)
             regzbot.UnhandledEvent.add(
                 urltoreport, "unknown regzbot command: %s" % tagcmd, gmtime=gmtime, subject=subject)
@@ -555,7 +555,7 @@ def process_msg(repsrc, msg):
 
             bugid = tmpstring.removeprefix('bugzilla.kernel.org/show_bug.cgi?id=')
             if bugid.isnumeric():
-                target_repsrc = regzbot.ReportSourceRaw.get_by_name('bugzilla.kernel.org')
+                target_repsrc = regzbot.ReportSource.get_by_name('bugzilla.kernel.org')
                 regressionb = regzbot.RegressionBasic.get_by_repsrc_n_entry(target_repsrc, bugid)
             else:
                 logger.debug(

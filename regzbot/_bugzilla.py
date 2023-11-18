@@ -14,7 +14,7 @@ import sys
 
 
 from bugzilla import bug as pybugzilla_bug
-from regzbot import ReportSourceRaw
+from regzbot import ReportSource
 from regzbot import PatchKind
 from urllib.parse import urlparse
 
@@ -381,7 +381,7 @@ class BZServer_bko(BZServer):
 
     @classmethod
     def _check_updates(cls, gmtime_from):
-        repsrc = ReportSourceRaw.get_by_serverurl('https://%s' % cls.domainname)
+        repsrc = ReportSource.get_by_serverurl('https://%s' % cls.domainname)
         if not repsrc:
             logger.warning('No repsrc entry found for %s, not checking for updates', cls.domainname)
             return
@@ -467,7 +467,7 @@ class BzOrigin(regzbot.RbCmdOrigin):
 
     @classmethod
     def get(cls, *, url=None):
-        repsrc, entry = ReportSourceRaw.get_by_url(url)
+        repsrc, entry = ReportSource.get_by_url(url)
 
         bug = None
         for bug in BZServer.get_bug(url):

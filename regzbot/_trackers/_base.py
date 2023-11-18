@@ -28,7 +28,7 @@ class _activity():
         # must be overridden by subclasses
         raise NotImplementedError
 
-class _issue():
+class _issue(regzbot.ReportThread):
     def __init__(self):
         self.__in_examine_already = False
 

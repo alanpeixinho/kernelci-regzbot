@@ -42,7 +42,7 @@ def run():
     nntp_connection = None
 
     # retrieve the number of msg for all groups first to avoid races
-    for repsrc in regzbot.ReportSourceRaw.getall_bykind('lore'):
+    for repsrc in regzbot.ReportSource.getall_bykind('lore'):
         nntp_connection, group_firstid, group_lastid = _group(nntp_connection, repsrc.serverurl)
 
         # is there something new to check?
@@ -109,7 +109,7 @@ def download_thread(msgid, repsrcid = None):
         downloaded = download_extract('https://lore.kernel.org/all/%s/t.mbox.gz' % msgid, tmpfile)
         if not downloaded and repsrcid:
             # work around https://twitter.com/kernellogger/status/1443863850722410496
-            repsrc = regzbot.ReportSourceRaw.get_by_id(repsrcid)
+            repsrc = regzbot.ReportSource.get_by_id(repsrcid)
             download_extract('%s/%s/t.mbox.gz' % (repsrc.weburl.rstrip('/'), msgid), tmpfile)
 
         for message in mailbox.mbox(tmpfile.name):

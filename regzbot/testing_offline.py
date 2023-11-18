@@ -386,19 +386,19 @@ def init_mailsdir(path_tmpmail):
         "Creating directory %s for holding emails files", path_tmpmail)
 
     os.mkdir(path_tmpmail)
-    repsrcid = regzbot.ReportSourceRaw.add('Nonexistand primary mailinglist for regzbot testing', 2,
+    repsrcid = regzbot.ReportSource.add('Nonexistand primary mailinglist for regzbot testing', 2,
                                         'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
                                         'lore', 'https://lore.kernel.org/regressions/', identifiers='regressions@example.com')
     emaildirs['primary'] = Emaildir(
-        regzbot.ReportSourceRaw.get_by_id(repsrcid), 'regressions@example.com', path_tmpmail, 'primary')
+        regzbot.ReportSource.get_by_id(repsrcid), 'regressions@example.com', path_tmpmail, 'primary')
 
-    repsrcid = regzbot.ReportSourceRaw.add('Nonexistand secondary mailinglist for regzbot testing', 1,
+    repsrcid = regzbot.ReportSource.add('Nonexistand secondary mailinglist for regzbot testing', 1,
                                         'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-kernel',
                                         'lore', 'https://lore.kernel.org/lkml/', identifiers='linux-kernel@example.com')
     emaildirs['secondary'] = Emaildir(
-        regzbot.ReportSourceRaw.get_by_id(repsrcid), 'linux-kernel@example.com', path_tmpmail, 'secondary')
+        regzbot.ReportSource.get_by_id(repsrcid), 'linux-kernel@example.com', path_tmpmail, 'secondary')
 
-    regzbot.ReportSourceRaw.add('generic', 99,'', 'generic', '')
+    regzbot.ReportSource.add('generic', 99,'', 'generic', '')
 
 
 def init(tmpdir, testdatadir):

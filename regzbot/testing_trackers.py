@@ -69,10 +69,10 @@ def run(resultfilename, tmpdir, _):
 
 
 def trackertest_0_0(funcname):
-    regzbot.ReportSourceRaw.add('knurd42', 3,
+    regzbot.ReportSource.add('knurd42', 3,
                  'https://gitlab.com/knurd42/linux',
                  'gitlab', '<unused>')
-    regzbot.ReportSourceRaw.examine('https://gitlab.com/knurd42/linux/-/issues/1')
+    regzbot.ReportSource.examine('https://gitlab.com/knurd42/linux/-/issues/1')
     return False, True
 
 

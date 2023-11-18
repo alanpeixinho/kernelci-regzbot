@@ -88,7 +88,7 @@ class RbCmdSingle:
                         logger.info("Ignoring '%s' parameter, not supported in this case", argument)
                         continue
 
-                    repsrc, entry = regzbot.ReportSourceRaw.get_by_url(argument)
+                    repsrc, entry = regzbot.ReportSource.get_by_url(argument)
                     report = regzbot.RbCmdOrigin(
                         repsrc,
                         entry,
@@ -263,7 +263,7 @@ class RbCmdSingleNew:
                 self.parameters)
 
     def _duplicate(self, regression):
-        regression.duplicate(
+        regression.cmd_duplicate_obsolete(
                 self.parameters,
                 self.activity_containing_rzbcmd.gmtime,
                 self.activity_containing_rzbcmd.entryid,
