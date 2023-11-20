@@ -10,9 +10,9 @@ import sys
 import urllib.parse
 from functools import cached_property
 
+import _trackers._base
 import regzbot._rbcmd
 from regzbot import PatchKind
-import _trackers._base
 
 if __name__ != "__main__":
     import regzbot
@@ -25,10 +25,8 @@ else:
         logger.basicConfig(level=logging.DEBUG)
         logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-
 _CACHE_INSTANCES = {}
 _CACHE_PROJECTS ={}
-
 
 class GlActivity(_trackers._base._activity):
     def __init__(self, gl_issue, *, comment=None, comment_number=None, commit=None, event=None):

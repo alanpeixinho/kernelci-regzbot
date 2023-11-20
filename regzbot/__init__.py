@@ -791,9 +791,17 @@ class RegActivityMonitor():
         self.authormail = authormail
         self.lastchk = lastchk
 
-    @property
+    @cached_property
     def web_url(self):
         return ReportSource.url_by_id(self.repsrcid, self.entry)
+
+    @property
+    def realname(self):
+        return self.authorname
+
+    @property
+    def username(self):
+        return self.authormail
 
     def add_activity(self, repact):
         RegActivityEvent.event(
@@ -967,6 +975,17 @@ class RegActivityMonitor():
                 return True
 
         return False
+
+    def update_author(self, authorname, authormail):
+        dbcursor = DBCON.cursor()
+        dbcursor.execute('''UPDATE actmonitor
+                            SET authorname = (?), authormail = (?)
+                            WHERE actimonid=(?)''',
+                         (authorname, authormail, self.actimonid))
+        logger.debug("[db_actmonitor] %s (regid %s): author is now '%s', authormail now '%s'.",
+                     self.actimonid, self.regid, authorname, authormail)
+        self.authorname = authorname
+        self.authormail = authormail
 
 
 class RegActivityEvent():
@@ -1523,11 +1542,24 @@ class RegressionBasic():
 
     @cached_property
     def actimon(self):
-        return RegActivityMonitor.get_by_entry(self.actimonid)
+        actimon = RegActivityMonitor.get(self.actimonid)
+        assert actimon
+        return actimon
 
-    @cached_property
+    @property
+    def realname(self):
+        return self.actimon.realname
+
+    @property
     def web_url(self):
         return self.actimon.web_url
+
+    @property
+    def username(self):
+        return self.actimon.username
+
+
+
 
     @classmethod
     def __create(cls, rgzcmd, reptrd, *, introduced=None, gitbranchid=None):
@@ -1559,28 +1591,62 @@ class RegressionBasic():
         younger._db_update_solved()
 
         if self == older:
-            younger._history_event(rgzcmd, cmdline='note: now a duplicate of %s' % older.web_url)
+            younger.add_history_event(rgzcmd, cmdline='note: now a duplicate of %s' % older.web_url)
             logger.info('Regression(%s): Regression(%s) is now a dupliate.',
                         self.web_url, younger.web_url)
         else:
-            older._history_event(rgzcmd, cmdline='note: %s is now a duplicate' % younger.web_url)
+            older.add_history_event(rgzcmd, cmdline='note: %s is now a duplicate' % younger.web_url)
             logger.info('Regression(%s): now a duplicate of Regression(%s).',
                         self.web_url, younger.web_url)
 
-    def _history_event(self, rgzcmd, *, cmdline=None):
+    def add_history_event(self, rgzcmd, *, cmdline=None):
         if not cmdline:
-            cmdline = '%s: %s' % (rgzcmd.cmd, rgzcmd.parameters)
+            cmdline = rgzcmd.cmd
+            if rgzcmd.parameters:
+                cmdline = '%s: %s' % (cmdline, rgzcmd.parameters)
         RegHistory.event(self.regid, rgzcmd.repact.gmtime, rgzcmd.repact.reptrd.id, rgzcmd.repact.summary,
                          rgzcmd.repact.realname, repsrcid=rgzcmd.repact.repsrc.id, regzbotcmd=cmdline)
 
-    def cmd_duplicate(self, rgzcmd):
-        reptrd = ReportThread.from_url(rgzcmd.parameters)
+    def cmd_backburn(self, rgzcmd, reason):
+        RegBackburner.add(self.regid, rgzcmd.repact.repsrc.id, rgzcmd.repact.reptrd.id, rgzcmd.repact.gmtime,
+                          rgzcmd.repact.realname, reason)
+
+    def cmd_duplicate(self, rgzcmd, url):
+        reptrd = ReportThread.from_url(url)
         if not reptrd.summary:
             reptrd.summary = self.subject
         regression_created = self.__create(rgzcmd, reptrd, introduced=self.introduced, gitbranchid=self.gitbranchid)
-        regression_created._history_event(rgzcmd, cmdline="introduced: %s [implicit, due to usage of 'duplicate']" % self.introduced)
+        regression_created.add_history_event(rgzcmd, cmdline="introduced: %s [implicit, due to usage of 'duplicate']"
+                                                 % self.introduced)
         self.__duplicate(rgzcmd, regression_created)
-        self._history_event(rgzcmd)
+
+    def cmd_fix(self, rgzcmd, hexsha, summary):
+        self.fixedby(rgzcmd.repact.gmtime, hexsha, summary, repsrcid=rgzcmd.repact.repsrc.repsrcid,
+                         repentry=rgzcmd.repact.reptrd.id)
+
+    def cmd_from(self, rgzcmd, realname, username):
+        self.actimon.update_author(realname, username)
+        logger.info('Regression(%s)]: author is now %s, authormail now %s', self.web_url, realname, username)
+
+    def cmd_introduced_update(self, rgzcmd, hexsha):
+        self.introduced_update(hexsha)
+
+    @classmethod
+    def cmd_introduced_new(cls, rgzcmd, hexsha):
+        return cls.introduced_create(rgzcmd.reptrd.repsrc.id, rgzcmd.reptrd.id, rgzcmd.reptrd.summary, rgzcmd.reptrd.realname,
+                rgzcmd.reptrd.username, hexsha, rgzcmd.reptrd.gmtime)
+
+    def cmd_link(self, rgzcmd, url, description):
+        self._linkadd(url, description, rgzcmd.repact.gmtime, rgzcmd.repact.realname)
+
+    def cmd_resolve(self, rgzcmd, reason):
+        self._solve_reason(rgzcmd.cmd, reason, rgzcmd.repact.gmtime, rgzcmd.repact.reptrd.id, rgzcmd.repact.repsrc.id)
+
+    def cmd_unbackburn(self, rgzcmd):
+        RegBackburner.remove(self.regid)
+
+    def cmd_unlink(self, rgzcmd, url):
+        self.linkremove(url)
 
     ####################################################################################################################
 
@@ -1897,7 +1963,7 @@ class RegressionBasic():
         return self.__create_obsolete(self.introduced, self.gitbranchid, repsrc.repsrcid, entry, gmtime, subject, authorname, authormail)
 
 
-    def cmd_duplicate_obsolete(self, tagload, gmtime, msgid, msgsubject, authorname, repsrcid):
+    def obsolete_cmd_duplicate(self, tagload, gmtime, msgid, msgsubject, authorname, repsrcid):
         def parse(tagload):
             tagload = tagload.split(maxsplit=1)
             url = tagload[0]
@@ -2104,6 +2170,9 @@ class RegressionBasic():
 
     def linkadd(self, tagload, gmtime, author):
         link, description = self.linkparse(tagload)
+        self._linkadd(link, description, gmtime, author)
+
+    def _linkadd(self, link, description, gmtime, author):
         updated = RegLink.add_link(
             self.regid, gmtime, description, author, link)
         if updated is False:

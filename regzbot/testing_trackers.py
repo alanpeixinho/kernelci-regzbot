@@ -72,7 +72,7 @@ def trackertest_0_0(funcname):
     regzbot.ReportSource.add('knurd42', 3,
                  'https://gitlab.com/knurd42/linux',
                  'gitlab', '<unused>')
-    regzbot.ReportSource.examine('https://gitlab.com/knurd42/linux/-/issues/1')
+    regzbot.ReportSource.examine('https://gitlab.com/knurd42/linux/-/issues/11')
     return False, True
 
 

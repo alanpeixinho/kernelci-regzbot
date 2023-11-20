@@ -220,14 +220,12 @@ class RbCmdStack:
 
 class RbCmdSingleNew:
     def __init__(self, rbcmd_stack, cmd, parameters):
-        self.reptrd = rbcmd_stack.reptrd
+        self.cmd = cmd.lower()
         self.repact = rbcmd_stack.repact
+        self.reptrd = rbcmd_stack.reptrd
         self.parameters = parameters
 
-        self.deprecated_historyevent = True
-
         # handle frequent typos, alternatives, and renamed commands
-        self.cmd = cmd.lower()
         if self.cmd in ('backburner', 'back-burner'):
             self.cmd = 'backburn'
         elif self.cmd in ('dup', 'dupof', 'duplicate-of' ):
@@ -241,139 +239,93 @@ class RbCmdSingleNew:
         elif self.cmd in ('unback-burner', 'back-burner'):
             self.cmd = 'unbackburn'
 
-    def _deprecated_add_history_event(self, regression):
-        regzbotcmd = '%s' % self.cmd
-        if self.parameters:
-            regzbotcmd = '%s: %s' % (regzbotcmd, self.parameters)
-        regzbot.RegHistory.event(
-                regression.regid,
-                self.repact.gmtime,
-                self.repact.reptrd.id,
-                self.repact.summary,
-                self.repact.realname,
-                repsrcid=self.repact.repsrc.repsrcid,
-                regzbotcmd=regzbotcmd)
+    def _parse_link_and_description(self, pattern):
+        splitted = pattern.split(maxsplit=1)
+        url = splitted[0]
+        if len(splitted) > 1:
+            description = splitted[1]
+        else:
+            description = url.removeprefix("http://")
+        return url, description
 
-    def _backburn(self, regression):
-        regression.backburner_add(
-                self.repact.repsrc.repsrcid,
-                self.repact.reptrd.id,
-                self.repact.gmtime,
-                self.repact.realname,
-                self.parameters)
+    def _cmd_backburn(self, regression):
+        reason = self.parameters
+        regression.cmd_backburn(self, reason)
 
-    def _duplicate(self, regression):
-        regression.cmd_duplicate(self)
-        self.deprecated_historyevent = False
+    def _cmd_duplicate(self, regression):
+        for url in self.parameters:
+            regression.cmd_duplicate(self, url)
 
-    def _fix(self, regression):
-        # FIXME: this should not be here
+    def _cmd_fix(self, regression):
         def _remove_quoting_chars(pattern):
             for character in (('(', ')'), "'", '"'):
                 if pattern.startswith(character[0]) and pattern.endswith(character[-1]):
                     pattern = pattern[1:-1]
             return pattern
 
-       # FIXME: this should not be here
-        def _spilttag_first_word(pattern):
-            pattern = pattern.split(maxsplit=1)
-            firstpart = pattern[0]
-            if len(pattern) > 1:
-                secondpart = pattern[1]
-            else:
-                secondpart = None
-            return firstpart, secondpart
-
-        # FIXME: this should not be here
-        commit_specifier, commit_subject = _spilttag_first_word(self.parameters)
-        if re.search('^[0-9a-fA-F]{8,40}', commit_specifier) is None:
-            # looks like this is no hexsha, so assume it's a commit summary
-            commit_specifier = None
-            commit_subject = _remove_quoting_chars(self.parameters)
+        match = re.search(r'^[0-9a-fA-F]{8,40}', self.parameters)
+        if match:
+            hexsha = match[0]
+            summary = None
         else:
-            # ignore subject
-            commit_subject = None
+            hexsha = None
+            summary = _remove_quoting_chars(self.parameters)
+        regression.cmd_fix(self, hexsha, summary)
 
-        regression.fixedby(
-                self.repact.gmtime,
-                commit_specifier,
-                commit_subject,
-                repsrcid=self.repact.repsrc.repsrcid,
-                repentry=self.repact.reptrd.id,
-                )
+    def _cmd_from(self, regression):
+        if '<' in self.parameters and '>' in self.parameters:
+            from email.utils import parseaddr
+            realname, username = parseaddr(self.parameters)
+        else:
+            realname = self.parameters
+            username = None
+        regression.cmd_from(self, realname, username)
 
-    def _from(self, regression):
-        regression.update_author(
-                self.repact.reptrd.id,
-                self.parameters,
-                )
+    def _cmd_inconclusive(self, regression):
+        regression.cmd_resolve(self, self.parameters)
 
-    def _inconclusive(self, regression):
-        regression.inconclusive(
-                self.parameters,
-                self.repact.gmtime,
-                self.repact.reptrd.id,
-                self.reptrd.repsrc.id,
-                )
+    def _cmd_introduced(self, regression):
+        hexsha = self.parameters
 
-    def _introduced(self, regression):
-        # update exiting regression
         if regression:
-            regression.introduced_update(self.parameters)
+            regression.cmd_introduced_update(self, hexsha)
             return None
 
-        # add regression
-        regression = regzbot.RegressionBasic.introduced_create(
-                self.reptrd.repsrc.id,
-                self.reptrd.id,
-                self.reptrd.summary,
-                self.reptrd.realname,
-                self.reptrd.username,
-                self.parameters,
-                self.reptrd.gmtime,
-                )
-
-        # add related activities
+        # add regression and add related activities
+        regression = regzbot.RegressionBasic.cmd_introduced_new(self, hexsha)
         self.reptrd.examine(rgzbcmds_since=self.repact.created_at)
-
         return regression
 
-    def _link(self, regression):
-        regression.linkadd(
-                self.parameters,
-                self.repact.gmtime,
-                self.repact.realname,
-                )
+    def _cmd_link(self, regression):
+        url, description = self._parse_link_and_description(self.parameters)
+        regression.cmd_link(self, url, description)
 
-    def _monitor(self, regression):
-        regression.monitoradd(
-                self.parameters,
-                self.reptrd.gmtime,
-                self.reptrd.repsrc,
-                None,
-                )
+    def _cmd_monitor(self, regression):
+        raise NotImplementedError
+        url, description = self._parse_link_and_description(self.parameters)
 
-    def _summary(self, regression):
+    def _cmd_resolve(self, regression):
+        regression.cmd_resolve(self, self.parameters)
+
+    def _cmd_summary(self, regression):
         regression.title(self.parameters)
 
-    def _unbackburn(self, regression):
-        regression.backburner_remove()
+    def _cmd_unbackburn(self, regression):
+        regression.cmd_unbackburn(self)
+        self.deprecated_historyevent = False
 
-    def _unlink(self, regression):
-        regression.linkremove(self.parameters)
+    def _cmd_unlink(self, regression):
+        url, _ = self._parse_link_and_description(self.parameters)
+        regression.cmd_unlink(self, url)
 
-    def _unmonitor(self, regression):
-        regression.monitorremove(
-                self.parameters,
-                self.reptrd.gmtime,
-                self.reptrd.repsrc,
-                None,
-                )
+    def _cmd_unmonitor(self, regression):
+        raise NotImplementedError
+        url, _ = self._parse_link_and_description(self.parameters)
 
     def process(self, regression):
         regression_created = None
         if self.cmd == 'introduced':
-            regression_created = self._introduced(regression)
+            regression_created = self._cmd_introduced(regression)
             if regression_created:
                 regression = regression_created
         elif self.cmd in (
@@ -396,15 +348,14 @@ class RbCmdSingleNew:
                 'unlink',
                 'unmonitor',
                 ):
-            getattr(self, '_%s' % self.cmd)(regression)
+            getattr(self, '_cmd_%s' % self.cmd)(regression)
         else:
             regzbot.UnhandledEvent.add(
                 self.repact.web_url, "unknown regzbot command: %s" % self.cmd, gmtime=self.report_rzbcmd.gmtime, subject=self.report_rzbcmd.summary)
 
-        # create the history event; deprecated, this should move to the Regression clas
+        # create the history event
         if self.cmd is not 'ignore-activity':
-            if self.deprecated_historyevent:
-                self._deprecated_add_history_event(regression)
+            regression.add_history_event(self)
 
         # let caller know if we created a regression
         return regression_created
@@ -418,24 +369,6 @@ class RbCmdStackNew:
         self.regression = self._locate_regression()
 
     def _add_command(self, cmd, parameters):
-        cmd = cmd.lower()
-
-        # catch a few frequent typos and handle renamed commands
-        if cmd in ('backburner', 'back-burner'):
-            cmd = 'backburn'
-        elif cmd in ('dup', ):
-            cmd = 'duplicate'
-        elif cmd in ('dupof', 'duplicate-of'):
-            cmd = 'duplicateof'
-        elif cmd in ('resolved', 'invalid'):
-            cmd = 'resolve'
-        elif cmd in ('fixedby', 'fixed-by'):
-            cmd = 'fix'
-        elif cmd in ('subject', 'title'):
-            cmd = 'summary'
-        elif cmd in ('unback-burner', 'back-burner'):
-            cmd = 'unbackburn'
-
         cmdobj = RbCmdSingleNew(self, cmd, parameters)
         self._commands.append(cmdobj)
 

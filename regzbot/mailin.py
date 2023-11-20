@@ -237,7 +237,7 @@ def process_tag(repsrc, tag, msg):
         elif tagcmd == "unbackburn" or tagcmd == "unbackburner":
             regressionb.backburner_remove()
         elif tagcmd == "dup" or tagcmd == "duplicate":
-            regressionb.cmd_duplicate_obsolete(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid)
+            regressionb.obsolete_cmd_duplicate(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid)
         elif tagcmd == "dupof" or tagcmd == "dup-of":
             regressionb.dupof(tagload, gmtime, msgid, subject, authorname, repsrc.repsrcid)
         elif tagcmd == "fix" or tagcmd == "fixed-by" or tagcmd == "fixedby:":
