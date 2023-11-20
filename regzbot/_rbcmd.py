@@ -220,18 +220,18 @@ class RbCmdStack:
 
 class RbCmdSingleNew:
     def __init__(self, rbcmd_stack, cmd, parameters):
-        self.activity_regression_report = rbcmd_stack.activity_regression_report
-        self.activity_containing_rzbcmd = rbcmd_stack.activity_containing_rzbcmd
+        self.reptrd = rbcmd_stack.reptrd
+        self.repact = rbcmd_stack.repact
         self.parameters = parameters
+
+        self.deprecated_historyevent = True
 
         # handle frequent typos, alternatives, and renamed commands
         self.cmd = cmd.lower()
         if self.cmd in ('backburner', 'back-burner'):
             self.cmd = 'backburn'
-        elif self.cmd in ('dup', ):
+        elif self.cmd in ('dup', 'dupof', 'duplicate-of' ):
             self.cmd = 'duplicate'
-        elif self.cmd in ('dupof', 'duplicate-of'):
-            self.cmd = 'duplicateof'
         elif self.cmd in ('resolved', 'invalid'):
             self.cmd = 'resolve'
         elif self.cmd in ('fixedby', 'fixed-by'):
@@ -241,44 +241,30 @@ class RbCmdSingleNew:
         elif self.cmd in ('unback-burner', 'back-burner'):
             self.cmd = 'unbackburn'
 
-    def _add_history_event(self, regression):
+    def _deprecated_add_history_event(self, regression):
         regzbotcmd = '%s' % self.cmd
         if self.parameters:
             regzbotcmd = '%s: %s' % (regzbotcmd, self.parameters)
         regzbot.RegHistory.event(
                 regression.regid,
-                self.activity_containing_rzbcmd.gmtime,
-                self.activity_containing_rzbcmd.entryid,
-                self.activity_containing_rzbcmd.summary,
-                self.activity_containing_rzbcmd.realname,
-                repsrcid=self.activity_containing_rzbcmd.repsrc.repsrcid,
+                self.repact.gmtime,
+                self.repact.reptrd.id,
+                self.repact.summary,
+                self.repact.realname,
+                repsrcid=self.repact.repsrc.repsrcid,
                 regzbotcmd=regzbotcmd)
 
     def _backburn(self, regression):
         regression.backburner_add(
-                self.activity_containing_rzbcmd.repsrc.repsrcid,
-                self.activity_containing_rzbcmd.entryid,
-                self.activity_containing_rzbcmd.gmtime,
-                self.activity_containing_rzbcmd.realname,
+                self.repact.repsrc.repsrcid,
+                self.repact.reptrd.id,
+                self.repact.gmtime,
+                self.repact.realname,
                 self.parameters)
 
     def _duplicate(self, regression):
-        regression.cmd_duplicate_obsolete(
-                self.parameters,
-                self.activity_containing_rzbcmd.gmtime,
-                self.activity_containing_rzbcmd.entryid,
-                self.activity_regression_report.summary,
-                self.activity_containing_rzbcmd.realname,
-                self.activity_containing_rzbcmd.repsrc.repsrcid)
-
-    def _duplicateof(self, regression):
-        regression.dupof(
-                self.parameters,
-                self.activity_containing_rzbcmd.gmtime,
-                self.activity_containing_rzbcmd.entryid,
-                self.activity_regression_report.summary,
-                self.activity_containing_rzbcmd.realname,
-                self.activity_containing_rzbcmd.repsrc.repsrcid)
+        regression.cmd_duplicate(self)
+        self.deprecated_historyevent = False
 
     def _fix(self, regression):
         # FIXME: this should not be here
@@ -309,25 +295,25 @@ class RbCmdSingleNew:
             commit_subject = None
 
         regression.fixedby(
-                self.activity_containing_rzbcmd.gmtime,
+                self.repact.gmtime,
                 commit_specifier,
                 commit_subject,
-                repsrcid=self.activity_containing_rzbcmd.repsrc.repsrcid,
-                repentry=self.activity_containing_rzbcmd.entryid,
+                repsrcid=self.repact.repsrc.repsrcid,
+                repentry=self.repact.reptrd.id,
                 )
 
     def _from(self, regression):
         regression.update_author(
-                self.activity_containing_rzbcmd.entryid,
+                self.repact.reptrd.id,
                 self.parameters,
                 )
 
     def _inconclusive(self, regression):
         regression.inconclusive(
                 self.parameters,
-                self.activity_containing_rzbcmd.gmtime,
-                self.activity_containing_rzbcmd.entryid,
-                self.activity_regression_report.repsrc.repsrcid,
+                self.repact.gmtime,
+                self.repact.reptrd.id,
+                self.reptrd.repsrc.id,
                 )
 
     def _introduced(self, regression):
@@ -338,28 +324,32 @@ class RbCmdSingleNew:
 
         # add regression
         regression = regzbot.RegressionBasic.introduced_create(
-                self.activity_regression_report.repsrc.repsrcid,
-                self.activity_regression_report.entryid,
-                self.activity_regression_report.summary,
-                self.activity_regression_report.realname,
-                self.activity_regression_report.username,
+                self.reptrd.repsrc.id,
+                self.reptrd.id,
+                self.reptrd.summary,
+                self.reptrd.realname,
+                self.reptrd.username,
                 self.parameters,
-                self.activity_regression_report.gmtime,
+                self.reptrd.gmtime,
                 )
+
+        # add related activities
+        self.reptrd.examine(rgzbcmds_since=self.repact.created_at)
+
         return regression
 
     def _link(self, regression):
         regression.linkadd(
                 self.parameters,
-                self.activity_containing_rzbcmd.gmtime,
-                self.activity_containing_rzbcmd.realname,
+                self.repact.gmtime,
+                self.repact.realname,
                 )
 
     def _monitor(self, regression):
         regression.monitoradd(
                 self.parameters,
-                self.activity_regression_report.gmtime,
-                self.activity_regression_report.repsrc,
+                self.reptrd.gmtime,
+                self.reptrd.repsrc,
                 None,
                 )
 
@@ -375,8 +365,8 @@ class RbCmdSingleNew:
     def _unmonitor(self, regression):
         regression.monitorremove(
                 self.parameters,
-                self.activity_regression_report.gmtime,
-                self.activity_regression_report.repsrc,
+                self.reptrd.gmtime,
+                self.reptrd.repsrc,
                 None,
                 )
 
@@ -395,7 +385,6 @@ class RbCmdSingleNew:
         elif self.cmd in (
                 'backburn',
                 'duplicate',
-                'duplicateof',
                 'fix',
                 'from',
                 'link',
@@ -410,21 +399,22 @@ class RbCmdSingleNew:
             getattr(self, '_%s' % self.cmd)(regression)
         else:
             regzbot.UnhandledEvent.add(
-                self.activity_containing_rzbcmd.web_url, "unknown regzbot command: %s" % self.cmd, gmtime=self.report_rzbcmd.gmtime, subject=self.report_rzbcmd.summary)
+                self.repact.web_url, "unknown regzbot command: %s" % self.cmd, gmtime=self.report_rzbcmd.gmtime, subject=self.report_rzbcmd.summary)
 
-        # create the history event
+        # create the history event; deprecated, this should move to the Regression clas
         if self.cmd is not 'ignore-activity':
-            self._add_history_event(regression)
+            if self.deprecated_historyevent:
+                self._deprecated_add_history_event(regression)
 
         # let caller know if we created a regression
         return regression_created
 
 
 class RbCmdStackNew:
-    def __init__(self, activity):
+    def __init__(self, repact):
         self._commands = []
-        self.activity_containing_rzbcmd = activity
-        self.activity_regression_report = activity
+        self.repact = repact
+        self.reptrd = repact.reptrd
         self.regression = self._locate_regression()
 
     def _add_command(self, cmd, parameters):
@@ -450,7 +440,7 @@ class RbCmdStackNew:
         self._commands.append(cmdobj)
 
     def _locate_regression(self):
-        return regzbot.RegressionBasic.get_by_activity(self.activity_regression_report)
+        return regzbot.RegressionBasic.get_by_reptrd(self.reptrd)
 
     def process_commands(self):
         def _walk_commands():
@@ -467,7 +457,7 @@ class RbCmdStackNew:
                     yield single_command
 
         regression_created = False
-        assert (self.activity_regression_report)
+        assert (self.reptrd)
         for single_command in _walk_commands():
             if single_command.cmd == 'introduced':
                 regression_created = single_command.process(self.regression)

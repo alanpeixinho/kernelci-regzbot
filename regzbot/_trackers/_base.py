@@ -8,27 +8,15 @@ __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 import re
 
 import regzbot
-import regzbot._rbcmd as rbcmd
+
 
 
 class _activity():
     def __str__(self):
         return _describe(self, ('created_at', 'message', 'realname', 'summary', 'username', 'web_url'))
 
-    # this should be removed once datetime objects are used everywhere
-    @property
-    def gmtime(self):
-        return int(self.created_at.timestamp())
 
-    @property
-    def entryid(self):
-        return self.issue_id
-
-    def all_related_activities(self):
-        # must be overridden by subclasses
-        raise NotImplementedError
-
-class _issue(regzbot.ReportThread):
+class _issue():
     def __init__(self):
         self.__in_examine_already = False
 
@@ -36,24 +24,8 @@ class _issue(regzbot.ReportThread):
         return _describe(self, ('created_at', 'message', 'realname', 'state', 'summary', 'username', 'web_url'))
 
     @classmethod
-    def get_activities(cls, *, since=None):
-        # must be overridden by subclasses
+    def activities(cls, *, since=None):
         raise NotImplementedError
-
-    def examine(self, *, rgzbcmds_since=None):
-        activity = None
-        try:
-            for activity in self.get_activities():
-                rbcmd.process_activity(activity, rgzbcmds_since=rgzbcmds_since)
-        except rbcmd.RegressionCreatedException:
-            # the handled activity contained a #regzbot introduced that created a regression for this issue; in that
-            # case all activities (older and later ones) for it need to be added, so just do that; but only handle
-            # commands in newer activities, which will avoid that we run into an endless loop here
-            if self.__in_examine_already:
-                logger.critical('Endless loop detected, aborting.')
-                raise RuntimeError
-            self.__in_examine_already = True
-            self.examine(rgzbcmds_since=activity.created_at)
 
 
 class _project():
@@ -68,6 +40,7 @@ class _project():
             #
             issue = searchresult.issue
             issue.scan(since)
+
 
 class _possible_search_result():
     def __init__(self, issue_id, pattern, since):

@@ -644,7 +644,7 @@ class GitTree():
                      or len(regression.introduced) < 11:
                 # we don't need to search for those
                 continue
-  
+
             searchstring = "Fixes: %s" % regression.introduced[0:12]
             logger.debug("[GitTree] Trying to find '%s' in gittree %s", searchstring, gittree.name)
             for commit_hexsha in gittree.greplogmsgs(searchstring):
@@ -791,22 +791,26 @@ class RegActivityMonitor():
         self.authormail = authormail
         self.lastchk = lastchk
 
-    def add_activity(self, activity):
+    @property
+    def web_url(self):
+        return ReportSource.url_by_id(self.repsrcid, self.entry)
+
+    def add_activity(self, repact):
         RegActivityEvent.event(
-            activity.gmtime,
-            activity.issue_id,
-            activity.summary,
-            activity.realname,
-            activity.repsrc.repsrcid,
-            patchkind=activity.patchkind,
-            subentry=activity.comment_id,
+            repact.gmtime,
+            repact.reptrd.id,
+            repact.summary,
+            repact.realname,
+            repact.repsrc.id,
+            patchkind=repact.patchkind,
+            subentry=repact.id,
             actimonid=self.actimonid,
             )
 
     @staticmethod
     def get_by_activity(activity):
         dbcursor = DBCON.cursor()
-        for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE repsrcid=(?) AND entry=(?)', (activity.repsrc.repsrcid, activity.entryid)):
+        for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE repsrcid=(?) AND entry=(?)', (activity.repsrc.id, activity.reptrd.id)):
             yield RegActivityMonitor(*dbresult)
 
 
@@ -1517,8 +1521,68 @@ class RegressionBasic():
         self.solved_repentry = solved_repentry
         self.solved_duplicateof = solved_duplicateof
 
-    def get_actimon(self):
+    @cached_property
+    def actimon(self):
         return RegActivityMonitor.get_by_entry(self.actimonid)
+
+    @cached_property
+    def web_url(self):
+        return self.actimon.web_url
+
+    @classmethod
+    def __create(cls, rgzcmd, reptrd, *, introduced=None, gitbranchid=None):
+        if not introduced:
+            introduced = rgzcmd.parameters
+        regression = cls.__create_obsolete(introduced, gitbranchid, reptrd.repsrc.id, reptrd.id, reptrd.gmtime, reptrd.summary, reptrd.realname, reptrd.username)
+
+        # add activities for the regression, but ignore any commands in activities from before the regression was added
+        # to the tracking; that way we also avoid processing the command that brought us here again
+        reptrd.examine(rgzbcmds_since=rgzcmd.repact.created_at)
+
+        return regression
+
+    def __duplicate(self, rgzcmd, other):
+        if self.regid == other.regid:
+            logger.warning('regression[%s, "%s"]: ignoring request to mark this regression as a duplicate of itself.',
+                    self.regid, self.subject)
+            return
+
+        if self.actimon.gmtime < other.actimon.gmtime:
+            older = self
+            younger = other
+        else:
+            older = other
+            younger = self
+
+        younger.solved_gmtime = rgzcmd.repact.gmtime
+        younger.solved_duplicateof = older.regid
+        younger._db_update_solved()
+
+        if self == older:
+            younger._history_event(rgzcmd, cmdline='note: now a duplicate of %s' % older.web_url)
+            logger.info('Regression(%s): Regression(%s) is now a dupliate.',
+                        self.web_url, younger.web_url)
+        else:
+            older._history_event(rgzcmd, cmdline='note: %s is now a duplicate' % younger.web_url)
+            logger.info('Regression(%s): now a duplicate of Regression(%s).',
+                        self.web_url, younger.web_url)
+
+    def _history_event(self, rgzcmd, *, cmdline=None):
+        if not cmdline:
+            cmdline = '%s: %s' % (rgzcmd.cmd, rgzcmd.parameters)
+        RegHistory.event(self.regid, rgzcmd.repact.gmtime, rgzcmd.repact.reptrd.id, rgzcmd.repact.summary,
+                         rgzcmd.repact.realname, repsrcid=rgzcmd.repact.repsrc.id, regzbotcmd=cmdline)
+
+    def cmd_duplicate(self, rgzcmd):
+        reptrd = ReportThread.from_url(rgzcmd.parameters)
+        if not reptrd.summary:
+            reptrd.summary = self.subject
+        regression_created = self.__create(rgzcmd, reptrd, introduced=self.introduced, gitbranchid=self.gitbranchid)
+        regression_created._history_event(rgzcmd, cmdline="introduced: %s [implicit, due to usage of 'duplicate']" % self.introduced)
+        self.__duplicate(rgzcmd, regression_created)
+        self._history_event(rgzcmd)
+
+    ####################################################################################################################
 
     @staticmethod
     def db_create(version, dbcursor):
@@ -1628,10 +1692,10 @@ class RegressionBasic():
         return None
 
     @classmethod
-    def get_by_activity(cls, activity):
+    def get_by_reptrd(cls, reptrd):
         dbcursor = DBCON.cursor()
         dbresult = dbcursor.execute(
-            'SELECT %s FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.repsrcid=? AND actmonitor.entry=?' % RegressionBasic.DBCOLS, (activity.repsrc.repsrcid, activity.entryid)).fetchone()
+            'SELECT %s FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.repsrcid=? AND actmonitor.entry=?' % RegressionBasic.DBCOLS, (reptrd.repsrc.id, reptrd.id)).fetchone()
         if dbresult:
             return cls(*dbresult)
         return None
@@ -1769,7 +1833,7 @@ class RegressionBasic():
             return introduced, None
 
     @classmethod
-    def __create(cls, introduced, gitbranchid, repsrcid, entry, gmtime, subject, authorname, authormail):
+    def __create_obsolete(cls, introduced, gitbranchid, repsrcid, entry, gmtime, subject, authorname, authormail):
         dbcursor = DBCON.cursor()
 
         # create regression
@@ -1802,7 +1866,7 @@ class RegressionBasic():
     @classmethod
     def introduced_create(cls, repsrcid, entry, subject, authorname, authormail, introduced, gmtime):
         introduced, gitbranchid = cls.__introduced_precheck(introduced, gmtime)
-        return cls.__create(introduced, gitbranchid, repsrcid, entry, gmtime, subject, authorname, authormail)
+        return cls.__create_obsolete(introduced, gitbranchid, repsrcid, entry, gmtime, subject, authorname, authormail)
 
     def introduced_update(self, tagload):
         self.introduced, self.gitbranchid = self.__introduced_precheck(tagload)
@@ -1830,7 +1894,7 @@ class RegressionBasic():
         authormail = None
 
         # create regression
-        return self.__create(self.introduced, self.gitbranchid, repsrc.repsrcid, entry, gmtime, subject, authorname, authormail)
+        return self.__create_obsolete(self.introduced, self.gitbranchid, repsrc.repsrcid, entry, gmtime, subject, authorname, authormail)
 
 
     def cmd_duplicate_obsolete(self, tagload, gmtime, msgid, msgsubject, authorname, repsrcid):
@@ -2482,6 +2546,7 @@ class UnhandledEvent():
 
 class ReportSource():
     def __init__(self, repsrcid, priority, name, serverurl, kind, weburl, identifiers, lastchked):
+        self.id = repsrcid
         self.repsrcid = repsrcid
         self.name = name
         self.serverurl = serverurl
@@ -2493,7 +2558,7 @@ class ReportSource():
 
     def __new__(cls, *args, **kwargs):
         if args[4] == 'gitlab':
-            return super().__new__(_trackers._gitlab.GlReportSource)
+            return super().__new__(_trackers._gitlab.GlRepSrc)
         else:
             return super().__new__(cls)
 
@@ -2678,13 +2743,35 @@ class ReportSource():
         return False
 
 
+class ReportActivity():
+    def __init__(self):
+        # ensure self.id is present, but accept None:
+        _ = self.id
+
+        assert self.reptrd
+        self.repsrc = self.reptrd.repsrc
+
+
 class ReportThread():
+    def __init__(self):
+        assert self.id
+        assert self.repsrc
+
     @classmethod
     def from_url(cls, url):
         for repsrc in ReportSource.getall():
             if repsrc.supports_url(url):
-                return repsrc.get_entry(url)
+                return repsrc.thread(url=url)
 
+    def examine(self, *, rgzbcmds_since=None):
+        try:
+            for repact in self.activities():
+                _rbcmd.process_activity(repact, rgzbcmds_since=rgzbcmds_since)
+        except _rbcmd.RegressionCreatedException:
+            # the handled activity contained a #regzbot introduced that created a regression for this issue; in that
+            # case all activities (older and later ones) for it will be added there, so there is nothing more for us
+            # to do here
+            pass
 
 class ReportSourceUnsupported(Exception):
     pass
