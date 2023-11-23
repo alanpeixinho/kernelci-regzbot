@@ -105,7 +105,7 @@ class GlIssue(_trackers._base._issue):
 
         super().__init__()
 
-    def activities(self, *, since=None):
+    def activities(self, *, since=None, until=None):
         def _get_commit(comment):
             # ohh boy, there must be a better way to do this, but I looked hard and did not find one :-/
             if type(comment.body) is set and comment.body[0] == 'mentioned in commit ':
@@ -150,6 +150,8 @@ class GlIssue(_trackers._base._issue):
         for activity in self.__acitivities:
             if since and activity.created_at < since:
                 continue
+            elif until and activity.created_at > until:
+                continue
             yield activity
 
 
@@ -182,7 +184,7 @@ class GlProject(_trackers._base._project):
         logger.debug('[gitlab] %s: retrieving commit %s', self.web_url[8:], hexsha)
         return self._glpy_project.commits.get(hexsha)
 
-    def threads_updated(self, since):
+    def updated_issues(self, since):
         logger.debug('[gitlab] %s: retrieving issues updated since %s', self.web_url[8:], since)
         for issue in self._glpy_project.issues.list(iterator=True, order_by='updated_at', updated_after=since):
             yield GlIssue(self, issue)
@@ -213,7 +215,7 @@ class GlPossibleSearchHit(_trackers._base._possible_search_result):
     @property
     def issue(self):
         if not self._issue:
-            self._issue = self._gl_project.issue(self.issue_id)
+            self._issue = self._gl_project.issue(id=self.issue_id)
         return self._issue
 
     def is_hit_in_submission(self):
@@ -237,7 +239,7 @@ class GlRepAct(regzbot.ReportActivity):
         super().__init__()
 
 
-class GlRepSrc(regzbot.ReportSource):
+class GlRepSrc(_trackers._base._repsrc):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -252,16 +254,25 @@ class GlRepSrc(regzbot.ReportSource):
         assert self.serverurl == project.web_url
         return project
 
+    def search(self, pattern, since):
+        for searchresult in self._gl_project.search(pattern, since):
+            yield searchresult
+
     def supports_url(self, url):
         if url.startswith(self.serverurl):
             return True
 
-    def thread(self, *, id=None, url=None):
-        gl_issue = self._gl_project.issue(id=id, url=url)
+    def updated_threads(self, since):
+        for gl_issue in self._gl_project.updated_issues(since):
+            yield GlRepTrd(self, gl_issue)
+
+    def thread(self, *, id=None, url=None, gl_issue=None):
+        if not gl_issue:
+            gl_issue = self._gl_project.issue(id=id, url=url)
         return GlRepTrd(self, gl_issue)
 
 
-class GlRepTrd(regzbot.ReportThread):
+class GlRepTrd(_trackers._base._reptrd):
     def __init__(self, repsrc, gl_issue):
         self.repsrc = repsrc
         self._gl_issue = gl_issue
@@ -275,8 +286,8 @@ class GlRepTrd(regzbot.ReportThread):
         self.username = gl_issue.username
         super().__init__()
 
-    def activities(self):
-        for activity in self._gl_issue.activities():
+    def activities(self, *, since=None, until=None):
+        for activity in self._gl_issue.activities(since=since, until=until):
             yield GlRepAct(self, activity)
 
 
@@ -409,7 +420,7 @@ def __test():
 
     print('All issues updated in the past %s days:' % TESTDATA['search_days_updated'])
     since = datetime.datetime.now() - datetime.timedelta(days=TESTDATA['search_days_updated'])
-    for issue in project.threads_updated(since):
+    for issue in project.updated_issues(since):
         print('', issue.web_url, issue.summary[0:80])
 
 

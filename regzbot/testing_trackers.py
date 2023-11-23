@@ -61,6 +61,7 @@ def run(resultfilename, tmpdir, _):
                 os.system('read -p "Press any key to continue"')
 
             # finish this up
+            regzbot._TESTING_UNTIL = None
             innercount += 1
         outercount += 1
     resultfile.close()
@@ -71,8 +72,14 @@ def run(resultfilename, tmpdir, _):
 def trackertest_0_0(funcname):
     regzbot.ReportSource.add('knurd42', 3,
                  'https://gitlab.com/knurd42/linux',
-                 'gitlab', '<unused>')
-    regzbot.ReportSource.examine('https://gitlab.com/knurd42/linux/-/issues/11')
+                 'gitlab', '<unused>',
+                 lastchked=int(datetime.datetime.fromisoformat('2023-11-20T00:00:00.000Z').timestamp()))
+
+    regzbot._TESTING_UNTIL = datetime.datetime.fromisoformat('2023-11-20T11:38:00.000Z')
+    regzbot.ReportSource.update_all()
+    return False, False
+
+def trackertest_0_1(funcname):
+    regzbot._TESTING_UNTIL = datetime.datetime.fromisoformat('2023-11-20T12:30:00.000Z')
+    regzbot.ReportSource.update_all()
     return False, True
-
-

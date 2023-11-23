@@ -22,6 +22,7 @@ from functools import cached_property
 
 __VERSION__ = '0.0.1-dev'
 __CITESTING__ = False
+_TESTING_UNTIL = None
 DBCON = None
 REPOSDIR = None
 CONFIGURATION = None
@@ -930,10 +931,22 @@ class RegActivityMonitor():
             return RegActivityMonitor(*dbresult)
 
     @staticmethod
+    def get_by_repsrc(repsrc):
+        dbcursor = DBCON.cursor()
+        for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE repsrcid=(?)', (repsrc.id,)):
+            yield RegActivityMonitor(*dbresult)
+
+    @staticmethod
     def get_by_repsrc_n_entry(repsrc, entry):
         dbcursor = DBCON.cursor()
         for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE repsrcid=(?) AND entry=(?)', (repsrc.repsrcid, entry)):
             return RegActivityMonitor(*dbresult)
+
+    @staticmethod
+    def get_by_reptrd(reptrd):
+        dbcursor = DBCON.cursor()
+        for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE repsrcid=(?) AND entry=(?)', (reptrd.repsrc.id, reptrd.id)):
+            yield RegActivityMonitor(*dbresult)
 
     @staticmethod
     def get_by_regid_n_entry(regid, entry):
@@ -2808,6 +2821,17 @@ class ReportSource():
         dbcursor.execute('''UPDATE reportsources SET lastchked = (?) WHERE repsrcid=(?)''',
                          (self.lastchked, self.repsrcid))
 
+
+    def update(self):
+        raise NotImplementedError
+
+    @classmethod
+    def update_all(cls):
+        for repsrc in cls.getall():
+            if repsrc.kind not in ('gitlab', 'github'):
+                continue
+            repsrc.update()
+
     def supports_url(self, url):
         return False
 
@@ -2832,10 +2856,10 @@ class ReportThread():
             if repsrc.supports_url(url):
                 return repsrc.thread(url=url)
 
-    def examine(self, *, rgzbcmds_since=None):
+    def examine(self, *, actimon=None, rgzbcmds_since=None):
         try:
             for repact in self.activities():
-                _rbcmd.process_activity(repact, rgzbcmds_since=rgzbcmds_since)
+                _rbcmd.process_activity(repact, actimon=actimon, rgzbcmds_since=rgzbcmds_since)
         except _rbcmd.RegressionCreatedException:
             # the handled activity contained a #regzbot introduced that created a regression for this issue; in that
             # case all activities (older and later ones) for it will be added there, so there is nothing more for us

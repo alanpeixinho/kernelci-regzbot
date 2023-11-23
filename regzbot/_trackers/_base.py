@@ -5,10 +5,10 @@
 __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
 
+import datetime
 import re
 
 import regzbot
-
 
 
 class _activity():
@@ -29,17 +29,7 @@ class _issue():
 
 
 class _project():
-    def scan(self, since):
-        #
-        # FIXME: check for updates to already tracked tickets
-        #
-
-        for searchresult in self.search('#regzbot', since):
-            #
-            # FIXME: ignore if issue is tracked already
-            #
-            issue = searchresult.issue
-            issue.scan(since)
+    pass
 
 
 class _possible_search_result():
@@ -69,6 +59,49 @@ class _possible_search_result():
         for hit in self.get_matching_activities():
             yield hit
 
+class _reptrd(regzbot.ReportThread):
+    def update(self, since, until, *, actimon=None, rgzbcmds_since=None):
+        if regzbot._TESTING_UNTIL:
+            check_started = regzbot._TESTING_UNTIL
+        try:
+            for activity in self.activities(since=since, until=until):
+                regzbot._rbcmd.process_activity(activity, actimon=actimon, rgzbcmds_since=rgzbcmds_since)
+        except regzbot._rbcmd.RegressionCreatedException:
+            # the handled activity contained a #regzbot introduced that created a regression for this issue; during that
+            # process all activities (both older and younger) for it will be added by calling this method again, so
+            # there is nothing more for us to do here
+            pass
+
+
+class _repsrc(regzbot.ReportSource):
+    def update(self):
+        # prep
+        if not regzbot._TESTING_UNTIL:
+            check_started = datetime.datetime.now(datetime.timezone.utc)
+        else:
+            check_started = regzbot._TESTING_UNTIL
+        if self.lastchked:
+            check_last = datetime.datetime.fromtimestamp(self.lastchked, tz=datetime.timezone.utc)
+        else:
+            check_last = check_started - datetime.timedelta(days = 90)
+
+        threads_processed = []
+
+        # check if any tracked issues were updated
+        for updated_thread in self.updated_threads(since=check_last):
+            for actimon in regzbot.RegActivityMonitor.get_by_reptrd(updated_thread):
+                updated_thread.update(check_last, check_started, actimon=actimon)
+                threads_processed.append(updated_thread.id)
+
+        # scan any untracked issues that have #regzbot commands in them
+        for searchresult in self.search('#regzbot', since=check_last):
+            if searchresult.issue_id in threads_processed:
+                continue
+            thread = self.thread(gl_issue=searchresult.issue)
+            thread.update(check_last, check_started)
+            threads_processed.append(searchresult.issue_id)
+
+        self.set_lastchked(int(check_started.timestamp()))
 
 def _describe(obj, variable_names):
     content = []

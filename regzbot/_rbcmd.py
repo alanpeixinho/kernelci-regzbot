@@ -293,7 +293,6 @@ class RbCmdSingleNew:
 
         # add regression and add related activities
         regression = regzbot.RegressionBasic.cmd_introduced_new(self, hexsha)
-        self.reptrd.examine(rgzbcmds_since=self.repact.created_at)
         return regression
 
     def _cmd_link(self, regression):
@@ -400,6 +399,11 @@ class RbCmdStackNew:
             else:
                 assert (self.regression)
                 single_command.process(self.regression)
+
+        # if a regressions was created and all commands processed, it's time to add all activities for it, which
+        # might include even more commands
+        if regression_created:
+            self.reptrd.update(None, None, actimon=regression_created.actimon, rgzbcmds_since=self.repact.created_at)
         return regression_created
 
 
@@ -438,9 +442,11 @@ def _parse(cmd_section):
         splitted = re.split(r'^([\w-]+)(:?\n?\s+)?(.*)?$', cmd_line)
         yield(splitted[1], splitted[3])
 
-def process_activity(activity, rgzbcmds_since):
-    # add activity when something is montitoring this
-    for actimon in regzbot.RegActivityMonitor.get_by_activity(activity):
+def process_activity(activity, *, rgzbcmds_since=None, actimon=None):
+    if regzbot._TESTING_UNTIL and activity.created_at >= regzbot._TESTING_UNTIL:
+        return
+
+    if actimon:
         # check for flags before adding a activity; note that the RE used below is derivated from one in
         # RbCmdStackNew._parse and explained in more detail there
         if not _ignore_activity(activity.message):
