@@ -16,7 +16,7 @@ logger = regzbot.logger
 
 
 def init(tmpdir):
-    regzbot.set_citesting('online')
+    regzbot.set_citesting('trackers')
     regzbot.basicressources_setup(
         tmpdir=tmpdir, gittreesdir=True, databasedir=os.path.join(tmpdir, 'db-trackertsts'))
     regzbot.basicressources_init(
@@ -82,4 +82,4 @@ def trackertest_0_0(funcname):
 def trackertest_0_1(funcname):
     regzbot._TESTING_UNTIL = datetime.datetime.fromisoformat('2023-11-20T12:30:00.000Z')
     regzbot.ReportSource.update_all()
-    return False, True
+    return False, False

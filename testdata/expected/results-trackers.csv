@@ -1,0 +1,22 @@
+[trackertest_0_0]
+REGRESSION: issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified, back-burner
+INITIAL_REPORT: 1700478630, issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/11
+ACTIVITY: knurd42/linux, issue 11: creation, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700478630, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment(#1), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480216, PatchKind(None)
+HISTORY: knurd42/linux, issue 11: creation, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: new comment(#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, backburn: some good reason
+LATEST: knurd42/linux, issue 11: new comment(#1), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480216, PatchKind(None)
+
+[trackertest_0_1]
+REGRESSION: issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1700478630, issue for regzbot testing, Thorsten Leemhuis, None, https://gitlab.com/knurd42/linux/-/issues/11
+ACTIVITY: knurd42/linux, issue 11: creation, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700478630, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment(#1), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480216, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment(#2), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480421, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment(#3), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700482983, PatchKind(None)
+HISTORY: knurd42/linux, issue 11: creation, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: new comment(#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, backburn: some good reason
+HISTORY: knurd42/linux, issue 11: new comment(#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, unbackburn
+HISTORY: knurd42/linux, issue 11: new comment(#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, from: Thorsten Leemhuis
+LATEST: knurd42/linux, issue 11: new comment(#3), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700482983, PatchKind(None)
+

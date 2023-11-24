@@ -220,6 +220,7 @@ class RbCmdStack:
 
 class RbCmdSingleNew:
     def __init__(self, rbcmd_stack, cmd, parameters):
+        self._rbcmd_stack = rbcmd_stack
         self.cmd = cmd.lower()
         self.repact = rbcmd_stack.repact
         self.reptrd = rbcmd_stack.reptrd
@@ -254,7 +255,8 @@ class RbCmdSingleNew:
 
     def _cmd_duplicate(self, regression):
         for url in self.parameters:
-            regression.cmd_duplicate(self, url)
+            regression_created = regression.cmd_duplicate(self, url)
+            self._rbcmd_stack.add_related_activities(regression_created)
 
     def _cmd_fix(self, regression):
         def _remove_quoting_chars(pattern):
@@ -286,14 +288,10 @@ class RbCmdSingleNew:
 
     def _cmd_introduced(self, regression):
         hexsha = self.parameters
-
         if regression:
             regression.cmd_introduced_update(self, hexsha)
             return None
-
-        # add regression and add related activities
-        regression = regzbot.RegressionBasic.cmd_introduced_new(self, hexsha)
-        return regression
+        return regzbot.RegressionBasic.cmd_introduced_new(self, hexsha)
 
     def _cmd_link(self, regression):
         url, description = self._parse_link_and_description(self.parameters)
@@ -374,6 +372,14 @@ class RbCmdStackNew:
     def _locate_regression(self):
         return regzbot.RegressionBasic.get_by_reptrd(self.reptrd)
 
+    # maybe the following is somewhat oddly placed here, but putting it in Regression class felt misplaced, too, as this
+    # only should be executed in the contect of commands like duplicate and introduced; and in the latter case only
+    # after all commands have been executed
+    def add_related_activities(self, regression, *, reptrd=None):
+        if not reptrd:
+            reptrd = ReportThread.from_actimon(regression.actimon)
+        reptrd.update(None, None, rgzbcmds_since=self.repact.created_at, actimon=regression.actimon)
+
     def process_commands(self):
         def _walk_commands():
             # raise introduced commands first, poke commands last
@@ -403,7 +409,7 @@ class RbCmdStackNew:
         # if a regressions was created and all commands processed, it's time to add all activities for it, which
         # might include even more commands
         if regression_created:
-            self.reptrd.update(None, None, actimon=regression_created.actimon, rgzbcmds_since=self.repact.created_at)
+            self.add_related_activities(regression_created, reptrd=self.reptrd)
         return regression_created
 
 

@@ -1571,18 +1571,11 @@ class RegressionBasic():
     def username(self):
         return self.actimon.username
 
-
-
-
     @classmethod
     def __create(cls, rgzcmd, reptrd, *, introduced=None, gitbranchid=None):
         if not introduced:
             introduced = rgzcmd.parameters
         regression = cls.__create_obsolete(introduced, gitbranchid, reptrd.repsrc.id, reptrd.id, reptrd.gmtime, reptrd.summary, reptrd.realname, reptrd.username)
-
-        # add activities for the regression, but ignore any commands in activities from before the regression was added
-        # to the tracking; that way we also avoid processing the command that brought us here again
-        reptrd.examine(rgzbcmds_since=rgzcmd.repact.created_at)
 
         return regression
 
@@ -1629,6 +1622,7 @@ class RegressionBasic():
         if not reptrd.summary:
             reptrd.summary = self.subject
         regression_created = self.__create(rgzcmd, reptrd, introduced=self.introduced, gitbranchid=self.gitbranchid)
+        regression_created.add_related_activities(rgzcmd.repact.created_at, reptrd=reptrd)
         regression_created.add_history_event(rgzcmd, cmdline="introduced: %s [implicit, due to usage of 'duplicate']"
                                                  % self.introduced)
         self.__duplicate(rgzcmd, regression_created)
@@ -2689,13 +2683,6 @@ class ReportSource():
         logger.debug('[db reportsources] failed to deleted entry (%s)', dbresult)
         return False
 
-    @staticmethod
-    def examine(url):
-        repentry = ReportThread.from_url(url)
-        if not repentry:
-            return False
-        return repentry.examine()
-
     def ismail(self):
         if self.kind == 'lore':
             return True
@@ -2816,7 +2803,13 @@ class ReportSource():
         return None
 
     def set_lastchked(self, lastchked):
-        self.lastchked = lastchked
+        if isinstance(lastchked, int):
+            self.lastchked = lastchked
+        elif isinstance(lastchked, datetime.datetime):
+            self.lastchked = timendate_dt_to_gmtime(lastchked)
+        else:
+            raise RuntimeError
+
         dbcursor = DBCON.cursor()
         dbcursor.execute('''UPDATE reportsources SET lastchked = (?) WHERE repsrcid=(?)''',
                          (self.lastchked, self.repsrcid))
@@ -2856,15 +2849,10 @@ class ReportThread():
             if repsrc.supports_url(url):
                 return repsrc.thread(url=url)
 
-    def examine(self, *, actimon=None, rgzbcmds_since=None):
-        try:
-            for repact in self.activities():
-                _rbcmd.process_activity(repact, actimon=actimon, rgzbcmds_since=rgzbcmds_since)
-        except _rbcmd.RegressionCreatedException:
-            # the handled activity contained a #regzbot introduced that created a regression for this issue; in that
-            # case all activities (older and later ones) for it will be added there, so there is nothing more for us
-            # to do here
-            pass
+    @classmethod
+    def from_actimon(cls, actimon):
+        repsrc = ReportSource.get_by_id(actimon.repsrcid)
+        return repsrc.thread(id=actimon.entryid)
 
 class ReportSourceUnsupported(Exception):
     pass
@@ -3029,6 +3017,16 @@ def hours_delta(past):
 
 def days_delta(past):
     return (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(past, datetime.timezone.utc)).days
+
+def timendate_now():
+    return datetime.datetime.now(datetime.timezone.utc)
+
+def timendate_dt_to_gmtime(dt):
+    return int(dt.timestamp())
+
+def timendate_gmtime_to_dt(gmtime):
+    return datetime.datetime.fromtimestamp(gmtime, tz=datetime.timezone.utc)
+
 
 
 def parse_link(url):

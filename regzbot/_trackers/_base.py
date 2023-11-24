@@ -17,9 +17,6 @@ class _activity():
 
 
 class _issue():
-    def __init__(self):
-        self.__in_examine_already = False
-
     def __str__(self):
         return _describe(self, ('created_at', 'message', 'realname', 'state', 'summary', 'username', 'web_url'))
 
@@ -28,18 +25,15 @@ class _issue():
         raise NotImplementedError
 
 
-class _project():
-    pass
-
-
 class _possible_search_result():
     def __init__(self, issue_id, pattern, since):
+        self.id = issue_id
         self.issue_id = issue_id
         self._pattern = pattern
         self._since = since
 
     def __str__(self):
-        return _describe(self, ('issue', 'issue_id'))
+        return _describe(self, ('id', ))
 
     def _check_pattern(self, body):
         return bool(re.search(self._pattern, body))
@@ -52,7 +46,7 @@ class _possible_search_result():
             if self._check_pattern(activity.message):
                 yield activity
 
-    # meant only for testing infra
+    # only used in testing infra
     def _get_hits(self):
         if self.is_hit_in_submission():
             yield self.issue
@@ -77,11 +71,11 @@ class _repsrc(regzbot.ReportSource):
     def update(self):
         # prep
         if not regzbot._TESTING_UNTIL:
-            check_started = datetime.datetime.now(datetime.timezone.utc)
+            check_started = regzbot.timendate_now()
         else:
             check_started = regzbot._TESTING_UNTIL
         if self.lastchked:
-            check_last = datetime.datetime.fromtimestamp(self.lastchked, tz=datetime.timezone.utc)
+            check_last = regzbot.timendate_gmtime_to_dt(self.lastchked)
         else:
             check_last = check_started - datetime.timedelta(days = 90)
 
@@ -101,7 +95,7 @@ class _repsrc(regzbot.ReportSource):
             thread.update(check_last, check_started)
             threads_processed.append(searchresult.issue_id)
 
-        self.set_lastchked(int(check_started.timestamp()))
+        self.set_lastchked(check_started)
 
 def _describe(obj, variable_names):
     content = []

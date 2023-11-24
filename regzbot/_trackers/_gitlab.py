@@ -20,8 +20,7 @@ if __name__ != "__main__":
 else:
     import logging
     logger = logging
-    #if False:
-    if True:
+    if False:
         logger.basicConfig(level=logging.DEBUG)
         logging.getLogger("urllib3").setLevel(logging.WARNING)
 
@@ -45,7 +44,7 @@ class GlActivity(_trackers._base._activity):
             self.web_url = self._gl_issue.web_url
         elif comment:
             self.created_at = datetime.datetime.fromisoformat(comment.created_at)
-            self.comment_id = comment.id
+            self.id = comment.id
             self.message = comment.body
             self.realname = comment.author['name']
             if commit:
@@ -56,7 +55,7 @@ class GlActivity(_trackers._base._activity):
                 if comment_number:
                     self.summary = self.summary + '(#%s)' % comment_number
             self.username = comment.author['username']
-            self.web_url = '%s#note_%s' % (self._gl_issue.web_url, self.comment_id)
+            self.web_url = '%s#note_%s' % (self._gl_issue.web_url, comment.id)
         elif event:
             self.created_at = datetime.datetime.fromisoformat(event.created_at)
             self.message = ''
@@ -68,20 +67,19 @@ class GlActivity(_trackers._base._activity):
             logger.critical('[gitlab] GlActivity called with something unknown; aborting.')
             sys.exit(1)
 
-        # do this at the end, as it will perfor
-        super().__init__()
-
 
 class GlInstance():
     def __init__(self, netloc, token):
         logger.debug('[gitlab] %s: connecting', netloc)
-        self._glpy_instance = gitlab.Gitlab('https://%s' % netloc, token)
-        self.web_url = netloc
+        self.web_url = 'https://%s' % netloc
+        self._glpy_instance = gitlab.Gitlab(self.web_url, token)
 
     def project(self, project_name):
         global _CACHE_PROJECTS
         if project_name not in _CACHE_PROJECTS:
             logger.debug('[gitlab] %s: opening project %s', self.web_url, project_name)
+            if len(_CACHE_PROJECTS) > 12:
+                del _CACHE_PROJECTS[(next(iter(_CACHE_PROJECTS)))]
             _CACHE_PROJECTS[project_name] = GlProject(self, self._glpy_instance.projects.get(project_name))
         return _CACHE_PROJECTS[project_name]
 
@@ -100,12 +98,8 @@ class GlIssue(_trackers._base._issue):
         self.username = glpy_issue.author['username']
         self.web_url = glpy_issue.web_url
 
-        # it can easily happen that we need them multiple times; cache them
-        self.__acitivities = []
-
-        super().__init__()
-
-    def activities(self, *, since=None, until=None):
+    @cached_property
+    def _acitivities(self):
         def _get_commit(comment):
             # ohh boy, there must be a better way to do this, but I looked hard and did not find one :-/
             if type(comment.body) is set and comment.body[0] == 'mentioned in commit ':
@@ -126,28 +120,30 @@ class GlIssue(_trackers._base._issue):
                 project = self.gl_project
             return project.commit(hexsha)
 
-        # walk comments (and thus commits) first, then events; that they will be raised out
-        # of order is not a problem for now
-        if not self.__acitivities:
-            self.__acitivities.append(GlActivity(self))
+        # walk comments (and thus commits) first, then events;
+        _acitivities = []
+        _acitivities.append(GlActivity(self))
 
-            logger.debug('[gitlab] %s: retrieving comments', self.web_url[8:])
-            comment_counter = 0
-            for comment in self._glpy_issue.notes.list(sort='asc', iterator=True):
-                commit = _get_commit(comment)
-                # ignore all other system notes (e.g. notes about changes to the object, like
-                # assignee changes or changes to the issue's description)
-                if not commit and comment.system:
-                    continue
-                if not commit:
-                    comment_counter += 1
-                self.__acitivities.append(GlActivity(self, comment=comment, comment_number=comment_counter, commit=commit))
+        logger.debug('[gitlab] %s: retrieving comments and events', self.web_url[8:])
+        comment_counter = 0
+        for comment in self._glpy_issue.notes.list(sort='asc', iterator=True):
+            commit = _get_commit(comment)
+            # ignore all other system notes (e.g. notes about changes to the object, like
+            # assignee changes or changes to the issue's description)
+            if not commit and comment.system:
+                continue
+            if not commit:
+                comment_counter += 1
+            _acitivities.append(GlActivity(self, comment=comment, comment_number=comment_counter, commit=commit))
+        for event in self._glpy_issue.resourcestateevents.list(sort='asc', iterator=True):
+            _acitivities.append(GlActivity(self, event=event))
 
-            logger.debug('[gitlab] %s: retrieving events', self.web_url[8:])
-            for event in self._glpy_issue.resourcestateevents.list(sort='asc', iterator=True):
-                self.__acitivities.append(GlActivity(self, event=event))
+        # sort
+        _acitivities.sort(key=lambda x: x.created_at)
+        return _acitivities
 
-        for activity in self.__acitivities:
+    def activities(self, *, since=None, until=None):
+        for activity in self._acitivities:
             if since and activity.created_at < since:
                 continue
             elif until and activity.created_at > until:
@@ -155,7 +151,7 @@ class GlIssue(_trackers._base._issue):
             yield activity
 
 
-class GlProject(_trackers._base._project):
+class GlProject():
     def __init__(self, gl_instance, glpy_project):
         self.gl_instance = gl_instance
         self._glpy_project = glpy_project
@@ -172,6 +168,10 @@ class GlProject(_trackers._base._project):
     def longname(self):
         return self._glpy_project.path_with_namespace
 
+    def commit(self, hexsha):
+        logger.debug('[gitlab] %s: retrieving commit %s', self.web_url[8:], hexsha)
+        return self._glpy_project.commits.get(hexsha)
+
     def issue(self, *, id=None, url=None):
         assert any((id, url))
         if url:
@@ -179,15 +179,6 @@ class GlProject(_trackers._base._project):
         logger.debug('[gitlab] %s: retrieving issue %s', self.web_url[8:], id)
         issue = self._glpy_project.issues.get(id)
         return GlIssue(self, issue)
-
-    def commit(self, hexsha):
-        logger.debug('[gitlab] %s: retrieving commit %s', self.web_url[8:], hexsha)
-        return self._glpy_project.commits.get(hexsha)
-
-    def updated_issues(self, since):
-        logger.debug('[gitlab] %s: retrieving issues updated since %s', self.web_url[8:], since)
-        for issue in self._glpy_project.issues.list(iterator=True, order_by='updated_at', updated_after=since):
-            yield GlIssue(self, issue)
 
     def search(self, pattern, since):
         additional_msg = ''
@@ -203,6 +194,11 @@ class GlProject(_trackers._base._project):
             if datetime.datetime.fromisoformat(searchresult['created_at']) < since:
                 continue
             yield GlPossibleSearchHit(self, searchresult['noteable_iid'], pattern, since)
+
+    def updated_issues(self, since):
+        logger.debug('[gitlab] %s: retrieving issues updated since %s', self.web_url[8:], since)
+        for issue in self._glpy_project.issues.list(iterator=True, order_by='updated_at', updated_after=since):
+            yield GlIssue(self, issue)
 
 
 class GlPossibleSearchHit(_trackers._base._possible_search_result):
@@ -294,6 +290,8 @@ class GlRepTrd(_trackers._base._reptrd):
 def connect(instance_name):
     global _CACHE_INSTANCES
     if instance_name not in _CACHE_INSTANCES:
+        if len(_CACHE_INSTANCES) > 5:
+            del _CACHE_INSTANCES[(next(iter(_CACHE_INSTANCES)))]
         _CACHE_INSTANCES[instance_name] = GlInstance(instance_name, regzbot.CONFIGURATION[instance_name]['token'])
     return _CACHE_INSTANCES[instance_name]
 

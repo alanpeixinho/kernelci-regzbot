@@ -23,7 +23,7 @@ import regzbot.testing_trackers
 SUPPORTED_TESTMODES = {
         'offline': regzbot.testing_offline,
         'online': regzbot.testing_online,
-#        'trackers': regzbot.testing_trackers
+        'trackers': regzbot.testing_trackers
     }
 
 logger = regzbot.logger
