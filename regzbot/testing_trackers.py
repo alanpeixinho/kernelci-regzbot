@@ -83,3 +83,8 @@ def trackertest_0_1(funcname):
     regzbot._TESTING_UNTIL = datetime.datetime.fromisoformat('2023-11-20T12:30:00.000Z')
     regzbot.ReportSource.update_all()
     return False, False
+
+def trackertest_0_2(funcname):
+#    regzbot._TESTING_UNTIL = datetime.datetime.fromisoformat('2023-11-20T12:30:00.000Z')
+    regzbot.ReportSource.update_all()
+    return False, False

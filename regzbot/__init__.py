@@ -1619,13 +1619,14 @@ class RegressionBasic():
 
     def cmd_duplicate(self, rgzcmd, url):
         reptrd = ReportThread.from_url(url)
+        assert reptrd
         if not reptrd.summary:
             reptrd.summary = self.subject
         regression_created = self.__create(rgzcmd, reptrd, introduced=self.introduced, gitbranchid=self.gitbranchid)
-        regression_created.add_related_activities(rgzcmd.repact.created_at, reptrd=reptrd)
         regression_created.add_history_event(rgzcmd, cmdline="introduced: %s [implicit, due to usage of 'duplicate']"
                                                  % self.introduced)
         self.__duplicate(rgzcmd, regression_created)
+        return regression_created
 
     def cmd_fix(self, rgzcmd, hexsha, summary):
         self.fixedby(rgzcmd.repact.gmtime, hexsha, summary, repsrcid=rgzcmd.repact.repsrc.repsrcid,
@@ -2845,14 +2846,18 @@ class ReportThread():
 
     @classmethod
     def from_url(cls, url):
+        repsrc_generic = None
         for repsrc in ReportSource.getall():
-            if repsrc.supports_url(url):
+            if repsrc.kind == 'generic':
+                repsrc_generic = repsrc
+            elif repsrc.supports_url(url):
                 return repsrc.thread(url=url)
+        return repsrc_generic.thread(url=url)
 
     @classmethod
     def from_actimon(cls, actimon):
         repsrc = ReportSource.get_by_id(actimon.repsrcid)
-        return repsrc.thread(id=actimon.entryid)
+        return repsrc.thread(id=actimon.entry)
 
 class ReportSourceUnsupported(Exception):
     pass

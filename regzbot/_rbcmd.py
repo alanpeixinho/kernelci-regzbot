@@ -254,7 +254,7 @@ class RbCmdSingleNew:
         regression.cmd_backburn(self, reason)
 
     def _cmd_duplicate(self, regression):
-        for url in self.parameters:
+        for url in self.parameters.split():
             regression_created = regression.cmd_duplicate(self, url)
             self._rbcmd_stack.add_related_activities(regression_created)
 
@@ -377,7 +377,7 @@ class RbCmdStackNew:
     # after all commands have been executed
     def add_related_activities(self, regression, *, reptrd=None):
         if not reptrd:
-            reptrd = ReportThread.from_actimon(regression.actimon)
+            reptrd = regzbot.ReportThread.from_actimon(regression.actimon)
         reptrd.update(None, None, rgzbcmds_since=self.repact.created_at, actimon=regression.actimon)
 
     def process_commands(self):

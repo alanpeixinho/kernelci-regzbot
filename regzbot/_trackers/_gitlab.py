@@ -255,6 +255,7 @@ class GlRepSrc(_trackers._base._repsrc):
             yield searchresult
 
     def supports_url(self, url):
+        print(self.serverurl, url)
         if url.startswith(self.serverurl):
             return True
 
