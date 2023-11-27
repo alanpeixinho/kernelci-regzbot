@@ -9,7 +9,7 @@ import os
 import sys
 
 import regzbot
-import regzbot._trackers._gitlab as _gitlab
+import regzbot._repsources._gitlab as _gitlab
 import regzbot.export_csv
 
 logger = regzbot.logger

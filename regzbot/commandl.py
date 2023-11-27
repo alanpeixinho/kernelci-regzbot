@@ -14,7 +14,7 @@ import sys
 
 import regzbot
 import regzbot.testing
-import regzbot._trackers
+import regzbot._repsources
 
 logger = regzbot.logger
 

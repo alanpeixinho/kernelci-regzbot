@@ -2635,7 +2635,7 @@ class ReportSource():
 
     def __new__(cls, *args, **kwargs):
         if args[4] == 'gitlab':
-            return super().__new__(_trackers._gitlab.GlRepSrc)
+            return super().__new__(_repsources._gitlab.GlRepSrc)
         else:
             return super().__new__(cls)
 

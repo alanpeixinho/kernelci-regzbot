@@ -10,7 +10,7 @@ import sys
 import urllib.parse
 from functools import cached_property
 
-import _trackers._base
+import _repsources._trackers
 import regzbot._rbcmd
 from regzbot import PatchKind
 
@@ -27,7 +27,7 @@ else:
 _CACHE_INSTANCES = {}
 _CACHE_PROJECTS ={}
 
-class GlActivity(_trackers._base._activity):
+class GlActivity(_repsources._trackers._activity):
     def __init__(self, gl_issue, *, comment=None, comment_number=None, commit=None, event=None):
         self._gl_issue = gl_issue
 
@@ -84,7 +84,7 @@ class GlInstance():
         return _CACHE_PROJECTS[project_name]
 
 
-class GlIssue(_trackers._base._issue):
+class GlIssue(_repsources._trackers._issue):
     def __init__(self, gl_project, glpy_issue):
         self.gl_project = gl_project
         self._glpy_issue = glpy_issue
@@ -201,7 +201,7 @@ class GlProject():
             yield GlIssue(self, issue)
 
 
-class GlPossibleSearchHit(_trackers._base._possible_search_result):
+class GlPossibleSearchHit(_repsources._trackers._possible_search_result):
     def __init__(self, gl_project, issue_id, pattern, since, *, is_hit_in_submission=False):
         self._gl_project = gl_project
         self._issue = None
@@ -235,7 +235,7 @@ class GlRepAct(regzbot.ReportActivity):
         super().__init__()
 
 
-class GlRepSrc(_trackers._base._repsrc):
+class GlRepSrc(_repsources._trackers._repsrc):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -269,7 +269,7 @@ class GlRepSrc(_trackers._base._repsrc):
         return GlRepTrd(self, gl_issue)
 
 
-class GlRepTrd(_trackers._base._reptrd):
+class GlRepTrd(_repsources._trackers._reptrd):
     def __init__(self, repsrc, gl_issue):
         self.repsrc = repsrc
         self._gl_issue = gl_issue
