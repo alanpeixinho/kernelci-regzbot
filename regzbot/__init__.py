@@ -1620,8 +1620,14 @@ class RegressionBasic():
     def cmd_duplicate(self, rgzcmd, url):
         reptrd = ReportThread.from_url(url)
         assert reptrd
+        if not reptrd.gmtime:
+            reptrd.gmtime = rgzcmd.repact.gmtime
+        if not reptrd.realname:
+            reptrd.realname = rgzcmd.repact.realname
         if not reptrd.summary:
             reptrd.summary = self.subject
+        if not reptrd.username:
+            reptrd.username = rgzcmd.repact.realname
         regression_created = self.__create(rgzcmd, reptrd, introduced=self.introduced, gitbranchid=self.gitbranchid)
         regression_created.add_history_event(rgzcmd, cmdline="introduced: %s [implicit, due to usage of 'duplicate']"
                                                  % self.introduced)
@@ -2636,6 +2642,8 @@ class ReportSource():
     def __new__(cls, *args, **kwargs):
         if args[4] == 'gitlab':
             return super().__new__(_repsources._gitlab.GlRepSrc)
+        elif args[4] == 'generic':
+            return super().__new__(_repsources._generic.GenRepSrc)
         else:
             return super().__new__(cls)
 
@@ -2842,7 +2850,6 @@ class ReportActivity():
 class ReportThread():
     def __init__(self):
         assert self.id
-        assert self.repsrc
 
     @classmethod
     def from_url(cls, url):
