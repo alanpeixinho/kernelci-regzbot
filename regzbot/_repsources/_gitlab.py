@@ -21,6 +21,7 @@ else:
     import logging
     logger = logging
     if False:
+    #if True:
         logger.basicConfig(level=logging.DEBUG)
         logging.getLogger("urllib3").setLevel(logging.WARNING)
 
@@ -29,19 +30,17 @@ _CACHE_PROJECTS ={}
 
 class GlActivity(regzbot._repsources._trackers._activity):
     def __init__(self, gl_issue, *, comment=None, comment_number=None, commit=None, event=None):
-        self._gl_issue = gl_issue
-
         self.id = None
         self.patchkind = 0
-        summary_prefix = '%s, issue %s' % (self._gl_issue.gl_project.longname, self._gl_issue.id)
+        summary_prefix = '%s, issue %s' % (gl_issue.gl_project.longname, gl_issue.id)
 
         if not any((comment, commit, event)):
-            self.created_at = self._gl_issue.created_at
-            self.message = self._gl_issue.message
-            self.realname = self._gl_issue.realname
+            self.created_at = gl_issue.created_at
+            self.message = gl_issue.message
+            self.realname = gl_issue.realname
             self.summary = '%s: creation' % summary_prefix
-            self.username = self._gl_issue.username
-            self.web_url = self._gl_issue.web_url
+            self.username = gl_issue.username
+            self.web_url = gl_issue.web_url
         elif comment:
             self.created_at = datetime.datetime.fromisoformat(comment.created_at)
             self.id = comment.id
@@ -51,18 +50,16 @@ class GlActivity(regzbot._repsources._trackers._activity):
                 self.patchkind = PatchKind.getby_commit_header(commit.message)
                 self.summary = '%s: gitlab noticed a commit referencing this issue' % summary_prefix
             else:
-                self.summary = '%s: new comment' % summary_prefix
-                if comment_number:
-                    self.summary = self.summary + '(#%s)' % comment_number
+                self.summary = '%s: new comment (#%s)' % (summary_prefix, comment_number)
             self.username = comment.author['username']
-            self.web_url = '%s#note_%s' % (self._gl_issue.web_url, comment.id)
+            self.web_url = '%s#note_%s' % (gl_issue.web_url, comment.id)
         elif event:
             self.created_at = datetime.datetime.fromisoformat(event.created_at)
             self.message = ''
             self.realname = event.user['name']
             self.summary = "%s: state changed to: %s" % (summary_prefix, event.state)
             self.username = event.user['username']
-            self.web_url = self._gl_issue.web_url
+            self.web_url = gl_issue.web_url
         else:
             logger.critical('[gitlab] GlActivity called with something unknown; aborting.')
             sys.exit(1)
@@ -99,7 +96,7 @@ class GlIssue(regzbot._repsources._trackers._issue):
         self.web_url = glpy_issue.web_url
 
     @cached_property
-    def _acitivities(self):
+    def _activities(self):
         def _get_commit(comment):
             # ohh boy, there must be a better way to do this, but I looked hard and did not find one :-/
             if type(comment.body) is set and comment.body[0] == 'mentioned in commit ':
@@ -121,8 +118,8 @@ class GlIssue(regzbot._repsources._trackers._issue):
             return project.commit(hexsha)
 
         # walk comments (and thus commits) first, then events;
-        _acitivities = []
-        _acitivities.append(GlActivity(self))
+        activities = []
+        activities.append(GlActivity(self))
 
         logger.debug('[gitlab] %s: retrieving comments and events', self.web_url[8:])
         comment_counter = 0
@@ -134,16 +131,16 @@ class GlIssue(regzbot._repsources._trackers._issue):
                 continue
             if not commit:
                 comment_counter += 1
-            _acitivities.append(GlActivity(self, comment=comment, comment_number=comment_counter, commit=commit))
+            activities.append(GlActivity(self, comment=comment, comment_number=comment_counter, commit=commit))
         for event in self._glpy_issue.resourcestateevents.list(sort='asc', iterator=True):
-            _acitivities.append(GlActivity(self, event=event))
+            activities.append(GlActivity(self, event=event))
 
         # sort
-        _acitivities.sort(key=lambda x: x.created_at)
-        return _acitivities
+        activities.sort(key=lambda x: x.created_at)
+        return activities
 
     def activities(self, *, since=None, until=None):
-        for activity in self._acitivities:
+        for activity in self._activities:
             if since and activity.created_at < since:
                 continue
             elif until and activity.created_at > until:
@@ -156,7 +153,7 @@ class GlProject():
         self.gl_instance = gl_instance
         self._glpy_project = glpy_project
 
-    @cached_property
+    @property
     def web_url(self):
         return self._glpy_project.web_url
 
@@ -255,7 +252,6 @@ class GlRepSrc(regzbot._repsources._trackers._repsrc):
             yield searchresult
 
     def supports_url(self, url):
-        print(self.serverurl, url)
         if url.startswith(self.serverurl):
             return True
 
@@ -308,11 +304,12 @@ def __test():
         },
         'comments_recent': {
             'since': datetime.datetime.fromisoformat('2023-04-18T16:37:00.000Z'),
-            'expected': '''<class '__main__.GlActivity'> => {'created_at': '2023-04-18 16:37:48.523000+00:00', 'message': '[0001-drm-i915-Check-pipe-source-size-when-using-skl-scale.patch](/uploads/d3b7…', 'realname': 'Ville Syrjälä', 'summary': 'drm/intel, issue 8357: new comment(#4)', 'username': 'vsyrjala', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/8357#note_1873234'}'''
+            'expected': '''<class '__main__.GlActivity'> => {'created_at': '2023-04-18 16:37:48.523000+00:00', 'message': '[0001-drm-i915-Check-pipe-source-size-when-using-skl-scale.patch](/uploads/d3b7…', 'realname': 'Ville Syrjälä', 'summary': 'drm/intel, issue 8357: new comment (#4)', 'username': 'vsyrjala', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/8357#note_1873234'}'''
         },
         'commits_recent': {
             'since': datetime.datetime.fromisoformat('2023-05-06T00:00:00.000Z'),
-            'expected': '''<class '__main__.GlActivity'> => {'created_at': '2023-05-17 19:20:40.224000+00:00', 'message': 'mentioned in commit superm1/linux@74a03d3c8d895a7d137bb4be8e40cae886f5d973', 'realname': 'Ville Syrjälä', 'summary': 'drm/intel, issue 8357: gitlab noticed a commit referencing this issue', 'username': 'vsyrjala', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/8357#note_1912677'}'''
+            'expected': '''<class '__main__.GlActivity'> => {'created_at': '2023-05-17 19:20:40.224000+00:00', 'message': 'mentioned in commit superm1/linux@74a03d3c8d895a7d137bb4be8e40cae886f5d973', 'realname': 'Ville Syrjälä', 'summary': 'drm/intel, issue 8357: gitlab noticed a commit referencing this issue', 'username': 'vsyrjala', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/8357#note_1912677'}''',
+            'patchkind': 7
         },
         'search_since': {
             'pattern': '805f04d42a6b5f4187935b43c9c39ae03ccfa761',
@@ -323,7 +320,7 @@ def __test():
             'pattern': '805f04d42a6b5f4187935b43c9c39ae03ccfa761',
             'total': 1,
             'since': datetime.datetime.fromisoformat('2022-08-27 00:00:01+00:00'),
-            'expected': '''<class '__main__.GlActivity'> => {'created_at': '2022-08-27 13:26:12+00:00', 'message': 'After taking the twelve ehm 15 step program :D  $ git bisect log - bad: [f2906a…', 'realname': 'JackCasual', 'summary': 'drm/intel, issue 6652: new comment(#6)', 'username': 'JackCasual', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/6652#note_1526397'}'''
+            'expected': '''<class '__main__.GlActivity'> => {'created_at': '2022-08-27 13:26:12+00:00', 'message': 'After taking the twelve ehm 15 step program :D  $ git bisect log - bad: [f2906a…', 'realname': 'JackCasual', 'summary': 'drm/intel, issue 6652: new comment (#6)', 'username': 'JackCasual', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/6652#note_1526397'}'''
         },
         'search_issue': {
             'pattern': '805f04d42a6b5f4187935b43c9c39ae03ccfa761',
@@ -379,7 +376,8 @@ def __test():
 
     print("Checking a commit:", flush=True, end='')
     for commit in issue.activities(since=TESTDATA['commits_recent']['since']):
-        _testing_check_result('firsthit', str(commit), TESTDATA['commits_recent']['expected'])
+        _testing_check_result('firsthit, ', str(commit), TESTDATA['commits_recent']['expected'])
+        _testing_check_result('patchkind of firsthit', commit.patchkind, TESTDATA['commits_recent']['patchkind'])
         break
     print("; succeeded.")
 
@@ -420,7 +418,7 @@ def __test():
     print('All issues updated in the past %s days:' % TESTDATA['search_days_updated'])
     since = datetime.datetime.now() - datetime.timedelta(days=TESTDATA['search_days_updated'])
     for issue in project.updated_issues(since):
-        print('', issue.web_url, issue.summary[0:80])
+        print(issue.web_url, issue.summary[0:80])
 
 
 if __name__ == "__main__":
