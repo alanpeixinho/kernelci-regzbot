@@ -42,14 +42,12 @@ class _possible_search_result():
         return False
 
     def get_matching_activities(self):
-        for activity in self.issue.get_activities(since=self._since):
+        for activity in self.issue.activities(since=self._since):
             if self._check_pattern(activity.message):
                 yield activity
 
     # only used in testing infra
-    def _get_hits(self):
-        if self.is_hit_in_submission():
-            yield self.issue
+    def _hits(self):
         for hit in self.get_matching_activities():
             yield hit
 

@@ -10,7 +10,7 @@ import sys
 import urllib.parse
 from functools import cached_property
 
-import _repsources._trackers
+import regzbot._repsources._trackers
 import regzbot._rbcmd
 from regzbot import PatchKind
 
@@ -27,7 +27,7 @@ else:
 _CACHE_INSTANCES = {}
 _CACHE_PROJECTS ={}
 
-class GlActivity(_repsources._trackers._activity):
+class GlActivity(regzbot._repsources._trackers._activity):
     def __init__(self, gl_issue, *, comment=None, comment_number=None, commit=None, event=None):
         self._gl_issue = gl_issue
 
@@ -84,7 +84,7 @@ class GlInstance():
         return _CACHE_PROJECTS[project_name]
 
 
-class GlIssue(_repsources._trackers._issue):
+class GlIssue(regzbot._repsources._trackers._issue):
     def __init__(self, gl_project, glpy_issue):
         self.gl_project = gl_project
         self._glpy_issue = glpy_issue
@@ -201,7 +201,7 @@ class GlProject():
             yield GlIssue(self, issue)
 
 
-class GlPossibleSearchHit(_repsources._trackers._possible_search_result):
+class GlPossibleSearchHit(regzbot._repsources._trackers._possible_search_result):
     def __init__(self, gl_project, issue_id, pattern, since, *, is_hit_in_submission=False):
         self._gl_project = gl_project
         self._issue = None
@@ -235,7 +235,7 @@ class GlRepAct(regzbot.ReportActivity):
         super().__init__()
 
 
-class GlRepSrc(_repsources._trackers._repsrc):
+class GlRepSrc(regzbot._repsources._trackers._repsrc):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -269,7 +269,7 @@ class GlRepSrc(_repsources._trackers._repsrc):
         return GlRepTrd(self, gl_issue)
 
 
-class GlRepTrd(_repsources._trackers._reptrd):
+class GlRepTrd(regzbot._repsources._trackers._reptrd):
     def __init__(self, repsrc, gl_issue):
         self.repsrc = repsrc
         self._gl_issue = gl_issue
@@ -302,17 +302,17 @@ def __test():
     TESTDATA = {
         'project': 'https://gitlab.freedesktop.org/drm/intel',
         'issue': {
-            'total': 17,
+            'total': 16,
             'issue_id': 8357,
             'expected': '''<class '__main__.GlIssue'> => {'created_at': '2023-04-11 16:17:04.368000+00:00', 'message': 'I'm working on a "hatch/jinlon" Chromebook which is a Cometlake-U device, and h…', 'realname': 'Ross Zwisler', 'state': 'closed', 'summary': 'CML-U: external 5120x2160 monitor can't play video', 'username': 'zwisler', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/8357'}'''
         },
         'comments_recent': {
             'since': datetime.datetime.fromisoformat('2023-04-18T16:37:00.000Z'),
-            'expected': '''<class '__main__.GlActivity'> => {'created_at': '2023-04-18 16:37:48.523000+00:00', 'message': '[0001-drm-i915-Check-pipe-source-size-when-using-skl-scale.patch](/uploads/d3b7…', 'realname': 'Ville Syrjälä', 'summary': 'New comment', 'username': 'vsyrjala', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/8357#note_1873234'}'''
+            'expected': '''<class '__main__.GlActivity'> => {'created_at': '2023-04-18 16:37:48.523000+00:00', 'message': '[0001-drm-i915-Check-pipe-source-size-when-using-skl-scale.patch](/uploads/d3b7…', 'realname': 'Ville Syrjälä', 'summary': 'drm/intel, issue 8357: new comment(#4)', 'username': 'vsyrjala', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/8357#note_1873234'}'''
         },
         'commits_recent': {
             'since': datetime.datetime.fromisoformat('2023-05-06T00:00:00.000Z'),
-            'expected': '''<class '__main__.GlActivity'> => {'created_at': '2023-05-17 19:20:40.224000+00:00', 'message': 'mentioned in commit superm1/linux@74a03d3c8d895a7d137bb4be8e40cae886f5d973', 'realname': 'Ville Syrjälä', 'summary': 'Commit referenced this issue', 'username': 'vsyrjala', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/8357#note_1912677'}'''
+            'expected': '''<class '__main__.GlActivity'> => {'created_at': '2023-05-17 19:20:40.224000+00:00', 'message': 'mentioned in commit superm1/linux@74a03d3c8d895a7d137bb4be8e40cae886f5d973', 'realname': 'Ville Syrjälä', 'summary': 'drm/intel, issue 8357: gitlab noticed a commit referencing this issue', 'username': 'vsyrjala', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/8357#note_1912677'}'''
         },
         'search_since': {
             'pattern': '805f04d42a6b5f4187935b43c9c39ae03ccfa761',
@@ -323,13 +323,13 @@ def __test():
             'pattern': '805f04d42a6b5f4187935b43c9c39ae03ccfa761',
             'total': 1,
             'since': datetime.datetime.fromisoformat('2022-08-27 00:00:01+00:00'),
-            'expected': '''<class '__main__.GlActivity'> => {'created_at': '2022-08-27 13:26:12+00:00', 'message': 'After taking the twelve ehm 15 step program :D  $ git bisect log - bad: [f2906a…', 'realname': 'JackCasual', 'summary': 'New comment', 'username': 'JackCasual', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/6652#note_1526397'}'''
+            'expected': '''<class '__main__.GlActivity'> => {'created_at': '2022-08-27 13:26:12+00:00', 'message': 'After taking the twelve ehm 15 step program :D  $ git bisect log - bad: [f2906a…', 'realname': 'JackCasual', 'summary': 'drm/intel, issue 6652: new comment(#6)', 'username': 'JackCasual', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/6652#note_1526397'}'''
         },
         'search_issue': {
             'pattern': '805f04d42a6b5f4187935b43c9c39ae03ccfa761',
             'since': datetime.datetime.fromisoformat('2022-08-26 00:00:01+00:00'),
             'total': 2,
-            'expected': '''<class '__main__.GlIssue'> => {'created_at': '2022-08-26 04:24:15.380000+00:00', 'message': 'I have a new Framework Laptop with an i7-1280P and Xe graphics, running Debian …', 'realname': 'Brian Tarricone', 'state': 'closed', 'summary': '[regression] [bisected] Mouse cursor stuttering/jerkiness on Alder Lake with 5.…', 'username': 'kelnos', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/6679'}'''
+            'expected': '''<class '__main__.GlActivity'> => {'created_at': '2022-08-26 04:24:15.380000+00:00', 'message': 'I have a new Framework Laptop with an i7-1280P and Xe graphics, running Debian …', 'realname': 'Brian Tarricone', 'summary': 'drm/intel, issue 6679: creation', 'username': 'kelnos', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/6679'}'''
         },
         'search_days_updated': 1
     }
@@ -365,7 +365,7 @@ def __test():
 
     # = go =
     print("Checking basic issue:", flush=True, end='')
-    issue = project.issue(TESTDATA['issue']['issue_id'])
+    issue = project.issue(id=TESTDATA['issue']['issue_id'])
     _testing_check_result('data', str(issue), TESTDATA['issue']['expected'])
     _testing_check_result('total', len(list(issue.activities())),
                           TESTDATA['issue']['total'])
@@ -387,11 +387,11 @@ def __test():
         print("Checking search:", flush=True, end='')
         results_search_broad = []
         for result in project.search(TESTDATA['search_since']['pattern'], datetime.datetime.fromisoformat('2020-01-01T00:00:00.00Z')):
-            for hit in result._get_hits():
+            for hit in result._hits():
                 results_search_broad.append(hit)
         results_search_narrow = []
         for result in project.search(TESTDATA['search_since']['pattern'], TESTDATA['search_since']['date']):
-            for hit in result._get_hits():
+            for hit in result._hits():
                 results_search_narrow.append(hit)
         _testing_check_result('total', len(results_search_broad), TESTDATA['search_since']['total'])
         _testing_check_result('difference', len(results_search_broad) - len(results_search_narrow), 1)
@@ -401,7 +401,7 @@ def __test():
         print("Checking search (pattern in comment):", flush=True, end='')
         results_search_comments = []
         for result in project.search(TESTDATA['search_comment']['pattern'], since=TESTDATA['search_comment']['since']):
-            for hit in result._get_hits():
+            for hit in result._hits():
                 results_search_comments.append(hit)
         _testing_check_result('firsthit', str(results_search_comments[0]), TESTDATA['search_comment']['expected'])
         _testing_check_result('total', len(results_search_comments), TESTDATA['search_comment']['total'])
@@ -411,7 +411,7 @@ def __test():
         print("Checking search (pattern in issue):", flush=True, end='')
         results_search_issue = []
         for result in project.search(TESTDATA['search_issue']['pattern'], since=TESTDATA['search_issue']['since']):
-            for hit in result._get_hits():
+            for hit in result._hits():
                 results_search_issue.append(hit)
         _testing_check_result('firsthit', str(results_search_issue[0]), TESTDATA['search_issue']['expected'])
         _testing_check_result('total', len(results_search_issue), TESTDATA['search_issue']['total'])
