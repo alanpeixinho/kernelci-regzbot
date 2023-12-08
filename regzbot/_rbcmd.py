@@ -222,8 +222,6 @@ class RbCmdSingleNew:
     def __init__(self, rbcmd_stack, cmd, parameters):
         self._rbcmd_stack = rbcmd_stack
         self.cmd = cmd.lower()
-        self.repact = rbcmd_stack.repact
-        self.reptrd = rbcmd_stack.reptrd
         self.parameters = parameters
 
         # handle frequent typos, alternatives, and renamed commands
@@ -239,6 +237,14 @@ class RbCmdSingleNew:
             self.cmd = 'summary'
         elif self.cmd in ('unback-burner', 'back-burner'):
             self.cmd = 'unbackburn'
+
+    @property
+    def repact(self):
+        return self._rbcmd_stack.repact
+
+    @property
+    def reptrd(self):
+        return self._rbcmd_stack.reptrd
 
     def _parse_link_and_description(self, pattern):
         splitted = pattern.split(maxsplit=1)
@@ -366,6 +372,13 @@ class RbCmdStackNew:
         self.regression = self._locate_regression()
 
     def _add_command(self, cmd, parameters):
+        if cmd == 'handle':
+            # just in case process all commands already added
+            if self._commands:
+                self.process_commands()
+                self._commands = []
+            self.reptrd = regzbot.ReportThread.from_url(parameters)
+            return
         cmdobj = RbCmdSingleNew(self, cmd, parameters)
         self._commands.append(cmdobj)
 

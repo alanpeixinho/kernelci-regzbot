@@ -2846,6 +2846,10 @@ class ReportActivity():
         assert self.reptrd
         self.repsrc = self.reptrd.repsrc
 
+    @property
+    def web_url(self, entry, *, redirector=None, subentry=None):
+        return self.repsrc.url(self.reptrd.id, subentry=self.id)
+
 
 class ReportThread():
     def __init__(self):
