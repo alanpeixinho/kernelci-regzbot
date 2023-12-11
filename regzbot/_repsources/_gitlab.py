@@ -284,12 +284,14 @@ class GlRepTrd(regzbot._repsources._trackers._reptrd):
             yield GlRepAct(self, activity)
 
 
-def connect(instance_name):
+def connect(instance_name, *, token=None):
     global _CACHE_INSTANCES
     if instance_name not in _CACHE_INSTANCES:
         if len(_CACHE_INSTANCES) > 5:
             del _CACHE_INSTANCES[(next(iter(_CACHE_INSTANCES)))]
-        _CACHE_INSTANCES[instance_name] = GlInstance(instance_name, regzbot.CONFIGURATION[instance_name]['token'])
+        if not token:
+            token = regzbot.CONFIGURATION[instance_name]['token']
+        _CACHE_INSTANCES[instance_name] = GlInstance(instance_name, token)
     return _CACHE_INSTANCES[instance_name]
 
 
@@ -357,7 +359,7 @@ def __test():
     parsed_url = urllib.parse.urlparse(TESTDATA['project'])
     name_instance = parsed_url.netloc
     name_project = parsed_url.path.strip("/")
-    instance = GlInstance(name_instance, sys.argv[1])
+    instance = connect(name_instance, token=sys.argv[1])
     project = instance.project(name_project)
 
     # = go =
