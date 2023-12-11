@@ -10,6 +10,7 @@ import sys
 
 import regzbot
 import regzbot._repsources._gitlab
+import regzbot._repsources._github
 import regzbot._repsources._generic
 
 import regzbot.export_csv
@@ -90,3 +91,12 @@ def trackertest_0_2(funcname):
 #    regzbot._TESTING_UNTIL = datetime.datetime.fromisoformat('2023-11-20T12:30:00.000Z')
     regzbot.ReportSource.update_all()
     return False, False
+
+def trackertest_0_0(funcname):
+    regzbot.ReportSource.add('regzbottesting-github', 3,
+                 'https://github.com/knurd/linux',
+                 'github', '<unused>',
+                 lastchked=int(datetime.datetime.fromisoformat('2023-11-20T00:00:00.000Z').timestamp()))
+
+    regzbot.ReportSource.update_all()
+    return False, True

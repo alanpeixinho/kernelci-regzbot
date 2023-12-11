@@ -89,7 +89,7 @@ class _repsrc(regzbot.ReportSource):
         for searchresult in self.search('#regzbot', since=check_last):
             if searchresult.issue_id in threads_processed:
                 continue
-            thread = self.thread(gl_issue=searchresult.issue)
+            thread = self.thread(issue=searchresult.issue)
             thread.update(check_last, check_started)
             threads_processed.append(searchresult.issue_id)
 

@@ -10,9 +10,8 @@ import sys
 import urllib.parse
 from functools import cached_property
 
-import regzbot._repsources._trackers
-import regzbot._rbcmd
 from regzbot import PatchKind
+import regzbot._repsources._trackers
 
 if __name__ != "__main__":
     import regzbot
@@ -259,10 +258,10 @@ class GlRepSrc(regzbot._repsources._trackers._repsrc):
         for gl_issue in self._gl_project.updated_issues(since):
             yield GlRepTrd(self, gl_issue)
 
-    def thread(self, *, id=None, url=None, gl_issue=None):
-        if not gl_issue:
-            gl_issue = self._gl_project.issue(id=id, url=url)
-        return GlRepTrd(self, gl_issue)
+    def thread(self, *, id=None, url=None, issue=None):
+        if not issue:
+            issue = self._gl_project.issue(id=id, url=url)
+        return GlRepTrd(self, issue)
 
 
 class GlRepTrd(regzbot._repsources._trackers._reptrd):

@@ -480,9 +480,9 @@ def process_activity(activity, *, rgzbcmds_since=None, actimon=None):
     # note, it adds a newline at the start and two at the end of the processed input, as the
     # regzbot command might be right at its start or end
     regression_created = None
-    for cmd_section in re.finditer(r'^\n#regzbot.*\n\s*\n$', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
+    for cmd_section in re.finditer(r'^\r?\n#regzbot.*\r?\n\s*\r?\n$', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
         cmd_stack = RbCmdStackNew(activity)
-        for command, parameter in _parse(cmd_section[0]):
+        for command, parameter in _parse(cmd_section[0].replace('\r', '')):
             cmd_stack._add_command(command, parameter)
         regression_created = cmd_stack.process_commands()
 

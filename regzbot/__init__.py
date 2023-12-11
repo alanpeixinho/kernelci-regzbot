@@ -2642,6 +2642,8 @@ class ReportSource():
     def __new__(cls, *args, **kwargs):
         if args[4] == 'gitlab':
             return super().__new__(_repsources._gitlab.GlRepSrc)
+        elif args[4] == 'github':
+            return super().__new__(_repsources._github.GhRepSrc)
         elif args[4] == 'generic':
             return super().__new__(_repsources._generic.GenRepSrc)
         else:
@@ -2807,6 +2809,8 @@ class ReportSource():
                 return '%s%s/' % (self.weburl, urlencode(entry))
         elif self.kind == 'gitlab':
             return '%s/-/issues/%s' % (self.serverurl.removeprefix('/'), entry)
+        elif self.kind == 'github':
+            return '%s/issues/%s' % (self.serverurl.removeprefix('/'), entry)
         logger.critical(
             "ReportSource doesn't yet known how to return a URL for %s", self.kind)
         return None
@@ -2907,6 +2911,8 @@ class ReportSourceObsolete(ReportSource):
             return 'https://lore.kernel.org/.*/%s' % urlencode(self.entryid)
         elif self.kind == 'gitlab':
             return '%s/-/issues/%s' % (self.serverurl.removeprefix('/'), self.entryid)
+        elif self.kind == 'github':
+            return '%s/issues/%s' % (self.serverurl.removeprefix('/'), self.entryid)
         logger.critical(
             "ReportSourceObsolete.get_searchpattern() doesn't yet known how to return a URL for %s", self.kind)
         return None
