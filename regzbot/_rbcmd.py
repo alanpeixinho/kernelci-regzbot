@@ -379,6 +379,10 @@ class RbCmdStackNew:
                 self._commands = []
             self.reptrd = regzbot.ReportThread.from_url(parameters)
             return
+        elif cmd == '^introduced':
+            if not self.reptrd.supports_relatives:
+                # ignore, doesn't make any sense
+                cmd = 'introduced'
         cmdobj = RbCmdSingleNew(self, cmd, parameters)
         self._commands.append(cmdobj)
 
@@ -388,10 +392,10 @@ class RbCmdStackNew:
     # maybe the following is somewhat oddly placed here, but putting it in Regression class felt misplaced, too, as this
     # only should be executed in the contect of commands like duplicate and introduced; and in the latter case only
     # after all commands have been executed
-    def add_related_activities(self, regression, *, reptrd=None):
-        if not reptrd:
-            reptrd = regzbot.ReportThread.from_actimon(regression.actimon)
-        reptrd.update(None, None, rgzbcmds_since=self.repact.created_at, actimon=regression.actimon)
+    def add_related_activities(self, regression):
+        if not self.reptrd:
+            self.reptrd = regzbot.ReportThread.from_actimon(regression.actimon)
+        self.reptrd.update(None, None, triggering_repact=self.repact, actimon=regression.actimon)
 
     def process_commands(self):
         def _walk_commands():
@@ -420,9 +424,9 @@ class RbCmdStackNew:
                 single_command.process(self.regression)
 
         # if a regressions was created and all commands processed, it's time to add all activities for it, which
-        # might include even more commands
+        # might include even more commands that should only processed now
         if regression_created:
-            self.add_related_activities(regression_created, reptrd=self.reptrd)
+            self.add_related_activities(regression_created)
         return regression_created
 
 
@@ -458,12 +462,19 @@ def _parse(cmd_section):
         # - (:?\n?\s+): commands can end in a colon and are separated from parameters using at least one space;
         #             optional, as not every command has parameters (optional)
         # - (.*)?: the parameters (optional)
-        splitted = re.split(r'^([\w-]+)(:?\n?\s+)?(.*)?$', cmd_line)
+        splitted = re.split(r'^([\^\w-]+)(:?\n?\s+)?(.*)?$', cmd_line)
         yield(splitted[1], splitted[3])
 
-def process_activity(activity, *, rgzbcmds_since=None, actimon=None):
-    if regzbot._TESTING_UNTIL and activity.created_at >= regzbot._TESTING_UNTIL:
+def process_activity(activity, *, triggering_repact=None, actimon=None):
+    if 'until' in regzbot._TESTING and activity.created_at >= regzbot._TESTING['until']:
         return
+
+    # we don't want to handle the activity again that brought us here in the first place
+    #if triggering_repact and \
+    #        activity.id == triggering_repact.id and \
+    #        activity.reptrd.id == triggering_repact.reptrd.id and \
+    #        activity.repsrc.id == triggering_repact.repsrc.id:
+    #    return
 
     if actimon:
         # check for flags before adding a activity; note that the RE used below is derivated from one in
@@ -471,9 +482,11 @@ def process_activity(activity, *, rgzbcmds_since=None, actimon=None):
         if not _ignore_activity(activity.message):
             actimon.add_activity(activity)
 
-    # when a regression is added and all activities walked, we in some cases only want to handle regzbot commands
+
+
+    # when a regression is added and all activities walked, we in only want to handle regzbot commands
     # in acitivies that happened after the report was added
-    if rgzbcmds_since and activity.created_at <= rgzbcmds_since:
+    if triggering_repact and activity.created_at <= triggering_repact.created_at:
         return
 
     # the following loop locates sections with regzbot commands seperated by newlines;

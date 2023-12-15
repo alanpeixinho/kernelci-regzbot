@@ -40,7 +40,7 @@ class GhActivity(regzbot._repsources._trackers._activity):
             self.id = None
             self.message = gh_issue.message
             self.realname = gh_issue.realname
-            self.summary = '%s: creation' % summary_prefix
+            self.summary = '%s: submission' % summary_prefix
             self.username = gh_issue.username
             self.web_url = gh_issue.web_url
             return
@@ -334,7 +334,7 @@ def __test():
             'pattern': 'Filing an issue to track https://bugzilla.kernel.org/show_bug.cgi.*id=217673',
             'since': datetime.datetime.fromisoformat('2023-07-21T10:22:00.00Z'),
             'total': 1,
-            'expected': '''<class '__main__.GhActivity'> => {'created_at': '2023-07-21 10:23:48+00:00', 'message': 'Filing an issue to track https://bugzilla.kernel.org/show_bug.cgi?id=217673    …', 'realname': 'Kai Vehmanen', 'summary': 'github.com/thesofproject/linux/issues/4482, issue 4482: creation', 'username': 'kv2019i', 'web_url': 'https://github.com/thesofproject/linux/issues/4482'}'''
+            'expected': '''<class '__main__.GhActivity'> => {'created_at': '2023-07-21 10:23:48+00:00', 'message': 'Filing an issue to track https://bugzilla.kernel.org/show_bug.cgi?id=217673    …', 'realname': 'Kai Vehmanen', 'summary': 'github.com/thesofproject/linux/issues/4482, issue 4482: submission', 'username': 'kv2019i', 'web_url': 'https://github.com/thesofproject/linux/issues/4482'}'''
         },
         'search_days_updated': 4
     }

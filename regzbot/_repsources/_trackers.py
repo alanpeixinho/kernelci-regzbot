@@ -52,12 +52,13 @@ class _possible_search_result():
             yield hit
 
 class _reptrd(regzbot.ReportThread):
-    def update(self, since, until, *, actimon=None, rgzbcmds_since=None):
-        if regzbot._TESTING_UNTIL:
-            check_started = regzbot._TESTING_UNTIL
+    def __init__(self):
+        self.supports_relatives = False
+
+    def update(self, since, until, *, actimon=None, triggering_repact=None):
         try:
             for activity in self.activities(since=since, until=until):
-                regzbot._rbcmd.process_activity(activity, actimon=actimon, rgzbcmds_since=rgzbcmds_since)
+                regzbot._rbcmd.process_activity(activity, actimon=actimon, triggering_repact=triggering_repact)
         except regzbot._rbcmd.RegressionCreatedException:
             # the handled activity contained a #regzbot introduced that created a regression for this issue; during that
             # process all activities (both older and younger) for it will be added by calling this method again, so
@@ -68,14 +69,14 @@ class _reptrd(regzbot.ReportThread):
 class _repsrc(regzbot.ReportSource):
     def update(self):
         # prep
-        if not regzbot._TESTING_UNTIL:
-            check_started = regzbot.timendate_now()
-        else:
-            check_started = regzbot._TESTING_UNTIL
         if self.lastchked:
             check_last = regzbot.timendate_gmtime_to_dt(self.lastchked)
         else:
             check_last = check_started - datetime.timedelta(days = 90)
+        if 'until' in regzbot._TESTING:
+            check_started = regzbot._TESTING['until']
+        else:
+            check_started = regzbot.timendate_now()
 
         threads_processed = []
 

@@ -9,6 +9,7 @@ import os
 import sys
 
 import regzbot
+import regzbot._repsources._bugzilla
 import regzbot._repsources._gitlab
 import regzbot._repsources._github
 import regzbot._repsources._generic
@@ -64,7 +65,7 @@ def run(resultfilename, tmpdir, _):
                 os.system('read -p "Press any key to continue"')
 
             # finish this up
-            regzbot._TESTING_UNTIL = None
+            regzbot._TESTING['until'] = None
             innercount += 1
         outercount += 1
     resultfile.close()
@@ -78,17 +79,17 @@ def trackertest_0_0(funcname):
                  'gitlab', '<unused>',
                  lastchked=int(datetime.datetime.fromisoformat('2023-11-20T00:00:00.000Z').timestamp()))
 
-    regzbot._TESTING_UNTIL = datetime.datetime.fromisoformat('2023-11-20T11:38:00.000Z')
-    regzbot.ReportSource.update_all()
-    return False, True
-
-def trackertest_0_1(funcname):
-    regzbot._TESTING_UNTIL = datetime.datetime.fromisoformat('2023-11-20T12:30:00.000Z')
+    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T11:35:00.000Z')
     regzbot.ReportSource.update_all()
     return False, False
 
+def trackertest_0_1(funcname):
+    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T11:37:00.000Z')
+    regzbot.ReportSource.update_all()
+    return False, True
+
 def trackertest_0_2(funcname):
-#    regzbot._TESTING_UNTIL = datetime.datetime.fromisoformat('2023-11-20T12:30:00.000Z')
+#    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T12:30:00.000Z')
     regzbot.ReportSource.update_all()
     return False, False
 
@@ -96,7 +97,23 @@ def trackertest_0_0(funcname):
     regzbot.ReportSource.add('regzbottesting-github', 3,
                  'https://github.com/knurd/linux',
                  'github', '<unused>',
-                 lastchked=int(datetime.datetime.fromisoformat('2023-11-20T00:00:00.000Z').timestamp()))
+                      lastchked=int(datetime.datetime.fromisoformat('2022-03-15T00:00:00.000Z').timestamp()))
+    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2022-03-24T10:25:00.000Z')
+
+    regzbot.ReportSource.update_all()
+    return False, False
+
+def trackertest_0_1(funcname):
+    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-12-11T12:00:00.000Z')
+    regzbot.ReportSource.update_all()
+    return False, True
+
+def trackertest_0_0(funcname):
+    bz_repsrc = regzbot.ReportSource.get_by_name('bugzilla.kernel.org')
+    bz_repsrc.set_lastchked(int(datetime.datetime.fromisoformat('2021-11-20T00:00:00.000Z').timestamp()))
+
+    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2021-12-16T11:00:00.000Z')
+    regzbot._TESTING['bugzilla-only-ids'] = [215117, ]
 
     regzbot.ReportSource.update_all()
     return False, True

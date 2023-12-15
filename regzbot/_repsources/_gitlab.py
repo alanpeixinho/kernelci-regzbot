@@ -37,7 +37,7 @@ class GlActivity(regzbot._repsources._trackers._activity):
             self.created_at = gl_issue.created_at
             self.message = gl_issue.message
             self.realname = gl_issue.realname
-            self.summary = '%s: creation' % summary_prefix
+            self.summary = '%s: submission' % summary_prefix
             self.username = gl_issue.username
             self.web_url = gl_issue.web_url
         elif comment:
@@ -327,7 +327,7 @@ def __test():
             'pattern': '805f04d42a6b5f4187935b43c9c39ae03ccfa761',
             'since': datetime.datetime.fromisoformat('2022-08-26 00:00:01+00:00'),
             'total': 2,
-            'expected': '''<class '__main__.GlActivity'> => {'created_at': '2022-08-26 04:24:15.380000+00:00', 'message': 'I have a new Framework Laptop with an i7-1280P and Xe graphics, running Debian …', 'realname': 'Brian Tarricone', 'summary': 'drm/intel, issue 6679: creation', 'username': 'kelnos', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/6679'}'''
+            'expected': '''<class '__main__.GlActivity'> => {'created_at': '2022-08-26 04:24:15.380000+00:00', 'message': 'I have a new Framework Laptop with an i7-1280P and Xe graphics, running Debian …', 'realname': 'Brian Tarricone', 'summary': 'drm/intel, issue 6679: submission', 'username': 'kelnos', 'web_url': 'https://gitlab.freedesktop.org/drm/intel/-/issues/6679'}'''
         },
         'search_days_updated': 1
     }

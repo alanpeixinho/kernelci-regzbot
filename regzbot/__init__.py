@@ -22,7 +22,7 @@ from functools import cached_property
 
 __VERSION__ = '0.0.1-dev'
 __CITESTING__ = False
-_TESTING_UNTIL = None
+_TESTING = {}
 DBCON = None
 REPOSDIR = None
 CONFIGURATION = None
@@ -2640,7 +2640,9 @@ class ReportSource():
         self.priority = priority
 
     def __new__(cls, *args, **kwargs):
-        if args[4] == 'gitlab':
+        if args[4] == 'bugzilla':
+            return super().__new__(_repsources._bugzilla.BzRepSrc)
+        elif args[4] == 'gitlab':
             return super().__new__(_repsources._gitlab.GlRepSrc)
         elif args[4] == 'github':
             return super().__new__(_repsources._github.GhRepSrc)
@@ -2800,7 +2802,7 @@ class ReportSource():
             return entry
         elif self.kind == 'bugzilla':
             if subentry and subentry < 10000:
-                return '%s%s#c%s' % (self.weburl, entry, subentry)
+                return '%s/show_bug.cgi?id=%s#c%s' % (self.serverurl.removeprefix('/'), entry, subentry)
             return '%s%s' % (self.weburl, entry)
         elif self.kind == 'lore':
             if redirector:
@@ -2834,7 +2836,7 @@ class ReportSource():
     @classmethod
     def update_all(cls):
         for repsrc in cls.getall():
-            if repsrc.kind not in ('gitlab', 'github'):
+            if repsrc.kind not in ('bugzilla', 'gitlab', 'github'):
                 continue
             repsrc.update()
 
@@ -2905,10 +2907,10 @@ class ReportSourceObsolete(ReportSource):
             sys.exit(1)
         elif self.kind == 'generic':
             return self.entryid
-        elif self.kind == 'bugzilla':
-            return '%s%s' % (self.weburl, self.entryid)
         elif self.kind == 'lore':
             return 'https://lore.kernel.org/.*/%s' % urlencode(self.entryid)
+        elif self.kind == 'bugzilla':
+            return '%s/show_bug.cgi?id=%s' % (self.serverurl.removeprefix('/'), self.entryid)
         elif self.kind == 'gitlab':
             return '%s/-/issues/%s' % (self.serverurl.removeprefix('/'), self.entryid)
         elif self.kind == 'github':
@@ -3466,13 +3468,13 @@ def recheck(msgids):
 def run():
     basicressources_init()
 
+    # check issue trackers
+    regzbot.ReportSource.update_all()
+
     # check for new mails
     import lore
     lore.run()
     db_commit()
-
-    # check bugzilla instances
-    _bugzilla.BZServer.updateall()
 
     # check for new commits
     GitTree.updateall()
