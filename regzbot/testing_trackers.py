@@ -9,10 +9,6 @@ import os
 import sys
 
 import regzbot
-import regzbot._repsources._bugzilla
-import regzbot._repsources._gitlab
-import regzbot._repsources._github
-import regzbot._repsources._generic
 
 import regzbot.export_csv
 

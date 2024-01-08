@@ -10,6 +10,10 @@ from urllib.parse import urlparse
 
 if __name__ != "__main__":
     import regzbot
+    import regzbot._repsources._bugzilla
+    import regzbot._repsources._gitlab
+    import regzbot._repsources._github
+    import regzbot._repsources._generic
     import regzbot._bugzilla as bz
     logger = regzbot.logger
 else:
