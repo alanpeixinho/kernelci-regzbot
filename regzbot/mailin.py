@@ -100,6 +100,10 @@ def adjust_repsrc(repsrc, msg):
             # workaround for the "=?utf-8?q?=2C?=linux-arm-msm@vger.kernel.org" in
             # https://lore.kernel.org/linux-pci/166983076821.2517843.6476270112700027226.robh@kernel.org/raw
             logger.warning('Ignoring "CC" in %s due to an exception: "HeaderParseError: %s"',  email_get_msgid(msg), err)
+        except TypeError as err:
+            # workaround for the ".@3429e2599065" in
+            # https://lore.kernel.org/all/202312271450.C9YmLJn2-lkp@intel.com/
+            logger.warning('Ignoring "CC" in %s due to an exception: "TypeError: %s"',  email_get_msgid(msg), err)
 
     for adress in adresses:
         tmprepsrc = regzbot.ReportSource.get_by_identifier(adress)
