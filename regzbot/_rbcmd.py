@@ -266,7 +266,8 @@ class RbCmdSingleNew:
     def _cmd_duplicate(self, regression):
         for url in self.parameters.split():
             regression_created = regression.cmd_duplicate(self, url)
-            self._rbcmd_stack.add_related_activities(regression_created)
+            reptrd_created = regzbot.ReportThread.from_actimon(regression_created.actimon)
+            self._rbcmd_stack.add_related_activities(reptrd_created, regression_created)
 
     def _cmd_fix(self, regression):
         def _remove_quoting_chars(pattern):
@@ -396,10 +397,8 @@ class RbCmdStackNew:
     # maybe the following is somewhat oddly placed here, but putting it in Regression class felt misplaced, too, as this
     # only should be executed in the contect of commands like duplicate and introduced; and in the latter case only
     # after all commands have been executed
-    def add_related_activities(self, regression):
-        if not self.reptrd:
-            self.reptrd = regzbot.ReportThread.from_actimon(regression.actimon)
-        self.reptrd.update(None, None, triggering_repact=self.repact, actimon=regression.actimon)
+    def add_related_activities(self, reptrd, regression):
+        reptrd.update(None, None, triggering_repact=self.repact, actimon=regression.actimon)
 
     def process_commands(self):
         def _walk_commands():
@@ -430,7 +429,7 @@ class RbCmdStackNew:
         # if a regressions was created and all commands processed, it's time to add all activities for it, which
         # might include even more commands that should only processed now
         if regression_created:
-            self.add_related_activities(regression_created)
+            self.add_related_activities(self.reptrd, regression_created)
         return regression_created
 
 
