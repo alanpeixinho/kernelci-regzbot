@@ -114,7 +114,12 @@ class GlIssue(regzbot._repsources._trackers._issue):
             else:
                 hexsha = commit_def
                 project = self.gl_project
-            return project.commit(hexsha)
+
+            try:
+                return project.commit(hexsha)
+            except gitlab.exceptions.GitlabGetError:
+                logger.debug('[gitlab] %s: ignoring commit %s, download failed', self.web_url[8:], hexsha)
+                return None
 
         # walk comments (and thus commits) first, then events;
         activities = []
