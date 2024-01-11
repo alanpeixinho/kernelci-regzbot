@@ -69,14 +69,14 @@ class _reptrd(regzbot.ReportThread):
 class _repsrc(regzbot.ReportSource):
     def update(self):
         # prep
-        if self.lastchked:
-            check_last = regzbot.timendate_gmtime_to_dt(self.lastchked)
-        else:
-            check_last = check_started - datetime.timedelta(days = 90)
         if 'until' in regzbot._TESTING:
             check_started = regzbot._TESTING['until']
         else:
             check_started = regzbot.timendate_now()
+        if self.lastchked:
+            check_last = regzbot.timendate_gmtime_to_dt(self.lastchked)
+        else:
+            check_last = check_started - datetime.timedelta(days = 90)
 
         threads_processed = []
 
