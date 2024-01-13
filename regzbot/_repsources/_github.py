@@ -257,8 +257,8 @@ class GhRepSrc(regzbot._repsources._trackers._repsrc):
         for searchresult in self._gh_project.search(pattern, since):
             yield searchresult
 
-    def supports_url(self, url):
-        if url.startswith(self.serverurl):
+    def supports_url(self, url_lowered, url_parsed):
+        if url_lowered.startswith(self.serverurl):
             return True
 
     def updated_threads(self, since):

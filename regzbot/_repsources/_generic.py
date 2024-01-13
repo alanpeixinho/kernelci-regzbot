@@ -8,9 +8,6 @@ from regzbot import ReportSource
 from regzbot import ReportThread
 
 class GenRepSrc(ReportSource):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def thread(self, *, url=None, id=None):
         # for a generic report they are identical
         if not url:

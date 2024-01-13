@@ -89,7 +89,7 @@ def trackertest_0_2(funcname):
     regzbot.ReportSource.update_all()
     return False, False
 
-def trackertest_0_0(funcname):
+def trackertest_10_0(funcname):
     regzbot.ReportSource.add('regzbottesting-github', 3,
                  'https://github.com/knurd/linux',
                  'github', '<unused>',
@@ -99,12 +99,12 @@ def trackertest_0_0(funcname):
     regzbot.ReportSource.update_all()
     return False, False
 
-def trackertest_0_1(funcname):
+def trackertest_10_1(funcname):
     regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-12-11T12:00:00.000Z')
     regzbot.ReportSource.update_all()
     return False, True
 
-def trackertest_0_0(funcname):
+def trackertest_11_0(funcname):
     bz_repsrc = regzbot.ReportSource.get_by_name('bugzilla.kernel.org')
     bz_repsrc.set_lastchked(int(datetime.datetime.fromisoformat('2021-11-20T00:00:00.000Z').timestamp()))
 

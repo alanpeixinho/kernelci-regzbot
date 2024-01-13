@@ -805,14 +805,23 @@ class RegActivityMonitor():
         return self.authormail
 
     def add_activity(self, repact):
+        # special handling required for lore; ideally id_thread would be empty, but due to
+        #  history reasons this was a simpler solution
+        if repact.repsrc.kind == 'lore':
+            id_thread = repact.id
+            id_subentry = None
+        else:
+            id_thread = repact.reptrd.id
+            id_subentry = repact.id
+
         RegActivityEvent.event(
             repact.gmtime,
-            repact.reptrd.id,
+            id_thread,
             repact.summary,
             repact.realname,
             repact.repsrc.id,
             patchkind=repact.patchkind,
-            subentry=repact.id,
+            subentry=id_subentry,
             actimonid=self.actimonid,
             )
 
@@ -1632,7 +1641,7 @@ class RegressionBasic():
         regression_created.add_history_event(rgzcmd, cmdline="introduced: %s [implicit, due to usage of 'duplicate']"
                                                  % self.introduced)
         self.__duplicate(rgzcmd, regression_created)
-        return regression_created
+        return regression_created, reptrd
 
     def cmd_fix(self, rgzcmd, hexsha, summary):
         self.fixedby(rgzcmd.repact.gmtime, hexsha, summary, repsrcid=rgzcmd.repact.repsrc.repsrcid,
@@ -2648,6 +2657,8 @@ class ReportSource():
             return super().__new__(_repsources._github.GhRepSrc)
         elif args[4] == 'generic':
             return super().__new__(_repsources._generic.GenRepSrc)
+        elif args[4] == 'lore':
+            return super().__new__(_repsources._lore.LoRepSrc)
         else:
             return super().__new__(cls)
 
@@ -2850,7 +2861,8 @@ class ReportActivity():
         _ = self.id
 
         assert self.reptrd
-        self.repsrc = self.reptrd.repsrc
+        if not 'repsrc' in self.__dict__:
+            self.repsrc = self.reptrd.repsrc
 
     @property
     def web_url(self, entry, *, redirector=None, subentry=None):
@@ -2864,10 +2876,12 @@ class ReportThread():
     @classmethod
     def from_url(cls, url):
         repsrc_generic = None
+        url_lowered = url.lower()
+        url_parsed = urllib.parse.urlparse(url)
         for repsrc in ReportSource.getall():
             if repsrc.kind == 'generic':
                 repsrc_generic = repsrc
-            elif repsrc.supports_url(url):
+            elif repsrc.supports_url(url_lowered, url_parsed):
                 return repsrc.thread(url=url)
         return repsrc_generic.thread(url=url)
 
@@ -3136,13 +3150,17 @@ def basicressources_gittrees_setup(gittreesdir):
 
 
 def basicressources_repsrces_setup():
+    # these are required
     ReportSource.add('generic', 99,'', 'generic', '')
+    ReportSource.add('lore_all', 98, '', 'lore', 'https://lore.kernel.org/all/')
 
-    ReportSource.add('bugzilla.kernel.org', 0,
-                     'https://bugzilla.kernel.org',
-                     'bugzilla', 'https://bugzilla.kernel.org/show_bug.cgi?id=')
+    # these are optional; maybe they should be in a config file
 
-    # hardcoded for now
+    # temproraily disabled while working on new bugzilla module
+    #ReportSource.add('bugzilla.kernel.org', 0,
+    #                 'https://bugzilla.kernel.org',
+    #                 'bugzilla', 'https://bugzilla.kernel.org/show_bug.cgi?id=')
+
     ReportSource.add('lkml', 1,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-kernel',
                      'lore', 'https://lore.kernel.org/lkml/', identifiers='linux-kernel@vger.kernel.org')

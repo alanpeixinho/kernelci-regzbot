@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 if __name__ != "__main__":
     import regzbot
     import regzbot._repsources._bugzilla
+    import regzbot._repsources._lore
     import regzbot._repsources._gitlab
     import regzbot._repsources._github
     import regzbot._repsources._generic
@@ -265,8 +266,7 @@ class RbCmdSingleNew:
 
     def _cmd_duplicate(self, regression):
         for url in self.parameters.split():
-            regression_created = regression.cmd_duplicate(self, url)
-            reptrd_created = regzbot.ReportThread.from_actimon(regression_created.actimon)
+            regression_created, reptrd_created = regression.cmd_duplicate(self, url)
             self._rbcmd_stack.add_related_activities(reptrd_created, regression_created)
 
     def _cmd_fix(self, regression):
@@ -480,14 +480,11 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
     #    return
 
     if actimon:
-        # check for flags before adding a activity; note that the RE used below is derivated from one in
-        # RbCmdStackNew._parse and explained in more detail there
+        # check for flags before adding a activity
         if not _ignore_activity(activity.message):
             actimon.add_activity(activity)
 
-
-
-    # when a regression is added and all activities walked, we in only want to handle regzbot commands
+    # when a regression is added and all activities walked, we only want to handle regzbot commands
     # in acitivies that happened after the report was added
     if triggering_repact and activity.created_at <= triggering_repact.created_at:
         return
@@ -502,7 +499,7 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
             cmd_stack._add_command(command, parameter)
         regression_created = cmd_stack.process_commands()
 
-    # let the caller know when a regression was introduced, as it likely mus stop processing related acitivies now, a
+    # let the caller know when a regression was introduced, as it likely must stop processing related acitivies now, a
     # they were processed already when the regression was added to pick up all related (incuding earlier) activities
     if regression_created:
         raise RegressionCreatedException
