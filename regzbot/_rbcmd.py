@@ -370,8 +370,9 @@ class RbCmdSingleNew:
 
 
 class RbCmdStackNew:
-    def __init__(self, repact):
+    def __init__(self, repact, actimon):
         self._commands = []
+        self.actimon = actimon
         self.repact = repact
         self.reptrd = repact.reptrd
         self.regression = self._locate_regression()
@@ -392,6 +393,8 @@ class RbCmdStackNew:
         self._commands.append(cmdobj)
 
     def _locate_regression(self):
+        if self.actimon and self.actimon.regid:
+            return regzbot.RegressionBasic.get_by_regid(self.actimon.regid)
         return regzbot.RegressionBasic.get_by_reptrd(self.reptrd)
 
     # maybe the following is somewhat oddly placed here, but putting it in Regression class felt misplaced, too, as this
@@ -421,7 +424,6 @@ class RbCmdStackNew:
                 regression_created = single_command.process(self.regression)
                 if regression_created:
                     self.regression = self._locate_regression()
-                    assert (self.regression)
             else:
                 assert (self.regression)
                 single_command.process(self.regression)
@@ -472,13 +474,6 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
     if 'until' in regzbot._TESTING and activity.created_at >= regzbot._TESTING['until']:
         return
 
-    # we don't want to handle the activity again that brought us here in the first place
-    #if triggering_repact and \
-    #        activity.id == triggering_repact.id and \
-    #        activity.reptrd.id == triggering_repact.reptrd.id and \
-    #        activity.repsrc.id == triggering_repact.repsrc.id:
-    #    return
-
     if actimon:
         # check for flags before adding a activity
         if not _ignore_activity(activity.message):
@@ -494,13 +489,13 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
     # regzbot command might be right at its start or end
     regression_created = None
     for cmd_section in re.finditer(r'^\r?\n#regzbot.*\r?\n\s*\r?\n$', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
-        cmd_stack = RbCmdStackNew(activity)
+        cmd_stack = RbCmdStackNew(activity, actimon)
         for command, parameter in _parse(cmd_section[0].replace('\r', '')):
             cmd_stack._add_command(command, parameter)
         regression_created = cmd_stack.process_commands()
 
-    # let the caller know when a regression was introduced, as it likely must stop processing related acitivies now, a
-    # they were processed already when the regression was added to pick up all related (incuding earlier) activities
+    # let the caller know when a regression was added, as it likely must stop processing related acitivies now, as they
+    # were processed already when the regression was added to pick up all related (incuding earlier) activities
     if regression_created:
         raise RegressionCreatedException
 

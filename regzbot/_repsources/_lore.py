@@ -44,9 +44,20 @@ class LoActivity():
     def __init__(self, msg):
         self._msg = msg
         self._realname = None
-        self.best_repsrc = LoRepSrc.best_repsrc(msg)
         self._username = None
+        self.best_repsrc = LoRepSrc.best_repsrc(self.recipients)
         self.web_url = 'https://lore.kernel.org/all/%s' % self.id
+
+    @cached_property
+    def ancestors(self):
+        ancestors = self._headerparse_references()
+        inreplyto = self._headerparse_inreplyto()
+        if inreplyto:
+            if inreplyto in ancestors and ancestors[-1] != inreplyto:
+                ancestors.remove(inreplyto)
+            if inreplyto not in ancestors:
+                ancestors.append(inreplyto)
+        return ancestors
 
     @cached_property
     def created_at(self):
@@ -54,12 +65,45 @@ class LoActivity():
 
     @cached_property
     def id(self):
-        return self._headerparse_msgid(self._msg)
+        return self._validate_msgid(self._msg['message-id'])
 
     @cached_property
     def message(self):
         msg_body = self._msg.get_body(preferencelist=('plain'))
         return msg_body.get_content()
+
+    @cached_property
+    def recipients(self):
+        recipients = []
+        for field in ('To', 'CC'):
+            if field not in self._msg:
+                continue
+            # sane workarund as above, triggered by
+            try:
+                recipients.extend(re.findall(r'[\w\.-]+@[\w\.-]+', self._msg[field]))
+            except AttributeError as err:
+                # handle mails without To:, for example
+                #  https://lore.kernel.org/all/20211005053239.3E8DEC4338F@smtp.codeaurora.org/raw
+                #  https://lore.kernel.org/all/20210925074531.10446-1-tomm.merciai@gmail.com/raw
+                # related: https://bugs.python.org/issue39100
+                logger.warning('Ignoring "%s" in %s due to and exception: "AttributeError: %s"', field, email_get_msgid(msg), err)
+            except ValueError as err:
+                # Workaround for https://lore.kernel.org/all/1634261360.fed2opbgxw.astroid@bobo.none/raw
+                #     -> "ValueError: invalid arguments; address parts cannot contain CR or LF"
+                logger.warning('Ignoring "%s" in %s due to and exception: "ValueError: %s"',  field, email_get_msgid(msg), err)
+            except IndexError as err:
+                # workaround for the "=?utf-8?q?=2C?=linux-arm-msm@vger.kernel.org" in
+                # https://lore.kernel.org/linux-pci/166983076821.2517843.6476270112700027226.robh@kernel.org/raw
+                logger.warning('Ignoring "field" in %s due to an exception: "HeaderParseError: %s"', field, email_get_msgid(msg), err)
+            except TypeError as err:
+                # workaround for the ".@3429e2599065" in
+                # https://lore.kernel.org/all/202312271450.C9YmLJn2-lkp@intel.com/
+                logger.warning('Ignoring "field" in %s due to an exception: "TypeError: %s"', field, email_get_msgid(msg), err)
+        return recipients
+
+    @property
+    def parent(self):
+        return self.ancestors[-1]
 
     @cached_property
     def patchkind(self):
@@ -112,22 +156,16 @@ class LoActivity():
         if len(self._realname) == 0:
             self._realname = re.sub(r'@.*', '', self._username)
 
-    @classmethod
-    def _headerparse_msgid(cls, msg):
-        return cls._validate_msgid(msg['message-id'])
-
-    @classmethod
-    def _headerparse_references(cls, msg):
+    def _headerparse_references(self):
         msgids = []
-        if 'references' in msg:
-            for msgid in msg['References'].split():
-                msgids.append(cls._validate_msgid(msgid))
+        if 'references' in self._msg:
+            for msgid in self._msg['References'].split():
+                validated_msgid = self._validate_msgid(msgid)
         return msgids
 
-    @classmethod
-    def _headerparse_inreplyto(cls, msg):
-        if 'In-Reply-To' in msg:
-            return cls._validate_msgid(msg['In-Reply-To'])
+    def _headerparse_inreplyto(self):
+        if 'In-Reply-To' in self._msg:
+            return self._validate_msgid(self._msg['In-Reply-To'])
         return None
 
     @staticmethod
@@ -149,38 +187,41 @@ class LoreThread():
     def __init__(self, msgid):
         self.id = urllib.parse.unquote(msgid)
         self._best_repsrc = None
+        self._all_activities = {}
 
     @cached_property
     def _activities(self):
-        def is_reply(msg, related_msgids):
-            inreplyto = LoActivity._headerparse_inreplyto(msg)
-            if inreplyto and inreplyto in related_msgids:
-                return True
-            for reference in LoActivity._headerparse_references(msg):
+        def is_reply(lo_act, related_msgids):
+            for reference in lo_act.ancestors:
                 if reference in related_msgids:
                     return True
-            return False
 
         activities = []
-        related_msgids = [ ]
-        unrelated_msgids = []
+        related_msgids = []
         for msg in LoreHttps.download_thread(self.id):
-            msgid = LoActivity._headerparse_msgid(msg)
-            self._best_repsrc = LoRepSrc.best_repsrc(msg)
-            if msgid in related_msgids or msgid in unrelated_msgids :
-                # skip msg, we've seen already
+            lo_act = LoActivity(msg)
+            if lo_act.id in self._all_activities:
                 continue
-            elif self.id == msgid or is_reply(msg, related_msgids):
-                activities.append(LoActivity(msg))
-                related_msgids.append(msgid)
-            else:
-                unrelated_msgids.append(msgid)
+
+            self._all_activities[lo_act.id] = lo_act
+            if self.id == lo_act.id or is_reply(lo_act, related_msgids):
+                activities.append(lo_act)
+                related_msgids.append(lo_act.id)
+                if self.id == lo_act.id:
+                    self._best_repsrc = lo_act.best_repsrc
         activities.sort(key=lambda x: x.created_at)
         return activities
 
+    @property
+    def best_repsrc(self):
+        if not self._best_repsrc:
+            # this will download the thread and set the variable
+            _ = self._root_requested
+        return self._best_repsrc
+
     @cached_property
     def created_at(self):
-        return self._threadstart.created_at
+        return self._root_requested.created_at
 
     @cached_property
     def gmtime(self):
@@ -188,21 +229,16 @@ class LoreThread():
 
     @cached_property
     def realname(self):
-        return self._threadstart.realname
+        return self._root_requested.realname
 
     @property
-    def best_repsrc(self):
-        if not self._best_repsrc:
-            # this will download the thread and set the variable
-            _ = self._threadstart
-        return self._best_repsrc
+    def root_real(self):
+        # reminder: this returns the real root of a downloaded thread
+        return self._all_activities[0]
 
     @cached_property
-    def summary(self):
-        return self._threadstart.summary
-
-    @cached_property
-    def _threadstart(self):
+    def _root_requested(self):
+        # reminder: this returns the message that made us download the thread
         for activity in self._activities:
             if activity.id == id:
                 return activity
@@ -210,8 +246,12 @@ class LoreThread():
         return self._activities[0]
 
     @cached_property
+    def summary(self):
+        return self._root_requested.summary
+
+    @cached_property
     def username(self):
-        return self._threadstart.username
+        return self._root_requested.username
 
     def activities(self, *, since=None, until=None):
         for activity in self._activities:
@@ -220,7 +260,6 @@ class LoreThread():
             elif until and activity.created_at > until:
                 continue
             yield activity
-
 
 class LoreNntp():
     # without this, we occasionally [as on 20210831] run into
@@ -298,7 +337,7 @@ class LoreHttps():
                     with gzip.open(response) as uncompressed:
                         shutil.copyfileobj(uncompressed, tmpfile)
             except urllib.error.HTTPError as err:
-                logger.critical('Failed to download thread from %s: %s', url, err)
+                logger.critical('[lore] failed to download thread from %s: %s', url, err)
                 raise LoreDownloadError()
             for message in mailbox.mbox(tmpfile.name):
                 yield email.message_from_bytes(message.as_bytes(), policy=email.policy.default)
@@ -316,7 +355,7 @@ class LoreHttps():
                 logger.warning('[lore] could not download msg %s: %s"', msgid, err)
                 raise LoreDownloadError()
 
-            # might contain a raw msg or a mbox file with multiple messages
+            # result might contain a raw msg or a mbox file with multiple messages
             mbox = mailbox.mbox(tmpfile.name)
             if mbox:
                 for message in mbox:
@@ -326,17 +365,25 @@ class LoreHttps():
                 tmpfile.seek(0)
                 return email.message_from_string(tmpfile.read().decode('utf-8', errors='ignore'), policy=email.policy.default)
 
+
 class LoRepAct(regzbot.ReportActivity):
     def __init__(self, reptrd, lo_acivitiy):
-        self.reptrd = reptrd
+        # take adjusted repsrc, if one could be found
         if lo_acivitiy.best_repsrc:
             self.repsrc = lo_acivitiy.best_repsrc
         else:
             self.repsrc = reptrd.repsrc
-        self._lo_acivitiy = lo_acivitiy
+        assert self.repsrc
 
+        # reptrd is special for lore
+        if reptrd.id == lo_acivitiy.id:
+            self.reptrd = reptrd
+        else:
+            self.reptrd = LoRepTrd(self.repsrc, lo_acivitiy.id, lo_acivitiy.created_at, lo_acivitiy.realname, lo_acivitiy.summary, lo_acivitiy.username)
+        self.id = None
+
+        self._lo_acivitiy = lo_acivitiy
         self.created_at = lo_acivitiy.created_at
-        self.id = lo_acivitiy.id
         self.gmtime = int(lo_acivitiy.created_at.timestamp())
         self.message = lo_acivitiy.message
         self.patchkind = lo_acivitiy.patchkind
@@ -360,33 +407,7 @@ class LoRepSrc(ReportSource):
         return LoRepTrd(self, thread)
 
     @staticmethod
-    def best_repsrc(msg):
-        recipients = []
-        for field in ('To', 'CC'):
-            if field not in msg:
-                continue
-            # sane workarund as above, triggered by
-            try:
-                recipients.extend(re.findall(r'[\w\.-]+@[\w\.-]+', msg[field]))
-            except AttributeError as err:
-                # handle mails without To:, for example
-                #  https://lore.kernel.org/all/20211005053239.3E8DEC4338F@smtp.codeaurora.org/raw
-                #  https://lore.kernel.org/all/20210925074531.10446-1-tomm.merciai@gmail.com/raw
-                # related: https://bugs.python.org/issue39100
-                logger.warning('Ignoring "%s" in %s due to and exception: "AttributeError: %s"', field, email_get_msgid(msg), err)
-            except ValueError as err:
-                # Workaround for https://lore.kernel.org/all/1634261360.fed2opbgxw.astroid@bobo.none/raw
-                #     -> "ValueError: invalid arguments; address parts cannot contain CR or LF"
-                logger.warning('Ignoring "%s" in %s due to and exception: "ValueError: %s"',  field, email_get_msgid(msg), err)
-            except IndexError as err:
-                # workaround for the "=?utf-8?q?=2C?=linux-arm-msm@vger.kernel.org" in
-                # https://lore.kernel.org/linux-pci/166983076821.2517843.6476270112700027226.robh@kernel.org/raw
-                logger.warning('Ignoring "field" in %s due to an exception: "HeaderParseError: %s"', field, email_get_msgid(msg), err)
-            except TypeError as err:
-                # workaround for the ".@3429e2599065" in
-                # https://lore.kernel.org/all/202312271450.C9YmLJn2-lkp@intel.com/
-                logger.warning('Ignoring "field" in %s due to an exception: "TypeError: %s"', field, email_get_msgid(msg), err)
-
+    def best_repsrc(recipients):
         new_repsrc = None
         for address in recipients:
             tmp_repsrc = regzbot.ReportSource.get_by_identifier(address)
@@ -399,14 +420,24 @@ class LoRepSrc(ReportSource):
         return new_repsrc
 
 class LoRepTrd(ReportThread):
-    def __init__(self, repsrc, lo_thread):
-        self._lo_thread = lo_thread
-
-        self.created_at = lo_thread.created_at
-        self.id = lo_thread.id
-        self.summary = lo_thread.summary
-        self.realname = lo_thread.realname
-        self.username = lo_thread.username
+    def __init__(self, *args):
+        self.repsrc = args[0]
+        if len(args) == 2:
+            self._lo_thread = args[1]
+            self.created_at = self._lo_thread.created_at
+            self.id = self._lo_thread.id
+            self.realname = self._lo_thread.realname
+            self.summary = self._lo_thread.summary
+            self.username = self._lo_thread.username
+        elif len(args) == 6:
+            self._lo_thread = LoreThread(args[1])
+            self.created_at = args[2]
+            self.id = args[1]
+            self.realname = args[3]
+            self.summary = args[4]
+            self.username = args[5]
+        else:
+            raise NotImplemented
         super().__init__()
 
     @cached_property

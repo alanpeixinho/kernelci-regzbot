@@ -805,23 +805,14 @@ class RegActivityMonitor():
         return self.authormail
 
     def add_activity(self, repact):
-        # special handling required for lore; ideally id_thread would be empty, but due to
-        #  history reasons this was a simpler solution
-        if repact.repsrc.kind == 'lore':
-            id_thread = repact.id
-            id_subentry = None
-        else:
-            id_thread = repact.reptrd.id
-            id_subentry = repact.id
-
         RegActivityEvent.event(
             repact.gmtime,
-            id_thread,
+            repact.reptrd.id,
             repact.summary,
             repact.realname,
             repact.repsrc.id,
             patchkind=repact.patchkind,
-            subentry=id_subentry,
+            subentry=repact.id,
             actimonid=self.actimonid,
             )
 
@@ -985,6 +976,7 @@ class RegActivityMonitor():
         if dbresult:
             return cls(*dbresult)
         return None
+
 
     @staticmethod
     def ismonitored(entry, regid=None, repsrcid=None):
@@ -3538,10 +3530,12 @@ def process_msg(msgid):
     repsrc, msg = download_msg(msgid)
     return mailin.process_msg(repsrc, msg)
 
-
 def process_thread(msgid, repsrcid=None):
     mailin.process_thread(msgid, repsrcid)
 
+def checkout_url(url):
+    reptrd = ReportThread.from_url(url)
+    reptrd.update(None, None)
 
 def checksource(identifier):
     return lore.checksource(identifier)

@@ -113,3 +113,7 @@ def trackertest_11_0(funcname):
 
     regzbot.ReportSource.update_all()
     return False, True
+
+def trackertest_0_0(funcname):
+    regzbot.checkout_url('https://lore.kernel.org/all/20240111141331.3715265-1-diogo.ivo@siemens.com/')
+    return False, True
