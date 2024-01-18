@@ -366,12 +366,11 @@ class RbCmdSingleNew:
 
 
 class RbCmdStackNew:
-    def __init__(self, repact, actimon):
+    def __init__(self, repact, regression):
         self._commands = []
-        self.actimon = actimon
         self.repact = repact
         self.reptrd = repact.reptrd
-        self.regression = self._locate_regression()
+        self.regression = regression
 
     def _add_command(self, cmd, parameters):
         if cmd == 'handle':
@@ -389,10 +388,6 @@ class RbCmdStackNew:
         cmdobj = RbCmdSingleNew(self, cmd, parameters)
         self._commands.append(cmdobj)
 
-    def _locate_regression(self):
-        if self.actimon and self.actimon.regid:
-            return regzbot.RegressionBasic.get_by_regid(self.actimon.regid)
-        return regzbot.RegressionBasic.get_by_reptrd(self.reptrd)
 
     # maybe the following is somewhat oddly placed here, but putting it in Regression class felt misplaced, too, as this
     # only should be executed in the contect of commands like duplicate and introduced; and in the latter case only
@@ -420,7 +415,7 @@ class RbCmdStackNew:
             if single_command.cmd == 'introduced':
                 regression_created = single_command.process(self.regression)
                 if regression_created:
-                    self.regression = self._locate_regression()
+                    self.regression = regression_created
             else:
                 assert (self.regression)
                 single_command.process(self.regression)
@@ -430,13 +425,6 @@ class RbCmdStackNew:
         if regression_created:
             self.add_related_activities(self.reptrd, regression_created)
         return regression_created
-
-
-def _ignore_activity(body):
-    # this RE is derivated from the one in _parse() and there explained in more detail
-    if re.search(r'((^|\n|;\s+)#regzbot\s+)(ignore-activity|poke)(?=(;?\n\s*$|;?\s+#regzbot))', '\n' + body + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
-        return True
-    return False
 
 
 def _parse(cmd_section):
@@ -471,22 +459,28 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
     if 'until' in regzbot._TESTING and activity.created_at >= regzbot._TESTING['until']:
         return
 
-    if actimon:
-        # check for flags before adding a activity
-        if not _ignore_activity(activity.message):
-            actimon.add_activity(activity)
+    if re.search(r'((^|\n|;\s+)#regzbot\s+)(ignore-activity|poke)(?=(;?\n\s*$|;?\s+#regzbot))', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
+        # ignore activity
+        pass
+    elif actimon:
+        # reminder: actimon is only provided to this method when a regression is added and the related acitivies are
+        #  walked
+        actimon.add_activity(activity)
+        # only handle regzbot commands in acitivies that occured after the activity that addede the report
+        if triggering_repact and activity.created_at <= triggering_repact.created_at:
+            return
+    else:
+        pass
 
-    # when a regression is added and all activities walked, we only want to handle regzbot commands
-    # in acitivies that happened after the report was added
-    if triggering_repact and activity.created_at <= triggering_repact.created_at:
-        return
-
-    # the following loop locates sections with regzbot commands seperated by newlines;
-    # note, it adds a newline at the start and two at the end of the processed input, as the
-    # regzbot command might be right at its start or end
+    # The following loop locates sections with regzbot commands seperated by newlines;
+    #  note, it adds a newline at the start and two at the end of the processed input, as the
+    #  regzbot command might be right at its start or end.
+    regression = None
     regression_created = None
+    if actimon and actimon.regid:
+        regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
     for cmd_section in re.finditer(r'^\r?\n#regzbot.*\r?\n\s*\r?\n$', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
-        cmd_stack = RbCmdStackNew(activity, actimon)
+        cmd_stack = RbCmdStackNew(activity, regression )
         for command, parameter in _parse(cmd_section[0].replace('\r', '')):
             cmd_stack._add_command(command, parameter)
         regression_created = cmd_stack.process_commands()
