@@ -41,8 +41,7 @@ class LoreDownloadError(Exception):
 
 
 class LoreNntp():
-    # without this, we occasionally [as on 20210831] run into
-    # "nntplib.NNTPDataError: line too long" errors
+    # without this, occasionally [as on 20210831] errors like "nntplib.NNTPDataError: line too long" occur; not sure,
     # might be a bug in the public-inbox code behind lore
     nntplib._MAXLINE = 65536
 
@@ -121,32 +120,35 @@ class LoreHttps():
             for message in mailbox.mbox(tmpfile.name):
                 yield email.message_from_bytes(message.as_bytes(), policy=email.policy.default)
 
-    @staticmethod
-    def download_msg(msgid):
-        with tempfile.NamedTemporaryFile() as tmpfile:
-            url='https://lore.kernel.org/all/%s/raw' % msgid
-            try:
-                logger.debug("[lore] downloading %s", url)
-                with urllib.request.urlopen(url) as response:
-                    shutil.copyfileobj(response, tmpfile)
-                    return True
-            except urllib.error.HTTPError as err:
-                logger.warning('[lore] could not download msg %s: %s"', msgid, err)
-                raise LoreDownloadError()
-
-            # result might contain a raw msg or a mbox file with multiple messages
-            mbox = mailbox.mbox(tmpfile.name)
-            if mbox:
-                for message in mbox:
-                     # just pick the first one
-                     return email.message_from_bytes(message.as_bytes(), policy=email.policy.default)
-            else:
-                tmpfile.seek(0)
-                return email.message_from_string(tmpfile.read().decode('utf-8', errors='ignore'), policy=email.policy.default)
+# unused as of now
+#
+#   @staticmethod
+#   def download_msg(msgid):
+#       with tempfile.NamedTemporaryFile() as tmpfile:
+#           url='https://lore.kernel.org/all/%s/raw' % msgid
+#           try:
+#               logger.debug("[lore] downloading %s", url)
+#               with urllib.request.urlopen(url) as response:
+#                   shutil.copyfileobj(response, tmpfile)
+#                   return True
+#           except urllib.error.HTTPError as err:
+#               logger.warning('[lore] could not download msg %s: %s"', msgid, err)
+#               raise LoreDownloadError()
+#
+#           # result might contain a raw msg or a mbox file with multiple messages
+#           mbox = mailbox.mbox(tmpfile.name)
+#           if mbox:
+#               for message in mbox:
+#                    # just pick the first one
+#                    return email.message_from_bytes(message.as_bytes(), policy=email.policy.default)
+#           else:
+#               tmpfile.seek(0)
+#               return email.message_from_string(tmpfile.read().decode('utf-8', errors='ignore'), policy=email.policy.default)
 
 
 class LoActivity():
-    def __init__(self, msg):
+    def __init__(self, lo_thread, msg):
+        self.lo_thread = lo_thread
         self._msg = msg
         self._realname = None
         self._username = None
@@ -208,7 +210,8 @@ class LoActivity():
 
     @property
     def parent(self):
-        return self.ancestors[-1]
+        if self.ancestors:
+            return self.ancestors[-1]
 
     @cached_property
     def patchkind(self):
@@ -245,7 +248,7 @@ class LoActivity():
 
     @cached_property
     def summary(self):
-        return self._subject_tagremoval(self.subject)
+        return self._subject_tagless(self.subject)
 
     @property
     def username(self):
@@ -284,18 +287,25 @@ class LoActivity():
         return subject.replace("\n", "").strip()
 
     @staticmethod
-    def _subject_tagremoval(subject):
+    def _subject_tagless(subject):
         return re.sub(r'^ *\[.*?\] *', '', subject, flags=re.IGNORECASE)
 
 
 class LoreThread():
     def __init__(self, msgid):
-        self.id = urllib.parse.unquote(msgid)
-        self._best_repsrc = None
-        self._all_activities = {}
+        self._id = urllib.parse.unquote(msgid)
 
     @cached_property
-    def _activities(self):
+    def _all_activities(self):
+        all_activities = {}
+        for msg in LoreHttps.download_thread(self._id):
+            lo_act = LoActivity(self, msg)
+            if lo_act.id in all_activities:
+                continue
+            all_activities[lo_act.id] = lo_act
+        return all_activities
+
+    def _activities(self, msgid):
         def is_reply(lo_act, related_msgids):
             for reference in lo_act.ancestors:
                 if reference in related_msgids:
@@ -303,63 +313,27 @@ class LoreThread():
 
         activities = []
         related_msgids = []
-        for msg in LoreHttps.download_thread(self.id):
-            lo_act = LoActivity(msg)
-            if lo_act.id in self._all_activities:
-                continue
-
-            self._all_activities[lo_act.id] = lo_act
-            if self.id == lo_act.id or is_reply(lo_act, related_msgids):
+        for lo_act in self._all_activities.values():
+            if msgid == lo_act.id or is_reply(lo_act, related_msgids):
                 activities.append(lo_act)
                 related_msgids.append(lo_act.id)
-                if self.id == lo_act.id:
-                    self._best_repsrc = lo_act.best_repsrc
         activities.sort(key=lambda x: x.created_at)
         return activities
 
     @property
-    def best_repsrc(self):
-        if not self._best_repsrc:
-            # this will download the thread and set the variable
-            _ = self._root_requested
-        return self._best_repsrc
+    def root(self):
+        for id in self._all_activities:
+            return self._all_activities[id].id
 
-    @cached_property
-    def created_at(self):
-        return self._root_requested.created_at
+    def activity(self, *, msgid=None):
+        if not msgid:
+            msgid = self._id
+        return self._all_activities[msgid]
 
-    @cached_property
-    def gmtime(self):
-        return int(self.created_at.timestamp())
-
-    @cached_property
-    def realname(self):
-        return self._root_requested.realname
-
-    @property
-    def root_real(self):
-        # reminder: this returns the real root of a downloaded thread
-        return self._all_activities[0]
-
-    @cached_property
-    def _root_requested(self):
-        # reminder: this returns the message that made us download the thread
-        for activity in self._activities:
-            if activity.id == id:
-                return activity
-        # fallback
-        return self._activities[0]
-
-    @cached_property
-    def summary(self):
-        return self._root_requested.summary
-
-    @cached_property
-    def username(self):
-        return self._root_requested.username
-
-    def activities(self, *, since=None, until=None):
-        for activity in self._activities:
+    def activities(self, *, since=None, until=None, msgid=None):
+        if not msgid:
+            msgid = self.id
+        for activity in self._activities(msgid):
             if since and activity.created_at < since:
                 continue
             elif until and activity.created_at > until:
@@ -368,29 +342,31 @@ class LoreThread():
 
 
 class LoRepAct(regzbot.ReportActivity):
-    def __init__(self, reptrd, lo_acivitiy):
+    def __init__(self, reptrd, lo_activity):
         # take adjusted repsrc, if one could be found
-        if lo_acivitiy.best_repsrc:
-            self.repsrc = lo_acivitiy.best_repsrc
+        if lo_activity.best_repsrc:
+            self.repsrc = lo_activity.best_repsrc
         else:
             self.repsrc = reptrd.repsrc
         assert self.repsrc
 
-        # reptrd is special for lore
-        if reptrd.id == lo_acivitiy.id:
+        self.lo_activity = lo_activity
+        self.created_at = lo_activity.created_at
+        self.gmtime = int(lo_activity.created_at.timestamp())
+        self.id = lo_activity.id
+        self.lo_thread = lo_activity.lo_thread
+        self.message = lo_activity.message
+        self.patchkind = lo_activity.patchkind
+        self.realname = lo_activity.realname
+        self.summary = lo_activity.summary
+        self.username = lo_activity.username
+
+        # reptrd need to be adjusted for lore
+        if reptrd.id == lo_activity.id:
             self.reptrd = reptrd
         else:
-            self.reptrd = LoRepTrd(self.repsrc, lo_acivitiy.id, lo_acivitiy.created_at, lo_acivitiy.realname, lo_acivitiy.summary, lo_acivitiy.username)
+            self.reptrd = LoRepTrd(self.repsrc, self.lo_thread, lo_activity=self.lo_activity)
         self.id = None
-
-        self._lo_acivitiy = lo_acivitiy
-        self.created_at = lo_acivitiy.created_at
-        self.gmtime = int(lo_acivitiy.created_at.timestamp())
-        self.message = lo_acivitiy.message
-        self.patchkind = lo_acivitiy.patchkind
-        self.realname = lo_acivitiy.realname
-        self.summary = lo_acivitiy.summary
-        self.username = lo_acivitiy.username
 
         super().__init__()
 
@@ -404,8 +380,8 @@ class LoRepSrc(ReportSource):
             parsed_url = urllib.parse.urlparse(url)
             path_split = parsed_url.path.split('/', maxsplit=3)
             id = path_split[2]
-        thread = LoreThread(id)
-        return LoRepTrd(self, thread)
+        lo_thread = LoreThread(id)
+        return LoRepTrd(self, lo_thread)
 
     @staticmethod
     def best_repsrc(recipients):
@@ -421,24 +397,29 @@ class LoRepSrc(ReportSource):
         return new_repsrc
 
 class LoRepTrd(ReportThread):
-    def __init__(self, *args):
-        self.repsrc = args[0]
-        if len(args) == 2:
-            self._lo_thread = args[1]
-            self.created_at = self._lo_thread.created_at
-            self.id = self._lo_thread.id
-            self.realname = self._lo_thread.realname
-            self.summary = self._lo_thread.summary
-            self.username = self._lo_thread.username
-        elif len(args) == 6:
-            self._lo_thread = LoreThread(args[1])
-            self.created_at = args[2]
-            self.id = args[1]
-            self.realname = args[3]
-            self.summary = args[4]
-            self.username = args[5]
+    def __init__(self, repsrc, lo_thread, *, lo_activity=None):
+        self._lo_thread = lo_thread
+        self.supports_relatives = True
+
+        # lore breaks with the model here that is based on bug trackers; work around this here
+        if lo_activity:
+            self._lo_activity = lo_activity
         else:
-            raise NotImplemented
+            # lo_thread.id is the id that was provided when the
+            # thread was requested
+            self._lo_activity = lo_thread.activity()
+
+        if self._lo_activity.best_repsrc:
+            self.repsrc = self._lo_activity.best_repsrc
+        else:
+            self.repsrc = repsrc
+
+        self.created_at = self._lo_activity.created_at
+        self.id = self._lo_activity.id
+        self.realname = self._lo_activity.realname
+        self.summary = self._lo_activity.summary
+        self.username = self._lo_activity.username
+
         super().__init__()
 
     @cached_property
@@ -449,9 +430,24 @@ class LoRepTrd(ReportThread):
     def repsrc(self):
         return self._lo_thread.best_repsrc
 
+    def _reptrd_from_msgid(self, msgid):
+        lo_activity = self._lo_thread.activity(msgid=self._lo_activity.parent)
+        lorepsrc = lo_activity.best_repsrc
+        return LoRepTrd(lorepsrc, self._lo_thread, lo_activity=lo_activity)
+
+    def parent(self):
+        if not self._lo_activity.parent:
+            return self
+        return self._reptrd_from_msgid(self._lo_activity.parent)
+
+    def root(self):
+        return self._reptrd_from_msgid(self._lo_thread.root)
+
     def update(self, since, until, *, actimon=None, triggering_repact=None):
+        # handle this here and don't feed the msgs through the regular parsing code, as they might already have been
+        #  processed earlier
         try:
-            for activity in self._lo_thread.activities(since=since, until=until):
+            for activity in self._lo_thread.activities(msgid=self.id, since=since, until=until):
                 lo_activity = LoRepAct(self, activity)
                 regzbot._rbcmd.process_activity(lo_activity, actimon=actimon, triggering_repact=triggering_repact)
         except regzbot._rbcmd.RegressionCreatedException:

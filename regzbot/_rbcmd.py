@@ -270,6 +270,7 @@ class RbCmdSingleNew:
             self._rbcmd_stack.add_related_activities(reptrd_created, regression_created)
 
     def _cmd_fix(self, regression):
+        return
         def _remove_quoting_chars(pattern):
             for character in (('(', ')'), "'", '"'):
                 if pattern.startswith(character[0]) and pattern.endswith(character[-1]):
@@ -332,16 +333,13 @@ class RbCmdSingleNew:
 
     def process(self, regression):
         regression_created = None
-        if self.cmd == 'introduced':
+        if self.cmd in ('ignore-activity', 'poke'):
+            # these are flags releavent and handled when processing activities, so nothing to do here
+            return
+        elif self.cmd == 'introduced':
             regression_created = self._cmd_introduced(regression)
             if regression_created:
                 regression = regression_created
-        elif self.cmd in (
-                'poke',
-                'ignore-activity',
-                ):
-            # these are flags releavent and handled when processing activities, so nothing to do here
-            pass
         elif self.cmd in (
                 'backburn',
                 'duplicate',
@@ -360,12 +358,10 @@ class RbCmdSingleNew:
         else:
             regzbot.UnhandledEvent.add(
                 self.repact.web_url, "unknown regzbot command: %s" % self.cmd, gmtime=self.report_rzbcmd.gmtime, subject=self.report_rzbcmd.summary)
+            return
 
-        # create the history event
-        if self.cmd is not 'ignore-activity':
-            regression.add_history_event(self)
-
-        # let caller know if we created a regression
+        # create the history event and let caller know if we created a regression
+        regression.add_history_event(self)
         return regression_created
 
 
@@ -386,9 +382,10 @@ class RbCmdStackNew:
             self.reptrd = regzbot.ReportThread.from_url(parameters)
             return
         elif cmd == '^introduced':
-            if not self.reptrd.supports_relatives:
-                # ignore, doesn't make any sense
-                cmd = 'introduced'
+            # note, the ^ aspect will be silently ignored in case parents are not supported
+            cmd = 'introduced'
+            if self.reptrd.supports_relatives:
+                self.reptrd = self.reptrd.parent()
         cmdobj = RbCmdSingleNew(self, cmd, parameters)
         self._commands.append(cmdobj)
 

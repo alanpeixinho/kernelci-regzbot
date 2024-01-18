@@ -115,5 +115,7 @@ def trackertest_11_0(funcname):
     return False, True
 
 def trackertest_0_0(funcname):
-    regzbot.checkout_url('https://lore.kernel.org/all/20240111141331.3715265-1-diogo.ivo@siemens.com/')
+#    regzbot.checkout_url('https://lore.kernel.org/regressions/CAKLYgeJ1tUuqLcsquwuFqjDXPSJpEiokrWK2gisPKDZLs8Y2TQ@mail.gmail.com/')
+#    regzbot.checkout_url('https://lore.kernel.org/all/772a2c59-7616-4ec7-9050-17d3abf0b6eb@collabora.com/')
+    regzbot.checkout_url('https://lore.kernel.org/all/3aa32b39-ee2f-405e-b4fe-983e351c2e20@leemhuis.info/')
     return False, True

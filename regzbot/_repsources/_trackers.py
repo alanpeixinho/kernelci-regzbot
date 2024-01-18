@@ -52,9 +52,6 @@ class _possible_search_result():
             yield hit
 
 class _reptrd(regzbot.ReportThread):
-    def __init__(self):
-        self.supports_relatives = False
-
     def update(self, since, until, *, actimon=None, triggering_repact=None):
         try:
             for activity in self.activities(since=since, until=until):

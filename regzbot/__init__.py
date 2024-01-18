@@ -2863,7 +2863,12 @@ class ReportActivity():
 
 class ReportThread():
     def __init__(self):
-        assert self.id
+         # ensure self.id is present, but accept None:
+        _ = self.id
+
+        if not 'supports_relatives' in self.__dict__:
+            self.supports_relatives = False
+
 
     @classmethod
     def from_url(cls, url):
