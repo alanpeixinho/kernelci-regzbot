@@ -379,12 +379,17 @@ class RbCmdStackNew:
                 self.process_commands()
                 self._commands = []
             self.reptrd = regzbot.ReportThread.from_url(parameters)
+            for actimon in regzbot.RegActivityMonitor.get_by_reptrd(self.reptrd):
+                if actimon.regid and not regression:
+                    self.regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
             return
         elif cmd == '^introduced':
             # note, the ^ aspect will be silently ignored in case parents are not supported
             cmd = 'introduced'
             if self.reptrd.supports_relatives:
-                self.reptrd = self.reptrd.parent()
+                for reptrd in self.reptrd.ancestors():
+                    self.reptrd = reptrd
+                    break
         cmdobj = RbCmdSingleNew(self, cmd, parameters)
         self._commands.append(cmdobj)
 
@@ -456,9 +461,12 @@ def _parse(cmd_section):
         yield(splitted[1], splitted[3])
 
 def process_activity(activity, *, triggering_repact=None, actimon=None):
+    regression = None
+
     if 'until' in regzbot._TESTING and activity.created_at >= regzbot._TESTING['until']:
         return
 
+    # add activity
     if re.search(r'((^|\n|;\s+)#regzbot\s+)(ignore-activity|poke)(?=(;?\n\s*$|;?\s+#regzbot))', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
         # ignore activity
         pass
@@ -466,19 +474,21 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
         # reminder: actimon is only provided to this method when a regression is added and the related acitivies are
         #  walked
         actimon.add_activity(activity)
-        # only handle regzbot commands in acitivies that occured after the activity that addede the report
-        if triggering_repact and activity.created_at <= triggering_repact.created_at:
-            return
     else:
-        pass
+        # we need to find actimons ourselves
+        for actimon in regzbot.RegActivityMonitor.get_by_reptrd(activity.reptrd):
+            actimon.add_activity(activity)
+            if actimon.regid and not regression:
+                regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
+
+    # only handle regzbot commands in acitivies that occured after the activity that addede the report
+    if triggering_repact and activity.created_at <= triggering_repact.created_at:
+            return
 
     # The following loop locates sections with regzbot commands seperated by newlines;
     #  note, it adds a newline at the start and two at the end of the processed input, as the
     #  regzbot command might be right at its start or end.
-    regression = None
     regression_created = None
-    if actimon and actimon.regid:
-        regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
     for cmd_section in re.finditer(r'^\r?\n#regzbot.*\r?\n\s*\r?\n$', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
         cmd_stack = RbCmdStackNew(activity, regression )
         for command, parameter in _parse(cmd_section[0].replace('\r', '')):

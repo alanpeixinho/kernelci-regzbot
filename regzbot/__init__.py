@@ -942,11 +942,24 @@ class RegActivityMonitor():
         for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE repsrcid=(?) AND entry=(?)', (repsrc.repsrcid, entry)):
             return RegActivityMonitor(*dbresult)
 
-    @staticmethod
-    def get_by_reptrd(reptrd):
-        dbcursor = DBCON.cursor()
-        for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE repsrcid=(?) AND entry=(?)', (reptrd.repsrc.id, reptrd.id)):
-            yield RegActivityMonitor(*dbresult)
+    @classmethod
+    def get_by_reptrd(cls, reptrd):
+        if reptrd.repsrc.kind != 'lore':
+            dbcursor = DBCON.cursor()
+            for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE repsrcid=(?) AND entry=(?)', (reptrd.repsrc.id, reptrd.id)):
+                yield RegActivityMonitor(*dbresult)
+        else:
+            actimonids_found = []
+            actimon = cls.get_by_entry(reptrd.id)
+            if actimon:
+                actimonids_found.append(actimon.actimonid)
+                yield actimon
+            for reptrd_ancestor in reptrd.ancestors():
+                actimon = cls.get_by_regactivity(reptrd_ancestor.id)
+                if not actimon or actimon.actimonid in actimonids_found:
+                    continue
+                actimonids_found.append(actimon.actimonid)
+                yield actimon
 
     @staticmethod
     def get_by_regid_n_entry(regid, entry):
@@ -1774,12 +1787,9 @@ class RegressionBasic():
 
     @classmethod
     def get_by_reptrd(cls, reptrd):
-        dbcursor = DBCON.cursor()
-        dbresult = dbcursor.execute(
-            'SELECT %s FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.repsrcid=? AND actmonitor.entry=?' % RegressionBasic.DBCOLS, (reptrd.repsrc.id, reptrd.id)).fetchone()
-        if dbresult:
-            return cls(*dbresult)
-        return None
+        for actimon in RegActivityMonitor.get_by_reptrd(reptrd):
+            if actimon.regid:
+                return cls.get_by_regid(actimon.regid)
 
     @classmethod
     def get_by_repsrc_n_entry(cls, repsrc, entry, dbcursor=None):
@@ -3537,6 +3547,10 @@ def process_msg(msgid):
 
 def process_thread(msgid, repsrcid=None):
     mailin.process_thread(msgid, repsrcid)
+
+def checkout_msgid(msgid):
+    reptrd = ReportThread.from_url('https://lore.kernel.org/all/%s/' % msgid)
+    reptrd.process_single()
 
 def checkout_url(url):
     reptrd = ReportThread.from_url(url)

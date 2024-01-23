@@ -157,13 +157,15 @@ class LoActivity():
 
     @cached_property
     def ancestors(self):
-        ancestors = self._headerparse_references()
-        inreplyto = self._headerparse_inreplyto()
-        if inreplyto:
-            if inreplyto in ancestors and ancestors[-1] != inreplyto:
-                ancestors.remove(inreplyto)
-            if inreplyto not in ancestors:
-                ancestors.append(inreplyto)
+        ancestors = []
+        for msgid_reference in self._headerparse_references():
+            ancestors.insert(0, msgid_reference)
+        msgiid_inreplyto = self._headerparse_inreplyto()
+        if msgiid_inreplyto:
+            if msgiid_inreplyto in ancestors and ancestors[0] != msgiid_inreplyto:
+                ancestors.remove(msgiid_inreplyto)
+            if msgiid_inreplyto not in ancestors:
+                ancestors.inset(0, msgiid_inreplyto)
         return ancestors
 
     @cached_property
@@ -207,11 +209,6 @@ class LoActivity():
                 # https://lore.kernel.org/all/202312271450.C9YmLJn2-lkp@intel.com/
                 logger.warning('Ignoring "field" in %s due to an exception: "TypeError: %s"', field, email_get_msgid(msg), err)
         return recipients
-
-    @property
-    def parent(self):
-        if self.ancestors:
-            return self.ancestors[-1]
 
     @cached_property
     def patchkind(self):
@@ -265,11 +262,9 @@ class LoActivity():
             self._realname = re.sub(r'@.*', '', self._username)
 
     def _headerparse_references(self):
-        msgids = []
         if 'references' in self._msg:
             for msgid in self._msg['References'].split():
-                validated_msgid = self._validate_msgid(msgid)
-        return msgids
+                yield self._validate_msgid(msgid)
 
     def _headerparse_inreplyto(self):
         if 'In-Reply-To' in self._msg:
@@ -431,25 +426,30 @@ class LoRepTrd(ReportThread):
         return self._lo_thread.best_repsrc
 
     def _reptrd_from_msgid(self, msgid):
-        lo_activity = self._lo_thread.activity(msgid=self._lo_activity.parent)
+        lo_activity = self._lo_thread.activity(msgid=msgid)
         lorepsrc = lo_activity.best_repsrc
         return LoRepTrd(lorepsrc, self._lo_thread, lo_activity=lo_activity)
 
-    def parent(self):
-        if not self._lo_activity.parent:
+    def ancestors(self):
+        if not self._lo_activity.ancestors:
             return self
-        return self._reptrd_from_msgid(self._lo_activity.parent)
+        for msgid in self._lo_activity.ancestors:
+            yield self._reptrd_from_msgid(msgid)
 
     def root(self):
         return self._reptrd_from_msgid(self._lo_thread.root)
+
+    def process_single(self):
+        repact = LoRepAct(self, self._lo_activity)
+        regzbot._rbcmd.process_activity(repact)
 
     def update(self, since, until, *, actimon=None, triggering_repact=None):
         # handle this here and don't feed the msgs through the regular parsing code, as they might already have been
         #  processed earlier
         try:
             for activity in self._lo_thread.activities(msgid=self.id, since=since, until=until):
-                lo_activity = LoRepAct(self, activity)
-                regzbot._rbcmd.process_activity(lo_activity, actimon=actimon, triggering_repact=triggering_repact)
+                repact = LoRepAct(self, activity)
+                regzbot._rbcmd.process_activity(repact, actimon=actimon, triggering_repact=triggering_repact)
         except regzbot._rbcmd.RegressionCreatedException:
             # the handled activity contained a #regzbot introduced that created a regression for this issue; during that
             # process all activities (both older and younger) for it will be added by calling this method again, so
