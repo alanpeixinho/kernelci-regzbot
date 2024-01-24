@@ -310,8 +310,8 @@ class RbCmdSingleNew:
         regression.cmd_link(self, url, description)
 
     def _cmd_monitor(self, regression):
-        raise NotImplementedError
         url, description = self._parse_link_and_description(self.parameters)
+        regression.cmd_monitor(self, url, description)
 
     def _cmd_resolve(self, regression):
         regression.cmd_resolve(self, self.parameters)
@@ -463,6 +463,8 @@ def _parse(cmd_section):
 def process_activity(activity, *, triggering_repact=None, actimon=None):
     regression = None
 
+    logger.debug('[rbcmd] processing %s', activity.web_url)
+
     if 'until' in regzbot._TESTING and activity.created_at >= regzbot._TESTING['until']:
         return
 
@@ -471,8 +473,8 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
         # ignore activity
         pass
     elif actimon:
-        # reminder: actimon is only provided to this method when a regression is added and the related acitivies are
-        #  walked
+        # reminder: actimon is only provided to this method when a regression or a monitor is added and the related
+        #  acitivies are walked
         actimon.add_activity(activity)
     else:
         # we need to find actimons ourselves
@@ -484,6 +486,9 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
     # only handle regzbot commands in acitivies that occured after the activity that addede the report
     if triggering_repact and activity.created_at <= triggering_repact.created_at:
             return
+
+    if actimon and actimon.regid:
+        regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
 
     # The following loop locates sections with regzbot commands seperated by newlines;
     #  note, it adds a newline at the start and two at the end of the processed input, as the

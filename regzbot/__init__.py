@@ -1667,6 +1667,20 @@ class RegressionBasic():
     def cmd_link(self, rgzcmd, url, description):
         self._linkadd(url, description, rgzcmd.repact.gmtime, rgzcmd.repact.realname)
 
+    def cmd_monitor(self, rgzcmd, url, description):
+        reptrd = ReportThread.from_url(url)
+        if reptrd.repsrc.kind == 'generic':
+            # we can't monitor it, so just add a link
+            self.cmd_link(rgzcmd, url, description)
+            return None
+        actimonid = RegActivityMonitor.add(self.regid, reptrd.repsrc.id, reptrd.id, reptrd.gmtime, description, reptrd.realname, reptrd.username)
+        actimon = RegActivityMonitor.get(actimonid)
+        RegLink.add_entry(
+            self.regid, rgzcmd.reptrd.gmtime, description, reptrd.realname, reptrd.repsrc.id, reptrd.id)
+        reptrd.update(None, None, actimon=actimon)
+        logger.info('regression[%s, "%s"]: started to monitor %s' % (
+            self.regid, self.subject, url))
+
     def cmd_resolve(self, rgzcmd, reason):
         self._solve_reason(rgzcmd.cmd, reason, rgzcmd.repact.gmtime, rgzcmd.repact.reptrd.id, rgzcmd.repact.repsrc.id)
 
@@ -2867,7 +2881,7 @@ class ReportActivity():
             self.repsrc = self.reptrd.repsrc
 
     @property
-    def web_url(self, entry, *, redirector=None, subentry=None):
+    def web_url(self, *, redirector=None, subentry=None):
         return self.repsrc.url(self.reptrd.id, subentry=self.id)
 
 
