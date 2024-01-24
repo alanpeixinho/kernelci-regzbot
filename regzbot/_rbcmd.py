@@ -234,12 +234,18 @@ class RbCmdSingleNew:
             self.cmd = 'backburn'
         elif self.cmd in ('dup', 'dupof', 'duplicate-of' ):
             self.cmd = 'duplicate'
-        elif self.cmd in ('resolved', 'invalid'):
-            self.cmd = 'resolve'
         elif self.cmd in ('fixedby', 'fixed-by'):
             self.cmd = 'fix'
+        elif re.match('(link|relat(ed)?-?brief(ly)?)', self.cmd):
+            self.cmd = 'relatebrief'
+        elif self.cmd in ('monitor', 'related'):
+            self.cmd = 'relate'
+        elif self.cmd in ('resolved', 'invalid'):
+            self.cmd = 'resolve'
         elif self.cmd in ('subject', 'title'):
             self.cmd = 'summary'
+        elif self.cmd in ('unlink', 'unmonitor', 'unrelated' ):
+            self.cmd = 'unrelate'
         elif self.cmd in ('unback-burner', 'back-burner'):
             self.cmd = 'unbackburn'
 
@@ -305,13 +311,13 @@ class RbCmdSingleNew:
             return None
         return regzbot.RegressionBasic.cmd_introduced_new(self, hexsha)
 
-    def _cmd_link(self, regression):
-        url, description = self._parse_link_and_description(self.parameters)
-        regression.cmd_link(self, url, description)
-
-    def _cmd_monitor(self, regression):
+    def _cmd_relate(self, regression):
         url, description = self._parse_link_and_description(self.parameters)
         regression.cmd_monitor(self, url, description)
+
+    def _cmd_relatebrief(self, regression):
+        url, description = self._parse_link_and_description(self.parameters)
+        regression.cmd_link(self, url, description)
 
     def _cmd_resolve(self, regression):
         regression.cmd_resolve(self, self.parameters)
@@ -323,7 +329,7 @@ class RbCmdSingleNew:
         regression.cmd_unbackburn(self)
         self.deprecated_historyevent = False
 
-    def _cmd_unlink(self, regression):
+    def _cmd_unrelate(self, regression):
         url, _ = self._parse_link_and_description(self.parameters)
         regression.cmd_unlink(self, url)
 
@@ -345,9 +351,9 @@ class RbCmdSingleNew:
                 'duplicate',
                 'fix',
                 'from',
-                'link',
                 'inconclusive',
-                'monitor',
+                'relate',
+                'relatebrief',
                 'resolve',
                 'summary',
                 'unbackburn',
@@ -373,11 +379,7 @@ class RbCmdStackNew:
         self.regression = regression
 
     def _add_command(self, cmd, parameters):
-        if cmd == 'handle':
-            # just in case process all commands already added
-            if self._commands:
-                self.process_commands()
-                self._commands = []
+        if cmd == 'report':
             self.reptrd = regzbot.ReportThread.from_url(parameters)
             for actimon in regzbot.RegActivityMonitor.get_by_reptrd(self.reptrd):
                 if actimon.regid and not regression:
