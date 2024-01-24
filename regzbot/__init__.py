@@ -3175,6 +3175,10 @@ def basicressources_repsrces_setup():
     ReportSource.add('generic', 99,'', 'generic', '')
     ReportSource.add('lore_all', 98, '', 'lore', 'https://lore.kernel.org/all/')
 
+    ReportSource.add('bugzilla.kernel.org', 0,
+                     'https://bugzilla.kernel.org',
+                     'bugzilla', 'https://bugzilla.kernel.org/show_bug.cgi?id=')
+
     # these are optional; maybe they should be in a config file
 
     # temproraily disabled while working on new bugzilla module
