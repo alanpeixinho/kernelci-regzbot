@@ -64,7 +64,7 @@ class Emaildir:
         new_references.append(replyto)
         references = new_references
 
-        file = os.path.join(self._directory, "emailtesting-%s-.regzbot" % str(Emaildir._count).zfill(3))
+        file = os.path.join(self._directory, "%s.regzbot" % messageid.strip('<>'))
 
         msg = email.message.EmailMessage()
         if subject:
@@ -91,12 +91,11 @@ class Emaildir:
         Emaildir._count += 1
 
     def clear(self):
-        for emailtestingfile in pathlib.Path(self._directory).glob("emailtesting-*.regzbot"):
+        for emailtestingfile in pathlib.Path(self._directory).glob("*.regzbot"):
             emailtestingfile.unlink()
 
     def process(self):
-        _, _, filenames = next(os.walk(self._directory))
-        filenames.sort()
+        filenames = sorted(pathlib.Path(self._directory).iterdir(), key=os.path.getmtime)
         for file in filenames:
             regzbot.mailin.processmsg_file(
                 self.repsrc, os.path.join(self._directory, file))
@@ -442,9 +441,6 @@ def run(resultfilename, tmpdir, testdatadir):
         # go
         innercount = 0
         while '%s_%s_%s' % (testfuncprefix, outercount, innercount) in dir(this):
-            # remove mails from the last round
-            emaildirs_clear()
-
             # run test
             callfunction = getattr(this, '%s_%s_%s' %
                                    (testfuncprefix, outercount, innercount))
@@ -473,6 +469,8 @@ def run(resultfilename, tmpdir, testdatadir):
 
             # finish this up
             innercount += 1
+        # remove generated mails
+        emaildirs_clear()
         outercount += 1
     resultfile.close()
     regzbot.db_commit()
@@ -650,27 +648,27 @@ def offltest_0_15(funcname):
 
     replyto = '%s_%s' %(funcname, 1)
     dupof = '%s_%s' %(funcname, 0)
-    subcounter += 1
+    subcounter = 4
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
                                         "#regzb dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n"  % dupof,
                                         replyto=replyto)
 
     replyto = '%s_%s' %(funcname, 3)
     dupof = '%s_%s' %(funcname, 2)
-    subcounter += 1
+    subcounter = 5
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
                                         "#regzb dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n"  % dupof,
                                         replyto=replyto)
 
     replyto = '%s_%s' %(funcname, 2)
     dupof = '%s_%s' %(funcname, 0)
-    subcounter += 1
+    subcounter = 6
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
                                         "#regzb dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n"  % dupof,
                                         replyto=replyto)
 
     replyto = '%s_%s' %(funcname, 2)
-    subcounter += 1
+    subcounter = 7
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
                                         "#regzb fixed-by: %s" % gittrees_testing['mainline'].hashes_known[6],
                                         replyto=replyto)

@@ -690,6 +690,9 @@ def process_thread(msgid_interested, repsrcid):
 def processmsg_file(repsrc, file):
     with open(file, "r") as f:
         msg = email.message_from_file(f, policy=policy.default)
+        gmtime = gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(msg['date']))
+        if regzbot.RecordProcessedMsgids.check_presence(msg['message-id'], gmtime):
+           return
         process_msg(repsrc, msg)
 
 def remove_commit_summary_quoting(commitsummary):
