@@ -954,8 +954,8 @@ class RegActivityMonitor():
             if actimon:
                 actimonids_found.append(actimon.actimonid)
                 yield actimon
-            for reptrd_ancestor in reptrd.ancestors():
-                actimon = cls.get_by_regactivity(reptrd_ancestor.id)
+            for msgid in reptrd.ancestors():
+                actimon = cls.get_by_regactivity(msgid)
                 if not actimon or actimon.actimonid in actimonids_found:
                     continue
                 actimonids_found.append(actimon.actimonid)
@@ -1611,11 +1611,11 @@ class RegressionBasic():
         younger._db_update_solved()
 
         if self == older:
-            younger.add_history_event(rgzcmd, cmdline='note: now a duplicate of %s' % older.web_url)
+            younger.add_history_event(rgzcmd, cmdline='duplicate: %s [implicit]' % older.web_url)
             logger.info('Regression(%s): Regression(%s) is now a dupliate.',
-                        self.web_url, younger.web_url)
+                        self.web_url, older.web_url)
         else:
-            older.add_history_event(rgzcmd, cmdline='note: %s is now a duplicate' % younger.web_url)
+            older.add_history_event(rgzcmd, cmdline='duplicate: %s [implicit]' % younger.web_url)
             logger.info('Regression(%s): now a duplicate of Regression(%s).',
                         self.web_url, younger.web_url)
 
@@ -1631,9 +1631,15 @@ class RegressionBasic():
         RegBackburner.add(self.regid, rgzcmd.repact.repsrc.id, rgzcmd.repact.reptrd.id, rgzcmd.repact.gmtime,
                           rgzcmd.repact.realname, reason)
 
-    def cmd_duplicate(self, rgzcmd, url):
-        reptrd = ReportThread.from_url(url)
-        assert reptrd
+    def cmd_duplicate(self, rgzcmd, reptrd):
+        # handle duplicates already tracked
+        for actimon in RegActivityMonitor.get_by_reptrd(reptrd):
+            if actimon.regid:
+                regression = RegressionBasic.get_by_regid(actimon.regid)
+                self.__duplicate(rgzcmd, regression)
+                return
+
+        # handle duplicates not yet tracked
         if not reptrd.gmtime:
             reptrd.gmtime = rgzcmd.repact.gmtime
         if not reptrd.realname:
@@ -1643,10 +1649,10 @@ class RegressionBasic():
         if not reptrd.username:
             reptrd.username = rgzcmd.repact.realname
         regression_created = self.__create(rgzcmd, reptrd, introduced=self.introduced, gitbranchid=self.gitbranchid)
-        regression_created.add_history_event(rgzcmd, cmdline="introduced: %s [implicit, due to usage of 'duplicate']"
+        regression_created.add_history_event(rgzcmd, cmdline="introduced: %s [implicit]"
                                                  % self.introduced)
         self.__duplicate(rgzcmd, regression_created)
-        return regression_created, reptrd
+        return regression_created
 
     def cmd_fix(self, rgzcmd, hexsha, summary):
         self.fixedby(rgzcmd.repact.gmtime, hexsha, summary, repsrcid=rgzcmd.repact.repsrc.repsrcid,
@@ -1855,6 +1861,14 @@ class RegressionBasic():
                 yield topmost_regression
                 for duplicate_regression in topmost_regression, topmost_regression.get_dupes():
                     yield duplicate_regression
+
+    @classmethod
+    def get_duplicates(self):
+        for topmost_regression in self.find_topmost():
+            yield topmost_regression
+            for duplicate_regression in topmost_regression.get_dupes():
+                yield duplicate_regression
+            break
 
     @classmethod
     def get_by_regactivity(cls, entry):
@@ -2580,6 +2594,12 @@ class RegressionFull(RegressionBasic):
                 mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
             RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, author,
                  gitbranchid=gitbranch.gitbranchid, regzbotcmd='fixed: %s' % regzbotcmd)
+            for duplicate in self.find_topmost():
+                if self.regid != duplicate.regid:
+                    duplicate.fixed(
+                        mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
+                    RegHistory.event(duplicate.regid, mergedate, commit.hexsha, commit.summary, author,
+                         gitbranchid=gitbranch.gitbranchid, regzbotcmd='fix: %s [implicit]' % regzbotcmd)
         else:
             # downstream? then just add a note
             if self.gittree and gittree.priority > self.gittree.priority:
@@ -2858,6 +2878,8 @@ class ReportSource():
 
 
     def update(self):
+        if self.kind == 'generic':
+            return
         raise NotImplementedError
 
     @classmethod
@@ -2895,7 +2917,7 @@ class ReportThread():
 
 
     @classmethod
-    def from_url(cls, url):
+    def from_url(cls, url, *, repact=None):
         repsrc_generic = None
         url_lowered = url.lower()
         url_parsed = urllib.parse.urlparse(url)
@@ -2904,7 +2926,16 @@ class ReportThread():
                 repsrc_generic = repsrc
             elif repsrc.supports_url(url_lowered, url_parsed):
                 return repsrc.thread(url=url)
-        return repsrc_generic.thread(url=url)
+
+        # nothing found, so assume generic
+        reptrd = repsrc_generic.thread(url=url)
+        if repact:
+            # these fields would be "unkown" otherwise
+            reptrd.created_at = repact.created_at
+            reptrd.realname = repact.realname
+            reptrd.summary = repact.summary
+            reptrd.username = repact.username
+        return reptrd
 
     @classmethod
     def from_actimon(cls, actimon):

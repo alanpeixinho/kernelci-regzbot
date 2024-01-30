@@ -13,6 +13,7 @@ import datetime
 import email.message
 import email.generator
 import glob
+import mailbox
 import os
 import pathlib
 import string
@@ -41,14 +42,13 @@ justo ac mi ornare mollis id rutrum felis.''')
 
 class Emaildir:
     _count = 0
-    _startdate = 1546300800
+    _startdate = 1546304400
 
-    def __init__(self, repsrc, recipient, path_tmpdirectory, name):
-        self.repsrc = repsrc
+    def __init__(self, recipient, path_tmpdirectory, name):
         self.recipient = recipient
 
-        self._directory = os.path.join(path_tmpdirectory, name)
-        os.mkdir(self._directory)
+        self.directory = os.path.join(path_tmpdirectory, name)
+        os.mkdir(self.directory)
 
     def create_email(self, funcname, tag, *, cc=None, subject=None, messageid=None, replyto=None, references=None):
         if messageid is None:
@@ -63,8 +63,6 @@ class Emaildir:
                     '<regzbot-testing-%s@example.com>' % reference)
         new_references.append(replyto)
         references = new_references
-
-        file = os.path.join(self._directory, "%s.regzbot" % messageid.strip('<>'))
 
         msg = email.message.EmailMessage()
         if subject:
@@ -84,21 +82,33 @@ class Emaildir:
             msg['In-Reply-To'] = replyto
             msg['References'] = ' '.join(references)
 
-        with open(file, 'w') as out:
-            gen = email.generator.Generator(out)
-            gen.flatten(msg)
+        #filename = os.path.join(self.directory, "%s.regzbot" % messageid.strip('<>'))
+        #with open(filename, 'w') as out:
+        #    gen = email.generator.Generator(out)
+        #    gen.flatten(msg)
+
+        #if replyto:
+        #    os.symlink(os.path.join(self.directory, "%s.regzbot" % messageid.strip('<>')), filename)
+
+        filename = os.path.join(self.directory, "%s.regzbot" % messageid.strip('<>'))
+        if replyto:
+            filename_replyto = os.path.join(self.directory, "%s.regzbot" % replyto.strip('<>'))
+            os.symlink(filename_replyto, filename)
+        mbox = mailbox.mbox(filename)
+        mbox.add(mailbox.mboxMessage(msg))
+        mbox.flush()
 
         Emaildir._count += 1
 
     def clear(self):
-        for emailtestingfile in pathlib.Path(self._directory).glob("*.regzbot"):
+        for emailtestingfile in pathlib.Path(self.directory).glob("*.regzbot"):
             emailtestingfile.unlink()
 
     def process(self):
-        filenames = sorted(pathlib.Path(self._directory).iterdir(), key=os.path.getmtime)
+        filenames = sorted(pathlib.Path(self.directory).iterdir(), key=os.path.getmtime)
         for file in filenames:
             regzbot.mailin.processmsg_file(
-                self.repsrc, os.path.join(self._directory, file))
+                self.repsrc, os.path.join(self.directory, file))
 
     def reset(self):
         Emaildir._count = 0
@@ -254,11 +264,6 @@ def update_gittrees():
         gittree.update()
 
 
-def email_process():
-    emaildirs['primary'].process()
-    emaildirs['secondary'].process()
-
-
 def emaildirs_clear():
     for emaildir in emaildirs.keys():
         emaildirs[emaildir].clear()
@@ -384,18 +389,20 @@ def init_mailsdir(path_tmpmail):
     logger.debug(
         "Creating directory %s for holding emails files", path_tmpmail)
 
-    os.mkdir(path_tmpmail)
-    repsrcid = regzbot.ReportSource.add('Nonexistand primary mailinglist for regzbot testing', 2,
-                                        'nntp://nntp.lore.kernel.org/dev.linux.lists.regressions',
-                                        'lore', 'https://lore.kernel.org/regressions/', identifiers='regressions@example.com')
-    emaildirs['primary'] = Emaildir(
-        regzbot.ReportSource.get_by_id(repsrcid), 'regressions@example.com', path_tmpmail, 'primary')
+    regzbot._TESTING['emaildirs'] = []
 
+    os.mkdir(path_tmpmail)
+    emaildirs['primary'] = Emaildir('regressions@example.com', path_tmpmail, 'primary')
+    regzbot._TESTING['emaildirs'].append( emaildirs['primary'].directory)
+    repsrcid = regzbot.ReportSource.add('Nonexistand primary mailinglist for regzbot testing', 2,
+                                        emaildirs['primary'].directory,
+                                        'lore', 'https://lore.kernel.org/regressions/', identifiers='regressions@example.com')
+
+    emaildirs['secondary'] = Emaildir('linux-kernel@example.com', path_tmpmail, 'secondary')
+    regzbot._TESTING['emaildirs'].append( emaildirs['secondary'].directory)
     repsrcid = regzbot.ReportSource.add('Nonexistand secondary mailinglist for regzbot testing', 1,
-                                        'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-kernel',
+                                        emaildirs['secondary'].directory,
                                         'lore', 'https://lore.kernel.org/lkml/', identifiers='linux-kernel@example.com')
-    emaildirs['secondary'] = Emaildir(
-        regzbot.ReportSource.get_by_id(repsrcid), 'linux-kernel@example.com', path_tmpmail, 'secondary')
 
     regzbot.ReportSource.add('generic', 99,'', 'generic', '')
 
@@ -450,7 +457,8 @@ def run(resultfilename, tmpdir, testdatadir):
             # process created testdata
             if instructions:
                 if 'mailchk' in instructions:
-                    email_process()
+                    for repsrc in regzbot.ReportSource.getall():
+                        repsrc.update()
                 if 'gitchk' in instructions:
                     update_gittrees()
 
@@ -480,7 +488,7 @@ def run(resultfilename, tmpdir, testdatadir):
 def offltest_0_0(funcname):
     logger.info('%s: creating a mainline regression' % funcname)
     emaildirs['primary'].create_email(
-        funcname, "#regzb introduced: v1.8..v1.9-rc1")
+        funcname, "#regzbot introduced: v1.8..v1.9-rc1")
     return ['mailchk']
 
 
@@ -488,7 +496,7 @@ def offltest_0_1(funcname):
     replyto = 'test_0_0'
     logger.info('%s: specifying the culprit for the regression created in %s' % (
         funcname, replyto))
-    emaildirs['primary'].create_email(funcname, "#regzb introduced: %s" % gittrees_testing['mainline'].hashes_known[5],
+    emaildirs['primary'].create_email(funcname, "#regzbot introduced: %s" % gittrees_testing['mainline'].hashes_known[5],
                                       replyto=replyto)
     return ['mailchk']
 
@@ -497,7 +505,7 @@ def offltest_0_2(funcname):
     replyto = 'test_0_0'
     logger.info('%s: update title for the regression created in %s' %
                 (funcname, replyto))
-    emaildirs['primary'].create_email(funcname, "#regzb title: test_0_0: updated title (set by %s)" % funcname,
+    emaildirs['primary'].create_email(funcname, "#regzbot title: test_0_0: updated title (set by %s)" % funcname,
                                       replyto=replyto)
     return ['mailchk']
 
@@ -506,9 +514,9 @@ def offltest_0_3(funcname):
     logger.info(
         '%s: create a second mainline regression and mark it immediately as duplicate' % funcname)
     emaildirs['primary'].create_email(
-        funcname, "#regzb introduced: v1.8..v1.9-rc1")
+        funcname, "#regzbot introduced: v1.8..v1.9-rc1")
     replyto = funcname
-    emaildirs['primary'].create_email("%s_1" % funcname, "#regzb dupof: https://lore.kernel.org/regressions/regzbot-testing-test_0_0@example.com",
+    emaildirs['primary'].create_email("%s_1" % funcname, "#regzbot dupof: https://lore.kernel.org/regressions/regzbot-testing-test_0_0@example.com",
                                       replyto=replyto)
     return ['mailchk']
 
@@ -518,7 +526,7 @@ def offltest_0_4(funcname):
     logger.info('%s: mark regression created in %s as fixed with a non-existing commit which has a comment' %
                 (funcname, replyto))
     #
-    emaildirs['primary'].create_email(funcname, "#regzb fixed-by: 4169881b9e0781b2286dc94e4cb731982c5371aa Testcomment to fixed-by",
+    emaildirs['primary'].create_email(funcname, "#regzbot fixed-by: 4169881b9e0781b2286dc94e4cb731982c5371aa Testcomment to fixed-by",
                                       replyto=replyto)
     return ['mailchk']
 
@@ -527,7 +535,7 @@ def offltest_0_5(funcname):
     replyto = 'test_0_0'
     logger.info('%s: mark regression created in %s as fixed with with a commit that is actually existing' % (
         funcname, replyto))
-    emaildirs['primary'].create_email(funcname, "#regzb fixed-by: %s" % gittrees_testing['mainline'].hashes_known[6],
+    emaildirs['primary'].create_email(funcname, "#regzbot fixed-by: %s" % gittrees_testing['mainline'].hashes_known[6],
                                       replyto=replyto)
     return ['mailchk']
 
@@ -538,7 +546,7 @@ def offltest_0_6(funcname):
         '%s: send a mail which serves as report for a regression created by a reply later using ^introduced' % funcname)
     emaildirs['primary'].create_email(
         funcname, "Nothing to see here, move along")
-    emaildirs['primary'].create_email("%s_1" % funcname, "#regzb ^introduced: v1.8..v1.9-rc1",
+    emaildirs['primary'].create_email("%s_1" % funcname, "#regzbot ^introduced: v1.8..v1.9-rc1",
                                       replyto=replyto)
     return ['mailchk']
 
@@ -547,7 +555,7 @@ def offltest_0_7(funcname):
     replyto = 'test_0_6'
     logger.info('%s: mark the regression created in %s as resolved' %
                 (funcname, replyto))
-    emaildirs['primary'].create_email(funcname, "#regzb resolve: some reason",
+    emaildirs['primary'].create_email(funcname, "#regzbot resolve: some reason",
                                       replyto=replyto)
     return ['mailchk']
 
@@ -556,7 +564,7 @@ def offltest_0_8(funcname):
     logger.info(
         '%s: create a fourth mainline regression CCed to the secondary list' % funcname)
     emaildirs['primary'].create_email(
-        funcname, "#regzb introduced: v1.8..v1.9-rc1", cc=emaildirs['secondary'].recipient)
+        funcname, "#regzbot introduced: v1.8..v1.9-rc1", cc=emaildirs['secondary'].recipient)
     return ['mailchk']
 
 
@@ -575,7 +583,7 @@ def offltest_0_9(funcname):
 
     subcounter += 1
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1 /",
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.8..v1.9-rc1 /",
         replyto="%s_%s" % (funcname, subcounter - 1), references=("%s_0" % funcname, ))
     return ['mailchk']
 
@@ -583,11 +591,11 @@ def offltest_0_9(funcname):
 def offltest_0_10(funcname):
     replyto = 'test_0_9_0'
     logger.info(
-        "%s: send a mail with a regzbot command, but is not added as an activity due to #regzbot ignore-activity" % funcname)
+        "%s: send a mail with a regzbot command, but is not added as an activity due to #regzbotot ignore-activity" % funcname)
 
     subcounter = 0
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb title: updated title, set by %s_%s\n\n#regzb ignore-activity"
+        "%s_%s" % (funcname, subcounter), "#regzbot title: updated title, set by %s_%s\n\n#regzbot ignore-activity"
         % (funcname, subcounter),  replyto=replyto)
     return ['mailchk']
 
@@ -598,7 +606,7 @@ def offltest_0_11(funcname):
 
     subcounter = 0
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb poke",  replyto=replyto)
+        "%s_%s" % (funcname, subcounter), "#regzbot poke",  replyto=replyto)
     return ['mailchk']
 
 def offltest_0_12(funcname):
@@ -608,7 +616,7 @@ def offltest_0_12(funcname):
 
     subcounter = 0
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb from Some N. Ice Person <someone@example.com>",  replyto=replyto)
+        "%s_%s" % (funcname, subcounter), "#regzbot from Some N. Ice Person <someone@example.com>",  replyto=replyto)
     return ['mailchk']
 
 def offltest_0_13(funcname):
@@ -618,7 +626,7 @@ def offltest_0_13(funcname):
 
     subcounter = 0
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb backburner Some reason",  replyto=replyto)
+        "%s_%s" % (funcname, subcounter), "#regzbot backburner Some reason",  replyto=replyto)
     return ['mailchk']
 
 def offltest_0_14(funcname):
@@ -628,49 +636,49 @@ def offltest_0_14(funcname):
 
     subcounter = 0
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb unbackburn",  replyto=replyto)
+        "%s_%s" % (funcname, subcounter), "#regzbot unbackburn",  replyto=replyto)
     return ['mailchk']
 
 def offltest_0_15(funcname):
     logger.info('%s: create four additional regressions and mark them as duplicate in various way and then fix one marked that is marked as duplicate and has a duplicate' % funcname)
 
     subcounter = 0
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.8..v1.9-rc1")
 
     subcounter = 1
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.8..v1.9-rc1")
 
     subcounter = 2
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.8..v1.9-rc1")
 
     subcounter = 3
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.8..v1.9-rc1")
 
     replyto = '%s_%s' %(funcname, 1)
     dupof = '%s_%s' %(funcname, 0)
     subcounter = 4
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
-                                        "#regzb dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n"  % dupof,
+                                        "#regzbot dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n"  % dupof,
                                         replyto=replyto)
 
     replyto = '%s_%s' %(funcname, 3)
     dupof = '%s_%s' %(funcname, 2)
     subcounter = 5
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
-                                        "#regzb dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n"  % dupof,
+                                        "#regzbot dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n"  % dupof,
                                         replyto=replyto)
 
     replyto = '%s_%s' %(funcname, 2)
     dupof = '%s_%s' %(funcname, 0)
     subcounter = 6
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
-                                        "#regzb dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n"  % dupof,
+                                        "#regzbot dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n"  % dupof,
                                         replyto=replyto)
 
     replyto = '%s_%s' %(funcname, 2)
     subcounter = 7
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
-                                        "#regzb fixed-by: %s" % gittrees_testing['mainline'].hashes_known[6],
+                                        "#regzbot fixed-by: %s" % gittrees_testing['mainline'].hashes_known[6],
                                         replyto=replyto)
 
     return ['mailchk']
@@ -681,7 +689,7 @@ def offltest_0_16(funcname):
     subcounter = 0
     replyto = 'test_0_15_3'
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
-                                        "#regzb title: new title, set via a duplicate\n",
+                                        "#regzbot title: new title, set via a duplicate\n",
                                         replyto='%s' % replyto)
 
     return ['mailchk']
@@ -690,7 +698,7 @@ def offltest_0_17(funcname):
     logger.info('%s: create a regression and a duplicate from it' % funcname)
 
     subcounter = 0
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.8..v1.9-rc1")
     replyto = '%s_%s' %(funcname, subcounter)
 
     subcounter += 1
@@ -699,7 +707,7 @@ def offltest_0_17(funcname):
 
     subcounter += 1
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
-                                        "#regzb dup-of: https://lore.kernel.org/lkml/regzbot-testing-%s@example.com\n" % second_replyto,
+                                        "#regzbot dup-of: https://lore.kernel.org/lkml/regzbot-testing-%s@example.com\n" % second_replyto,
                                         replyto=replyto)
 
     subcounter += 1
@@ -711,21 +719,21 @@ def offltest_0_17(funcname):
 def offltest_0_18 (funcname):
     logger.info('%s: creating a mainline regression for an arbitarily url' % funcname)
     emaildirs['primary'].create_email(
-        funcname, "#regzb introduced: v1.8..v1.9-rc1 https://bugzilla.example.com/show_bug.cgi?id=215744")
+        funcname, "#regzbot introduced: v1.8..v1.9-rc1 https://bugzilla.example.com/show_bug.cgi?id=215744")
     return ['mailchk']
 
 
 def offltest_0_19(funcname):
-    replyto = funcname
     logger.info(
         '%s: send a mail which serves as report for a regression created by a reply later using ^introduced' % funcname)
 
     subcounter = 0
     emaildirs['primary'].create_email(
         "%s_%s" % (funcname, subcounter), "Nothing to see here, move along")
+    replyto = "%s_%s" % (funcname, subcounter)
 
     subcounter += 1
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1 ^",
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.8..v1.9-rc1 ^",
                                       replyto=replyto)
     return ['mailchk']
 
@@ -736,14 +744,14 @@ def offltest_0_20(funcname):
 
     replyto = 'test_0_19'
     subcounter = 0
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb duplicate: https://bugzilla.example.com/show_bug.cgi?id=215744",
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot duplicate: https://bugzilla.example.com/show_bug.cgi?id=215744",
                                       replyto=replyto)
     return ['mailchk']
 
 
 def offltest_0_21(funcname):
     logger.info('%s: create a regression and mark it as inconclusive', funcname)
-    emaildirs['primary'].create_email("%s" % funcname, "#regzb introduced: v1.8..v1.9-rc1\n#regzb inconclusive: some reason")
+    emaildirs['primary'].create_email("%s" % funcname, "#regzbot introduced: v1.8..v1.9-rc1\n#regzbot inconclusive: some reason")
     return ['mailchk']
 
 
@@ -751,7 +759,7 @@ def offltest_0_21(funcname):
 def offltest_1_0(funcname):
     logger.info('%s: creating a mainline regression' % funcname)
     emaildirs['primary'].create_email(
-        funcname, '#regzb introduced: v1.8..v1.9-rc1 ("foo: bar baz")')
+        funcname, '#regzbot introduced: v1.8..v1.9-rc1 ("foo: bar baz")')
     return ['mailchk']
 
 
@@ -770,13 +778,13 @@ def offltest_1_2(funcname):
 
     subcounter = 0
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.8..v1.9-rc1")
 
     # create the commit here, but don't check the repo yet (see below) as we have the commitid at hand here
     gittrees_testing['mainline'].mv()
 
     subcounter += 1
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb fix: %s" %
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot fix: %s" %
                                       gittrees_testing['mainline'].hashes_known[-1], replyto="%s_%s" % (funcname, subcounter - 1))
 
     # the second False ensure that the tree is not check yet:
@@ -794,7 +802,7 @@ def offltest_1_4(funcname):
     logger.info(
         '%s: create a mainline regression that will be fixed by a commit that shows up in next' % funcname)
     emaildirs['primary'].create_email(
-        funcname, "#regzb introduced: v1.8..v1.9-rc1")
+        funcname, "#regzbot introduced: v1.8..v1.9-rc1")
     gittrees_testing['next'].mv(
         'Testcommit %s\n\nLink: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n' % (funcname, funcname))
     return ['mailchk', 'gitchk']
@@ -804,7 +812,7 @@ def offltest_1_5(funcname):
     logger.info(
         '%s: create a mainline regression and have a commit refer to in in stable' % funcname)
     emaildirs['primary'].create_email(
-        funcname, "#regzb introduced: v1.8..v1.9-rc1")
+        funcname, "#regzbot introduced: v1.8..v1.9-rc1")
     gittrees_testing['linux-1.8.y'].mv(
         'Testcommit %s\n\nLink: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n' % (funcname, funcname))
     return ['mailchk', 'gitchk']
@@ -821,7 +829,7 @@ def offltest_1_7(funcname):
     logger.info(
         '%s: create a mainline regression with a culprit that a commit mentions in a Fixed: tag' % funcname)
     emaildirs['primary'].create_email(
-        funcname, "#regzb introduced: %s" % gittrees_testing['mainline'].hashes_known[-2])
+        funcname, "#regzbot introduced: %s" % gittrees_testing['mainline'].hashes_known[-2])
     return ['mailchk']
 
 
@@ -836,13 +844,13 @@ def offltest_1_9(funcname):
     logger.info('%s: create a regression and a duplicate from it with a unsupported url, then fix with a commit specifying the latter' % funcname)
 
     subcounter = 0
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.8..v1.9-rc1")
     replyto = '%s_%s' %(funcname, subcounter)
 
     subcounter += 1
     link = 'https://somewhere.over.the.rainbow.example.org/regzbot-testing@example.com'
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
-                                        "#regzb dup-of: %s\n" % link,
+                                        "#regzbot dup-of: %s\n" % link,
                                         replyto=replyto)
     gittrees_testing['mainline'].mv(
         'Testcommit %s\n\nLink: %s\n' % (funcname, link))
@@ -855,7 +863,7 @@ def offltest_1_10(funcname):
     testfix_subject = "This is a test 123456789"
 
     subcounter = 0
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1\n#regzb fix: %s" % testfix_subject)
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.8..v1.9-rc1\n#regzbot fix: %s" % testfix_subject)
 
     subcounter += 1
     emaildirs['secondary'].create_email("%s_%s" % (funcname, subcounter), 'foo', subject=testfix_subject)
@@ -869,7 +877,7 @@ def offltest_1_11(funcname):
     testfix_subject = "This is a test 123456789" # that's the commit for the previous test
 
     subcounter = 0
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1\n#regzb fix: %s" % testfix_subject)
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.8..v1.9-rc1\n#regzbot fix: %s" % testfix_subject)
 
     return ['mailchk']
 
@@ -880,7 +888,7 @@ def offltest_1_12(funcname):
         '%s_%s: create a mainline regression and use Closes tag to resolve it' % (funcname, subcounter))
 
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.8..v1.9-rc1")
     gittrees_testing['mainline'].mv(
         'Testcommit %s_%s\n\nCloses: https://lore.kernel.org/regressions/regzbot-testing-%s_%s@example.com\n' % (funcname, subcounter, funcname, subcounter))
 
@@ -891,10 +899,10 @@ def offltest_2_0(funcname):
     logger.info(
         '%s: creating a mainline regression and add a link to it ' % funcname)
     emaildirs['primary'].create_email(
-        funcname, "#regzb introduced: v1.8..v1.9-rc1")
+        funcname, "#regzbot introduced: v1.8..v1.9-rc1")
 
     subcounter = 1
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb link https://www.kernel.org/releases.html Linktitle",
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot link https://www.kernel.org/releases.html Linktitle",
                                       replyto=funcname)
     return ['mailchk']
 
@@ -903,7 +911,7 @@ def offltest_2_1(funcname):
     replyto = 'test_2_0'
     logger.info('%s: update the title of the link just added to the regression created in %s' % (
         funcname, replyto))
-    emaildirs['primary'].create_email(funcname, "#regzb link https://www.kernel.org/releases.html Updated linktitle",
+    emaildirs['primary'].create_email(funcname, "#regzbot link https://www.kernel.org/releases.html Updated linktitle",
                                       replyto=replyto)
     return ['mailchk']
 
@@ -912,7 +920,7 @@ def offltest_2_2(funcname):
     replyto = 'test_2_0'
     logger.info('%s: remove the link to the regression created in %s' %
                 (funcname, replyto))
-    emaildirs['primary'].create_email(funcname, "#regzb unlink https://www.kernel.org/releases.html",
+    emaildirs['primary'].create_email(funcname, "#regzbot unlink https://www.kernel.org/releases.html",
                                       replyto=replyto)
     return ['mailchk']
 
@@ -931,7 +939,7 @@ def offltest_2_4(funcname):
     referencedmail = 'test_2_3'
     logger.info('%s: in the regression created by %s, start to monitor the thread created in %s' % (
         funcname, replyto, referencedmail))
-    emaildirs['primary'].create_email(funcname, "#regzb monitor https://lore.kernel.org/lkml/regzbot-testing-%s@example.com" % referencedmail,
+    emaildirs['primary'].create_email(funcname, "#regzbot monitor https://lore.kernel.org/lkml/regzbot-testing-%s@example.com" % referencedmail,
                                       replyto=replyto)
     return ['mailchk']
 
@@ -949,7 +957,7 @@ def offltest_2_6(funcname):
     replyto = 'test_2_3'
     logger.info('%s: use a rezbot comment in the thread %s that is now monitored' %
                 (funcname, replyto))
-    emaildirs['secondary'].create_email(funcname, "#regzb title new title set via a monitored thread",
+    emaildirs['secondary'].create_email(funcname, "#regzbot title new title set via a monitored thread",
                                         subject="%s: reply to the thread now monitored with a regzbot command" % funcname,
                                         replyto=replyto)
     return ['mailchk']
@@ -960,7 +968,7 @@ def offltest_2_7(funcname):
     referencedmail = 'test_2_3'
     logger.info('%s: in the regression created by %s, stop monitoring the thread created in %s' % (
         funcname, replyto, referencedmail))
-    emaildirs['primary'].create_email(funcname, "#regzb unmonitor https://lore.kernel.org/lkml/regzbot-testing-%s@example.com" % referencedmail,
+    emaildirs['primary'].create_email(funcname, "#regzbot unmonitor https://lore.kernel.org/lkml/regzbot-testing-%s@example.com" % referencedmail,
                                       replyto=replyto)
     return ['mailchk']
 
@@ -995,14 +1003,14 @@ def offltest_2_10(funcname):
 
 def offltest_2_11(funcname):
     replyto = 'test_2_0'
-    logger.info('%s: on another mainling list, use #regzbot ^backmonitor to get a the regression created in %s monitored' % (
+    logger.info('%s: on another mainling list, use #regzbotot ^backmonitor to get a the regression created in %s monitored' % (
         funcname, replyto))
 
     subcounter = 0
     emaildirs['secondary'].create_email("%s_%s" % (funcname, subcounter), "Lorem ipsum dolor sit amet",
                                         subject="%s_%s: a patch to fix a regression missing a Link: tag" % (funcname, subcounter))
     subcounter += 1
-    emaildirs['secondary'].create_email("%s_%s" % (funcname, subcounter), "Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n\n#regzbot ^backmonitor https://lore.kernel.org/regressions/regzbot-testing-%s@example.com" % (replyto, replyto),
+    emaildirs['secondary'].create_email("%s_%s" % (funcname, subcounter), "Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n\n#regzbotot ^backmonitor https://lore.kernel.org/regressions/regzbot-testing-%s@example.com" % (replyto, replyto),
                                         subject="%s_%s: get the previous mail monitored" % (funcname, subcounter),
                                         replyto='%s_0' % funcname)
     return ['mailchk']
@@ -1099,7 +1107,7 @@ def offltest_2_13(funcname):
     logger.info(
         '%s_%s: set the introduced to a commit we know and mention it in another mail' % (funcname, subcounter))
     emaildirs['primary'].create_email(
-        '%s_%s' % (funcname, subcounter), "#regzb introduced: %s" %
+        '%s_%s' % (funcname, subcounter), "#regzbot introduced: %s" %
                                       gittrees_testing['mainline'].hashes_known[-1], replyto=replyto)
 
     subcounter += 1
@@ -1116,12 +1124,12 @@ def offltest_2_14(funcname):
 
     subcounter = 0
     emaildirs['primary'].create_email(
-        '%s_%s' % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+        '%s_%s' % (funcname, subcounter), "#regzbot introduced: v1.8..v1.9-rc1")
     replyto_1 = '%s_%s' % (funcname, subcounter)
 
     subcounter += 1
     emaildirs['primary'].create_email(
-        '%s_%s' % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+        '%s_%s' % (funcname, subcounter), "#regzbot introduced: v1.8..v1.9-rc1")
     replyto_2 = '%s_%s' % (funcname, subcounter)
 
     subcounter += 1
@@ -1140,7 +1148,7 @@ def offltest_2_15(funcname):
     dupof = 'test_2_14_0'
     subcounter = 0
     emaildirs['primary'].create_email(
-        '%s_%s' % (funcname, subcounter), "#regzb dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com" % dupof,
+        '%s_%s' % (funcname, subcounter), "#regzbot dup-of: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com" % dupof,
         replyto=replyto)
     replyto_1 = '%s_%s' % (funcname, subcounter)
     return ['mailchk']
@@ -1152,7 +1160,7 @@ def offltest_2_16(funcname):
 
     subcounter = 0
     emaildirs['primary'].create_email(
-        '%s_%s' % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+        '%s_%s' % (funcname, subcounter), "#regzbot introduced: v1.8..v1.9-rc1")
     replyto = '%s_%s' % (funcname, subcounter)
 
     subcounter += 1
@@ -1164,7 +1172,7 @@ def offltest_2_16(funcname):
 def offltest_3_0(funcname):
     logger.info('%s: create a regression in next' % funcname)
     emaildirs['primary'].create_email(
-        funcname, "#regzb introduced: next-20190101..next-20190102")
+        funcname, "#regzbot introduced: next-20190101..next-20190102")
     return ['mailchk']
 
 
@@ -1173,7 +1181,7 @@ def offltest_3_1(funcname):
     replyto = 'test_3_0'
     logger.info('%s: specify the culprit for the regression created in %s' % (
         funcname, replyto))
-    emaildirs['primary'].create_email(funcname, "#regzb introduced: %s" % gittrees_testing['next'].hashes_known[1],
+    emaildirs['primary'].create_email(funcname, "#regzbot introduced: %s" % gittrees_testing['next'].hashes_known[1],
                                       replyto=replyto)
     return ['mailchk']
 
@@ -1183,7 +1191,7 @@ def offltest_3_2(funcname):
     replyto = 'test_3_0'
     logger.info('%s: mark regression created in %s as fixed by and exiting commit' % (
         funcname, replyto))
-    emaildirs['primary'].create_email(funcname, "#regzb fixed-by: %s" % gittrees_testing['next'].hashes_known[2],
+    emaildirs['primary'].create_email(funcname, "#regzbot fixed-by: %s" % gittrees_testing['next'].hashes_known[2],
                                       replyto=replyto)
     return ['mailchk']
 
@@ -1191,7 +1199,7 @@ def offltest_3_2(funcname):
 def offltest_3_3(funcname):
     logger.info('%s: create a regression in stable' % funcname)
     emaildirs['primary'].create_email(
-        funcname, "#regzb introduced: v1.8.1..v1.8.2")
+        funcname, "#regzbot introduced: v1.8.1..v1.8.2")
     return ['mailchk']
 
 
@@ -1199,7 +1207,7 @@ def offltest_3_4(funcname):
     replyto = 'test_3_3'
     logger.info('%s: specify the culprit for the regression created in %s' % (
         funcname, replyto))
-    emaildirs['primary'].create_email(funcname, "#regzb introduced: %s" % gittrees_testing['linux-1.8.y'].hashes_known[1][0:11],
+    emaildirs['primary'].create_email(funcname, "#regzbot introduced: %s" % gittrees_testing['linux-1.8.y'].hashes_known[1][0:11],
                                       replyto=replyto)
     return ['mailchk']
 
@@ -1208,7 +1216,7 @@ def offltest_3_5(funcname):
     replyto = 'test_3_3'
     logger.info('%s: mark regression created in %s as fixed by and exiting commit' % (
         funcname, replyto))
-    emaildirs['primary'].create_email(funcname, "#regzb fixed-by: %s" % gittrees_testing['linux-1.8.y'].hashes_known[2],
+    emaildirs['primary'].create_email(funcname, "#regzbot fixed-by: %s" % gittrees_testing['linux-1.8.y'].hashes_known[2],
                                       replyto=replyto)
     return ['mailchk']
 
@@ -1218,49 +1226,49 @@ def offltest_4_0(funcname):
     logger.info(
         '%s: creating a mainline regression in the current cycle (range)' % funcname)
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10..v1.11-rc1")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.10..v1.11-rc1")
 
     subcounter += 1
     logger.info(
         '%s: creating a mainline regression in the current cycle (bisected)' % funcname)
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: %s" % gittrees_testing['mainline'].hashes_known[-1])
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: %s" % gittrees_testing['mainline'].hashes_known[-1])
 
     subcounter += 1
     logger.info(
         '%s: creating a mainline regression in the previous cycle (range)' % funcname)
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.9..v1.10-rc2")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.9..v1.10-rc2")
 
     subcounter += 1
     logger.info(
         '%s: creating a mainline regression in the current cycle (bisected)' % funcname)
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: %s" % gittrees_testing['mainline'].hashes_known[-4])
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: %s" % gittrees_testing['mainline'].hashes_known[-4])
 
     subcounter += 1
     logger.info(
         '%s: creating a mainline regression in an older cycle (range)' % funcname)
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.9-rc1")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.8..v1.9-rc1")
 
     subcounter += 1
     logger.info(
         '%s: creating a mainline regression bisected in an older tree' % funcname)
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: %s" % gittrees_testing['mainline'].hashes_known[-8])
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: %s" % gittrees_testing['mainline'].hashes_known[-8])
 
     subcounter += 1
     logger.info(
         '%s: creating a mainline regression where the range spans two releases' % funcname)
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.9..v1.11-rc1")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.9..v1.11-rc1")
 
     subcounter += 1
     logger.info(
         '%s: creating a mainline regression in the current cycle with open end)' % funcname)
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10..")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.10..")
 
     return ['mailchk']
 
@@ -1269,18 +1277,18 @@ def offltest_4_1(funcname):
     subcounter = 0
     logger.info('%s: creating a linux-next regression (range)' % funcname)
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: next-20190101..next-20190102")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: next-20190101..next-20190102")
 
     subcounter += 1
     logger.info('%s: creating a linux-next regression (bisected)' % funcname)
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: %s" % gittrees_testing['next'].hashes_known[1])
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: %s" % gittrees_testing['next'].hashes_known[1])
 
     subcounter += 1
     logger.info(
         '%s: creating a linux-next regression (range starting with mainline)' % funcname)
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..next-20190102")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.8..next-20190102")
 
     return ['mailchk']
 
@@ -1289,30 +1297,30 @@ def offltest_4_2(funcname):
     subcounter = 0
     logger.info('%s: creating a linux-stable regression (range)' % funcname)
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8.1..v1.8.2")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.8.1..v1.8.2")
 
     subcounter += 1
     logger.info('%s: creating a linux-stable regression (bisected)' % funcname)
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: %s" % gittrees_testing['linux-1.8.y'].hashes_known[1][0:11])
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: %s" % gittrees_testing['linux-1.8.y'].hashes_known[1][0:11])
 
     subcounter += 1
     logger.info(
         '%s: creating a linux-stable regression (range starting with mainline)' % funcname)
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.8..v1.8.1")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.8..v1.8.1")
 
     subcounter += 1
     logger.info(
         '%s: creating a regression with a range starting with a stable release and ending in mainline)' % funcname)
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10.2..v1.11-rc1")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.10.2..v1.11-rc1")
 
     subcounter += 1
     logger.info(
         '%s: creating a regression with a range starting with an earlier stable release and ending in mainline)' % funcname)
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.9.2..v1.10")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.9.2..v1.10")
 
     return ['mailchk']
 
@@ -1322,14 +1330,14 @@ def offltest_4_3(funcname):
     logger.info(
         '%s_%s: creating a regressions that refers to non-existant tag' % (funcname, subcounter))
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v0.10..v0.11")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v0.10..v0.11")
 
     subcounter += 1
     logger.info(
         '%s_%s: creating a regressions that refers to non-existant tag' % (funcname, subcounter))
     # as a side effect, the following mail will also make code fail that misses a str(foo), as something might put 123456789012 into an int instead of a string:
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: 123456789012")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: 123456789012")
 
     return ['mailchk']
 
@@ -1340,43 +1348,43 @@ def offltest_4_4(funcname):
 
     subcounter = 0
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: %s" % gittrees_testing['mainline'].hashes_known[-1])
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: %s" % gittrees_testing['mainline'].hashes_known[-1])
     subcounter += 1
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb link https://www.kernel.org/releases.html Link somewhere",
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot link https://www.kernel.org/releases.html Link somewhere",
                                       replyto="%s_%s" % (funcname, subcounter-1))
 
     subcounter += 1
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10..v1.11-rc1")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.10..v1.11-rc1")
     subcounter += 1
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb fixed-by: %s" % gittrees_testing['mainline'].hashes_known[-2],
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot fixed-by: %s" % gittrees_testing['mainline'].hashes_known[-2],
                                       replyto="%s_%s" % (funcname, subcounter-1))
 
     subcounter += 1
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10..v1.11-rc1")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.10..v1.11-rc1")
     subcounter += 1
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb fixed-by: 1234567890abcdef1234567890abcdef",
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot fixed-by: 1234567890abcdef1234567890abcdef",
                                       replyto="%s_%s" % (funcname, subcounter-1))
 
     subcounter += 1
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10..v1.11-rc1")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.10..v1.11-rc1")
     subcounter += 1
     emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter),
-                                      "#regzb dupof: https://lore.kernel.org/regressions/regzbot-testing-%s_%s@example.com" % (
+                                      "#regzbot dupof: https://lore.kernel.org/regressions/regzbot-testing-%s_%s@example.com" % (
                                           funcname, subcounter - 3),
                                       replyto="%s_%s" % (funcname, subcounter-1))
     subcounter += 1
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10..v1.11-rc1")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.10..v1.11-rc1")
     subcounter += 1
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb resolve: some reason",
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot resolve: some reason",
                                       replyto="%s_%s" % (funcname, subcounter-1))
 
     subcounter += 1
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzb introduced: v1.10..v1.11-rc1")
+        "%s_%s" % (funcname, subcounter), "#regzbot introduced: v1.10..v1.11-rc1")
     gittrees_testing['next'].mv(
         'Testcommit %s\n\nLink: https://lore.kernel.org/regressions/regzbot-testing-%s_%s@example.com\n' % (funcname, funcname, subcounter))
 
@@ -1388,7 +1396,7 @@ def offltest_5_0(funcname):
     logger.info(
         '%s: create a regression as base for other tests' % funcname)
     emaildirs['primary'].create_email(
-        "%s" % funcname, "#regzb introduced: v1.10..v1.11-rc1")
+        "%s" % funcname, "#regzbot introduced: v1.10..v1.11-rc1")
     return ['mailchk']
 
 
@@ -1398,49 +1406,49 @@ def offltest_5_1(funcname):
     subcounter = 0
     logger.info(
         '%s_%s: use a unknown regzbot command' % (funcname, subcounter))
-    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzb foobar: 123456789",
+    emaildirs['primary'].create_email("%s_%s" % (funcname, subcounter), "#regzbot foobar: 123456789",
                                       replyto=replyto)
 
     subcounter += 1
     logger.info(
         '%s_%s: use a regzbot command in a thread not associated with a regression' % (funcname, subcounter))
     emaildirs['primary'].create_email("%s_%s" % (
-        funcname, subcounter), "#regzb fixed-by: 123456789")
+        funcname, subcounter), "#regzbot fixed-by: 123456789")
 
     return ['mailchk']
 
 
-def offltest_5_2(funcname):
+def offltest_15_2(funcname):
     replyto = 'test_5_0'
 
     subcounter = 0
     logger.info(
-        '%s_%s: try regzb monitor with a typo in the url' % (funcname, subcounter))
+        '%s_%s: try regzbot monitor with a typo in the url' % (funcname, subcounter))
     emaildirs['primary'].create_email("%s_%s" % (
-        funcname, subcounter), "#regzb monitor: http://lore.kernel.org/somelist_somemsgid/", replyto=replyto)
+        funcname, subcounter), "#regzbot monitor: http://lore.kernel.org/somelist_somemsgid/", replyto=replyto)
 
     subcounter += 1
     logger.info(
-        '%s_%s: try regzb monitor with a unkown mailing list ' % (funcname, subcounter))
+        '%s_%s: try regzbot monitor with a unkown mailing list ' % (funcname, subcounter))
     emaildirs['primary'].create_email("%s_%s" % (
-        funcname, subcounter), "#regzb monitor: http://lore.kernel.org/somelist/somemsgid/", replyto=replyto)
+        funcname, subcounter), "#regzbot monitor: http://lore.kernel.org/somelist/somemsgid/", replyto=replyto)
 
     subcounter += 1
     logger.info(
-        '%s_%s: try regzb unmonitor with a typo a unkown mailing list ' % (funcname, subcounter))
+        '%s_%s: try regzbot unmonitor with a typo a unkown mailing list ' % (funcname, subcounter))
     emaildirs['primary'].create_email("%s_%s" % (
-        funcname, subcounter), "#regzb unmonitor: http://lore.kernel.org/somelist_somemsgid/", replyto=replyto)
+        funcname, subcounter), "#regzbot unmonitor: http://lore.kernel.org/somelist_somemsgid/", replyto=replyto)
 
     subcounter += 1
     logger.info(
-        '%s_%s: try regzb unmonitor with a typo in the url' % (funcname, subcounter))
+        '%s_%s: try regzbot unmonitor with a typo in the url' % (funcname, subcounter))
     emaildirs['primary'].create_email("%s_%s" % (
-        funcname, subcounter), "#regzb unmonitor: http://lore.kernel.org/somelist/somemsgid/", replyto=replyto)
+        funcname, subcounter), "#regzbot unmonitor: http://lore.kernel.org/somelist/somemsgid/", replyto=replyto)
 
     subcounter += 1
     logger.info(
-        '%s_%s: try regzb unmonitor with a unkown mailing list ' % (funcname, subcounter))
+        '%s_%s: try regzbot unmonitor with a unkown mailing list ' % (funcname, subcounter))
     emaildirs['primary'].create_email("%s_%s" % (
-        funcname, subcounter), "#regzb unmonitor: http://lore.kernel.org/regressions/some_fake_msgid/", replyto=replyto)
+        funcname, subcounter), "#regzbot unmonitor: http://lore.kernel.org/regressions/some_fake_msgid/", replyto=replyto)
 
     return ['mailchk']

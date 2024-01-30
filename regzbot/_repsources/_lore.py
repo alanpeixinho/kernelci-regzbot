@@ -106,19 +106,28 @@ class LoreNntp():
 
 class LoreHttps():
     @staticmethod
-    def download_thread(msgid, repsrcid = None):
-        with tempfile.NamedTemporaryFile() as tmpfile:
-            url='https://lore.kernel.org/all/%s/t.mbox.gz' % msgid
-            try:
-                logger.debug("[lore] downloading %s", url)
-                with urllib.request.urlopen(url) as response:
-                    with gzip.open(response) as uncompressed:
-                        shutil.copyfileobj(uncompressed, tmpfile)
-            except urllib.error.HTTPError as err:
-                logger.critical('[lore] failed to download thread from %s: %s', url, err)
-                raise LoreDownloadError()
-            for message in mailbox.mbox(tmpfile.name):
-                yield email.message_from_bytes(message.as_bytes(), policy=email.policy.default)
+    def download_thread(msgid, *, repsrc = None):
+        if regzbot.is_running_citesting('offline'):
+            import os
+            for directory in regzbot._TESTING['emaildirs']:
+                filename = os.path.join(directory, "%s.regzbot" % msgid)
+                if not os.path.isfile(filename):
+                    continue
+                for mboxmsg in mailbox.mbox(filename):
+                    yield email.message_from_bytes(mboxmsg.as_bytes(), policy=email.policy.default)
+        else:
+            with tempfile.NamedTemporaryFile() as tmpfile:
+                url='https://lore.kernel.org/all/%s/t.mbox.gz' % msgid
+                try:
+                    logger.debug("[lore] downloading %s", url)
+                    with urllib.request.urlopen(url) as response:
+                        with gzip.open(response) as uncompressed:
+                            shutil.copyfileobj(uncompressed, tmpfile)
+                except urllib.error.HTTPError as err:
+                    logger.critical('[lore] failed to download thread from %s: %s', url, err)
+                    raise LoreDownloadError()
+                for message in mailbox.mbox(tmpfile.name):
+                    yield email.message_from_bytes(message.as_bytes(), policy=email.policy.default)
 
 # unused as of now
 #
@@ -287,8 +296,16 @@ class LoActivity():
 
 
 class LoreThread():
-    def __init__(self, msgid):
-        self._id = urllib.parse.unquote(msgid)
+    def __init__(self, *, msgid=None, msg=None):
+        if msgid and not msg:
+            self._id = urllib.parse.unquote(msgid)
+            self._init_activity = {}
+        elif msg and not msgid:
+            loact = LoActivity(self, msg)
+            self._init_activity = { loact.id: loact, }
+            self._id = loact.id
+        else:
+            raise RuntimeError
 
     @cached_property
     def _all_activities(self):
@@ -323,6 +340,8 @@ class LoreThread():
     def activity(self, *, msgid=None):
         if not msgid:
             msgid = self._id
+        if msgid in self._init_activity:
+            return self._init_activity[msgid]
         return self._all_activities[msgid]
 
     def activities(self, *, since=None, until=None, msgid=None):
@@ -367,7 +386,7 @@ class LoRepAct(regzbot.ReportActivity):
 
 class LoRepSrc(ReportSource):
     def supports_url(self, url_lowered, url_parsed):
-        if self.name == 'lore_all' and url_parsed.netloc in ('lore.kernel.org', 'lkml.kernel.org'):
+        if url_parsed.netloc in ('lore.kernel.org', 'lkml.kernel.org') and (self.name == 'lore_all'  or regzbot.is_running_citesting('offline')):
             return True
 
     def thread(self, *, id=None, url=None):
@@ -375,7 +394,7 @@ class LoRepSrc(ReportSource):
             parsed_url = urllib.parse.urlparse(url)
             path_split = parsed_url.path.split('/', maxsplit=3)
             id = path_split[2]
-        lo_thread = LoreThread(id)
+        lo_thread = LoreThread(msgid=id)
         return LoRepTrd(self, lo_thread)
 
     @staticmethod
@@ -391,6 +410,22 @@ class LoRepSrc(ReportSource):
                 new_repsrc = tmp_repsrc
         return new_repsrc
 
+    def update(self):
+        if regzbot.is_running_citesting('offline'):
+            import pathlib, os
+            filenames = sorted(pathlib.Path(self.serverurl).iterdir(), key=os.path.getmtime)
+            for file in filenames:
+                if os.path.islink(file):
+                    continue
+                for mboxmsg in mailbox.mbox(file):
+                    msg = email.message_from_bytes(mboxmsg.as_bytes(), policy=email.policy.default)
+                    lo_thread = LoreThread(msg=msg)
+                    lo_retrd = LoRepTrd(self, lo_thread)
+                    if regzbot.RecordProcessedMsgids.check_presence(lo_retrd.id, lo_retrd.gmtime):
+                        continue
+                    lo_retrd.process_single()
+
+
 class LoRepTrd(ReportThread):
     def __init__(self, repsrc, lo_thread, *, lo_activity=None):
         self._lo_thread = lo_thread
@@ -400,10 +435,7 @@ class LoRepTrd(ReportThread):
         if lo_activity:
             self._lo_activity = lo_activity
         else:
-            # lo_thread.id is the id that was provided when the
-            # thread was requested
             self._lo_activity = lo_thread.activity()
-
         if self._lo_activity.best_repsrc:
             self.repsrc = self._lo_activity.best_repsrc
         else:
@@ -425,31 +457,38 @@ class LoRepTrd(ReportThread):
     def repsrc(self):
         return self._lo_thread.best_repsrc
 
-    def _reptrd_from_msgid(self, msgid):
+    def reptrd_from_msgid(self, msgid):
         lo_activity = self._lo_thread.activity(msgid=msgid)
         lorepsrc = lo_activity.best_repsrc
         return LoRepTrd(lorepsrc, self._lo_thread, lo_activity=lo_activity)
 
     def ancestors(self):
-        if not self._lo_activity.ancestors:
-            return self
-        for msgid in self._lo_activity.ancestors:
-            yield self._reptrd_from_msgid(msgid)
+        if self._lo_activity.ancestors:
+            for msgid in self._lo_activity.ancestors:
+                yield msgid
 
     def root(self):
-        return self._reptrd_from_msgid(self._lo_thread.root)
+        return self._lo_thread.root
 
     def process_single(self):
         repact = LoRepAct(self, self._lo_activity)
-        regzbot._rbcmd.process_activity(repact)
+        try:
+            regzbot._rbcmd.process_activity(repact)
+        except regzbot._rbcmd.RegressionCreatedException:
+            pass
 
     def update(self, since, until, *, actimon=None, triggering_repact=None):
         # handle this here and don't feed the msgs through the regular parsing code, as they might already have been
         #  processed earlier
         try:
             for activity in self._lo_thread.activities(msgid=self.id, since=since, until=until):
+                # we must only handle those message in this patch we have seen already, otherwise they will be processed
+                #  again later when we notice them through the regular monitoring
+                if not regzbot.RecordProcessedMsgids.check_presence(activity.id):
+                    continue
                 repact = LoRepAct(self, activity)
                 regzbot._rbcmd.process_activity(repact, actimon=actimon, triggering_repact=triggering_repact)
+
         except regzbot._rbcmd.RegressionCreatedException:
             # the handled activity contained a #regzbot introduced that created a regression for this issue; during that
             # process all activities (both older and younger) for it will be added by calling this method again, so
@@ -496,7 +535,7 @@ def __test():
                 sys.exit(1)
 
     # = setup =
-    for count, act in enumerate(LoreThread('e2305642-55f1-4893-bea3-b170ac0a5348@linaro.org').activities(), start=1):
+    for count, act in enumerate(LoreThread(msgid='e2305642-55f1-4893-bea3-b170ac0a5348@linaro.org').activities(), start=1):
         pass
     _testing_check_result('Subthread detection broken', count, 17)
     sys.exit(1)

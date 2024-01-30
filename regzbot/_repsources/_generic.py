@@ -6,6 +6,7 @@ __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
 from regzbot import ReportSource
 from regzbot import ReportThread
+import datetime
 
 class GenRepSrc(ReportSource):
     def thread(self, *, url=None, id=None):
@@ -18,12 +19,16 @@ class GenRepSrc(ReportSource):
 class GenRepTrd(ReportThread):
     def __init__(self, repsrc, url):
         self.repsrc = repsrc
+        self.created_at = datetime.datetime.now(datetime.timezone.utc)
         self.id = url
-        self.summary = None
-        self.gmtime = None
-        self.realname = None
+        self.summary = 'Unknown'
+        self.realname = 'Unknown'
         self.username = None
         super().__init__()
+
+    @property
+    def gmtime(self):
+        return int(self.created_at.timestamp())
 
     def update(self, *args, **kwargs):
         return

@@ -232,7 +232,7 @@ class RbCmdSingleNew:
         # handle frequent typos, alternatives, and renamed commands
         if self.cmd in ('backburner', 'back-burner'):
             self.cmd = 'backburn'
-        elif self.cmd in ('dup', 'dupof', 'duplicate-of' ):
+        elif self.cmd in ('dup', 'dupof', 'dup-of', 'duplicate-of' ):
             self.cmd = 'duplicate'
         elif self.cmd in ('fixedby', 'fixed-by'):
             self.cmd = 'fix'
@@ -271,22 +271,42 @@ class RbCmdSingleNew:
         regression.cmd_backburn(self, reason)
 
     def _cmd_duplicate(self, regression):
+        if not regression:
+            return self._cmd_duplicate_this()
+        self._cmd_duplicate_overthere(regression)
+        return regression
+
+    def _cmd_duplicate_overthere(self, regression):
         for url in self.parameters.split():
-            regression_created, reptrd_created = regression.cmd_duplicate(self, url)
-            self._rbcmd_stack.add_related_activities(reptrd_created, regression_created)
+            reptrd_other = regzbot.ReportThread.from_url(url, repact=self._rbcmd_stack.repact)
+            regression_created = regression.cmd_duplicate(self, reptrd_other)
+            if regression_created:
+                self._rbcmd_stack.add_related_activities(reptrd_other, regression_created)
+
+    def _cmd_duplicate_this(self):
+        reptrd_other = regzbot.ReportThread.from_url(self.parameters.split()[0], repact=self._rbcmd_stack.repact)
+        regression_other = None
+        for actimon in regzbot.RegActivityMonitor.get_by_reptrd(reptrd_other):
+            if actimon.regid:
+                regression_other = regzbot.RegressionBasic.get_by_regid(actimon.regid)
+                break
+        if regression_other:
+            return regression_other.cmd_duplicate(self, self.reptrd)
 
     def _cmd_fix(self, regression):
-        return
         def _remove_quoting_chars(pattern):
             for character in (('(', ')'), "'", '"'):
                 if pattern.startswith(character[0]) and pattern.endswith(character[-1]):
                     pattern = pattern[1:-1]
             return pattern
 
-        match = re.search(r'^[0-9a-fA-F]{8,40}', self.parameters)
+        match = re.search(r'(^[0-9a-fA-F]{8,40})\s?(.*)?', self.parameters)
         if match:
-            hexsha = match[0]
-            summary = None
+            hexsha = match[1]
+            if match[2]:
+                summary = match[2]
+            else:
+                summary = None
         else:
             hexsha = None
             summary = _remove_quoting_chars(self.parameters)
@@ -337,33 +357,42 @@ class RbCmdSingleNew:
         raise NotImplementedError
         url, _ = self._parse_link_and_description(self.parameters)
 
-    def process(self, regression):
+    def process(self, regression, regression_topmost_duplicate):
         regression_created = None
-        if self.cmd in ('ignore-activity', 'poke'):
-            # these are flags releavent and handled when processing activities, so nothing to do here
+
+        if self.cmd == 'ignore-activity':
+            # this is a flag handled when processing activities, so nothing to do here
             return
-        elif self.cmd == 'introduced':
-            regression_created = self._cmd_introduced(regression)
-            if regression_created:
-                regression = regression_created
+        elif self.cmd == 'poke':
+            # nothing to do here, the entry in the history is enough
+            pass
+        elif self.cmd == 'duplicate' and not regression:
+            regression = self._cmd_duplicate(None)
+        elif self.cmd == 'introduced' and not regression:
+            regression_created = self._cmd_introduced(None)
+            regression = regression_created
         elif self.cmd in (
                 'backburn',
                 'duplicate',
                 'fix',
                 'from',
                 'inconclusive',
+                'introduced',
                 'relate',
                 'relatebrief',
                 'resolve',
                 'summary',
                 'unbackburn',
-                'unlink',
-                'unmonitor',
+                'unrelate',
                 ):
             getattr(self, '_cmd_%s' % self.cmd)(regression)
+            if regression_topmost_duplicate and self.cmd not in ('relate', 'relatebrief', 'duplicate'):
+                # some command needs to act on topmost regression as well
+                getattr(self, '_cmd_%s' % self.cmd)(regression_topmost_duplicate)
+                regression_topmost_duplicate.add_history_event(self)
         else:
             regzbot.UnhandledEvent.add(
-                self.repact.web_url, "unknown regzbot command: %s" % self.cmd, gmtime=self.report_rzbcmd.gmtime, subject=self.report_rzbcmd.summary)
+                self.repact.web_url, "unknown regzbot command: %s" % self.cmd, gmtime=self.repact.gmtime, subject=self.repact.summary)
             return
 
         # create the history event and let caller know if we created a regression
@@ -376,25 +405,56 @@ class RbCmdStackNew:
         self._commands = []
         self.repact = repact
         self.reptrd = repact.reptrd
-        self.regression = regression
+        self.regression = None
+        self.regression_topmost_duplicate = None
+        self._set_regressions(regression)
 
     def _add_command(self, cmd, parameters):
         if cmd == 'report':
-            self.reptrd = regzbot.ReportThread.from_url(parameters)
+            self.reptrd = regzbot.ReportThread.from_url(self._parse_pointer(parameters), repact=self.repact)
             for actimon in regzbot.RegActivityMonitor.get_by_reptrd(self.reptrd):
                 if actimon.regid and not regression:
-                    self.regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
+                    regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
+                    self._set_regressions(regression)
             return
-        elif cmd == '^introduced':
-            # note, the ^ aspect will be silently ignored in case parents are not supported
+        elif cmd == '^introduced' or cmd == 'introduced^':
+            # this is here for backwards compatibility
             cmd = 'introduced'
-            if self.reptrd.supports_relatives:
-                for reptrd in self.reptrd.ancestors():
-                    self.reptrd = reptrd
-                    break
+            self._add_command ('report', '^')
+        if cmd == 'introduced':
+            # this is here for backwards compatibility, too
+            split_parameters = parameters.split()
+            for count, pointer in enumerate(split_parameters):
+                if count == 0:
+                    continue
+                pointer = self._parse_pointer(pointer)
+                if pointer in ('^', '/', '~') or pointer.startswith('http'):
+                    if self.reptrd == self.repact.reptrd:
+                        self._add_command('report', pointer)
+                    else:
+                        self._add_command('duplicate', pointer)
+
         cmdobj = RbCmdSingleNew(self, cmd, parameters)
         self._commands.append(cmdobj)
 
+    def _set_regressions(self, regression):
+        if not regression:
+            return None
+        self.regression = regression
+        for duplicate in regression.find_topmost():
+            if self.regression.regid != duplicate.regid:
+                self.regression_topmost_duplicate = duplicate
+
+    def _parse_pointer(self, pointer):
+        if pointer == '^':
+            if self.reptrd.supports_relatives:
+                for msgid in self.reptrd.ancestors():
+                    return 'https://lore.kernel.org/all/%s/' % msgid
+        elif pointer in ('/', '~'):
+            if self.reptrd.supports_relatives:
+                return 'https://lore.kernel.org/all/%s/' % self.reptrd.root()
+        else:
+            return pointer
 
     # maybe the following is somewhat oddly placed here, but putting it in Regression class felt misplaced, too, as this
     # only should be executed in the contect of commands like duplicate and introduced; and in the latter case only
@@ -420,19 +480,31 @@ class RbCmdStackNew:
         assert (self.reptrd)
         for single_command in _walk_commands():
             if single_command.cmd == 'introduced':
-                regression_created = single_command.process(self.regression)
+                regression_created = single_command.process(self.regression, None)
                 if regression_created:
-                    self.regression = regression_created
-            else:
-                assert (self.regression)
-                single_command.process(self.regression)
+                    self._set_regressions(regression_created)
+                continue
+            elif single_command.cmd == 'duplicate' and not self.regression:
+                regression_created = single_command.process(self.regression, None)
+                if regression_created:
+                    self._set_regressions(regression_created)
+                continue
+            if not self.regression:
+                regzbot.UnhandledEvent.add(
+                     self.repact.web_url, "regzbot tag in a thread not associated with a regression", gmtime=self.repact.gmtime, subject=self.repact.summary)
+                continue
+
+            single_command.process(self.regression, self.regression_topmost_duplicate)
+
+            if single_command.cmd == 'duplicate':
+                # we need to update this
+                self._set_regressions(self.regression)
 
         # if a regressions was created and all commands processed, it's time to add all activities for it, which
         # might include even more commands that should only processed now
         if regression_created:
             self.add_related_activities(self.reptrd, regression_created)
         return regression_created
-
 
 def _parse(cmd_section):
     # the following re has to deal with:
@@ -470,6 +542,12 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
     if 'until' in regzbot._TESTING and activity.created_at >= regzbot._TESTING['until']:
         return
 
+    if not actimon:
+        # we need to find actimons ourselves
+        for actimon in regzbot.RegActivityMonitor.get_by_reptrd(activity.reptrd):
+            if actimon.regid and not regression:
+                regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
+
     # add activity
     if re.search(r'((^|\n|;\s+)#regzbot\s+)(ignore-activity|poke)(?=(;?\n\s*$|;?\s+#regzbot))', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
         # ignore activity
@@ -478,17 +556,10 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
         # reminder: actimon is only provided to this method when a regression or a monitor is added and the related
         #  acitivies are walked
         actimon.add_activity(activity)
-    else:
-        # we need to find actimons ourselves
-        for actimon in regzbot.RegActivityMonitor.get_by_reptrd(activity.reptrd):
-            actimon.add_activity(activity)
-            if actimon.regid and not regression:
-                regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
 
-    # only handle regzbot commands in acitivies that occured after the activity that addede the report
+    # only handle regzbot commands in acitivies that occured after the activity that added the report
     if triggering_repact and activity.created_at <= triggering_repact.created_at:
             return
-
     if actimon and actimon.regid:
         regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
 
