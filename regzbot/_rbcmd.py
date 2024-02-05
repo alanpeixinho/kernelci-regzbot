@@ -92,7 +92,6 @@ class RbCmdSingle:
                     if argument in ('^', '~', '/'):
                         logger.info("Ignoring '%s' parameter, not supported in this case", argument)
                         continue
-
                     repsrc, entry = regzbot.ReportSource.get_by_url(argument)
                     report = regzbot.RbCmdOrigin(
                         repsrc,
@@ -567,11 +566,6 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
                 cmd_stack._add_command(command, parameter)
             regression_created = cmd_stack.process_commands()
 
-        # let the caller know when a regression was added, as it likely must stop processing related acitivies now, as they
-        # were processed already when the regression was added to pick up all related (incuding earlier) activities
-        if regression_created:
-            raise RegressionCreatedException
-
     def _handle_expected_threads(activity):
         if activity.repsrc.kind != 'lore':
             return
@@ -584,6 +578,29 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
             cmd_stack._add_command('relate', "%s %s [implicit, subject is expected]" % (activity.web_url, activity.subject))
             cmd_stack.process_commands()
 
+    def _handle_msgs_mentioning_culprits(activity):
+        open_regressions = {}
+        for match in re.finditer('^(Fixes: )([0-9,a-e]{12})', activity.message, re.MULTILINE):
+            # only fill this now, as we only need it if we found a Fixes: tag
+            if len(open_regressions) == 0:
+                for regression in regzbot.RegressionBasic.get_all(only_unsolved=True):
+                    if not '..' in regression.introduced:
+                        open_regressions[regression.regid] = regression.introduced[0:12]
+
+            if not match.group(2) in open_regressions.values():
+                continue
+            for regid in open_regressions.keys():
+                if not open_regressions[regid] == match.group(2):
+                    continue
+                if regzbot.RegHistory.present(activity.reptrd.id, regid=regid):
+                    # no need to add a second entry for mails that already were noticed as related,
+                    # for example if this msg that already has a Link: to this regression
+                    continue
+
+                # no activity, only a history entry, as it might be about different bug in the same commit
+                regzbot.RegHistory.event(regid, activity.gmtime, activity.reptrd.id, activity.subject, activity.realname,
+                                         repsrcid=activity.repsrc.id, regzbotcmd='note: "%s" contains a \'Fixes:\' tag for the culprit of this regression' % activity.subject)
+
     if 'until' in regzbot._TESTING and activity.created_at >= regzbot._TESTING['until']:
         logger.debug('[rbcmd] skip processing %s', activity.web_url)
         return
@@ -593,8 +610,12 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
     if not regression and regression_created:
         regression = regression_created
     _handle_expected_threads(activity)
+    _handle_msgs_mentioning_culprits(activity)
 
-
+    # let the caller know when a regression was added, as it likely must stop processing related acitivies now, as they
+    # were processed already when the regression was added to pick up all related (incuding earlier) activities
+    if regression_created:
+        raise RegressionCreatedException
 
 if __name__ == "__main__":
     __TESTDATA=[]
