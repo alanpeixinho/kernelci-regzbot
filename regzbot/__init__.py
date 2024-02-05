@@ -1611,13 +1611,11 @@ class RegressionBasic():
         younger._db_update_solved()
 
         if self == older:
-            younger.add_history_event(rgzcmd, cmdline='duplicate: %s [implicit]' % older.web_url)
-            logger.info('Regression(%s): Regression(%s) is now a dupliate.',
-                        self.web_url, older.web_url)
+            younger.add_history_event(rgzcmd, cmdline='duplicate: %s [implicit via duplicate]' % older.web_url)
         else:
-            older.add_history_event(rgzcmd, cmdline='duplicate: %s [implicit]' % younger.web_url)
-            logger.info('Regression(%s): now a duplicate of Regression(%s).',
-                        self.web_url, younger.web_url)
+            older.add_history_event(rgzcmd, cmdline='duplicate: %s [implicit via duplicate]' % younger.web_url)
+        logger.info('Regression(%s): now a duplicate of Regression(%s).',
+                    self.web_url, other.web_url)
 
     def add_history_event(self, rgzcmd, *, cmdline=None):
         if not cmdline:
@@ -1649,7 +1647,7 @@ class RegressionBasic():
         if not reptrd.username:
             reptrd.username = rgzcmd.repact.realname
         regression_created = self.__create(rgzcmd, reptrd, introduced=self.introduced, gitbranchid=self.gitbranchid)
-        regression_created.add_history_event(rgzcmd, cmdline="introduced: %s [implicit]"
+        regression_created.add_history_event(rgzcmd, cmdline="introduced: %s [implicit implicit via duplicate]"
                                                  % self.introduced)
         self.__duplicate(rgzcmd, regression_created)
         return regression_created
@@ -2593,13 +2591,13 @@ class RegressionFull(RegressionBasic):
             self.fixed(
                 mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
             RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, author,
-                 gitbranchid=gitbranch.gitbranchid, regzbotcmd='fixed: %s' % regzbotcmd)
+                 gitbranchid=gitbranch.gitbranchid, regzbotcmd="fix: %s [implicit, due to a Link/Closes tag]" % commit.hexsha[0:12])
             for duplicate in self.find_topmost():
                 if self.regid != duplicate.regid:
                     duplicate.fixed(
                         mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
                     RegHistory.event(duplicate.regid, mergedate, commit.hexsha, commit.summary, author,
-                         gitbranchid=gitbranch.gitbranchid, regzbotcmd='fix: %s [implicit]' % regzbotcmd)
+                         gitbranchid=gitbranch.gitbranchid, regzbotcmd="fix: %s [implicit, due to a Link/Closes tag]" % commit.hexsha[0:12])
         else:
             # downstream? then just add a note
             if self.gittree and gittree.priority > self.gittree.priority:

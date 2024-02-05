@@ -535,48 +535,65 @@ def _parse(cmd_section):
         yield(splitted[1], splitted[3])
 
 def process_activity(activity, *, triggering_repact=None, actimon=None):
-    regression = None
+    def _handle_activity(activity, actimon):
+        regression = None
+        if re.search(r'((^|\n|;\s+)#regzbot\s+)(ignore-activity|poke)(?=(;?\n\s*$|;?\s+#regzbot))', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
+            ignore_activity = True
+        else:
+            ignore_activity = False
+        if actimon and not ignore_activity:
+            actimon.add_activity(activity)
+            regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
+        else:
+            for actimon in regzbot.RegActivityMonitor.get_by_reptrd(activity.reptrd):
+                if actimon.regid and not regression:
+                    regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
+                if not ignore_activity:
+                    actimon.add_activity(activity)
+        return regression
 
-    logger.debug('[rbcmd] processing %s', activity.web_url)
+    def _handle_regzbot_commands(activity, regression):
+        # only handle regzbot commands in acitivies that occured after the activity that added the report
+        if triggering_repact and activity.created_at <= triggering_repact.created_at:
+            return
+
+        # The following loop locates sections with regzbot commands seperated by newlines;
+        #  note, it adds a newline at the start and two at the end of the processed input, as the
+        #  regzbot command might be right at its start or end.
+        regression_created = None
+        for cmd_section in re.finditer(r'^\r?\n#regzbot.*\r?\n\s*\r?\n$', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
+            cmd_stack = RbCmdStackNew(activity, regression )
+            for command, parameter in _parse(cmd_section[0].replace('\r', '')):
+                cmd_stack._add_command(command, parameter)
+            regression_created = cmd_stack.process_commands()
+
+        # let the caller know when a regression was added, as it likely must stop processing related acitivies now, as they
+        # were processed already when the regression was added to pick up all related (incuding earlier) activities
+        if regression_created:
+            raise RegressionCreatedException
+
+    def _handle_expected_threads(activity):
+        if activity.repsrc.kind != 'lore':
+            return
+        for regression in regzbot.RegressionBasic.get_expected_by_subject(activity.summary):
+            for actimon in regzbot.RegActivityMonitor.get_by_reptrd(activity.reptrd):
+                if actimon.regid == regression.regid:
+                    # already monitored, nothing to do
+                    return
+            cmd_stack = RbCmdStackNew(activity, regression)
+            cmd_stack._add_command('relate', "%s %s [implicit, subject is expected]" % (activity.web_url, activity.subject))
+            cmd_stack.process_commands()
 
     if 'until' in regzbot._TESTING and activity.created_at >= regzbot._TESTING['until']:
+        logger.debug('[rbcmd] skip processing %s', activity.web_url)
         return
+    logger.debug('[rbcmd] processing %s', activity.web_url)
+    regression = _handle_activity(activity, actimon)
+    regression_created = _handle_regzbot_commands(activity, regression)
+    if not regression and regression_created:
+        regression = regression_created
+    _handle_expected_threads(activity)
 
-    if not actimon:
-        # we need to find actimons ourselves
-        for actimon in regzbot.RegActivityMonitor.get_by_reptrd(activity.reptrd):
-            if actimon.regid and not regression:
-                regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
-
-    # add activity
-    if re.search(r'((^|\n|;\s+)#regzbot\s+)(ignore-activity|poke)(?=(;?\n\s*$|;?\s+#regzbot))', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
-        # ignore activity
-        pass
-    elif actimon:
-        # reminder: actimon is only provided to this method when a regression or a monitor is added and the related
-        #  acitivies are walked
-        actimon.add_activity(activity)
-
-    # only handle regzbot commands in acitivies that occured after the activity that added the report
-    if triggering_repact and activity.created_at <= triggering_repact.created_at:
-            return
-    if actimon and actimon.regid:
-        regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
-
-    # The following loop locates sections with regzbot commands seperated by newlines;
-    #  note, it adds a newline at the start and two at the end of the processed input, as the
-    #  regzbot command might be right at its start or end.
-    regression_created = None
-    for cmd_section in re.finditer(r'^\r?\n#regzbot.*\r?\n\s*\r?\n$', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
-        cmd_stack = RbCmdStackNew(activity, regression )
-        for command, parameter in _parse(cmd_section[0].replace('\r', '')):
-            cmd_stack._add_command(command, parameter)
-        regression_created = cmd_stack.process_commands()
-
-    # let the caller know when a regression was added, as it likely must stop processing related acitivies now, as they
-    # were processed already when the regression was added to pick up all related (incuding earlier) activities
-    if regression_created:
-        raise RegressionCreatedException
 
 
 if __name__ == "__main__":

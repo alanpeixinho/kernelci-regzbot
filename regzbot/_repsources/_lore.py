@@ -182,6 +182,10 @@ class LoActivity():
         return email.utils.parsedate_to_datetime(self._msg['Date'])
 
     @cached_property
+    def gmtime(self):
+        return int(self.created_at.timestamp())
+
+    @cached_property
     def id(self):
         return self._validate_msgid(self._msg['message-id'])
 
@@ -372,6 +376,7 @@ class LoRepAct(regzbot.ReportActivity):
         self.message = lo_activity.message
         self.patchkind = lo_activity.patchkind
         self.realname = lo_activity.realname
+        self.subject = lo_activity.subject
         self.summary = lo_activity.summary
         self.username = lo_activity.username
 
@@ -482,10 +487,9 @@ class LoRepTrd(ReportThread):
         #  processed earlier
         try:
             for activity in self._lo_thread.activities(msgid=self.id, since=since, until=until):
-                # we must only handle those message in this patch we have seen already, otherwise they will be processed
-                #  again later when we notice them through the regular monitoring
-                if not regzbot.RecordProcessedMsgids.check_presence(activity.id):
-                    continue
+                # add the activity to the list of processed ids, as we might not have seen it yet; but nevertheless
+                #  process it again, as it might have been irrelevant earlier, but that might have changed
+                regzbot.RecordProcessedMsgids.check_presence(activity.id, gmtime=activity.gmtime)
                 repact = LoRepAct(self, activity)
                 regzbot._rbcmd.process_activity(repact, actimon=actimon, triggering_repact=triggering_repact)
 
