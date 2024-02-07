@@ -1002,6 +1002,8 @@ def offltest_2_10(funcname):
     return ['mailchk']
 
 def offltest_2_11(funcname):
+    # backmonitor was given up, this does nothing
+
     replyto = 'test_2_0'
     logger.info('%s: on another mainling list, use #regzbotot ^backmonitor to get a the regression created in %s monitored' % (
         funcname, replyto))
@@ -1010,8 +1012,10 @@ def offltest_2_11(funcname):
     emaildirs['secondary'].create_email("%s_%s" % (funcname, subcounter), "Lorem ipsum dolor sit amet",
                                         subject="%s_%s: a patch to fix a regression missing a Link: tag" % (funcname, subcounter))
     subcounter += 1
-    emaildirs['secondary'].create_email("%s_%s" % (funcname, subcounter), "Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n\n#regzbotot ^backmonitor https://lore.kernel.org/regressions/regzbot-testing-%s@example.com" % (replyto, replyto),
-                                        subject="%s_%s: get the previous mail monitored" % (funcname, subcounter),
+    #emaildirs['secondary'].create_email("%s_%s" % (funcname, subcounter), "Link: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n\n#regzbotot ^backmonitor https://lore.kernel.org/regressions/regzbot-testing-%s@example.com" % (replyto, replyto),
+    #                                    subject="%s_%s: get the previous mail monitored" % (funcname, subcounter),
+    #                                    replyto='%s_0' % funcname)
+    emaildirs['secondary'].create_email("%s_%s" % (funcname, subcounter), "Lorem ipsum dolor sit amet",
                                         replyto='%s_0' % funcname)
     return ['mailchk']
 
@@ -1418,7 +1422,7 @@ def offltest_5_1(funcname):
     return ['mailchk']
 
 
-def offltest_15_2(funcname):
+def offltest_5_2(funcname):
     replyto = 'test_5_0'
 
     subcounter = 0

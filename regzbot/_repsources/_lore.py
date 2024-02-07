@@ -36,10 +36,6 @@ else:
 _NNTP_CONNECTION = None
 
 
-class LoreDownloadError(Exception):
-    pass
-
-
 class LoreNntp():
     # without this, occasionally [as on 20210831] errors like "nntplib.NNTPDataError: line too long" occur; not sure,
     # might be a bug in the public-inbox code behind lore
@@ -109,12 +105,17 @@ class LoreHttps():
     def download_thread(msgid, *, repsrc = None):
         if regzbot.is_running_citesting('offline'):
             import os
+            found_something = False
             for directory in regzbot._TESTING['emaildirs']:
                 filename = os.path.join(directory, "%s.regzbot" % msgid)
                 if not os.path.isfile(filename):
                     continue
+                if not found_something:
+                    found_something= True
                 for mboxmsg in mailbox.mbox(filename):
                     yield email.message_from_bytes(mboxmsg.as_bytes(), policy=email.policy.default)
+            if not found_something:
+                raise regzbot.RepDownloadError
         else:
             with tempfile.NamedTemporaryFile() as tmpfile:
                 url='https://lore.kernel.org/all/%s/t.mbox.gz' % msgid
@@ -125,7 +126,7 @@ class LoreHttps():
                             shutil.copyfileobj(uncompressed, tmpfile)
                 except urllib.error.HTTPError as err:
                     logger.critical('[lore] failed to download thread from %s: %s', url, err)
-                    raise LoreDownloadError()
+                    raise regzbot.RepDownloadError
                 for message in mailbox.mbox(tmpfile.name):
                     yield email.message_from_bytes(message.as_bytes(), policy=email.policy.default)
 
@@ -296,7 +297,7 @@ class LoActivity():
 
     @staticmethod
     def _subject_tagless(subject):
-        return re.sub(r'^ *\[.*?\] *', '', subject, flags=re.IGNORECASE)
+        return re.sub(r'^ *\[regression\] *', '', subject, flags=re.IGNORECASE)
 
 
 class LoreThread():
@@ -346,11 +347,13 @@ class LoreThread():
             msgid = self._id
         if msgid in self._init_activity:
             return self._init_activity[msgid]
+        if msgid not in self._all_activities:
+            pass
         return self._all_activities[msgid]
 
     def activities(self, *, since=None, until=None, msgid=None):
         if not msgid:
-            msgid = self.id
+            msgid = self._id
         for activity in self._activities(msgid):
             if since and activity.created_at < since:
                 continue
@@ -376,7 +379,7 @@ class LoRepAct(regzbot.ReportActivity):
         self.message = lo_activity.message
         self.patchkind = lo_activity.patchkind
         self.realname = lo_activity.realname
-        self.subject = lo_activity.subject
+        self.subject = lo_activity.summary
         self.summary = lo_activity.summary
         self.username = lo_activity.username
 
@@ -399,6 +402,9 @@ class LoRepSrc(ReportSource):
             parsed_url = urllib.parse.urlparse(url)
             path_split = parsed_url.path.split('/', maxsplit=3)
             id = path_split[2]
+        if not id:
+            print(url)
+            raise regzbot.RepDownloadError
         lo_thread = LoreThread(msgid=id)
         return LoRepTrd(self, lo_thread)
 

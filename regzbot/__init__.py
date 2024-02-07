@@ -1457,12 +1457,31 @@ class RegLink():
     @staticmethod
     def add_entry(regid, gmtime, subject, author, repsrcid, entry):
         dbcursor = DBCON.cursor()
-        dbcursor.execute('''INSERT INTO reglinks
-                            (regid, gmtime, repsrcid, entry, subject, author)
-                            VALUES (?, ?, ?, ?, ?, ?)''',
-                         (regid, gmtime, repsrcid, entry, subject, author))
-        logger.debug('[db reglinks] insert (regid:%s, gmtime:%s, repsrcid:%s, entry:%s, subject:"%s", author:"%s" )' % (
-            regid, gmtime, repsrcid, entry, subject, author ))
+        if dbcursor.execute('SELECT entry FROM reglinks WHERE regid=(?) AND repsrcid=(?) AND entry=(?)', (regid, repsrcid, entry)).fetchone():
+            dbcursor.execute('''UPDATE reglinks
+                SET gmtime = (?), author = (?), subject = (?)
+                WHERE regid=(?) AND repsrcid=(?) AND entry=(?)''',
+                 (gmtime, author, subject, regid, repsrcid, entry))
+            logger.debug('[db reglinks] updated (regid:%s, gmtime:%s, repsrcid:%s, entry:%s, subject:"%s", author:"%s" )' % (
+                regid, gmtime, repsrcid, entry, subject, author ))
+        else:
+            dbcursor.execute('''INSERT INTO reglinks
+                                (regid, gmtime, repsrcid, entry, subject, author)
+                                VALUES (?, ?, ?, ?, ?, ?)''',
+                             (regid, gmtime, repsrcid, entry, subject, author))
+            logger.debug('[db reglinks] insert (regid:%s, gmtime:%s, repsrcid:%s, entry:%s, subject:"%s", author:"%s" )' % (
+                regid, gmtime, repsrcid, entry, subject, author ))
+
+    @staticmethod
+    def remove_entry(regid, repsrcid, entry):
+        dbcursor = DBCON.cursor()
+        if dbcursor.execute('SELECT repsrcid FROM reglinks WHERE regid=(?) AND repsrcid=(?) AND entry=(?)', (regid, repsrcid, entry)).fetchone():
+            dbcursor.execute('''DELETE FROM reglinks
+                             WHERE regid=(?) AND repsrcid=(?) AND entry=(?)''',
+                             (regid, repsrcid, entry))
+            logger.debug(
+                '[db reglinks] deleted (regid:%s, repsrcid:%s, entry:%s)' % (regid, repsrcid, entry))
+
 
     @staticmethod
     def add_link(regid, gmtime, subject, author, link):
@@ -1669,19 +1688,27 @@ class RegressionBasic():
                 rgzcmd.reptrd.username, hexsha, rgzcmd.reptrd.gmtime)
 
     def cmd_link(self, rgzcmd, url, description):
-        self._linkadd(url, description, rgzcmd.repact.gmtime, rgzcmd.repact.realname)
+        reptrd = ReportThread.from_url(url, repact=rgzcmd.repact)
+        if not description:
+            description = reptrd.summary
+        RegLink.add_entry(
+            self.regid, reptrd.gmtime, description, reptrd.realname, reptrd.repsrc.id, reptrd.id)
+        logger.info('regression[%s, "%s"]: added link %s' % (
+            self.regid, self.subject, url))
 
     def cmd_monitor(self, rgzcmd, url, description):
         reptrd = ReportThread.from_url(url)
         if reptrd.repsrc.kind == 'generic':
             # we can't monitor it, so just add a link
             self.cmd_link(rgzcmd, url, description)
-            return None
+            return
+        if not description:
+            description = reptrd.summary
         actimonid = RegActivityMonitor.add(self.regid, reptrd.repsrc.id, reptrd.id, reptrd.gmtime, description, reptrd.realname, reptrd.username)
         actimon = RegActivityMonitor.get(actimonid)
         RegLink.add_entry(
             self.regid, rgzcmd.reptrd.gmtime, description, reptrd.realname, reptrd.repsrc.id, reptrd.id)
-        reptrd.update(None, None, actimon=actimon)
+        reptrd.update(None, None, actimon=actimon, triggering_repact=rgzcmd.repact)
         logger.info('regression[%s, "%s"]: started to monitor %s' % (
             self.regid, self.subject, url))
 
@@ -1692,7 +1719,12 @@ class RegressionBasic():
         RegBackburner.remove(self.regid)
 
     def cmd_unlink(self, rgzcmd, url):
-        self.linkremove(url)
+        reptrd = ReportThread.from_url(url)
+        RegLink.remove_entry(
+            self.regid, reptrd.repsrc.id, reptrd.id)
+        RegActivityMonitor.remove(self.regid, reptrd.repsrc.id, reptrd.id)
+        logger.info('regression[%s, "%s"]: removed %s' % (
+            self.regid, self.subject, url))
 
     ####################################################################################################################
 
@@ -2999,6 +3031,9 @@ class RbCmdOrigin:
 
     def ignore_activity(self):
         self.ignore_activity = True
+
+class RepDownloadError(Exception):
+    pass
 
 def db_close():
     global DBCON

@@ -332,7 +332,11 @@ class RbCmdSingleNew:
 
     def _cmd_relate(self, regression):
         url, description = self._parse_link_and_description(self.parameters)
-        regression.cmd_monitor(self, url, description)
+        try:
+            regression.cmd_monitor(self, url, description)
+        except regzbot.RepDownloadError:
+            regzbot.UnhandledEvent.add(
+                self.repact.web_url, "unable to relate thread %s, download failed" % url, gmtime=self.repact.gmtime, subject=self.repact.summary)
 
     def _cmd_relatebrief(self, regression):
         url, description = self._parse_link_and_description(self.parameters)
@@ -350,7 +354,12 @@ class RbCmdSingleNew:
 
     def _cmd_unrelate(self, regression):
         url, _ = self._parse_link_and_description(self.parameters)
-        regression.cmd_unlink(self, url)
+        try:
+            regression.cmd_unlink(self, url)
+        except regzbot.RepDownloadError:
+            regzbot.UnhandledEvent.add(
+                self.repact.web_url, "unable to unrelate thread %s, download failed" % url, gmtime=self.repact.gmtime, subject=self.repact.summary)
+
 
     def _cmd_unmonitor(self, regression):
         raise NotImplementedError
@@ -362,7 +371,7 @@ class RbCmdSingleNew:
         if self.cmd == 'ignore-activity':
             # this is a flag handled when processing activities, so nothing to do here
             return
-        elif self.cmd == 'poke':
+        elif self.cmd in ('poke', 'note') :
             # nothing to do here, the entry in the history is enough
             pass
         elif self.cmd == 'duplicate' and not regression:
@@ -578,6 +587,59 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
             cmd_stack._add_command('relate', "%s %s [implicit, subject is expected]" % (activity.web_url, activity.subject))
             cmd_stack.process_commands()
 
+    def _handle_msgs_linking_regressions(activity):
+        def _already_monitored(activity, regression):
+            actimon = None
+            for actimon in regzbot.RegActivityMonitor.get_by_reptrd(activity.reptrd):
+                if actimon.regid == regression.regid:
+                    # already monitored, nothing to do
+                    return True
+            return False
+
+        message_wo_quotes = re.sub(r'^>.*\n?', '', activity.message, flags=re.MULTILINE)
+        for match in re.finditer(r'^(\#regzbot |Link: |Closes: |.*)?(\n)?((http://|https://)\S*)', message_wo_quotes, re.MULTILINE | re.IGNORECASE):
+            linktag = False
+            url = False
+
+            if match.group(0).startswith('#regzbot'):
+                continue
+            if match.group(0).startswith('Link') or match.group(0).startswith('Closes'):
+                linktag = True
+                url = match.group(0).split()
+                if len(url) == 1:
+                    # malformated, like https://lore.kernel.org/lkml/20211221071634.25980-1-yu.tu@amlogic.com/
+                    continue
+                url = url[1]
+            else:
+                for section in match.groups():
+                    if section and section.startswith('http'):
+                        url = section
+                        break
+            if not url:
+                continue
+
+            regression = None
+            reptrd_pointedto = regzbot.ReportThread.from_url(url)
+            for actimon in regzbot.RegActivityMonitor.get_by_reptrd(reptrd_pointedto):
+                if actimon.regid:
+                    regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
+                    break
+            if regression is None:
+                continue
+
+            if _already_monitored(activity, regression):
+                continue
+
+            if linktag is True :
+                cmd_stack = RbCmdStackNew(activity, regression)
+                cmd_stack._add_command('relate', "%s %s [implicit due to Link/Closes tag]" % (activity.web_url, activity.subject))
+                cmd_stack.process_commands()
+            elif url:
+                cmd_stack = RbCmdStackNew(activity, regression)
+                cmd_stack._add_command('note', "%s %s [implicit due to link]" % (url, activity.subject))
+                cmd_stack.process_commands()
+
+
     def _handle_msgs_mentioning_culprits(activity):
         open_regressions = {}
         for match in re.finditer('^(Fixes: )([0-9,a-e]{12})', activity.message, re.MULTILINE):
@@ -606,10 +668,14 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
         return
     logger.debug('[rbcmd] processing %s', activity.web_url)
     regression = _handle_activity(activity, actimon)
+    # do not process things again we currently are processing already
+    if triggering_repact and triggering_repact.reptrd.id == activity.reptrd.id:
+        return
     regression_created = _handle_regzbot_commands(activity, regression)
     if not regression and regression_created:
         regression = regression_created
     _handle_expected_threads(activity)
+    _handle_msgs_linking_regressions(activity)
     _handle_msgs_mentioning_culprits(activity)
 
     # let the caller know when a regression was added, as it likely must stop processing related acitivies now, as they
