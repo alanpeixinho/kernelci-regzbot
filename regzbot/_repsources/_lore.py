@@ -175,7 +175,7 @@ class LoActivity():
             if msgiid_inreplyto in ancestors and ancestors[0] != msgiid_inreplyto:
                 ancestors.remove(msgiid_inreplyto)
             if msgiid_inreplyto not in ancestors:
-                ancestors.inset(0, msgiid_inreplyto)
+                ancestors.insert(0, msgiid_inreplyto)
         return ancestors
 
     @cached_property
@@ -395,15 +395,17 @@ class LoRepAct(regzbot.ReportActivity):
 class LoRepSrc(ReportSource):
     def supports_url(self, url_lowered, url_parsed):
         if url_parsed.netloc in ('lore.kernel.org', 'lkml.kernel.org') and (self.name == 'lore_all'  or regzbot.is_running_citesting('offline')):
-            return True
+            path_split = url_parsed.path.split('/', maxsplit=3)
+            if not path_split[2]:
+                logger.error("[lore] cound not parse %s", url_parsed.geturl())
+                raise regzbot.RepDownloadError
+            return path_split[2]
 
     def thread(self, *, id=None, url=None):
         if not id:
-            parsed_url = urllib.parse.urlparse(url)
-            path_split = parsed_url.path.split('/', maxsplit=3)
-            id = path_split[2]
+            id = self.supports_url()
         if not id:
-            print(url)
+            logger.error("[lore] cound not parse %s", url)
             raise regzbot.RepDownloadError
         lo_thread = LoreThread(msgid=id)
         return LoRepTrd(self, lo_thread)

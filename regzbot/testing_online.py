@@ -69,27 +69,31 @@ def run(resultfilename, tmpdir, _):
 
 
 def onlntest_0_0(funcname):
-    regzbot.process_msg('a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info')
+    regzbot.checkout_msgid('a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info')
     return False, False, False
 
 
 def onlntest_0_1(funcname):
-    regzbot.process_msg('6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info')
+    regzbot.checkout_msgid('6d62738a-b213-dc9c-c13f-7d4eaa7e46b8@leemhuis.info')
     return False, False, False
 
 
 def onlntest_0_2(funcname):
-    regzbot.process_msg('438d711b-094b-fcfd-79e3-69f03a14df21@leemhuis.info')
+    regzbot.checkout_msgid('438d711b-094b-fcfd-79e3-69f03a14df21@leemhuis.info')
     return False, False, False
 
 # the last mail in the thread will only find the report by walking the thread
-def onlntest_0_3(funcname):
-    regzbot.process_msg('5f445dab-a152-bcaa-4462-1665998c3e2e@gmail.com')
+def onlntest_0_0(funcname):
+    regzbot.checkout_msgid('5f445dab-a152-bcaa-4462-1665998c3e2e@gmail.com')
     return False, False, False
+
+def onlntest_0_1(funcname):
+    sys.exit(1)
+
 
 def onlntest_1_0(funcname):
     # uses ^introduced for a report in 5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com
-    regzbot.process_msg('ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info')
+    regzbot.checkout_msgid('ae2879df-64b8-0258-e4ee-59d7c279676f@leemhuis.info')
     return False, False, False
 
 

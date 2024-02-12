@@ -120,6 +120,24 @@ def trackertest_0_0(funcname):
 #    regzbot.checkout_url('https://lore.kernel.org/regressions/CAKLYgeJ1tUuqLcsquwuFqjDXPSJpEiokrWK2gisPKDZLs8Y2TQ@mail.gmail.com/')
 #    del regzbot._TESTING['until']
 #    regzbot.checkout_msgid('CAKLYgeKjkCJ2d0_5uDaH6C7wc4YpX9s6TnQVNDuSr8MsiYbujw@mail.gmail.com')
-    regzbot.checkout_url('https://lore.kernel.org/all/772a2c59-7616-4ec7-9050-17d3abf0b6eb@collabora.com/')
+#    regzbot.checkout_url('https://lore.kernel.org/all/772a2c59-7616-4ec7-9050-17d3abf0b6eb@collabora.com/')
 #    regzbot.checkout_url('https://lore.kernel.org/all/3aa32b39-ee2f-405e-b4fe-983e351c2e20@leemhuis.info/')
+    regzbot.ReportSource.add('knurd42', 3,
+                 'https://gitlab.com/knurd42/linux',
+                 'gitlab', 'https://gitlab.com/knurd42/linux',
+                 lastchked=int(datetime.datetime.fromisoformat('2023-11-20T00:00:00.000Z').timestamp()))
+    regzbot.ReportSource.add('regzbottesting-github', 3,
+                 'https://github.com/knurd/linux',
+                 'github', 'https://gitlab.com/knurd42/linux',
+                      lastchked=int(datetime.datetime.fromisoformat('2022-03-15T00:00:00.000Z').timestamp()))
+
+    reptrd = regzbot.ReportThreadOffline.from_url('https://lore.kernel.org/all/3aa32b39-ee2f-405e-b4fe-983e351c2e20@leemhuis.info/fdafdafsd/')
+    print(reptrd.repsrc.weburl, reptrd.id)
+    reptrd = regzbot.ReportThreadOffline.from_url('https://github.com/knurd/linux/issues/1')
+    print(reptrd.repsrc.weburl, reptrd.id)
+    reptrd = regzbot.ReportThreadOffline.from_url('https://gitlab.com/knurd42/linux/-/issues/11/')
+    print(reptrd.repsrc.weburl, reptrd.id)
+    reptrd = regzbot.ReportThreadOffline.from_url('https://loreeeee.kernel.org/all/3aa32b39-ee2f-405e-b4fe-983e351c2e20@leemhuis.info//')
+    print(reptrd.repsrc.weburl, reptrd.id)
+    sys.exit(1)
     return False, True

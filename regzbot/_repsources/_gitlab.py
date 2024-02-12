@@ -173,10 +173,7 @@ class GlProject():
         logger.debug('[gitlab] %s: retrieving commit %s', self.web_url[8:], hexsha)
         return self._glpy_project.commits.get(hexsha)
 
-    def issue(self, *, id=None, url=None):
-        assert any((id, url))
-        if url:
-            id = url.removeprefix('%s/-/issues/' % self.web_url)
+    def issue(self, id):
         logger.debug('[gitlab] %s: retrieving issue %s', self.web_url[8:], id)
         issue = self._glpy_project.issues.get(id)
         return GlIssue(self, issue)
@@ -257,15 +254,18 @@ class GlRepSrc(regzbot._repsources._trackers._repsrc):
 
     def supports_url(self, url_lowered, url_parsed):
         if url_lowered.startswith(self.serverurl):
-            return True
+            id = url_lowered.removeprefix('%s/-/issues/' % self.serverurl)
+            return id.strip('/')
 
     def updated_threads(self, since):
         for gl_issue in self._gl_project.updated_issues(since):
             yield GlRepTrd(self, gl_issue)
 
     def thread(self, *, id=None, url=None, issue=None):
+        if not id and url:
+            id = self.supports_url(url)
         if not issue:
-            issue = self._gl_project.issue(id=id, url=url)
+            issue = self._gl_project.issue(id)
         return GlRepTrd(self, issue)
 
 

@@ -875,21 +875,16 @@ class RegActivityMonitor():
             logger.critical('[db actmonitor] failed to deleted entry (actimonid:%s, regid:%s, repsrcid:%s, entry:%s;)',
                 self.actimonid, self.regid, self.repsrcid, self.entry)
 
-    @staticmethod
-    def remove(regid, repsrcid, entry):
+    def remove(self):
         dbcursor = DBCON.cursor()
-        dbresult = dbcursor.execute(
-            'SELECT actimonid FROM actmonitor WHERE regid=(?) AND repsrcid=(?) AND entry=(?)', (regid, repsrcid, entry)).fetchone()
-        if dbresult is not None:
-            actimonid = dbresult[0]
-            dbcursor.execute('''DELETE FROM actmonitor
-                             WHERE regid=(?) AND repsrcid=(?) AND entry=(?)''',
-                             (regid, repsrcid, entry))
-            logger.debug('[db actmonitor] deleted (actimonid:%s, regid:%s, repsrcid:%s, entry:%s; %s)' % (
-                actimonid, regid, repsrcid, entry, dbcursor.lastrowid))
-            RegActivityEvent.remove(actimonid=actimonid)
-            return True
-        return False
+        dbcursor.execute('''DELETE FROM actmonitor
+                         WHERE actimonid=(?)''',
+                         (self.actimonid, ))
+        logger.debug('[db actmonitor] deleted (actimonid:%s, regid:%s, repsrcid:%s, entry:%s; %s)' % (
+            self.actimonid, self.regid, self.repsrcid, self.entry, dbcursor.lastrowid))
+        RegActivityEvent.remove(actimonid=self.actimonid)
+        return True
+
 
     @staticmethod
     def get(actimonid):
@@ -901,9 +896,21 @@ class RegActivityMonitor():
         return None
 
     @classmethod
+    def get_by_reg_n_reptrd(cls, regression, reptrd):
+        dbcursor = DBCON.cursor()
+        if reptrd.repsrc.kind == 'lore':
+            for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE regid=(?) and entry=(?)', (regression.regid, reptrd.id)):
+                regactmon = cls(*dbresult)
+                if ReportSource.islore(regactmon.repsrcid):
+                    yield regactmon
+        else:
+            for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE regid=(?) AND repsrcid=(?) and entry=(?)', (regression.regid, reptrd.repsrc.id, reptrd.id)):
+                yield cls(*dbresult)
+
+
+    @classmethod
     def get_by_regid(cls, regid, reports=None):
         dbcursor = DBCON.cursor()
-
         if reports:
             sqlquery = 'SELECT actmonitor.* FROM actmonitor INNER JOIN regressions ON actmonitor.actimonid = regressions.actimonid WHERE regressions.regid=(?) AND actmonitor.actimonid = regressions.actimonid'
         else:
@@ -1472,6 +1479,9 @@ class RegLink():
             logger.debug('[db reglinks] insert (regid:%s, gmtime:%s, repsrcid:%s, entry:%s, subject:"%s", author:"%s" )' % (
                 regid, gmtime, repsrcid, entry, subject, author ))
 
+    def remove(self):
+        self.remove_entry(self.regid, self.repsrcid, self.entry)
+
     @staticmethod
     def remove_entry(regid, repsrcid, entry):
         dbcursor = DBCON.cursor()
@@ -1545,6 +1555,18 @@ class RegLink():
         dbcursor = DBCON.cursor()
         for dbresult in dbcursor.execute('SELECT * FROM reglinks WHERE regid=(?) ORDER BY gmtime %s' % order, (regid,)):
             yield cls(*dbresult)
+
+    @classmethod
+    def get_by_reg_n_reptrd(cls, regression, reptrd):
+        dbcursor = DBCON.cursor()
+        if reptrd.repsrc.kind == 'lore':
+            for dbresult in dbcursor.execute('SELECT * FROM reglinks WHERE regid=(?) and entry=(?)', (regression.regid, reptrd.id)):
+                reglink = cls(*dbresult)
+                if ReportSource.islore(reglink.repsrcid):
+                    yield reglink
+        else:
+            for dbresult in dbcursor.execute('SELECT * FROM reglinks WHERE regid=(?) AND repsrcid=(?) and entry=(?)', (regression.regid, reptrd.repsrc.id, reptrd.id)):
+                yield cls(*dbresult)
 
     def delete(self, dbcursor=None):
         if not dbcursor:
@@ -1719,12 +1741,16 @@ class RegressionBasic():
         RegBackburner.remove(self.regid)
 
     def cmd_unlink(self, rgzcmd, url):
-        reptrd = ReportThread.from_url(url)
-        RegLink.remove_entry(
-            self.regid, reptrd.repsrc.id, reptrd.id)
-        RegActivityMonitor.remove(self.regid, reptrd.repsrc.id, reptrd.id)
-        logger.info('regression[%s, "%s"]: removed %s' % (
-            self.regid, self.subject, url))
+        reptrd = ReportThreadOffline.from_url(url)
+        for regactmon in RegActivityMonitor.get_by_reg_n_reptrd(self, reptrd):
+            for reglink in RegLink.get_by_reg_n_reptrd(self, reptrd):
+                reglink.remove()
+            regactmon.remove()
+            return True
+        for reglink in RegLink.get_by_reg_n_reptrd(self, reptrd):
+            reglink.remove()
+            return True
+        return False
 
     ####################################################################################################################
 
@@ -2703,6 +2729,8 @@ class UnhandledEvent():
 
 
 class ReportSource():
+    __ids_lore = []
+
     def __init__(self, repsrcid, priority, name, serverurl, kind, weburl, identifiers, lastchked):
         self.id = repsrcid
         self.repsrcid = repsrcid
@@ -2779,6 +2807,15 @@ class ReportSource():
         return False
 
     @classmethod
+    def islore(cls, repsrcid):
+        if not cls.__ids_lore:
+            for repsrc in cls.getall_bykind('lore'):
+                cls.__ids_lore.append(repsrc.repsrcid)
+        if repsrcid in cls.__ids_lore:
+            return True
+        return False
+
+    @classmethod
     def get_by_id(cls, repsrcid, dbcursor=None):
         if not dbcursor:
             dbcursor = DBCON.cursor()
@@ -2801,8 +2838,14 @@ class ReportSource():
     @staticmethod
     def getall():
         dbcursor = DBCON.cursor()
+        generic = None
         for dbresult in dbcursor.execute('SELECT * FROM reportsources'):
-            yield ReportSource(*dbresult)
+            repsrc = ReportSource(*dbresult)
+            if repsrc.kind == 'generic':
+                generic = repsrc
+                continue
+            yield repsrc
+        yield generic
 
     @staticmethod
     def getall_bykind(kind):
@@ -2906,7 +2949,6 @@ class ReportSource():
         dbcursor.execute('''UPDATE reportsources SET lastchked = (?) WHERE repsrcid=(?)''',
                          (self.lastchked, self.repsrcid))
 
-
     def update(self):
         if self.kind == 'generic':
             return
@@ -2919,8 +2961,8 @@ class ReportSource():
                 continue
             repsrc.update()
 
-    def supports_url(self, url):
-        return False
+    def supports_url(self, url_lowered, url_parsed):
+        return url_parsed.geturl()
 
 
 class ReportActivity():
@@ -2936,35 +2978,36 @@ class ReportActivity():
     def web_url(self, *, redirector=None, subentry=None):
         return self.repsrc.url(self.reptrd.id, subentry=self.id)
 
+class ReportThreadOffline():
+    def __init__(self, repsrc, id):
+        self.id = id
+        self.repsrc = repsrc
 
-class ReportThread():
+    @classmethod
+    def from_url(cls, url):
+        for repsrc in ReportSource.getall():
+            id = repsrc.supports_url(url.lower(), urllib.parse.urlparse(url))
+            if id:
+                return cls(repsrc, id)
+
+class ReportThread(ReportThreadOffline):
     def __init__(self):
-         # ensure self.id is present, but accept None:
         _ = self.id
-
         if not 'supports_relatives' in self.__dict__:
             self.supports_relatives = False
 
-
     @classmethod
     def from_url(cls, url, *, repact=None):
-        repsrc_generic = None
-        url_lowered = url.lower()
-        url_parsed = urllib.parse.urlparse(url)
-        for repsrc in ReportSource.getall():
-            if repsrc.kind == 'generic':
-                repsrc_generic = repsrc
-            elif repsrc.supports_url(url_lowered, url_parsed):
-                return repsrc.thread(url=url)
-
-        # nothing found, so assume generic
-        reptrd = repsrc_generic.thread(url=url)
-        if repact:
-            # these fields would be "unkown" otherwise
-            reptrd.created_at = repact.created_at
-            reptrd.realname = repact.realname
-            reptrd.summary = repact.summary
-            reptrd.username = repact.username
+        reptrd_offline = ReportThreadOffline.from_url(url)
+        reptrd = reptrd_offline.repsrc.thread(id=reptrd_offline.id)
+        if reptrd_offline.repsrc.kind == 'generic':
+            # nothing found, so assume generic
+            if repact:
+                # these fields would be "unkown" otherwise
+                reptrd.created_at = repact.created_at
+                reptrd.realname = repact.realname
+                reptrd.summary = repact.summary
+                reptrd.username = repact.username
         return reptrd
 
     @classmethod

@@ -355,10 +355,13 @@ class RbCmdSingleNew:
     def _cmd_unrelate(self, regression):
         url, _ = self._parse_link_and_description(self.parameters)
         try:
-            regression.cmd_unlink(self, url)
+            if not regression.cmd_unlink(self, url):
+                regzbot.UnhandledEvent.add(
+                    self.repact.web_url, "unable to unrelate thread %s, not related yet" % url, gmtime=self.repact.gmtime, subject=self.repact.summary)
+                return False
         except regzbot.RepDownloadError:
             regzbot.UnhandledEvent.add(
-                self.repact.web_url, "unable to unrelate thread %s, download failed" % url, gmtime=self.repact.gmtime, subject=self.repact.summary)
+                self.repact.web_url, "unable to unrelate thread %s, parsing failed" % url, gmtime=self.repact.gmtime, subject=self.repact.summary)
 
 
     def _cmd_unmonitor(self, regression):
@@ -367,6 +370,7 @@ class RbCmdSingleNew:
 
     def process(self, regression, regression_topmost_duplicate):
         regression_created = None
+        succeeded = None
 
         if self.cmd == 'ignore-activity':
             # this is a flag handled when processing activities, so nothing to do here
@@ -393,7 +397,7 @@ class RbCmdSingleNew:
                 'unbackburn',
                 'unrelate',
                 ):
-            getattr(self, '_cmd_%s' % self.cmd)(regression)
+            succeeded = getattr(self, '_cmd_%s' % self.cmd)(regression)
             if regression_topmost_duplicate and self.cmd not in ('relate', 'relatebrief', 'duplicate'):
                 # some command needs to act on topmost regression as well
                 getattr(self, '_cmd_%s' % self.cmd)(regression_topmost_duplicate)
@@ -404,7 +408,8 @@ class RbCmdSingleNew:
             return
 
         # create the history event and let caller know if we created a regression
-        regression.add_history_event(self)
+        if succeeded != False:
+            regression.add_history_event(self)
         return regression_created
 
 
@@ -619,7 +624,11 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
                 continue
 
             regression = None
-            reptrd_pointedto = regzbot.ReportThread.from_url(url)
+            try:
+                reptrd_pointedto = regzbot.ReportThread.from_url(url)
+            except regzbot.RepDownloadError:
+                # ignore
+                continue
             for actimon in regzbot.RegActivityMonitor.get_by_reptrd(reptrd_pointedto):
                 if actimon.regid:
                     regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)

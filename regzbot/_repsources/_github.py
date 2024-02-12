@@ -259,13 +259,16 @@ class GhRepSrc(regzbot._repsources._trackers._repsrc):
 
     def supports_url(self, url_lowered, url_parsed):
         if url_lowered.startswith(self.serverurl):
-            return True
+            id = url_lowered.removeprefix('%s/issues/' % self.serverurl)
+            return id.strip('/')
 
     def updated_threads(self, since):
         for gh_issue in self._gh_project.updated_issues(since):
             yield GhRepTrd(self, gh_issue)
 
     def thread(self, *, id=None, url=None, issue=None):
+        if not id and url:
+            id = self.supports_url(url)
         if not issue:
             issue = self._gh_project.issue(id=id, url=url)
         return GhRepTrd(self, issue)
