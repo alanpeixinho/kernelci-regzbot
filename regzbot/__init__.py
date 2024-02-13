@@ -2990,6 +2990,10 @@ class ReportThreadOffline():
             if id:
                 return cls(repsrc, id)
 
+    def ancestors(self):
+        return
+        yield
+
 class ReportThread(ReportThreadOffline):
     def __init__(self):
         _ = self.id

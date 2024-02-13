@@ -403,10 +403,11 @@ class LoRepSrc(ReportSource):
 
     def thread(self, *, id=None, url=None):
         if not id:
-            id = self.supports_url()
-        if not id:
-            logger.error("[lore] cound not parse %s", url)
-            raise regzbot.RepDownloadError
+            url
+            id = self.supports_url(url.lower())
+            if not id:
+                logger.error("[lore] cound not parse %s", url)
+                raise regzbot.RepDownloadError
         lo_thread = LoreThread(msgid=id)
         return LoRepTrd(self, lo_thread)
 

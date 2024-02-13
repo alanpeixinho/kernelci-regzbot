@@ -262,7 +262,7 @@ class RbCmdSingleNew:
         if len(splitted) > 1:
             description = splitted[1]
         else:
-            description = url.removeprefix("http://")
+            description = None
         return url, description
 
     def _cmd_backburn(self, regression):
@@ -433,7 +433,8 @@ class RbCmdStackNew:
         elif cmd == '^introduced' or cmd == 'introduced^':
             # this is here for backwards compatibility
             cmd = 'introduced'
-            self._add_command ('report', '^')
+            if self.repact.repsrc.kind == 'lore':
+                self._add_command ('report', '^')
         if cmd == 'introduced':
             # this is here for backwards compatibility, too
             split_parameters = parameters.split()
@@ -624,11 +625,7 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
                 continue
 
             regression = None
-            try:
-                reptrd_pointedto = regzbot.ReportThread.from_url(url)
-            except regzbot.RepDownloadError:
-                # ignore
-                continue
+            reptrd_pointedto = regzbot.ReportThreadOffline.from_url(url)
             for actimon in regzbot.RegActivityMonitor.get_by_reptrd(reptrd_pointedto):
                 if actimon.regid:
                     regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
@@ -637,6 +634,13 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
                 continue
 
             if _already_monitored(activity, regression):
+                continue
+
+            # upgrade the object now that we know we need it
+            try:
+                reptrd_pointedto = regzbot.ReportThread.from_url(url)
+            except regzbot.RepDownloadError:
+                # ignore
                 continue
 
             if linktag is True :

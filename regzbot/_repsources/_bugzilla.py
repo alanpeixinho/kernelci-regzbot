@@ -184,10 +184,7 @@ class BzProject():
         logger.debug("[bugzilla] %s: retrieving attachment-id '%s%s'", self.web_url[8:], attachment_ids, msg_suffix)
         return self._pybz_bugzilla.get_attachments(None, attachment_ids, include_fields, exclude_fields)
 
-    def issue(self, *, id=None, url=None):
-        assert any((id, url))
-        if url:
-            id = url.removeprefix('%s/show_bug.cgi?id=' % self.web_url)
+    def issue(self, id):
         logger.debug("[bugzilla] %s: retrieving metadata for issue '%s'", self.web_url[8:], id)
         query = self._pybz_bugzilla.build_query()
         query["include_fields"] = BzIssue.INCLUDE_FIELDS
@@ -300,15 +297,21 @@ class BzRepSrc(regzbot._repsources._trackers._repsrc):
 
     def supports_url(self, url_lowered, url_parsed):
         if url_lowered.startswith(self.serverurl):
-            return True
+            return url_parsed.geturl().removeprefix('%s/show_bug.cgi?id=' % self.weburl)
 
     def updated_threads(self, since):
         for bz_issue in self._bz_project.updated_issues(since):
             yield BzRepTrd(self, bz_issue)
 
     def thread(self, *, id=None, url=None, issue=None):
+        assert any((id, url, issue))
         if not issue:
-            issue = self._bz_project.issue(id=id, url=url)
+            if not id:
+                id = self.supports_url(url)
+                if not id:
+                    logger.error("[bugzilla] cound not parse %s", url)
+                    raise regzbot.RepDownloadError
+            issue = self._bz_project.issue(id)
         return BzRepTrd(self, issue)
 
 
@@ -403,7 +406,7 @@ def __test():
 
     # = go =
     print("Checking basic issue:", flush=True, end='')
-    issue = project.issue(id=TESTDATA['issue']['issue_id'])
+    issue = project.issue(TESTDATA['issue']['issue_id'])
     _testing_check_result('data', str(issue), TESTDATA['issue']['expected'])
     _testing_check_result('total', len(list(issue.activities())),
                           TESTDATA['issue']['total'])
