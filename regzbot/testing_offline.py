@@ -486,7 +486,7 @@ def run(resultfilename, tmpdir, testdatadir):
 
 
 def offltest_0_0(funcname):
-    logger.info('%s: creating a mainline regression' % funcname)
+    logger.info('%s: create a mainline regression' % funcname)
     emaildirs['primary'].create_email(
         funcname, "#regzbot introduced: v1.8..v1.9-rc1")
     return ['mailchk']
@@ -505,7 +505,7 @@ def offltest_0_2(funcname):
     replyto = 'test_0_0'
     logger.info('%s: update title for the regression created in %s' %
                 (funcname, replyto))
-    emaildirs['primary'].create_email(funcname, "#regzbot title: test_0_0: updated title (set by %s)" % funcname,
+    emaildirs['primary'].create_email(funcname, "#regzbot summary: test_0_0: updated title (set by %s)" % funcname,
                                       replyto=replyto)
     return ['mailchk']
 
@@ -516,7 +516,7 @@ def offltest_0_3(funcname):
     emaildirs['primary'].create_email(
         funcname, "#regzbot introduced: v1.8..v1.9-rc1")
     replyto = funcname
-    emaildirs['primary'].create_email("%s_1" % funcname, "#regzbot dupof: https://lore.kernel.org/regressions/regzbot-testing-test_0_0@example.com",
+    emaildirs['primary'].create_email("%s_1" % funcname, "#regzbot duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_0@example.com",
                                       replyto=replyto)
     return ['mailchk']
 
@@ -591,7 +591,7 @@ def offltest_0_9(funcname):
 def offltest_0_10(funcname):
     replyto = 'test_0_9_0'
     logger.info(
-        "%s: send a mail with a regzbot command, but is not added as an activity due to #regzbotot ignore-activity" % funcname)
+        "%s: send a mail with a regzbot command, but is not added as an activity due to #regzbot ignore-activity" % funcname)
 
     subcounter = 0
     emaildirs['primary'].create_email(
@@ -684,7 +684,7 @@ def offltest_0_15(funcname):
     return ['mailchk']
 
 def offltest_0_16(funcname):
-    logger.info('%s: check if some attribut changes from a open regression downwards to duplicates' % funcname)
+    logger.info('%s: check if some attribut changes from an open regression progress downwards to duplicates' % funcname)
 
     subcounter = 0
     replyto = 'test_0_15_3'
@@ -719,7 +719,7 @@ def offltest_0_17(funcname):
 def offltest_0_18 (funcname):
     logger.info('%s: creating a mainline regression for an arbitarily url' % funcname)
     emaildirs['primary'].create_email(
-        funcname, "#regzbot introduced: v1.8..v1.9-rc1 https://bugzilla.example.com/show_bug.cgi?id=215744")
+        funcname, "#regzbot report https://bugzilla.example.com/show_bug.cgi?id=215744\n#regzbot introduced: v1.8..v1.9-rc1")
     return ['mailchk']
 
 
@@ -754,6 +754,25 @@ def offltest_0_21(funcname):
     emaildirs['primary'].create_email("%s" % funcname, "#regzbot introduced: v1.8..v1.9-rc1\n#regzbot inconclusive: some reason")
     return ['mailchk']
 
+
+def offltest_0_22(funcname):
+    logger.info(
+        "%s: send a mail which serves as report for a regression created by a reply later using 'regzbot report'" % funcname)
+
+    subcounter = 0
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "Nothing to see here, move along")
+
+    subcounter += 1
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "Nothing to see here either, move along",
+        replyto="%s_%s" % (funcname, subcounter - 1))
+
+    subcounter += 1
+    emaildirs['secondary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzbot report https://lore.kernel.org/lkml/regzbot-testing-%s@example.com\n#regzbot introduced: v1.8..v1.9-rc1" % 'test_0_22_0',
+        )
+    return ['mailchk', 'wait']
 
 # create a mainline regression
 def offltest_1_0(funcname):

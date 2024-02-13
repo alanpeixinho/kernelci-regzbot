@@ -438,8 +438,10 @@ class RbCmdStackNew:
         if cmd == 'introduced':
             # this is here for backwards compatibility, too
             split_parameters = parameters.split()
+            new_parameters = []
             for count, pointer in enumerate(split_parameters):
                 if count == 0:
+                    new_parameters.append(pointer)
                     continue
                 pointer = self._parse_pointer(pointer)
                 if pointer in ('^', '/', '~') or pointer.startswith('http'):
@@ -447,6 +449,9 @@ class RbCmdStackNew:
                         self._add_command('report', pointer)
                     else:
                         self._add_command('duplicate', pointer)
+                else:
+                    new_parameters.append(pointer)
+            parameters = ' '.join(new_parameters)
 
         cmdobj = RbCmdSingleNew(self, cmd, parameters)
         self._commands.append(cmdobj)
