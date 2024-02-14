@@ -811,7 +811,7 @@ def offltest_1_1(funcname):
     logger.info('%s: creating a git commit that links to the regression created in %s, which should mark is as fixed' % (
         funcname, replyto))
     gittrees_testing['mainline'].mv(
-        'Testcommit %s\n\nLink: https://lore.kernel.org/regressions/regzbot-testing-%s@example.com\n' % (funcname, replyto))
+        'Testcommit %s\n\nLink: https://lore.kernel.org/lkml/regzbot-testing-%s@example.com\n' % (funcname, replyto))
     return ['gitchk']
 
 
