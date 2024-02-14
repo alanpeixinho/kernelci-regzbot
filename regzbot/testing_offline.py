@@ -772,7 +772,31 @@ def offltest_0_22(funcname):
     emaildirs['secondary'].create_email(
         "%s_%s" % (funcname, subcounter), "#regzbot report https://lore.kernel.org/lkml/regzbot-testing-%s@example.com\n#regzbot introduced: v1.8..v1.9-rc1" % 'test_0_22_0',
         )
-    return ['mailchk', 'wait']
+    return ['mailchk']
+
+def offltest_0_23(funcname):
+    logger.info(
+        "%s: send a mail which serves as report for a regression created by a reply later using 'regzbot report'" % funcname)
+
+    subcounter = 0
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "Nothing to see here, move along")
+
+    subcounter += 1
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "Nothing to see here either, move along",
+        replyto="%s_%s" % (funcname, subcounter - 1))
+
+    subcounter += 1
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "#regzbot report https://lore.kernel.org/lkml/regzbot-testing-%s@example.com\n#regzbot introduced: v1.8..v1.9-rc1" % 'test_0_23_0',
+        replyto="%s_%s" % (funcname, subcounter - 1))
+
+    subcounter += 1
+    emaildirs['primary'].create_email(
+        "%s_%s" % (funcname, subcounter), "Nothing to see here either, move along",
+        replyto="%s_%s" % (funcname, subcounter - 1))
+    return ['mailchk']
 
 # create a mainline regression
 def offltest_1_0(funcname):
