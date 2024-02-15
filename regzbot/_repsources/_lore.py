@@ -44,7 +44,7 @@ class LoreNntp():
     def __init__(self):
         global _NNTP_CONNECTION
         if _NNTP_CONNECTION == None:
-            logger.debug('connecting to nntp.lore.kernel.org')
+            logger.debug('[lore] connecting to nntp.lore.kernel.org')
             _NNTP_CONNECTION = nntplib.NNTP('nntp.lore.kernel.org')
         self._nntp_connection = _NNTP_CONNECTION
 
@@ -60,7 +60,7 @@ class LoreNntp():
             groupname = splitted[3]
         else:
             groupname = splitted[0]
-        logger.debug('opening group %s', groupname)
+        logger.debug('[lore] opening group %s', groupname)
         _, _, id_first, id_last, _ = self._nntp_connection.group(groupname)
         return id_first, id_last
 
@@ -68,36 +68,6 @@ class LoreNntp():
         _, overviews = self._nntp_connection.over((id_first, id_last))
         for id, over in overviews:
             yield id, over
-
-    def update(self):
-        for repsrc in regzbot.ReportSource.getall_bykind('lore'):
-            id_first, id_last = self._group(groupname)
-
-            if not repsrc.lastchked:
-                repsrc.set_lastchked(id_first)
-                logger.info(
-                    'seeing %s for the first time, starting to monitor it from now on', repsrc.serverurl)
-                repsrc.set_lastchked(id_last)
-                continue
-            elif repsrc.lastchked == id_last:
-                logger.debug('nothing new in %s', repsrc.serverurl)
-                continue
-
-            logger.debug('processing "%s"', repsrc.serverurl)
-            for id, over in self._over(repsrc.lastchked + 1, id_last):
-                msgid = regzbot.mailin.email_get_msgid(over['message-id'])
-                gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(over['date']))
-                if regzbot.RecordProcessedMsgids.check_presence(msgid, gmtime):
-                   logger.debug('[lore] skipping "%s", we already encountered it it', msgid)
-                   continue
-
-                article = self._article(id)
-                msg = email.message_from_bytes(b'\n'.join(article.lines), policy=policy.default)
-                regzbot.mailin.process_msg(repsrc, msg)
-
-            # update database
-            repsrc.set_lastchked(id_last)
-            regzbot.db_commit()
 
 
 class LoreHttps():
@@ -438,6 +408,39 @@ class LoRepSrc(ReportSource):
                     if regzbot.RecordProcessedMsgids.check_presence(lo_retrd.id, lo_retrd.gmtime):
                         continue
                     lo_retrd.process_single()
+        else:
+            if self.name == 'lore_all':
+                return
+
+            lorenntp = LoreNntp()
+            id_first, id_last = lorenntp._group(self.serverurl)
+
+            if not self.lastchked:
+                self.set_lastchked(id_first)
+                logger.info(
+                    '[lore] seeing %s for the first time, starting to monitor it from now on', self.serverurl)
+                self.set_lastchked(id_last)
+                return
+            elif self.lastchked == id_last:
+                logger.debug('[lore] nothing new in %s', self.serverurl)
+                return
+
+            logger.debug('[lore] processing "%s"', self.serverurl)
+            for id, over in lorenntp._over(self.lastchked + 1, id_last):
+                msgid = regzbot.mailin.email_get_msgid(over['message-id'])
+                gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(over['date']))
+                if regzbot.RecordProcessedMsgids.check_presence(msgid, gmtime):
+                   logger.debug('[lore] skipping "%s", we already encountered it it', msgid)
+                   continue
+
+                msg = lorenntp._article(id)
+                lo_thread = LoreThread(msg=msg)
+                lo_retrd = LoRepTrd(self, lo_thread)
+                lo_retrd.process_single()
+
+            # update database
+            self.set_lastchked(id_last)
+
 
 
 class LoRepTrd(ReportThread):

@@ -2957,9 +2957,10 @@ class ReportSource():
     @classmethod
     def update_all(cls):
         for repsrc in cls.getall():
-            if repsrc.kind not in ('bugzilla', 'gitlab', 'github'):
+            if repsrc.kind not in ('bugzilla', 'gitlab', 'github', 'lore'):
                 continue
             repsrc.update()
+            db_commit()
 
     def supports_url(self, url_lowered, url_parsed):
         return url_parsed.geturl()
@@ -3623,7 +3624,7 @@ def run():
     basicressources_init()
 
     # check issue trackers
-    regzbot.ReportSource.update_all()
+    ReportSource.update_all()
 
     # check for new mails
     import lore
