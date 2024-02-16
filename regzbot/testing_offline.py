@@ -21,9 +21,9 @@ import sys
 
 import git
 import regzbot
-import regzbot.mailin
 import regzbot.export_csv
 import regzbot.export_web
+import regzbot._repsources._lore
 
 logger = regzbot.logger
 

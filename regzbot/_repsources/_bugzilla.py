@@ -297,7 +297,7 @@ class BzRepSrc(regzbot._repsources._trackers._repsrc):
 
     def supports_url(self, url_lowered, url_parsed):
         if url_lowered.startswith(self.serverurl):
-            return url_parsed.geturl().removeprefix('%s/show_bug.cgi?id=' % self.weburl)
+            return url_parsed.query.removeprefix('id=')
 
     def updated_threads(self, since):
         for bz_issue in self._bz_project.updated_issues(since):

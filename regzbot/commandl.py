@@ -14,7 +14,14 @@ import sys
 
 import regzbot
 import regzbot.testing
+import regzbot._rbcmd
 import regzbot._repsources
+import regzbot._repsources._bugzilla
+import regzbot._repsources._lore
+import regzbot._repsources._gitlab
+import regzbot._repsources._github
+import regzbot._repsources._generic
+
 
 logger = regzbot.logger
 
