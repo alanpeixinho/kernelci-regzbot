@@ -297,7 +297,10 @@ class BzRepSrc(regzbot._repsources._trackers._repsrc):
 
     def supports_url(self, url_lowered, url_parsed):
         if url_lowered.startswith(self.serverurl):
-            return url_parsed.query.removeprefix('id=')
+            # there might be a comma or something else that might need to be removed:
+            # https://lore.kernel.org/linux-wireless/170844096394.7.10031732457351764961.271076804@slmail.me/
+            stripped = ''.join(filter(str.isdigit, url_parsed.query.removeprefix('id=')))
+            return int(stripped)
 
     def updated_threads(self, since):
         for bz_issue in self._bz_project.updated_issues(since):

@@ -1,59 +1,378 @@
 [trackertest_0_0]
-REGRESSION: issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified, back-burner
+REGRESSION: issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
 INITIAL_REPORT: 1700478630, issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/11
-ACTIVITY: knurd42/linux, issue 11: creation, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700478630, PatchKind(None)
-ACTIVITY: knurd42/linux, issue 11: new comment(#1), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480216, PatchKind(None)
-HISTORY: knurd42/linux, issue 11: creation, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
-HISTORY: knurd42/linux, issue 11: new comment(#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, backburn: some good reason
-LATEST: knurd42/linux, issue 11: new comment(#1), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480216, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: submission, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700478630, PatchKind(None)
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+LATEST: knurd42/linux, issue 11: submission, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700478630, PatchKind(None)
 
 [trackertest_0_1]
 REGRESSION: issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
-INITIAL_REPORT: 1700478630, issue for regzbot testing, Thorsten Leemhuis, None, https://gitlab.com/knurd42/linux/-/issues/11
-ACTIVITY: knurd42/linux, issue 11: creation, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700478630, PatchKind(None)
-ACTIVITY: knurd42/linux, issue 11: new comment(#1), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480216, PatchKind(None)
-ACTIVITY: knurd42/linux, issue 11: new comment(#2), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480421, PatchKind(None)
-ACTIVITY: knurd42/linux, issue 11: new comment(#3), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700482983, PatchKind(None)
-HISTORY: knurd42/linux, issue 11: creation, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
-HISTORY: knurd42/linux, issue 11: new comment(#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, backburn: some good reason
-HISTORY: knurd42/linux, issue 11: new comment(#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, unbackburn
-HISTORY: knurd42/linux, issue 11: new comment(#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, from: Thorsten Leemhuis
-LATEST: knurd42/linux, issue 11: new comment(#3), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700482983, PatchKind(None)
+INITIAL_REPORT: 1700478630, issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/11
+ADDITIONAL_REPORT: 1701007025, another issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/12
+ACTIVITY: knurd42/linux, issue 11: submission, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700478630, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#1), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480216, PatchKind(None)
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+LATEST: knurd42/linux, issue 11: new comment (#1), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480216, PatchKind(None)
+REGRESSION: another issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1701007025, another issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/12
+SOLVED: None, 1700480216, None, None, None [duplicate of 1]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
 
 [trackertest_0_2]
-REGRESSION: issue for regzbot testing, bbaee49c (v6.6-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=bbaee49c, mainline, master, latest: culprit indentified
-INITIAL_REPORT: 1700478630, issue for regzbot testing, Thorsten Leemhuis, None, https://gitlab.com/knurd42/linux/-/issues/11
+REGRESSION: issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1700478630, issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/11
 ADDITIONAL_REPORT: 1701007025, another issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/12
-SOLVED: resolve, 1700485309, v6.6-rc1, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=bbaee49cce7c815d1bd6d95b6020b5fe33ba561a, some other reason
-ACTIVITY: knurd42/linux, issue 11: creation, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700478630, PatchKind(None)
-ACTIVITY: knurd42/linux, issue 11: new comment(#1), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480216, PatchKind(None)
-ACTIVITY: knurd42/linux, issue 11: new comment(#2), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480421, PatchKind(None)
-ACTIVITY: knurd42/linux, issue 11: new comment(#3), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700482983, PatchKind(None)
-ACTIVITY: knurd42/linux, issue 11: new comment(#4), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700484730, PatchKind(None)
-ACTIVITY: bbaee49cce7c, the fix specified through '#regzbot fix:' earlier landed in mainline, Thorsten Leemhuis, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=bbaee49cce7c815d1bd6d95b6020b5fe33ba561a, 1700484730, PatchKind(None)
-ACTIVITY: knurd42/linux, issue 11: new comment(#5), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700485300, PatchKind(None)
-ACTIVITY: knurd42/linux, issue 11: new comment(#6), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700485309, PatchKind(None)
-ACTIVITY: knurd42/linux, issue 11: new comment(#7), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700489033, PatchKind(None)
-ACTIVITY: knurd42/linux, issue 11: new comment(#8), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700489815, PatchKind(None)
-ACTIVITY: knurd42/linux, issue 11: new comment(#9), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1701006813, PatchKind(None)
-HISTORY: knurd42/linux, issue 11: creation, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
-HISTORY: knurd42/linux, issue 11: new comment(#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, backburn: some good reason
-HISTORY: knurd42/linux, issue 11: new comment(#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, unbackburn
-HISTORY: knurd42/linux, issue 11: new comment(#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, from: Thorsten Leemhuis
-HISTORY: docs: stable-kernel-rules: mention that regressions must be prevented, 1700484730, Thorsten Leemhuis, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=bbaee49cce7c815d1bd6d95b6020b5fe33ba561a, fixed: 'fix' commit 'bbaee49cce7c' now in 'mainline'
-HISTORY: knurd42/linux, issue 11: new comment(#4), 1700484730, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, fix: bbaee49cce7c81
-HISTORY: knurd42/linux, issue 11: new comment(#5), 1700485300, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, inconclusive: some reason
-HISTORY: knurd42/linux, issue 11: new comment(#6), 1700485309, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, resolve: some other reason
-HISTORY: knurd42/linux, issue 11: new comment(#7), 1700489033, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, link: https://docs.kernel.org/process/handling-regressions.html
-HISTORY: knurd42/linux, issue 11: new comment(#7), 1700489033, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, unlink: https://docs.kernel.org/process/handling-regressions.html
-HISTORY: knurd42/linux, issue 11: new comment(#8), 1700489815, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: bbaee49c
-HISTORY: knurd42/linux, issue 11: new comment(#9), 1701006813, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
-LATEST: knurd42/linux, issue 11: new comment(#9), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1701006813, PatchKind(None)
-REGRESSION: another issue for regzbot testing, bbaee49c (v6.6-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=bbaee49c, mainline, master, latest: culprit indentified
+ADDITIONAL_REPORT: 1702014594, regzbot testing issue, Thorsten Leemhuis, knurd, https://github.com/knurd/linux/issues/1
+ACTIVITY: knurd42/linux, issue 11: submission, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700478630, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#1), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480216, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#2), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480421, PatchKind(None)
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://github.com/knurd/linux/issues/1
+LATEST: knurd42/linux, issue 11: new comment (#2), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480421, PatchKind(None)
+REGRESSION: another issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
 INITIAL_REPORT: 1701007025, another issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/12
-SOLVED: None, 1701006813, None, None, None [duplicate of 1]
-ACTIVITY: knurd42/linux, issue 12: creation, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/12, 1701007025, PatchKind(None)
-HISTORY: knurd42/linux, issue 11: new comment(#9), 1701006813, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: bbaee49c [implicit, due to usage of 'duplicate']
-HISTORY: knurd42/linux, issue 11: new comment(#9), 1701006813, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, note: now a duplicate of https://gitlab.com/knurd42/linux/-/issues/11
-LATEST: knurd42/linux, issue 12: creation, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/12, 1701007025, PatchKind(None)
+SOLVED: None, 1700480216, None, None, None [duplicate of 1]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+REGRESSION: regzbot testing issue, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1702014594, regzbot testing issue, Thorsten Leemhuis, knurd, https://github.com/knurd/linux/issues/1
+SOLVED: None, 1700480421, None, None, None [duplicate of 1]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+
+[trackertest_0_3]
+REGRESSION: issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1700478630, issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/11
+SOLVED: None, 1700482983, None, None, None [duplicate of 4]
+ACTIVITY: knurd42/linux, issue 11: submission, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700478630, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#1), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480216, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#2), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480421, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#3), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700482983, PatchKind(None)
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://github.com/knurd/linux/issues/1
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://github.com/knurd/linux/issues/1
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://bugzilla.kernel.org/show_bug.cgi?id=212295
+LATEST: knurd42/linux, issue 11: new comment (#3), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700482983, PatchKind(None)
+REGRESSION: another issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1701007025, another issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/12
+SOLVED: None, 1700480216, None, None, None [duplicate of 1]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+REGRESSION: regzbot testing issue, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1702014594, regzbot testing issue, Thorsten Leemhuis, knurd, https://github.com/knurd/linux/issues/1
+SOLVED: None, 1700480421, None, None, None [duplicate of 1]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+REGRESSION: pipe deadlocks since kernel v5.8 after resizing (race condition), eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1615831206, pipe deadlocks since kernel v5.8 after resizing (race condition), Lukas Schauer, Thorsten Leemhuis, https://bugzilla.kernel.org/show_bug.cgi?id=212295
+ADDITIONAL_REPORT: 1700478630, issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/11
+ADDITIONAL_REPORT: 1701007025, another issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/12
+ADDITIONAL_REPORT: 1702014594, regzbot testing issue, Thorsten Leemhuis, knurd, https://github.com/knurd/linux/issues/1
+SOLVED: fixed, 1704738368, v6.8-rc1, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, pipe: wakeup wr_wait after setting max_usage
+ACTIVITY: bugzilla.kernel.org, issue 212295: submission, Lukas Schauer, https://bugzilla.kernel.org/show_bug.cgi?id=212295, 1615831206, PatchKind(None)
+ACTIVITY: bugzilla.kernel.org, issue 212295: new comment (#1), Christian Schwarz, https://bugzilla.kernel.org/show_bug.cgi?id=212295#c1, 1615848591, PatchKind(None)
+ACTIVITY: bugzilla.kernel.org, issue 212295: new comment (#2), Lukas Schauer, https://bugzilla.kernel.org/show_bug.cgi?id=212295#c2, 1615864454, PatchKind(None)
+ACTIVITY: bugzilla.kernel.org, issue 212295: new comment (#3), Lukas Schauer, https://bugzilla.kernel.org/show_bug.cgi?id=212295#c3, 1616596182, PatchKind(None)
+ACTIVITY: bugzilla.kernel.org, issue 212295: new comment (#4), John Goerzen, https://bugzilla.kernel.org/show_bug.cgi?id=212295#c4, 1655732548, PatchKind(None)
+ACTIVITY: Commit e95aada4cb93 in next, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, 1704738368, PatchKind(None)
+ACTIVITY: Commit e95aada4cb93 in mainline, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, 1704738368, PatchKind(None)
+ACTIVITY: Commit b87a1229d866 in stable/linux-6.1.y, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.1.y&id=b87a1229d8668fbc78ebd9ca0fc797a76001c60f, 1706746629, PatchKind(None)
+ACTIVITY: Commit 68e51bdb1194 in stable/linux-6.6.y, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.6.y&id=68e51bdb1194f11d3452525b99c98aff6f837b24, 1706746749, PatchKind(None)
+ACTIVITY: Commit 6fb70694f8d1 in stable/linux-6.7.y, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.7.y&id=6fb70694f8d1ac34e45246b0ac988f025e1e5b55, 1706746853, PatchKind(None)
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1704738368, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, fix: e95aada4cb93 in next referred to this regression
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1704738368, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, fix: e95aada4cb93 [implicit, due to a Link/Closes tag]
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1706746629, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.1.y&id=b87a1229d8668fbc78ebd9ca0fc797a76001c60f, note: b87a1229d866 in stable/linux-6.1.y referred to this regression
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1706746749, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.6.y&id=68e51bdb1194f11d3452525b99c98aff6f837b24, note: 68e51bdb1194 in stable/linux-6.6.y referred to this regression
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1706746853, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.7.y&id=6fb70694f8d1ac34e45246b0ac988f025e1e5b55, note: 6fb70694f8d1 in stable/linux-6.7.y referred to this regression
+LATEST: Commit 6fb70694f8d1 in stable/linux-6.7.y, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.7.y&id=6fb70694f8d1ac34e45246b0ac988f025e1e5b55, 1706746853, PatchKind(None)
+
+[trackertest_0_4]
+REGRESSION: issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1700478630, issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/11
+SOLVED: None, 1700484730, None, None, None [duplicate of 5]
+ACTIVITY: knurd42/linux, issue 11: submission, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700478630, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#1), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480216, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#2), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480421, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#3), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700482983, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#4), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700484730, PatchKind(None)
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://github.com/knurd/linux/issues/1
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://github.com/knurd/linux/issues/1
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://github.com/knurd/linux/issues/1
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://bugzilla.kernel.org/show_bug.cgi?id=212295
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://bugzilla.kernel.org/show_bug.cgi?id=212295
+HISTORY: knurd42/linux, issue 11: new comment (#4), 1700484730, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://lore.kernel.org/all/CA%2BG9fYs-j2FYZSFSVZj48mgoM9gQd4-7M2mu2Ez3D1DqDdW2bQ@mail.gmail.com/
+LATEST: knurd42/linux, issue 11: new comment (#4), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700484730, PatchKind(None)
+REGRESSION: another issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1701007025, another issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/12
+SOLVED: None, 1700480216, None, None, None [duplicate of 1]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+REGRESSION: regzbot testing issue, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1702014594, regzbot testing issue, Thorsten Leemhuis, knurd, https://github.com/knurd/linux/issues/1
+SOLVED: None, 1700480421, None, None, None [duplicate of 1]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+REGRESSION: pipe deadlocks since kernel v5.8 after resizing (race condition), eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1615831206, pipe deadlocks since kernel v5.8 after resizing (race condition), Lukas Schauer, Thorsten Leemhuis, https://bugzilla.kernel.org/show_bug.cgi?id=212295
+SOLVED: fixed, 1704738368, v6.8-rc1, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, pipe: wakeup wr_wait after setting max_usage
+ACTIVITY: bugzilla.kernel.org, issue 212295: submission, Lukas Schauer, https://bugzilla.kernel.org/show_bug.cgi?id=212295, 1615831206, PatchKind(None)
+ACTIVITY: bugzilla.kernel.org, issue 212295: new comment (#1), Christian Schwarz, https://bugzilla.kernel.org/show_bug.cgi?id=212295#c1, 1615848591, PatchKind(None)
+ACTIVITY: bugzilla.kernel.org, issue 212295: new comment (#2), Lukas Schauer, https://bugzilla.kernel.org/show_bug.cgi?id=212295#c2, 1615864454, PatchKind(None)
+ACTIVITY: bugzilla.kernel.org, issue 212295: new comment (#3), Lukas Schauer, https://bugzilla.kernel.org/show_bug.cgi?id=212295#c3, 1616596182, PatchKind(None)
+ACTIVITY: bugzilla.kernel.org, issue 212295: new comment (#4), John Goerzen, https://bugzilla.kernel.org/show_bug.cgi?id=212295#c4, 1655732548, PatchKind(None)
+ACTIVITY: Commit e95aada4cb93 in next, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, 1704738368, PatchKind(None)
+ACTIVITY: Commit e95aada4cb93 in mainline, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, 1704738368, PatchKind(None)
+ACTIVITY: Commit b87a1229d866 in stable/linux-6.1.y, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.1.y&id=b87a1229d8668fbc78ebd9ca0fc797a76001c60f, 1706746629, PatchKind(None)
+ACTIVITY: Commit 68e51bdb1194 in stable/linux-6.6.y, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.6.y&id=68e51bdb1194f11d3452525b99c98aff6f837b24, 1706746749, PatchKind(None)
+ACTIVITY: Commit 6fb70694f8d1 in stable/linux-6.7.y, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.7.y&id=6fb70694f8d1ac34e45246b0ac988f025e1e5b55, 1706746853, PatchKind(None)
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1704738368, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, fix: e95aada4cb93 in next referred to this regression
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1704738368, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, fix: e95aada4cb93 [implicit, due to a Link/Closes tag]
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1706746629, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.1.y&id=b87a1229d8668fbc78ebd9ca0fc797a76001c60f, note: b87a1229d866 in stable/linux-6.1.y referred to this regression
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1706746749, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.6.y&id=68e51bdb1194f11d3452525b99c98aff6f837b24, note: 68e51bdb1194 in stable/linux-6.6.y referred to this regression
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1706746853, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.7.y&id=6fb70694f8d1ac34e45246b0ac988f025e1e5b55, note: 6fb70694f8d1 in stable/linux-6.7.y referred to this regression
+LATEST: Commit 6fb70694f8d1 in stable/linux-6.7.y, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.7.y&id=6fb70694f8d1ac34e45246b0ac988f025e1e5b55, 1706746853, PatchKind(None)
+REGRESSION: WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1699536428, WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, Naresh Kamboju, naresh.kamboju@linaro.org, https://lore.kernel.org/regressions/CA%2BG9fYs-j2FYZSFSVZj48mgoM9gQd4-7M2mu2Ez3D1DqDdW2bQ@mail.gmail.com/
+ADDITIONAL_REPORT: 1700478630, issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/11
+ADDITIONAL_REPORT: 1701007025, another issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/12
+ADDITIONAL_REPORT: 1702014594, regzbot testing issue, Thorsten Leemhuis, knurd, https://github.com/knurd/linux/issues/1
+ACTIVITY: WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, Naresh Kamboju, https://lore.kernel.org/regressions/CA%2BG9fYs-j2FYZSFSVZj48mgoM9gQd4-7M2mu2Ez3D1DqDdW2bQ@mail.gmail.com/, 1699536428, PatchKind(None)
+ACTIVITY: Re: WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, Mark Brown, https://lore.kernel.org/regressions/ZUzmlhvRv66I3J6P@finisterre.sirena.org.uk/, 1699538582, PatchKind(None)
+ACTIVITY: Re: WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, Kees Cook, https://lore.kernel.org/regressions/B4299DC4-57CF-4CB2-ACB1-A215F429BF6A@kernel.org/, 1699595126, PatchKind(None)
+HISTORY: knurd42/linux, issue 11: new comment (#4), 1700484730, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#4), 1700484730, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+LATEST: Re: WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, Kees Cook, https://lore.kernel.org/regressions/B4299DC4-57CF-4CB2-ACB1-A215F429BF6A@kernel.org/, 1699595126, PatchKind(None)
+
+[trackertest_0_5]
+REGRESSION: issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1700478630, issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/11
+SOLVED: None, 1700484730, None, None, None [duplicate of 5]
+ACTIVITY: knurd42/linux, issue 11: submission, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700478630, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#1), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480216, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#2), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480421, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#3), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700482983, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#4), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700484730, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#5), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700485300, PatchKind(None)
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://github.com/knurd/linux/issues/1
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://github.com/knurd/linux/issues/1
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://github.com/knurd/linux/issues/1
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://github.com/knurd/linux/issues/1
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://bugzilla.kernel.org/show_bug.cgi?id=212295
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://bugzilla.kernel.org/show_bug.cgi?id=212295
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://bugzilla.kernel.org/show_bug.cgi?id=212295
+HISTORY: knurd42/linux, issue 11: new comment (#4), 1700484730, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://lore.kernel.org/all/CA%2BG9fYs-j2FYZSFSVZj48mgoM9gQd4-7M2mu2Ez3D1DqDdW2bQ@mail.gmail.com/
+HISTORY: knurd42/linux, issue 11: new comment (#4), 1700484730, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://lore.kernel.org/all/CA%2BG9fYs-j2FYZSFSVZj48mgoM9gQd4-7M2mu2Ez3D1DqDdW2bQ@mail.gmail.com/
+HISTORY: knurd42/linux, issue 11: new comment (#5), 1700485300, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://example.com/knurd42/linux/-/issues/12
+LATEST: knurd42/linux, issue 11: new comment (#5), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700485300, PatchKind(None)
+REGRESSION: another issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1701007025, another issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/12
+SOLVED: None, 1700480216, None, None, None [duplicate of 1]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+REGRESSION: regzbot testing issue, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1702014594, regzbot testing issue, Thorsten Leemhuis, knurd, https://github.com/knurd/linux/issues/1
+SOLVED: None, 1700480421, None, None, None [duplicate of 1]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+REGRESSION: pipe deadlocks since kernel v5.8 after resizing (race condition), eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1615831206, pipe deadlocks since kernel v5.8 after resizing (race condition), Lukas Schauer, Thorsten Leemhuis, https://bugzilla.kernel.org/show_bug.cgi?id=212295
+SOLVED: fixed, 1704738368, v6.8-rc1, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, pipe: wakeup wr_wait after setting max_usage
+ACTIVITY: bugzilla.kernel.org, issue 212295: submission, Lukas Schauer, https://bugzilla.kernel.org/show_bug.cgi?id=212295, 1615831206, PatchKind(None)
+ACTIVITY: bugzilla.kernel.org, issue 212295: new comment (#1), Christian Schwarz, https://bugzilla.kernel.org/show_bug.cgi?id=212295#c1, 1615848591, PatchKind(None)
+ACTIVITY: bugzilla.kernel.org, issue 212295: new comment (#2), Lukas Schauer, https://bugzilla.kernel.org/show_bug.cgi?id=212295#c2, 1615864454, PatchKind(None)
+ACTIVITY: bugzilla.kernel.org, issue 212295: new comment (#3), Lukas Schauer, https://bugzilla.kernel.org/show_bug.cgi?id=212295#c3, 1616596182, PatchKind(None)
+ACTIVITY: bugzilla.kernel.org, issue 212295: new comment (#4), John Goerzen, https://bugzilla.kernel.org/show_bug.cgi?id=212295#c4, 1655732548, PatchKind(None)
+ACTIVITY: Commit e95aada4cb93 in next, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, 1704738368, PatchKind(None)
+ACTIVITY: Commit e95aada4cb93 in mainline, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, 1704738368, PatchKind(None)
+ACTIVITY: Commit b87a1229d866 in stable/linux-6.1.y, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.1.y&id=b87a1229d8668fbc78ebd9ca0fc797a76001c60f, 1706746629, PatchKind(None)
+ACTIVITY: Commit 68e51bdb1194 in stable/linux-6.6.y, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.6.y&id=68e51bdb1194f11d3452525b99c98aff6f837b24, 1706746749, PatchKind(None)
+ACTIVITY: Commit 6fb70694f8d1 in stable/linux-6.7.y, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.7.y&id=6fb70694f8d1ac34e45246b0ac988f025e1e5b55, 1706746853, PatchKind(None)
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1704738368, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, fix: e95aada4cb93 in next referred to this regression
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1704738368, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, fix: e95aada4cb93 [implicit, due to a Link/Closes tag]
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1706746629, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.1.y&id=b87a1229d8668fbc78ebd9ca0fc797a76001c60f, note: b87a1229d866 in stable/linux-6.1.y referred to this regression
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1706746749, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.6.y&id=68e51bdb1194f11d3452525b99c98aff6f837b24, note: 68e51bdb1194 in stable/linux-6.6.y referred to this regression
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1706746853, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.7.y&id=6fb70694f8d1ac34e45246b0ac988f025e1e5b55, note: 6fb70694f8d1 in stable/linux-6.7.y referred to this regression
+LATEST: Commit 6fb70694f8d1 in stable/linux-6.7.y, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.7.y&id=6fb70694f8d1ac34e45246b0ac988f025e1e5b55, 1706746853, PatchKind(None)
+REGRESSION: WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1699536428, WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, Naresh Kamboju, naresh.kamboju@linaro.org, https://lore.kernel.org/regressions/CA%2BG9fYs-j2FYZSFSVZj48mgoM9gQd4-7M2mu2Ez3D1DqDdW2bQ@mail.gmail.com/
+ADDITIONAL_REPORT: 1700478630, issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/11
+ADDITIONAL_REPORT: 1701007025, another issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/12
+ADDITIONAL_REPORT: 1702014594, regzbot testing issue, Thorsten Leemhuis, knurd, https://github.com/knurd/linux/issues/1
+ADDITIONAL_REPORT: 1700485300, knurd42/linux, issue 11: new comment (#5), Thorsten Leemhuis, knurd42, https://example.com/knurd42/linux/-/issues/12
+ACTIVITY: WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, Naresh Kamboju, https://lore.kernel.org/regressions/CA%2BG9fYs-j2FYZSFSVZj48mgoM9gQd4-7M2mu2Ez3D1DqDdW2bQ@mail.gmail.com/, 1699536428, PatchKind(None)
+ACTIVITY: Re: WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, Mark Brown, https://lore.kernel.org/regressions/ZUzmlhvRv66I3J6P@finisterre.sirena.org.uk/, 1699538582, PatchKind(None)
+ACTIVITY: Re: WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, Kees Cook, https://lore.kernel.org/regressions/B4299DC4-57CF-4CB2-ACB1-A215F429BF6A@kernel.org/, 1699595126, PatchKind(None)
+HISTORY: knurd42/linux, issue 11: new comment (#4), 1700484730, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#4), 1700484730, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#4), 1700484730, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+LATEST: Re: WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, Kees Cook, https://lore.kernel.org/regressions/B4299DC4-57CF-4CB2-ACB1-A215F429BF6A@kernel.org/, 1699595126, PatchKind(None)
+REGRESSION: issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1700485300, knurd42/linux, issue 11: new comment (#5), Thorsten Leemhuis, knurd42, https://example.com/knurd42/linux/-/issues/12
+SOLVED: None, 1700485300, None, None, None [duplicate of 1]
+HISTORY: knurd42/linux, issue 11: new comment (#5), 1700485300, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#5), 1700485300, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+
+[trackertest_0_6]
+REGRESSION: issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1700478630, issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/11
+SOLVED: None, 1700484730, None, None, None [duplicate of 5]
+ACTIVITY: knurd42/linux, issue 11: submission, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700478630, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#1), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480216, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#2), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700480421, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#3), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700482983, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#4), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700484730, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#5), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700485300, PatchKind(None)
+ACTIVITY: knurd42/linux, issue 11: new comment (#6), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700485309, PatchKind(None)
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: submission, 1700478630, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://github.com/knurd/linux/issues/1
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://github.com/knurd/linux/issues/1
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://github.com/knurd/linux/issues/1
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://github.com/knurd/linux/issues/1
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://github.com/knurd/linux/issues/1
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://bugzilla.kernel.org/show_bug.cgi?id=212295
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://bugzilla.kernel.org/show_bug.cgi?id=212295
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://bugzilla.kernel.org/show_bug.cgi?id=212295
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://bugzilla.kernel.org/show_bug.cgi?id=212295
+HISTORY: knurd42/linux, issue 11: new comment (#4), 1700484730, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://lore.kernel.org/all/CA%2BG9fYs-j2FYZSFSVZj48mgoM9gQd4-7M2mu2Ez3D1DqDdW2bQ@mail.gmail.com/
+HISTORY: knurd42/linux, issue 11: new comment (#4), 1700484730, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://lore.kernel.org/all/CA%2BG9fYs-j2FYZSFSVZj48mgoM9gQd4-7M2mu2Ez3D1DqDdW2bQ@mail.gmail.com/
+HISTORY: knurd42/linux, issue 11: new comment (#4), 1700484730, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://lore.kernel.org/all/CA%2BG9fYs-j2FYZSFSVZj48mgoM9gQd4-7M2mu2Ez3D1DqDdW2bQ@mail.gmail.com/
+HISTORY: knurd42/linux, issue 11: new comment (#5), 1700485300, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://example.com/knurd42/linux/-/issues/12
+HISTORY: knurd42/linux, issue 11: new comment (#5), 1700485300, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://example.com/knurd42/linux/-/issues/12
+LATEST: knurd42/linux, issue 11: new comment (#6), Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, 1700485309, PatchKind(None)
+REGRESSION: another issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1701007025, another issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/12
+SOLVED: None, 1700480216, None, None, None [duplicate of 1]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#1), 1700480216, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+REGRESSION: regzbot testing issue, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1702014594, regzbot testing issue, Thorsten Leemhuis, knurd, https://github.com/knurd/linux/issues/1
+SOLVED: None, 1700480421, None, None, None [duplicate of 1]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#2), 1700480421, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+REGRESSION: pipe deadlocks since kernel v5.8 after resizing (race condition), eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1615831206, pipe deadlocks since kernel v5.8 after resizing (race condition), Lukas Schauer, Thorsten Leemhuis, https://bugzilla.kernel.org/show_bug.cgi?id=212295
+SOLVED: fixed, 1704738368, v6.8-rc1, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, pipe: wakeup wr_wait after setting max_usage
+ACTIVITY: bugzilla.kernel.org, issue 212295: submission, Lukas Schauer, https://bugzilla.kernel.org/show_bug.cgi?id=212295, 1615831206, PatchKind(None)
+ACTIVITY: bugzilla.kernel.org, issue 212295: new comment (#1), Christian Schwarz, https://bugzilla.kernel.org/show_bug.cgi?id=212295#c1, 1615848591, PatchKind(None)
+ACTIVITY: bugzilla.kernel.org, issue 212295: new comment (#2), Lukas Schauer, https://bugzilla.kernel.org/show_bug.cgi?id=212295#c2, 1615864454, PatchKind(None)
+ACTIVITY: bugzilla.kernel.org, issue 212295: new comment (#3), Lukas Schauer, https://bugzilla.kernel.org/show_bug.cgi?id=212295#c3, 1616596182, PatchKind(None)
+ACTIVITY: bugzilla.kernel.org, issue 212295: new comment (#4), John Goerzen, https://bugzilla.kernel.org/show_bug.cgi?id=212295#c4, 1655732548, PatchKind(None)
+ACTIVITY: Commit e95aada4cb93 in next, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, 1704738368, PatchKind(None)
+ACTIVITY: Commit e95aada4cb93 in mainline, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, 1704738368, PatchKind(None)
+ACTIVITY: Commit b87a1229d866 in stable/linux-6.1.y, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.1.y&id=b87a1229d8668fbc78ebd9ca0fc797a76001c60f, 1706746629, PatchKind(None)
+ACTIVITY: Commit 68e51bdb1194 in stable/linux-6.6.y, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.6.y&id=68e51bdb1194f11d3452525b99c98aff6f837b24, 1706746749, PatchKind(None)
+ACTIVITY: Commit 6fb70694f8d1 in stable/linux-6.7.y, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.7.y&id=6fb70694f8d1ac34e45246b0ac988f025e1e5b55, 1706746853, PatchKind(None)
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#3), 1700482983, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1704738368, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, fix: e95aada4cb93 in next referred to this regression
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1704738368, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=e95aada4cb93d42e25c30a0ef9eb2923d9711d4a, fix: e95aada4cb93 [implicit, due to a Link/Closes tag]
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1706746629, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.1.y&id=b87a1229d8668fbc78ebd9ca0fc797a76001c60f, note: b87a1229d866 in stable/linux-6.1.y referred to this regression
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1706746749, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.6.y&id=68e51bdb1194f11d3452525b99c98aff6f837b24, note: 68e51bdb1194 in stable/linux-6.6.y referred to this regression
+HISTORY: pipe: wakeup wr_wait after setting max_usage, 1706746853, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.7.y&id=6fb70694f8d1ac34e45246b0ac988f025e1e5b55, note: 6fb70694f8d1 in stable/linux-6.7.y referred to this regression
+LATEST: Commit 6fb70694f8d1 in stable/linux-6.7.y, Lukas Schauer, https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.7.y&id=6fb70694f8d1ac34e45246b0ac988f025e1e5b55, 1706746853, PatchKind(None)
+REGRESSION: WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1699536428, WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, Naresh Kamboju, naresh.kamboju@linaro.org, https://lore.kernel.org/regressions/CA%2BG9fYs-j2FYZSFSVZj48mgoM9gQd4-7M2mu2Ez3D1DqDdW2bQ@mail.gmail.com/
+ADDITIONAL_REPORT: 1700478630, issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/11
+ADDITIONAL_REPORT: 1701007025, another issue for regzbot testing, Thorsten Leemhuis, knurd42, https://gitlab.com/knurd42/linux/-/issues/12
+ADDITIONAL_REPORT: 1702014594, regzbot testing issue, Thorsten Leemhuis, knurd, https://github.com/knurd/linux/issues/1
+ADDITIONAL_REPORT: 1700485300, knurd42/linux, issue 11: new comment (#5), Thorsten Leemhuis, knurd42, https://example.com/knurd42/linux/-/issues/12
+ACTIVITY: WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, Naresh Kamboju, https://lore.kernel.org/regressions/CA%2BG9fYs-j2FYZSFSVZj48mgoM9gQd4-7M2mu2Ez3D1DqDdW2bQ@mail.gmail.com/, 1699536428, PatchKind(None)
+ACTIVITY: Re: WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, Mark Brown, https://lore.kernel.org/regressions/ZUzmlhvRv66I3J6P@finisterre.sirena.org.uk/, 1699538582, PatchKind(None)
+ACTIVITY: Re: WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, Kees Cook, https://lore.kernel.org/regressions/B4299DC4-57CF-4CB2-ACB1-A215F429BF6A@kernel.org/, 1699595126, PatchKind(None)
+HISTORY: knurd42/linux, issue 11: new comment (#4), 1700484730, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#4), 1700484730, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#4), 1700484730, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#4), 1700484730, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+LATEST: Re: WARNING: CPU: 6 PID: 474 at include/linux/maple_tree.h:712 mmap_region (include/linux/maple_tree.h:556 include/linux/maple_tree.h:731, Kees Cook, https://lore.kernel.org/regressions/B4299DC4-57CF-4CB2-ACB1-A215F429BF6A@kernel.org/, 1699595126, PatchKind(None)
+REGRESSION: issue for regzbot testing, eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd0, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1700485300, knurd42/linux, issue 11: new comment (#5), Thorsten Leemhuis, knurd42, https://example.com/knurd42/linux/-/issues/12
+SOLVED: None, 1700485300, None, None, None [duplicate of 1]
+HISTORY: knurd42/linux, issue 11: new comment (#5), 1700485300, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd0 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#5), 1700485300, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+HISTORY: knurd42/linux, issue 11: new comment (#5), 1700485300, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, duplicate: https://gitlab.com/knurd42/linux/-/issues/11 [implicit via duplicate]
+REGRESSION: knurd42/linux, issue 11: new comment (#6), eed892da9cd0 (v6.5-rc1), https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=eed892da9cd08be, mainline, master, previous: culprit indentified
+INITIAL_REPORT: 1700485309, knurd42/linux, issue 11: new comment (#6), Thorsten Leemhuis, knurd42, https://example.com/knurd42/linux/-/issues/11
+HISTORY: knurd42/linux, issue 11: new comment (#6), 1700485309, Thorsten Leemhuis, https://gitlab.com/knurd42/linux/-/issues/11, introduced: eed892da9cd08be
 

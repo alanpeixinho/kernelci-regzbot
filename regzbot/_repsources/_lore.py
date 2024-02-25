@@ -158,11 +158,14 @@ class LoActivity():
 
     @cached_property
     def id(self):
-        return self._validate_msgid(self._msg['message-id'])
+        return self.validate_msgid(self._msg['message-id'])
 
     @cached_property
     def message(self):
         msg_body = self._msg.get_body(preferencelist=('plain'))
+        # handle msg without a body, like https://lore.kernel.org/all/1fea1273-f5ba-52a6-85db-2b828982f8b7@amd.com/
+        if not msg_body:
+            return ''
         return msg_body.get_content()
 
     @cached_property
@@ -248,15 +251,15 @@ class LoActivity():
     def _headerparse_references(self):
         if 'references' in self._msg:
             for msgid in self._msg['References'].split():
-                yield self._validate_msgid(msgid)
+                yield self.validate_msgid(msgid)
 
     def _headerparse_inreplyto(self):
         if 'In-Reply-To' in self._msg:
-            return self._validate_msgid(self._msg['In-Reply-To'])
+            return self.validate_msgid(self._msg['In-Reply-To'])
         return None
 
     @staticmethod
-    def _validate_msgid(msgid):
+    def validate_msgid(msgid):
         # this gets rid of everything after > (some email clients insert something there...)
         msgid = msgid.split(">", 1)
         return msgid[0].strip(' <>')
@@ -286,6 +289,10 @@ class LoreThread():
     def _all_activities(self):
         all_activities = {}
         for msg in LoreHttps.download_thread(self._id):
+            # ignore messages without a message-id; happens for some reasons when parsing
+            # https://lore.kernel.org/all/ZdiLCYKCujs4DgKV@matsya/t.mbox.gz
+            if not msg['message-id']:
+                continue
             lo_act = LoActivity(self, msg)
             if lo_act.id in all_activities:
                 continue
@@ -366,6 +373,8 @@ class LoRepSrc(ReportSource):
     def supports_url(self, url_lowered, url_parsed):
         if url_parsed.netloc in ('lore.kernel.org', 'lkml.kernel.org') and (self.name == 'lore_all'  or regzbot.is_running_citesting('offline')):
             path_split = url_parsed.path.split('/', maxsplit=3)
+            if len(path_split) < 3:
+                raise regzbot.RepDownloadError
             if not path_split[2]:
                 logger.error("[lore] cound not parse %s", url_parsed.geturl())
                 raise regzbot.RepDownloadError
@@ -427,13 +436,16 @@ class LoRepSrc(ReportSource):
 
             logger.debug('[lore] processing "%s"', self.serverurl)
             for id, over in lorenntp._over(self.lastchked + 1, id_last):
-                msgid = regzbot.mailin.email_get_msgid(over['message-id'])
+                msgid = LoActivity.validate_msgid(over['message-id'])
                 gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(over['date']))
                 if regzbot.RecordProcessedMsgids.check_presence(msgid, gmtime):
                    logger.debug('[lore] skipping "%s", we already encountered it it', msgid)
                    continue
 
                 msg = lorenntp._article(id)
+                if 'subject' in msg and msg['subject'].startswith(regzbot.REPORT_SUBJECT_PREFIX):
+                    logger.debug("[lore] skipping mail %s, as it's a report we send", msgid)
+                    continue
                 lo_thread = LoreThread(msg=msg)
                 lo_retrd = LoRepTrd(self, lo_thread)
                 lo_retrd.process_single()

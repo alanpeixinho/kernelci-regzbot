@@ -260,7 +260,7 @@ class GhRepSrc(regzbot._repsources._trackers._repsrc):
     def supports_url(self, url_lowered, url_parsed):
         if url_lowered.startswith(self.serverurl):
             id = url_lowered.removeprefix('%s/issues/' % self.serverurl)
-            return id.strip('/')
+            return int(id.strip('/'))
 
     def updated_threads(self, since):
         for gh_issue in self._gh_project.updated_issues(since):

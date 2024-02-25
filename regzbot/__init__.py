@@ -670,22 +670,6 @@ class GitTree():
 
 
     def update(self):
-        def process_link(url, foundspot):
-            domain, _, msgid = parse_link(url)
-            if domain =='lore.kernel.org' and msgid:
-                regressions = RegressionFull.get_by_entry(msgid)
-            elif domain =='bugzilla.kernel.org' and msgid:
-                repsrc = ReportSource.get_by_name('bugzilla.kernel.org')
-                regressions = RegressionFull.get_by_repsrc_n_entry(repsrc, msgid)
-            else:
-                regressions = RegressionFull.get_by_entry(url)
-
-            if regressions:
-                return regressions
-            else:
-                logger.debug("Could not find a regression for link %s (found in %s)", url, foundspot)
-                return None
-
         # update
         repo = self.repo()
         if not is_running_citesting('online'):
@@ -738,8 +722,10 @@ class GitTree():
 
                 # does the commit link to a tracked regression?
                 for match in re_link.finditer(commit.message):
-                    regression = process_link(match.group(2), "%s, %s, %s" % (
-                        self.name, gitbranch.name, commit))
+                    try:
+                        regression = RegressionFull.get_by_url(match.group(2))
+                    except regzbot.RepDownloadError:
+                        regression = None
                     if not regression:
                         logger.debug(
                             "Saw link to %s, but not aware of any regressions about it", match.group(2))
@@ -1656,7 +1642,7 @@ class RegressionBasic():
         else:
             older.add_history_event(rgzcmd, cmdline='duplicate: %s [implicit via duplicate]' % younger.web_url)
         logger.info('Regression(%s): now a duplicate of Regression(%s).',
-                    self.web_url, other.web_url)
+                    younger.web_url, older.web_url)
 
     def add_history_event(self, rgzcmd, *, cmdline=None):
         if not cmdline:
@@ -1688,8 +1674,11 @@ class RegressionBasic():
         if not reptrd.username:
             reptrd.username = rgzcmd.repact.realname
         regression_created = self.__create(rgzcmd, reptrd, introduced=self.introduced, gitbranchid=self.gitbranchid)
-        regression_created.add_history_event(rgzcmd, cmdline="introduced: %s [implicit implicit via duplicate]"
+        regression_created.add_history_event(rgzcmd, cmdline="introduced: %s [implicit via duplicate]"
                                                  % self.introduced)
+        # for generic urls, take over the subject
+        if reptrd.repsrc.kind == 'generic':
+            regression_created.title(self.subject)
         self.__duplicate(rgzcmd, regression_created)
         return regression_created
 
@@ -1966,6 +1955,17 @@ class RegressionBasic():
         else:
             logger.warning(
                 "RegressionBasic.get_by_link(%s): unsupported domain ", link)
+        return None
+
+    @classmethod
+    def get_by_url(cls, url):
+        try:
+            reptrd_pointedto = ReportThreadOffline.from_url(url)
+        except RepDownloadError:
+            return None
+        for actimon in RegActivityMonitor.get_by_reptrd(reptrd_pointedto):
+            if actimon.regid:
+                return cls.get_by_regid(actimon.regid)
         return None
 
     @staticmethod
@@ -2956,8 +2956,17 @@ class ReportSource():
 
     @classmethod
     def update_all(cls):
+        # process regressions list first, as it is usually CCed when regressions are added; that way we reduce the risk
+        # of a race (e.g. fix is sent to lkml before regzbot hit the mail to track the regression that is being fixed)
+        reggressions_list = cls.get_by_name('regressions')
+        reggressions_list.update()
+        db_commit()
+        reggressions_list = None
+
         for repsrc in cls.getall():
             if repsrc.kind not in ('bugzilla', 'gitlab', 'github', 'lore'):
+                continue
+            if repsrc.kind == 'lore' and repsrc.name == 'regressions':
                 continue
             repsrc.update()
             db_commit()
@@ -3002,7 +3011,7 @@ class ReportThread(ReportThreadOffline):
             self.supports_relatives = False
 
     @classmethod
-    def from_url(cls, url, *, repact=None):
+    def from_url(cls, url, *, repact=None, regression=None):
         reptrd_offline = ReportThreadOffline.from_url(url)
         reptrd = reptrd_offline.repsrc.thread(id=reptrd_offline.id)
         if reptrd_offline.repsrc.kind == 'generic':
@@ -3625,11 +3634,6 @@ def run():
 
     # check issue trackers
     ReportSource.update_all()
-
-    # check for new mails
-    import lore
-    lore.run()
-    db_commit()
 
     # check for new commits
     GitTree.updateall()

@@ -70,74 +70,46 @@ def run(resultfilename, tmpdir, _):
 
 
 def trackertest_0_0(funcname):
-    regzbot.ReportSource.add('knurd42', 3,
+    regzbot.ReportSource.add('regzbottesting-gitlab', 3,
                  'https://gitlab.com/knurd42/linux',
                  'gitlab', '<unused>',
                  lastchked=int(datetime.datetime.fromisoformat('2023-11-20T00:00:00.000Z').timestamp()))
-
-    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T11:35:00.000Z')
-    regzbot.ReportSource.update_all()
-    return False, False
-
-def trackertest_0_1(funcname):
-    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T11:37:00.000Z')
-    regzbot.ReportSource.update_all()
-    return False, True
-
-def trackertest_0_2(funcname):
-#    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T12:30:00.000Z')
-    regzbot.ReportSource.update_all()
-    return False, False
-
-def trackertest_10_0(funcname):
     regzbot.ReportSource.add('regzbottesting-github', 3,
                  'https://github.com/knurd/linux',
                  'github', '<unused>',
                       lastchked=int(datetime.datetime.fromisoformat('2022-03-15T00:00:00.000Z').timestamp()))
-    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2022-03-24T10:25:00.000Z')
 
-    regzbot.ReportSource.update_all()
+    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T11:35:00.000Z')
+
+    regzbot.checkout_url('https://gitlab.com/knurd42/linux/-/issues/11')
     return False, False
 
-def trackertest_10_1(funcname):
-    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-12-11T12:00:00.000Z')
-    regzbot.ReportSource.update_all()
-    return False, True
+def trackertest_0_1(funcname):
+    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T11:37:00.000Z')
+    regzbot.checkout_url('https://gitlab.com/knurd42/linux/-/issues/11')
+    return False, False
 
-def trackertest_11_0(funcname):
-    bz_repsrc = regzbot.ReportSource.get_by_name('bugzilla.kernel.org')
-    bz_repsrc.set_lastchked(int(datetime.datetime.fromisoformat('2021-11-20T00:00:00.000Z').timestamp()))
+def trackertest_0_2(funcname):
+    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T12:22:00.000Z')
+    regzbot.checkout_url('https://gitlab.com/knurd42/linux/-/issues/11')
+    return False, False
 
-    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2021-12-16T11:00:00.000Z')
-    regzbot._TESTING['bugzilla-only-ids'] = [215117, ]
+def trackertest_0_3(funcname):
+    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T12:30:00.000Z')
+    regzbot.checkout_url('https://gitlab.com/knurd42/linux/-/issues/11')
+    return False, False
 
-    regzbot.ReportSource.update_all()
-    return False, True
+def trackertest_0_4(funcname):
+    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T13:00:00.000Z')
+    regzbot.checkout_url('https://gitlab.com/knurd42/linux/-/issues/11')
+    return False, False
 
-def trackertest_0_0(funcname):
-#    regzbot.checkout_msgid('CAKLYgeJ1tUuqLcsquwuFqjDXPSJpEiokrWK2gisPKDZLs8Y2TQ@mail.gmail.com')
-#    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2024-01-13T11:00:00.000Z')
-#    regzbot.checkout_url('https://lore.kernel.org/regressions/CAKLYgeJ1tUuqLcsquwuFqjDXPSJpEiokrWK2gisPKDZLs8Y2TQ@mail.gmail.com/')
-#    del regzbot._TESTING['until']
-#    regzbot.checkout_msgid('CAKLYgeKjkCJ2d0_5uDaH6C7wc4YpX9s6TnQVNDuSr8MsiYbujw@mail.gmail.com')
-#    regzbot.checkout_url('https://lore.kernel.org/all/772a2c59-7616-4ec7-9050-17d3abf0b6eb@collabora.com/')
-#    regzbot.checkout_url('https://lore.kernel.org/all/3aa32b39-ee2f-405e-b4fe-983e351c2e20@leemhuis.info/')
-    regzbot.ReportSource.add('knurd42', 3,
-                 'https://gitlab.com/knurd42/linux',
-                 'gitlab', 'https://gitlab.com/knurd42/linux',
-                 lastchked=int(datetime.datetime.fromisoformat('2023-11-20T00:00:00.000Z').timestamp()))
-    regzbot.ReportSource.add('regzbottesting-github', 3,
-                 'https://github.com/knurd/linux',
-                 'github', 'https://gitlab.com/knurd42/linux',
-                      lastchked=int(datetime.datetime.fromisoformat('2022-03-15T00:00:00.000Z').timestamp()))
+def trackertest_0_5(funcname):
+    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T13:01:45.000Z')
+    regzbot.checkout_url('https://gitlab.com/knurd42/linux/-/issues/11')
+    return False, False
 
-    reptrd = regzbot.ReportThreadOffline.from_url('https://lore.kernel.org/all/3aa32b39-ee2f-405e-b4fe-983e351c2e20@leemhuis.info/fdafdafsd/')
-    print(reptrd.repsrc.weburl, reptrd.id)
-    reptrd = regzbot.ReportThreadOffline.from_url('https://github.com/knurd/linux/issues/1')
-    print(reptrd.repsrc.weburl, reptrd.id)
-    reptrd = regzbot.ReportThreadOffline.from_url('https://gitlab.com/knurd42/linux/-/issues/11/')
-    print(reptrd.repsrc.weburl, reptrd.id)
-    reptrd = regzbot.ReportThreadOffline.from_url('https://loreeeee.kernel.org/all/3aa32b39-ee2f-405e-b4fe-983e351c2e20@leemhuis.info//')
-    print(reptrd.repsrc.weburl, reptrd.id)
-    sys.exit(1)
-    return False, True
+def trackertest_0_6(funcname):
+    regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T13:02:45.000Z')
+    regzbot.checkout_url('https://gitlab.com/knurd42/linux/-/issues/11')
+    return False, False

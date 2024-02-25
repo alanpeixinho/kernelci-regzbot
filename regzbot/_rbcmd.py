@@ -226,9 +226,13 @@ class RbCmdStackNew:
         if cmd == 'report':
             self.reptrd = regzbot.ReportThread.from_url(self._parse_pointer(parameters), repact=self.repact)
             for actimon in regzbot.RegActivityMonitor.get_by_reptrd(self.reptrd):
-                if actimon.regid and not regression:
+                if actimon.regid:
                     regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
                     self._set_regressions(regression)
+                    return
+            # nothing found, so assume this is a new regression
+            self.regression = None
+            self.regression_topmost_duplicate = None
             return
         elif cmd == '^introduced' or cmd == 'introduced^':
             # this is here for backwards compatibility
@@ -429,15 +433,9 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
             if not url:
                 continue
 
-            regression = None
-            reptrd_pointedto = regzbot.ReportThreadOffline.from_url(url)
-            for actimon in regzbot.RegActivityMonitor.get_by_reptrd(reptrd_pointedto):
-                if actimon.regid:
-                    regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
-                    break
+            regression = regzbot.RegressionBasic.get_by_url(url)
             if regression is None:
                 continue
-
             if _already_monitored(activity, regression):
                 continue
 
@@ -454,7 +452,7 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
                 cmd_stack.process_commands()
             elif url:
                 cmd_stack = RbCmdStackNew(activity, regression)
-                cmd_stack._add_command('note', "%s %s [implicit due to link]" % (url, activity.subject))
+                cmd_stack._add_command('note', "%s %s [implicit due to link]" % (url, activity.summary))
                 cmd_stack.process_commands()
 
 

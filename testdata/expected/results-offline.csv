@@ -619,7 +619,7 @@ ACTIVITY: test_0_15_2: Lorem ipsum dolor sit amet, Regzbot testingmail, https://
 ACTIVITY: test_0_15_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, 1548460800, PatchKind(None)
 ACTIVITY: test_0_15_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_7@example.com/, 1548547200, PatchKind(None)
 ACTIVITY: 4169881b9e07, the fix specified through '#regzbot fix:' earlier landed in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, 1548547200, PatchKind(None)
-HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_3@example.com/ [implicit via duplicate]
 HISTORY: test_0_15_6: Lorem ipsum dolor sit amet, 1548460800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_0@example.com
 HISTORY: This is a mainline_master commit for testing regzbot, the content doesn't matter., 1548547200, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, fixed: 'fix' commit '4169881b9e07' now in 'mainline'
@@ -722,7 +722,7 @@ ACTIVITY: test_0_15_2: Lorem ipsum dolor sit amet, Regzbot testingmail, https://
 ACTIVITY: test_0_15_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, 1548460800, PatchKind(None)
 ACTIVITY: test_0_15_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_7@example.com/, 1548547200, PatchKind(None)
 ACTIVITY: 4169881b9e07, the fix specified through '#regzbot fix:' earlier landed in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, 1548547200, PatchKind(None)
-HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_3@example.com/ [implicit via duplicate]
 HISTORY: test_0_15_6: Lorem ipsum dolor sit amet, 1548460800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_0@example.com
 HISTORY: This is a mainline_master commit for testing regzbot, the content doesn't matter., 1548547200, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, fixed: 'fix' commit '4169881b9e07' now in 'mainline'
@@ -825,7 +825,7 @@ ACTIVITY: test_0_15_2: Lorem ipsum dolor sit amet, Regzbot testingmail, https://
 ACTIVITY: test_0_15_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, 1548460800, PatchKind(None)
 ACTIVITY: test_0_15_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_7@example.com/, 1548547200, PatchKind(None)
 ACTIVITY: 4169881b9e07, the fix specified through '#regzbot fix:' earlier landed in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, 1548547200, PatchKind(None)
-HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_3@example.com/ [implicit via duplicate]
 HISTORY: test_0_15_6: Lorem ipsum dolor sit amet, 1548460800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_0@example.com
 HISTORY: This is a mainline_master commit for testing regzbot, the content doesn't matter., 1548547200, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, fixed: 'fix' commit '4169881b9e07' now in 'mainline'
@@ -844,7 +844,7 @@ INITIAL_REPORT: 1548806400, test_0_17_1: Lorem ipsum dolor sit amet, Regzbot tes
 SOLVED: None, 1548892800, None, None, None [duplicate of 10]
 ACTIVITY: test_0_17_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_1@example.com/, 1548806400, PatchKind(None)
 ACTIVITY: test_0_17_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_3@example.com/, 1548979200, PatchKind(None)
-HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_17_0@example.com/ [implicit via duplicate]
 LATEST: test_0_17_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_3@example.com/, 1548979200, PatchKind(None)
 
@@ -944,7 +944,7 @@ ACTIVITY: test_0_15_2: Lorem ipsum dolor sit amet, Regzbot testingmail, https://
 ACTIVITY: test_0_15_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, 1548460800, PatchKind(None)
 ACTIVITY: test_0_15_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_7@example.com/, 1548547200, PatchKind(None)
 ACTIVITY: 4169881b9e07, the fix specified through '#regzbot fix:' earlier landed in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, 1548547200, PatchKind(None)
-HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_3@example.com/ [implicit via duplicate]
 HISTORY: test_0_15_6: Lorem ipsum dolor sit amet, 1548460800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_0@example.com
 HISTORY: This is a mainline_master commit for testing regzbot, the content doesn't matter., 1548547200, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, fixed: 'fix' commit '4169881b9e07' now in 'mainline'
@@ -963,7 +963,7 @@ INITIAL_REPORT: 1548806400, test_0_17_1: Lorem ipsum dolor sit amet, Regzbot tes
 SOLVED: None, 1548892800, None, None, None [duplicate of 10]
 ACTIVITY: test_0_17_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_1@example.com/, 1548806400, PatchKind(None)
 ACTIVITY: test_0_17_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_3@example.com/, 1548979200, PatchKind(None)
-HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_17_0@example.com/ [implicit via duplicate]
 LATEST: test_0_17_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_3@example.com/, 1548979200, PatchKind(None)
 REGRESSION: test_0_18: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
@@ -1066,7 +1066,7 @@ ACTIVITY: test_0_15_2: Lorem ipsum dolor sit amet, Regzbot testingmail, https://
 ACTIVITY: test_0_15_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, 1548460800, PatchKind(None)
 ACTIVITY: test_0_15_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_7@example.com/, 1548547200, PatchKind(None)
 ACTIVITY: 4169881b9e07, the fix specified through '#regzbot fix:' earlier landed in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, 1548547200, PatchKind(None)
-HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_3@example.com/ [implicit via duplicate]
 HISTORY: test_0_15_6: Lorem ipsum dolor sit amet, 1548460800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_0@example.com
 HISTORY: This is a mainline_master commit for testing regzbot, the content doesn't matter., 1548547200, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, fixed: 'fix' commit '4169881b9e07' now in 'mainline'
@@ -1085,7 +1085,7 @@ INITIAL_REPORT: 1548806400, test_0_17_1: Lorem ipsum dolor sit amet, Regzbot tes
 SOLVED: None, 1548892800, None, None, None [duplicate of 10]
 ACTIVITY: test_0_17_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_1@example.com/, 1548806400, PatchKind(None)
 ACTIVITY: test_0_17_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_3@example.com/, 1548979200, PatchKind(None)
-HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_17_0@example.com/ [implicit via duplicate]
 LATEST: test_0_17_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_3@example.com/, 1548979200, PatchKind(None)
 REGRESSION: test_0_18: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
@@ -1194,7 +1194,7 @@ ACTIVITY: test_0_15_2: Lorem ipsum dolor sit amet, Regzbot testingmail, https://
 ACTIVITY: test_0_15_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, 1548460800, PatchKind(None)
 ACTIVITY: test_0_15_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_7@example.com/, 1548547200, PatchKind(None)
 ACTIVITY: 4169881b9e07, the fix specified through '#regzbot fix:' earlier landed in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, 1548547200, PatchKind(None)
-HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_3@example.com/ [implicit via duplicate]
 HISTORY: test_0_15_6: Lorem ipsum dolor sit amet, 1548460800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_0@example.com
 HISTORY: This is a mainline_master commit for testing regzbot, the content doesn't matter., 1548547200, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, fixed: 'fix' commit '4169881b9e07' now in 'mainline'
@@ -1213,7 +1213,7 @@ INITIAL_REPORT: 1548806400, test_0_17_1: Lorem ipsum dolor sit amet, Regzbot tes
 SOLVED: None, 1548892800, None, None, None [duplicate of 10]
 ACTIVITY: test_0_17_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_1@example.com/, 1548806400, PatchKind(None)
 ACTIVITY: test_0_17_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_3@example.com/, 1548979200, PatchKind(None)
-HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_17_0@example.com/ [implicit via duplicate]
 LATEST: test_0_17_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_3@example.com/, 1548979200, PatchKind(None)
 REGRESSION: test_0_18: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
@@ -1229,7 +1229,7 @@ LATEST: test_0_19_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lo
 REGRESSION: test_0_20_0: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1549324800, test_0_20_0: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/
 SOLVED: None, 1549324800, None, None, None [duplicate of 12]
-HISTORY: test_0_20_0: Lorem ipsum dolor sit amet, 1549324800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_20_0: Lorem ipsum dolor sit amet, 1549324800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_20_0: Lorem ipsum dolor sit amet, 1549324800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/, duplicate: https://bugzilla.example.com/show_bug.cgi?id=215744 [implicit via duplicate]
 HISTORY: test_0_20_0: Lorem ipsum dolor sit amet, 1549324800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/, duplicate: https://bugzilla.example.com/show_bug.cgi?id=215744
 
@@ -1329,7 +1329,7 @@ ACTIVITY: test_0_15_2: Lorem ipsum dolor sit amet, Regzbot testingmail, https://
 ACTIVITY: test_0_15_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, 1548460800, PatchKind(None)
 ACTIVITY: test_0_15_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_7@example.com/, 1548547200, PatchKind(None)
 ACTIVITY: 4169881b9e07, the fix specified through '#regzbot fix:' earlier landed in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, 1548547200, PatchKind(None)
-HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_3@example.com/ [implicit via duplicate]
 HISTORY: test_0_15_6: Lorem ipsum dolor sit amet, 1548460800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_0@example.com
 HISTORY: This is a mainline_master commit for testing regzbot, the content doesn't matter., 1548547200, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, fixed: 'fix' commit '4169881b9e07' now in 'mainline'
@@ -1348,7 +1348,7 @@ INITIAL_REPORT: 1548806400, test_0_17_1: Lorem ipsum dolor sit amet, Regzbot tes
 SOLVED: None, 1548892800, None, None, None [duplicate of 10]
 ACTIVITY: test_0_17_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_1@example.com/, 1548806400, PatchKind(None)
 ACTIVITY: test_0_17_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_3@example.com/, 1548979200, PatchKind(None)
-HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_17_0@example.com/ [implicit via duplicate]
 LATEST: test_0_17_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_3@example.com/, 1548979200, PatchKind(None)
 REGRESSION: test_0_18: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
@@ -1364,7 +1364,7 @@ LATEST: test_0_19_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lo
 REGRESSION: test_0_20_0: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1549324800, test_0_20_0: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/
 SOLVED: None, 1549324800, None, None, None [duplicate of 12]
-HISTORY: test_0_20_0: Lorem ipsum dolor sit amet, 1549324800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_20_0: Lorem ipsum dolor sit amet, 1549324800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_20_0: Lorem ipsum dolor sit amet, 1549324800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/, duplicate: https://bugzilla.example.com/show_bug.cgi?id=215744 [implicit via duplicate]
 HISTORY: test_0_20_0: Lorem ipsum dolor sit amet, 1549324800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/, duplicate: https://bugzilla.example.com/show_bug.cgi?id=215744
 REGRESSION: test_0_21: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
@@ -1471,7 +1471,7 @@ ACTIVITY: test_0_15_2: Lorem ipsum dolor sit amet, Regzbot testingmail, https://
 ACTIVITY: test_0_15_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, 1548460800, PatchKind(None)
 ACTIVITY: test_0_15_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_7@example.com/, 1548547200, PatchKind(None)
 ACTIVITY: 4169881b9e07, the fix specified through '#regzbot fix:' earlier landed in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, 1548547200, PatchKind(None)
-HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_3@example.com/ [implicit via duplicate]
 HISTORY: test_0_15_6: Lorem ipsum dolor sit amet, 1548460800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_0@example.com
 HISTORY: This is a mainline_master commit for testing regzbot, the content doesn't matter., 1548547200, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, fixed: 'fix' commit '4169881b9e07' now in 'mainline'
@@ -1490,7 +1490,7 @@ INITIAL_REPORT: 1548806400, test_0_17_1: Lorem ipsum dolor sit amet, Regzbot tes
 SOLVED: None, 1548892800, None, None, None [duplicate of 10]
 ACTIVITY: test_0_17_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_1@example.com/, 1548806400, PatchKind(None)
 ACTIVITY: test_0_17_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_3@example.com/, 1548979200, PatchKind(None)
-HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_17_0@example.com/ [implicit via duplicate]
 LATEST: test_0_17_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_3@example.com/, 1548979200, PatchKind(None)
 REGRESSION: test_0_18: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
@@ -1506,7 +1506,7 @@ LATEST: test_0_19_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lo
 REGRESSION: test_0_20_0: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1549324800, test_0_20_0: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/
 SOLVED: None, 1549324800, None, None, None [duplicate of 12]
-HISTORY: test_0_20_0: Lorem ipsum dolor sit amet, 1549324800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_20_0: Lorem ipsum dolor sit amet, 1549324800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_20_0: Lorem ipsum dolor sit amet, 1549324800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/, duplicate: https://bugzilla.example.com/show_bug.cgi?id=215744 [implicit via duplicate]
 HISTORY: test_0_20_0: Lorem ipsum dolor sit amet, 1549324800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/, duplicate: https://bugzilla.example.com/show_bug.cgi?id=215744
 REGRESSION: test_0_21: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
@@ -1619,7 +1619,7 @@ ACTIVITY: test_0_15_2: Lorem ipsum dolor sit amet, Regzbot testingmail, https://
 ACTIVITY: test_0_15_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, 1548460800, PatchKind(None)
 ACTIVITY: test_0_15_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_7@example.com/, 1548547200, PatchKind(None)
 ACTIVITY: 4169881b9e07, the fix specified through '#regzbot fix:' earlier landed in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, 1548547200, PatchKind(None)
-HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_15_5: Lorem ipsum dolor sit amet, 1548374400, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_5@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_3@example.com/ [implicit via duplicate]
 HISTORY: test_0_15_6: Lorem ipsum dolor sit amet, 1548460800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_15_6@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_15_0@example.com
 HISTORY: This is a mainline_master commit for testing regzbot, the content doesn't matter., 1548547200, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=4169881b9e0781b2286dc94e4cb731982c5371e7, fixed: 'fix' commit '4169881b9e07' now in 'mainline'
@@ -1638,7 +1638,7 @@ INITIAL_REPORT: 1548806400, test_0_17_1: Lorem ipsum dolor sit amet, Regzbot tes
 SOLVED: None, 1548892800, None, None, None [duplicate of 10]
 ACTIVITY: test_0_17_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_1@example.com/, 1548806400, PatchKind(None)
 ACTIVITY: test_0_17_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_3@example.com/, 1548979200, PatchKind(None)
-HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_17_2: Lorem ipsum dolor sit amet, 1548892800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_17_2@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_0_17_0@example.com/ [implicit via duplicate]
 LATEST: test_0_17_3: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/lkml/regzbot-testing-test_0_17_3@example.com/, 1548979200, PatchKind(None)
 REGRESSION: test_0_18: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
@@ -1654,7 +1654,7 @@ LATEST: test_0_19_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lo
 REGRESSION: test_0_20_0: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1549324800, test_0_20_0: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/
 SOLVED: None, 1549324800, None, None, None [duplicate of 12]
-HISTORY: test_0_20_0: Lorem ipsum dolor sit amet, 1549324800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_0_20_0: Lorem ipsum dolor sit amet, 1549324800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_0_20_0: Lorem ipsum dolor sit amet, 1549324800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/, duplicate: https://bugzilla.example.com/show_bug.cgi?id=215744 [implicit via duplicate]
 HISTORY: test_0_20_0: Lorem ipsum dolor sit amet, 1549324800, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_20_0@example.com/, duplicate: https://bugzilla.example.com/show_bug.cgi?id=215744
 REGRESSION: test_0_21: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
@@ -1966,12 +1966,12 @@ HISTORY: Testcommit test_1_9, 1546300815, Regzbot Testing, https://git.kernel.or
 HISTORY: test_1_9_0: Lorem ipsum dolor sit amet, 1546819200, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_0@example.com/, introduced: v1.8..v1.9-rc1
 HISTORY: test_1_9_1: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, duplicate: https://somewhere.over.the.rainbow.example.org/regzbot-testing@example.com
 LATEST: test_1_9_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, 1546905600, PatchKind(None)
-REGRESSION: test_1_9_1: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: culprit indentified
+REGRESSION: test_1_9_0: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: culprit indentified
 INITIAL_REPORT: 1546905600, test_1_9_1: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://somewhere.over.the.rainbow.example.org/regzbot-testing@example.com
 SOLVED: fixed, 1546300815, f08f29a8bef8, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=f08f29a8bef85abfc45b0d0f2067b767e7a14b80, Testcommit test_1_9 [duplicate of 6]
 ACTIVITY: Commit f08f29a8bef8 in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=f08f29a8bef85abfc45b0d0f2067b767e7a14b80, 1546300815, PatchKind(None)
 HISTORY: Testcommit test_1_9, 1546300815, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=f08f29a8bef85abfc45b0d0f2067b767e7a14b80, fix: f08f29a8bef8 [implicit, due to a Link/Closes tag]
-HISTORY: test_1_9_1: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_1_9_1: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_1_9_1: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_1_9_0@example.com/ [implicit via duplicate]
 LATEST: Commit f08f29a8bef8 in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=f08f29a8bef85abfc45b0d0f2067b767e7a14b80, 1546300815, PatchKind(None)
 
@@ -2026,12 +2026,12 @@ HISTORY: Testcommit test_1_9, 1546300815, Regzbot Testing, https://git.kernel.or
 HISTORY: test_1_9_0: Lorem ipsum dolor sit amet, 1546819200, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_0@example.com/, introduced: v1.8..v1.9-rc1
 HISTORY: test_1_9_1: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, duplicate: https://somewhere.over.the.rainbow.example.org/regzbot-testing@example.com
 LATEST: test_1_9_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, 1546905600, PatchKind(None)
-REGRESSION: test_1_9_1: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: culprit indentified
+REGRESSION: test_1_9_0: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: culprit indentified
 INITIAL_REPORT: 1546905600, test_1_9_1: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://somewhere.over.the.rainbow.example.org/regzbot-testing@example.com
 SOLVED: fixed, 1546300815, f08f29a8bef8, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=f08f29a8bef85abfc45b0d0f2067b767e7a14b80, Testcommit test_1_9 [duplicate of 6]
 ACTIVITY: Commit f08f29a8bef8 in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=f08f29a8bef85abfc45b0d0f2067b767e7a14b80, 1546300815, PatchKind(None)
 HISTORY: Testcommit test_1_9, 1546300815, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=f08f29a8bef85abfc45b0d0f2067b767e7a14b80, fix: f08f29a8bef8 [implicit, due to a Link/Closes tag]
-HISTORY: test_1_9_1: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_1_9_1: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_1_9_1: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_1_9_0@example.com/ [implicit via duplicate]
 LATEST: Commit f08f29a8bef8 in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=f08f29a8bef85abfc45b0d0f2067b767e7a14b80, 1546300815, PatchKind(None)
 REGRESSION: test_1_10_0: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: culprit indentified
@@ -2098,12 +2098,12 @@ HISTORY: Testcommit test_1_9, 1546300815, Regzbot Testing, https://git.kernel.or
 HISTORY: test_1_9_0: Lorem ipsum dolor sit amet, 1546819200, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_0@example.com/, introduced: v1.8..v1.9-rc1
 HISTORY: test_1_9_1: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, duplicate: https://somewhere.over.the.rainbow.example.org/regzbot-testing@example.com
 LATEST: test_1_9_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, 1546905600, PatchKind(None)
-REGRESSION: test_1_9_1: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: culprit indentified
+REGRESSION: test_1_9_0: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: culprit indentified
 INITIAL_REPORT: 1546905600, test_1_9_1: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://somewhere.over.the.rainbow.example.org/regzbot-testing@example.com
 SOLVED: fixed, 1546300815, f08f29a8bef8, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=f08f29a8bef85abfc45b0d0f2067b767e7a14b80, Testcommit test_1_9 [duplicate of 6]
 ACTIVITY: Commit f08f29a8bef8 in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=f08f29a8bef85abfc45b0d0f2067b767e7a14b80, 1546300815, PatchKind(None)
 HISTORY: Testcommit test_1_9, 1546300815, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=f08f29a8bef85abfc45b0d0f2067b767e7a14b80, fix: f08f29a8bef8 [implicit, due to a Link/Closes tag]
-HISTORY: test_1_9_1: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_1_9_1: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_1_9_1: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_1_9_0@example.com/ [implicit via duplicate]
 LATEST: Commit f08f29a8bef8 in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=f08f29a8bef85abfc45b0d0f2067b767e7a14b80, 1546300815, PatchKind(None)
 REGRESSION: test_1_10_0: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: culprit indentified
@@ -2179,12 +2179,12 @@ HISTORY: Testcommit test_1_9, 1546300815, Regzbot Testing, https://git.kernel.or
 HISTORY: test_1_9_0: Lorem ipsum dolor sit amet, 1546819200, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_0@example.com/, introduced: v1.8..v1.9-rc1
 HISTORY: test_1_9_1: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, duplicate: https://somewhere.over.the.rainbow.example.org/regzbot-testing@example.com
 LATEST: test_1_9_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, 1546905600, PatchKind(None)
-REGRESSION: test_1_9_1: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: culprit indentified
+REGRESSION: test_1_9_0: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: culprit indentified
 INITIAL_REPORT: 1546905600, test_1_9_1: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://somewhere.over.the.rainbow.example.org/regzbot-testing@example.com
 SOLVED: fixed, 1546300815, f08f29a8bef8, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=f08f29a8bef85abfc45b0d0f2067b767e7a14b80, Testcommit test_1_9 [duplicate of 6]
 ACTIVITY: Commit f08f29a8bef8 in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=f08f29a8bef85abfc45b0d0f2067b767e7a14b80, 1546300815, PatchKind(None)
 HISTORY: Testcommit test_1_9, 1546300815, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=f08f29a8bef85abfc45b0d0f2067b767e7a14b80, fix: f08f29a8bef8 [implicit, due to a Link/Closes tag]
-HISTORY: test_1_9_1: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, introduced: v1.8..v1.9-rc1 [implicit implicit via duplicate]
+HISTORY: test_1_9_1: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, introduced: v1.8..v1.9-rc1 [implicit via duplicate]
 HISTORY: test_1_9_1: Lorem ipsum dolor sit amet, 1546905600, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_1_9_1@example.com/, duplicate: https://lore.kernel.org/regressions/regzbot-testing-test_1_9_0@example.com/ [implicit via duplicate]
 LATEST: Commit f08f29a8bef8 in mainline, Regzbot Testing, https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=f08f29a8bef85abfc45b0d0f2067b767e7a14b80, 1546300815, PatchKind(None)
 REGRESSION: test_1_10_0: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: culprit indentified
