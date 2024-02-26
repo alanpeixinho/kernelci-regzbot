@@ -160,10 +160,15 @@ class LoActivity():
     @cached_property
     def message(self):
         msg_body = self._msg.get_body(preferencelist=('plain'))
-        # handle msg without a body, like https://lore.kernel.org/all/1fea1273-f5ba-52a6-85db-2b828982f8b7@amd.com/
+        # handle messages without a body, like https://lore.kernel.org/all/1fea1273-f5ba-52a6-85db-2b828982f8b7@amd.com/
         if not msg_body:
             return ''
-        return msg_body.get_content()
+        # handle messages with unkown encoding, like https://lore.kernel.org/lkml/20240226112816.2616719-1-quic_kriskura@quicinc.com/
+        try:
+            content = msg_body.get_content()
+        except LookupError as err:
+            return ''
+        return content
 
     @cached_property
     def recipients(self):
