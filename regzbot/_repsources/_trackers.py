@@ -51,6 +51,7 @@ class _possible_search_result():
         for hit in self.get_matching_activities():
             yield hit
 
+
 class _reptrd(regzbot.ReportThread):
     def update(self, since, until, *, actimon=None, triggering_repact=None):
         try:
@@ -73,7 +74,7 @@ class _repsrc(regzbot.ReportSource):
         if self.lastchked:
             check_last = regzbot.timendate_gmtime_to_dt(self.lastchked)
         else:
-            check_last = check_started - datetime.timedelta(days = 90)
+            check_last = check_started - datetime.timedelta(days=90)
 
         threads_processed = []
 
@@ -92,6 +93,7 @@ class _repsrc(regzbot.ReportSource):
             threads_processed.append(searchresult.issue_id)
 
         self.set_lastchked(check_started)
+
 
 def _describe(obj, variable_names):
     content = []

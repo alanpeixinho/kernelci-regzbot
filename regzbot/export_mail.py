@@ -28,7 +28,7 @@ class RegLinkMailReport(regzbot.RegLink):
             if self.repsrcid \
                     and self.entry \
                     and regzbot.RegActivityMonitor.ismonitored(
-                            self.entry, self.regid, self.repsrcid):
+                        self.entry, self.regid, self.repsrcid):
                 monitored = '; thread monitored.'
             authored = "\n  %s days ago, by %s%s" % (regzbot.days_delta(self.gmtime), self.author, monitored)
         else:
@@ -38,12 +38,13 @@ class RegLinkMailReport(regzbot.RegLink):
             return('* %s%s' % (self.subject, authored))
         return('* %s\n  %s%s' % (self.subject, self.link, authored))
 
+
 class RegressionMailReport(regzbot.RegressionFull):
     Reglink = RegLinkMailReport
 
     def __init__(self, *args):
         super().__init__(*args)
-       
+
     def compile(self, lastreport_gmtime):
         if lastreport_gmtime < self.gmtime_filed:
             subject = "[ *NEW* ] %s" % self.subject
@@ -53,10 +54,12 @@ class RegressionMailReport(regzbot.RegressionFull):
         report = list()
         report.append(subject)
         report.append('-'*len(subject))
-        report.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s/%s/' % (self._actim_report.repsrc.generic_name, self._actim_report.repsrc.entryid))
+        report.append('https://linux-regtracking.leemhuis.info/regzbot/regression/%s/%s/' %
+                      (self._actim_report.repsrc.generic_name, self._actim_report.repsrc.entryid))
         report.append(regzbot.ReportSource.get_by_id(self._actim_report.repsrcid).url(self._actim_report.entry))
         for regression in self._dupes:
-            report.append(regzbot.ReportSource.get_by_id(regression._actim_report.repsrcid).url(regression._actim_report.entry))
+            report.append(regzbot.ReportSource.get_by_id(
+                regression._actim_report.repsrcid).url(regression._actim_report.entry))
 
         statusline = []
         actireports = list()
@@ -106,7 +109,7 @@ class RegressionMailReport(regzbot.RegressionFull):
     def add_introduced(self, report):
         presentable = ''
         if self._introduced_presentable:
-             presentable = ' (%s)' % self._introduced_presentable
+            presentable = ' (%s)' % self._introduced_presentable
         report.append('Introduced in %s%s' % (self._introduced_short, presentable))
         return report
 
@@ -134,7 +137,7 @@ class RegressionMailReport(regzbot.RegressionFull):
             if patchcount == 1:
                 report.append("\nOne patch associated with this regression:")
             else:
-                report.append("\n%s patch postings are associated with this regression, the latest is this:" % patchcount )
+                report.append("\n%s patch postings are associated with this regression, the latest is this:" % patchcount)
 
             # avoid mentioning a patch twice
             for link in self._links:
@@ -172,7 +175,6 @@ class RegressionMailReport(regzbot.RegressionFull):
             wrapped.extend(textwrap.wrap("Recent activities from: %s" % involved, width=72, subsequent_indent='  '))
             report.append('\n'.join(wrapped))
         return report
-
 
     def add_links(self, report):
         if not self._links:
@@ -277,7 +279,6 @@ class RegExportMailReport():
             # the regzbot.RegzbotState.set stuff as well
             return report
 
-
         for category in categories.keys():
             if not categories[category]['entries']:
                 # nothing to do
@@ -305,22 +306,21 @@ class RegExportMailReport():
 
         return ('\n'.join(report))
 
-
     @classmethod
     def categorize(cls, regressionlist, lastreport_gmtime):
         # some lines are commented out below to keep code similar to the one used in export_web,
         # as it shows a few regressions that don't make it into the reports
 
         if regzbot.LATEST_VERSIONS['indevelopment'] == False:
-           indevelopment_descriptive = '%s-post' % regzbot.LATEST_VERSIONS['latest']
+            indevelopment_descriptive = '%s-post' % regzbot.LATEST_VERSIONS['latest']
         else:
-           indevelopment_descriptive = '%s-rc' % regzbot.LATEST_VERSIONS['indevelopment']
+            indevelopment_descriptive = '%s-rc' % regzbot.LATEST_VERSIONS['indevelopment']
 
         categories = {
             'next': {
                 'identified': {
-                   'desc': "culprit identified",
-                   'entries': list(),
+                    'desc': "culprit identified",
+                    'entries': list(),
                 },
                 'default': {
                     'desc': 'culprit unknown',
@@ -345,8 +345,8 @@ class RegExportMailReport():
                     'entries': list(),
                 },
                 'identified_old': {
-                   'desc': "older cycles (..%s), culprit identified, with activity in the past three months" % regzbot.LATEST_VERSIONS['previous'],
-                   'entries': list(),
+                    'desc': "older cycles (..%s), culprit identified, with activity in the past three months" % regzbot.LATEST_VERSIONS['previous'],
+                    'entries': list(),
                 },
                 'unidentified_latest': {
                     'desc': "previous cycle (%s..%s), unknown culprit, with activity in the past three weeks" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
@@ -367,8 +367,8 @@ class RegExportMailReport():
             },
             'stable': {
                 'identified': {
-                   'desc': "culprit identified",
-                   'entries': list(),
+                    'desc': "culprit identified",
+                    'entries': list(),
                 },
                 'default': {
                     'desc': 'culprit unknown',
@@ -396,7 +396,8 @@ class RegExportMailReport():
         }
 
         for regression in regressionlist:
-            filed_days = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)).days
+            filed_days = (datetime.datetime.now(datetime.timezone.utc) -
+                          datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)).days
             last_activity_days = regzbot.days_delta(regression.gmtime_activity)
 
             if regression.backburner:
@@ -421,18 +422,18 @@ class RegExportMailReport():
             elif regression.treename == 'mainline':
                 if regression.versionline == 'indevelopment':
                     if regression.identified:
-                           categories[regression.treename]['identified_indevelopment']['entries'].append(regression)
+                        categories[regression.treename]['identified_indevelopment']['entries'].append(regression)
                     else:
-                           categories[regression.treename]['unidentified_indevelopment']['entries'].append(regression)
+                        categories[regression.treename]['unidentified_indevelopment']['entries'].append(regression)
                 #
                 # for now only create reports for regression introduced in the current cycle
                 elif True:
                     continue
                 #
                 elif regression.versionline == 'latest' and regression.identified:
-                     categories[regression.treename]['identified_latest']['entries'].append(regression)
+                    categories[regression.treename]['identified_latest']['entries'].append(regression)
                 elif regression.versionline == 'latest' and last_activity_days < 21:
-                     categories[regression.treename]['unidentified_latest']['entries'].append(regression)
+                    categories[regression.treename]['unidentified_latest']['entries'].append(regression)
                 elif regression.identified:
                     categories[regression.treename]['identified_old']['entries'].append(regression)
                 elif last_activity_days < 21:
@@ -443,7 +444,6 @@ class RegExportMailReport():
                 categories['unassociated']['default']['entries'].append(regression)
 
         return categories
-
 
     @classmethod
     def compile(cls):
@@ -458,24 +458,23 @@ class RegExportMailReport():
 
         logger.debug('[reportmail] lastreport was %s' % lastreport_gmtime)
 
-
         # gather everything we need
         regressionslist = list()
 
         for regression in RegressionMailReport.get_all(only_unsolved=True):
             # ignore some
             if regression._actievents:
-                last_activity=regression._actievents[-1].gmtime
+                last_activity = regression._actievents[-1].gmtime
             else:
-                last_activity=regression._histevents[-1].gmtime
+                last_activity = regression._histevents[-1].gmtime
             last_activity_days = regzbot.days_delta(last_activity)
             if regression._actievents:
-                last_activity=regression._actievents[-1].gmtime
+                last_activity = regression._actievents[-1].gmtime
             else:
-                last_activity=regression._histevents[-1].gmtime
+                last_activity = regression._histevents[-1].gmtime
             regressionslist.append(cls(regression._actim_report.entry, regression.gmtime, regression.gmtime_filed,
-                                                    last_activity, regression.treename, regression.versionline,
-                                                    regression.backburner, regression.identified, regression.mailreport(lastreport_gmtime)))
+                                       last_activity, regression.treename, regression.versionline,
+                                       regression.backburner, regression.identified, regression.mailreport(lastreport_gmtime)))
 
         regressionslist.sort(key=lambda x: x.gmtime_activity, reverse=True)
         categories = cls.categorize(regressionslist, lastreport_gmtime)
@@ -505,7 +504,7 @@ class RegExportMailReport():
             print("Review the reports in %s and sent them using \"git send-email --from='Regzbot (on behalf of Thorsten Leemhuis) <regressions@leemhuis.info>' --suppress-cc=self --to '' %s/*\"" % (tmpdirname, tmpdirname))
             answer = input('Enter c to confirm you sent the report, anything else to abort: ')
             if answer.lower() != 'c':
-               return
+                return
             regzbot.RegzbotState.set('lastreport_mainline_gmtime', report_gmtime)
             regzbot.RegzbotState.set('lastreport_mainline_msgid', lastreport_msgid)
             lastreport_msgid = regzbot.RegzbotState.get('lastreport_mainline_msgid')

@@ -65,13 +65,12 @@ class RegHistoryWeb(regzbot.RegHistory):
                     yattagdoc.text("%s" % self.subject)
 
         with yattagdoc.tag('div', style="padding-left: 2em;"):
-             yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % self.gmtime)
+            yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % self.gmtime)
 
-             if self.author:
-                 yattagdoc.text(", by %s" % self.author)
+            if self.author:
+                yattagdoc.text(", by %s" % self.author)
 
         return yattagdoc
-
 
     def html_event(self, yattagdoc):
         with yattagdoc.tag('div', style="padding-left: 3em;"):
@@ -96,7 +95,6 @@ class RegHistoryWeb(regzbot.RegHistory):
             return yattagdoc
 
 
-
 class RegActivityEventWeb(regzbot.RegActivityEvent):
     def __init__(self, *args):
         super().__init__(*args)
@@ -115,11 +113,11 @@ class RegActivityEventWeb(regzbot.RegActivityEvent):
             yattagdoc.text(", by %s" % self.author)
             if int(self.patchkind) > 0:
                 if (PatchKind.DIFF | PatchKind.SUBJECT | PatchKind.SIGNEDOFF) in self.patchkind:
-                     yattagdoc.text('; contains a signed-off patch')
+                    yattagdoc.text('; contains a signed-off patch')
                 elif (PatchKind.DIFF | PatchKind.SUBJECT) in self.patchkind:
-                     yattagdoc.text('; contains a proper patch')
+                    yattagdoc.text('; contains a proper patch')
                 else:
-                     yattagdoc.text('; contains a simple patch')
+                    yattagdoc.text('; contains a simple patch')
             if self._for_regression and not regression.regid == self._for_regression.regid:
                 yattagdoc.text(" [")
                 repsrc = self._for_regression._actim_report.repsrc
@@ -140,13 +138,14 @@ class RegActivityEventWeb(regzbot.RegActivityEvent):
             yattagdoc.text(", by %s" % self.author)
             if int(self.patchkind) > 0:
                 if (PatchKind.DIFF | PatchKind.SUBJECT | PatchKind.SIGNEDOFF) in self.patchkind:
-                     yattagdoc.text('; contains a signed-off patch')
+                    yattagdoc.text('; contains a signed-off patch')
                 elif (PatchKind.DIFF | PatchKind.SUBJECT) in self.patchkind:
-                     yattagdoc.text('; contains a proper patch')
+                    yattagdoc.text('; contains a proper patch')
                 else:
-                     yattagdoc.text('; contains a simple patch')
+                    yattagdoc.text('; contains a simple patch')
 
             return yattagdoc
+
 
 class RegressionWeb(regzbot.RegressionFull):
     Reglink = RegLinkWeb
@@ -161,7 +160,7 @@ class RegressionWeb(regzbot.RegressionFull):
         html.text("Regression ")
         report_repsrc = self._actim_report.repsrc
         with html.tag('a', href='../regression/%s/%s/' % (report_repsrc.generic_name, report_repsrc.entryid)):
-             html.text(self.subject)
+            html.text(self.subject)
         html.text(":")
         return html
 
@@ -175,19 +174,19 @@ class RegressionWeb(regzbot.RegressionFull):
             if not fresh(actievent.gmtime):
                 break
             yield {
-                 'gmtime': actievent.gmtime,
-                 'htmlevent_intro': event_intro,
-                 'htmlevent_content': actievent.html_event(yattag.Doc())
-                 }
+                'gmtime': actievent.gmtime,
+                'htmlevent_intro': event_intro,
+                'htmlevent_content': actievent.html_event(yattag.Doc())
+            }
 
         for histevent in reversed(self._histevents):
             if not fresh(histevent.gmtime):
                 break
             yield {
-                 'gmtime': histevent.gmtime,
-                 'htmlevent_intro': event_intro,
-                 'htmlevent_content': histevent.html_event(yattag.Doc())
-                 }
+                'gmtime': histevent.gmtime,
+                'htmlevent_intro': event_intro,
+                'htmlevent_content': histevent.html_event(yattag.Doc())
+            }
 
     def html(self):
         def cell1(yattagdoc):
@@ -270,19 +269,19 @@ class RegressionWeb(regzbot.RegressionFull):
                     yattagdoc.text(' by ')
                     len_actireports = len(actireports_sorted)
                     for actireport in actireports_sorted:
-                            with yattagdoc.tag('a', href=regzbot.ReportSource.get_by_id(actireport.repsrcid).url(actireport.entry)):
-                                authorname = actireport.authorname
-                                if not authorname:
-                                    authorname='Unknown'
-                                yattagdoc.text(authorname)
-                            if len_actireports == 1 or actireport == actireports_sorted[-1]:
-                                pass
-                            elif len_actireports == 2:
-                                yattagdoc.text(' and ')
-                            elif actireport == actireports_sorted[-2]:
-                                yattagdoc.text(', and ')
-                            else:
-                                yattagdoc.text(', ')
+                        with yattagdoc.tag('a', href=regzbot.ReportSource.get_by_id(actireport.repsrcid).url(actireport.entry)):
+                            authorname = actireport.authorname
+                            if not authorname:
+                                authorname = 'Unknown'
+                            yattagdoc.text(authorname)
+                        if len_actireports == 1 or actireport == actireports_sorted[-1]:
+                            pass
+                        elif len_actireports == 2:
+                            yattagdoc.text(' and ')
+                        elif actireport == actireports_sorted[-2]:
+                            yattagdoc.text(', and ')
+                        else:
+                            yattagdoc.text(', ')
 
                     with yattagdoc.tag('div'):
                         yattagdoc.text('Earliest & latest ')
@@ -296,21 +295,25 @@ class RegressionWeb(regzbot.RegressionFull):
 
                         report_repsrc = actireport.repsrc
                         with yattagdoc.tag('a', href='../regression/%s/%s/' % (report_repsrc.generic_name, report_repsrc.entryid)):
-                             yattagdoc.text('activity')
+                            yattagdoc.text('activity')
                         yattagdoc.text(': ')
                         if earliest_event is latest_event:
-                            yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % earliest_event.gmtime)
+                            yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' %
+                                           earliest_event.gmtime)
                         else:
                             with yattagdoc.tag('a', href=earliest_event.url()):
-                                yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % earliest_event.gmtime)
+                                yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' %
+                                               earliest_event.gmtime)
                             yattagdoc.text(' & ')
                             with yattagdoc.tag('a', href=latest_event.url()):
-                                yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % latest_event.gmtime)
+                                yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' %
+                                               latest_event.gmtime)
 
                         if self.poked:
                             yattagdoc.text('; poked ')
                             with yattagdoc.tag('a', href=self.poked.url()):
-                                yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % self.poked.gmtime)
+                                yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' %
+                                               self.poked.gmtime)
 
                         yattagdoc.text('.')
 
@@ -347,7 +350,7 @@ class RegressionWeb(regzbot.RegressionFull):
                                 else:
                                     yattagdoc.text(', ')
 
-                                regression_duplicateof=self.get_by_regid(self.solved_duplicateof)
+                                regression_duplicateof = self.get_by_regid(self.solved_duplicateof)
                                 __dup_report_repsrc = regression_duplicateof._actim_report.repsrc
                                 with yattagdoc.tag('a', href='https://linux-regtracking.leemhuis.info/regzbot/regression/%s/%s/' % (__dup_report_repsrc.generic_name, __dup_report_repsrc.entryid)):
                                     with yattagdoc.tag('mark', style='background-color: #D0D0D0;'):
@@ -376,12 +379,13 @@ class RegressionWeb(regzbot.RegressionFull):
 
                 if self.backburner:
                     with yattagdoc.tag('div'):
-                        yattagdoc.text('On back burner: ' )
+                        yattagdoc.text('On back burner: ')
                         with yattagdoc.tag('i'):
                             with yattagdoc.tag('a', href=self.backburner.report_url()):
                                 yattagdoc.text("%s" % self.backburner.subject)
                         with yattagdoc.tag('div', style="padding-left: 1em;"):
-                            yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % self.backburner.gmtime)
+                            yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' %
+                                           self.backburner.gmtime)
                             yattagdoc.text(', by %s' % self.backburner.author)
 
                 for counter, link in enumerate(links_sorted, start=1):
@@ -401,7 +405,7 @@ class RegressionWeb(regzbot.RegressionFull):
                                 if self.solved_reason == 'fixed' or self.solved_reason == 'to_be_fixed':
                                     if self.solved_entry:
                                         yattagdoc.text('%s' %
-                                                   self.solved_entry[:12])
+                                                       self.solved_entry[:12])
                                     if self.solved_subject and self.solved_entry:
                                         yattagdoc.text(' ("%s")' %
                                                        self.solved_subject)
@@ -417,7 +421,8 @@ class RegressionWeb(regzbot.RegressionFull):
                                 solved_explanation(yattagdoc)
 
                         with yattagdoc.tag('div', style="padding-left: 3em;"):
-                            yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % self.solved_gmtime)
+                            yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' %
+                                           self.solved_gmtime)
                             if self.solved_entry and self._solved_entry_presentable and not self._solved_entry_presentable == self.solved_entry[:12]:
                                 yattagdoc.text(' in %s' % self._solved_entry_presentable)
                 else:
@@ -432,7 +437,8 @@ class RegressionWeb(regzbot.RegressionFull):
                             with yattagdoc.tag('a', href=actievent.url()):
                                 yattagdoc.text("%s" % actievent.subject)
                             with yattagdoc.tag('div', style="padding-left: 3em;"):
-                                yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' % actievent.gmtime)
+                                yattagdoc.asis('<script type="text/javascript">timeAgo(%s000);</script>' %
+                                               actievent.gmtime)
                                 yattagdoc.text(", by %s; " % actievent.author)
                                 if (PatchKind.DIFF | PatchKind.SUBJECT | PatchKind.SIGNEDOFF) in actievent.patchkind:
                                     yattagdoc.text('signed-off-by present')
@@ -475,45 +481,46 @@ class RegressionWeb(regzbot.RegressionFull):
 
                 with yattagdoc.tag('p'):
                     yattagdoc.text(
-                         "When fixing, add this to the commit message to make regzbot notice patch postings and commits to resolve the issue:")
+                        "When fixing, add this to the commit message to make regzbot notice patch postings and commits to resolve the issue:")
                     with yattagdoc_line.tag('ul', style='padding-left: 1em; margin-top: -1em; font-style: italic; list-style-type: none;'):
-                      with yattagdoc.tag('li'):
-                        # use self._introduced_url here, as that will avoid ranges and commits we could not find
-                        if self._introduced_url:
-                            commitsummary = regzbot.GitTree.commit_summary(self.introduced)
-                            yattagdoc.text('Fixes: %s ("%s")' % (
-                                self.introduced[0:12], commitsummary))
+                        with yattagdoc.tag('li'):
+                            # use self._introduced_url here, as that will avoid ranges and commits we could not find
+                            if self._introduced_url:
+                                commitsummary = regzbot.GitTree.commit_summary(self.introduced)
+                                yattagdoc.text('Fixes: %s ("%s")' % (
+                                    self.introduced[0:12], commitsummary))
 
-                      reports = []
-                      for regression in self, *self._dupes:
-                          if regression.regid in regids_just_forwarded:
-                              continue
-                          actireport = regression._actim_report
-                          reportedlink = regzbot.ReportSource.get_by_id(actireport.repsrcid).url(actireport.entry, redirector=True)
-                          if not actireport.authorname:
-                              # there are a few old database entry where authorname and authormail are missing
-                              # just ignore them
-                              reportedby = ''
-                          elif actireport.authorname == 'Unknown':
-                              reportedby = ''
-                          elif not actireport.authormail:
-                              reportedby = "Reported-by: %s" % (actireport.authorname, )
-                          else:
-                              reportedby = "Reported-by: %s <%s>" % (actireport.authorname, actireport.authormail)
-                          reports.append((reportedby, reportedlink))
+                        reports = []
+                        for regression in self, *self._dupes:
+                            if regression.regid in regids_just_forwarded:
+                                continue
+                            actireport = regression._actim_report
+                            reportedlink = regzbot.ReportSource.get_by_id(
+                                actireport.repsrcid).url(actireport.entry, redirector=True)
+                            if not actireport.authorname:
+                                # there are a few old database entry where authorname and authormail are missing
+                                # just ignore them
+                                reportedby = ''
+                            elif actireport.authorname == 'Unknown':
+                                reportedby = ''
+                            elif not actireport.authormail:
+                                reportedby = "Reported-by: %s" % (actireport.authorname, )
+                            else:
+                                reportedby = "Reported-by: %s <%s>" % (actireport.authorname, actireport.authormail)
+                            reports.append((reportedby, reportedlink))
 
-                      reports.sort(key=lambda x: x[0])
-                      lastreporter = None
-                      for report in reports:
-                           if reportedby:
-                               if not report[0] == lastreporter:
-                                   lastreporter = report[0]
-                                   with yattagdoc.tag('li'):
-                                       yattagdoc.text(report[0])
-                           with yattagdoc.tag('li'):
+                        reports.sort(key=lambda x: x[0])
+                        lastreporter = None
+                        for report in reports:
+                            if reportedby:
+                                if not report[0] == lastreporter:
+                                    lastreporter = report[0]
+                                    with yattagdoc.tag('li'):
+                                        yattagdoc.text(report[0])
+                            with yattagdoc.tag('li'):
                                 yattagdoc.text('Link: ')
                                 with yattagdoc.tag('a', href=report[1]):
-                                     yattagdoc.text(report[1])
+                                    yattagdoc.text(report[1])
 
         yattagdoc_line = yattag.Doc()
         with yattagdoc_line.tag('td', style="width: 200px;"):
@@ -521,7 +528,6 @@ class RegressionWeb(regzbot.RegressionFull):
         with yattagdoc_line.tag('td'):
             cell2(yattagdoc_line)
         return yattagdoc_line
-
 
 
 class UnhandledEventWeb(regzbot.UnhandledEvent):
@@ -568,7 +574,6 @@ class RegExportWeb():
         self.backburner = backburner
         self.identified = identified
         self.htmlsnippet = htmlsnippet
-
 
     @staticmethod
     def outpage_header(yattagdoc, htmlpages, pagename, relpath=''):
@@ -653,7 +658,7 @@ class RegExportWeb():
                 with yattagdoc.tag('a', href='../unhandled/'):
                     if count == 1:
                         yattagdoc.text(
-                        "%s event occurred that regzbot was unable to handle" % count)
+                            "%s event occurred that regzbot was unable to handle" % count)
                     else:
                         yattagdoc.text(
                             "%s events occurred that regzbot was unable to handle" % count)
@@ -688,12 +693,12 @@ class RegExportWeb():
                     yattagdoc.asis(
                         regression.htmlsnippet.getvalue())
                     with yattagdoc.tag('td', style="width: 100px;"):
-                         yattagdoc.text(regression.treename)
+                        yattagdoc.text(regression.treename)
 
             yattagdoc.asis("<script>document.getElementById('regression-details').open = true;</script>")
             cls.outpage_footer(yattagdoc, unhandled_count)
-            cls.outpage_write('regression/%s/%s' % (regression.repsrc.generic_name, regression.repsrc.entryid), yattagdoc)
-
+            cls.outpage_write('regression/%s/%s' %
+                              (regression.repsrc.generic_name, regression.repsrc.entryid), yattagdoc)
 
     @classmethod
     def createpage_compilation(cls, htmlpages, unhandled_count, categories, pagename):
@@ -723,8 +728,6 @@ class RegExportWeb():
             cls.outpage_footer(yattagdoc, unhandled_count)
 
             cls.outpage_write(pagename, yattagdoc)
-
-
 
     @classmethod
     def create_events(cls, directory, unhandled_count, htmlpages, eventslist):
@@ -782,7 +785,6 @@ function timeAgo(provided_date) {
 // timeAgo("2022-10-05T08:00:00Z")
 ''')
 
-
     @classmethod
     def create_unhandled(cls, directory, htmlpages):
         directory = os.path.join(regzbot.WEBPAGEDIR, 'unhandled')
@@ -817,15 +819,15 @@ function timeAgo(provided_date) {
     @classmethod
     def categorize(cls, regressionlist):
         if regzbot.LATEST_VERSIONS['indevelopment'] == False:
-           indevelopment_descriptive = '%s-post' % regzbot.LATEST_VERSIONS['latest']
+            indevelopment_descriptive = '%s-post' % regzbot.LATEST_VERSIONS['latest']
         else:
-           indevelopment_descriptive = '%s-rc' % regzbot.LATEST_VERSIONS['indevelopment']
+            indevelopment_descriptive = '%s-rc' % regzbot.LATEST_VERSIONS['indevelopment']
 
         categories = {
             'next': {
                 'identified': {
-                   'desc': "culprit identified",
-                   'entries': list(),
+                    'desc': "culprit identified",
+                    'entries': list(),
                 },
                 'default': {
                     'desc': 'culprit unknown',
@@ -850,8 +852,8 @@ function timeAgo(provided_date) {
                     'entries': list(),
                 },
                 'identified_old': {
-                   'desc': "older cycles (..%s), culprit identified, with activity in the past three months" % regzbot.LATEST_VERSIONS['previous'],
-                   'entries': list(),
+                    'desc': "older cycles (..%s), culprit identified, with activity in the past three months" % regzbot.LATEST_VERSIONS['previous'],
+                    'entries': list(),
                 },
                 'unidentified_latest': {
                     'desc': "previous cycle (%s..%s), unknown culprit, with activity in the past three weeks" % (regzbot.LATEST_VERSIONS['previous'], regzbot.LATEST_VERSIONS['latest']),
@@ -872,8 +874,8 @@ function timeAgo(provided_date) {
             },
             'stable': {
                 'identified': {
-                   'desc': "culprit identified",
-                   'entries': list(),
+                    'desc': "culprit identified",
+                    'entries': list(),
                 },
                 'default': {
                     'desc': 'culprit unknown',
@@ -905,7 +907,7 @@ function timeAgo(provided_date) {
             elif regression.gmtime_solved:
                 categories['resolved']['default']['entries'].append(regression)
             elif regression.backburner and \
-                    last_activity_days < 180: # things on backburner are allowed to get a little older
+                    last_activity_days < 180:  # things on backburner are allowed to get a little older
                 categories[regression.treename]['backburner']['entries'].append(regression)
             elif last_activity_days > 90:
                 categories['inconclusive']['default']['entries'].append(regression)
@@ -917,13 +919,13 @@ function timeAgo(provided_date) {
             elif regression.treename == 'mainline':
                 if regression.versionline == 'indevelopment':
                     if regression.identified:
-                           categories[regression.treename]['identified_indevelopment']['entries'].append(regression)
+                        categories[regression.treename]['identified_indevelopment']['entries'].append(regression)
                     else:
-                           categories[regression.treename]['unidentified_indevelopment']['entries'].append(regression)
+                        categories[regression.treename]['unidentified_indevelopment']['entries'].append(regression)
                 elif regression.versionline == 'latest' and regression.identified:
-                     categories[regression.treename]['identified_latest']['entries'].append(regression)
+                    categories[regression.treename]['identified_latest']['entries'].append(regression)
                 elif regression.versionline == 'latest' and last_activity_days < 21:
-                     categories[regression.treename]['unidentified_latest']['entries'].append(regression)
+                    categories[regression.treename]['unidentified_latest']['entries'].append(regression)
                 elif regression.identified:
                     categories[regression.treename]['identified_old']['entries'].append(regression)
                 elif last_activity_days < 21:
@@ -954,25 +956,25 @@ function timeAgo(provided_date) {
         else:
             solved_tstamp = None
         solved = {
-                "reason": regression.solved_reason,
-                "commit": regression.solved_entry,
-                "subject": regression.solved_subject,
-                "url": regression.solved_url,
-                "git_readable": regression._solved_entry_presentable,
-                "timestamp": solved_tstamp,
-            }
+            "reason": regression.solved_reason,
+            "commit": regression.solved_entry,
+            "subject": regression.solved_subject,
+            "url": regression.solved_url,
+            "git_readable": regression._solved_entry_presentable,
+            "timestamp": solved_tstamp,
+        }
 
         return {
-                "id": regression.regid,
-                "introduced": regression.introduced,
-                "subject": regression.subject,
-                "tree": regression.treename,
-                "timestamp": datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc).isoformat(),
-                "url_regzbot": "https://linux-regtracking.leemhuis.info/regzbot/regression/%s/%s/" % (regression._actim_report.repsrc.generic_name, regression._actim_report.repsrc.entryid),
-                "identified": regression.identified,
-                "introduced_url": regression._introduced_url,
-                "regzbot_commands": regzbot_commands,
-                "solved": solved,
+            "id": regression.regid,
+            "introduced": regression.introduced,
+            "subject": regression.subject,
+            "tree": regression.treename,
+            "timestamp": datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc).isoformat(),
+            "url_regzbot": "https://linux-regtracking.leemhuis.info/regzbot/regression/%s/%s/" % (regression._actim_report.repsrc.generic_name, regression._actim_report.repsrc.entryid),
+            "identified": regression.identified,
+            "introduced_url": regression._introduced_url,
+            "regzbot_commands": regzbot_commands,
+            "solved": solved,
         }
 
     @classmethod
@@ -1004,13 +1006,13 @@ function timeAgo(provided_date) {
             if regression.solved_reason == 'fixed' or regression.solved_reason == 'resolved' or regression.solved_reason == 'invalid' or regression.solved_reason == 'inconclusive' or regression.solved_reason == 'duplicateof' or regression.solved_duplicateof:
                 gmtime_solved = regression.solved_gmtime
             if regression._actievents:
-                last_activity=regression._actievents[-1].gmtime
+                last_activity = regression._actievents[-1].gmtime
             else:
-                last_activity=regression._histevents[-1].gmtime
+                last_activity = regression._histevents[-1].gmtime
             regressionslist.append(cls(regression._actim_report.repsrc, regression.gmtime, regression.gmtime_filed,
-                                                    last_activity, gmtime_solved, regression.treename,
-                                                    regression.versionline, regression.solved_reason, regression.backburner, regression.identified,
-                                                    regression.html()))
+                                       last_activity, gmtime_solved, regression.treename,
+                                       regression.versionline, regression.solved_reason, regression.backburner, regression.identified,
+                                       regression.html()))
 
         cls.create_scriptfile_reldate()
 
@@ -1032,12 +1034,12 @@ function timeAgo(provided_date) {
         # create the page listing new regressions, sorted by date
         categories = {
             'next': {
-               'desc': "next",
-               'entries': list(),
+                'desc': "next",
+                'entries': list(),
             },
             'mainline': {
-               'desc': "mainline",
-               'entries': list(),
+                'desc': "mainline",
+                'entries': list(),
             },
             'stable': {
                 'desc': 'stable/longterm',
@@ -1047,7 +1049,8 @@ function timeAgo(provided_date) {
         for regression in regressionslist:
             if regression.gmtime_solved:
                 continue
-            filed_days = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)).days
+            filed_days = (datetime.datetime.now(datetime.timezone.utc) -
+                          datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)).days
             if filed_days < 7:
                 categories[regression.treename]['entries'].append(regression)
             else:
@@ -1066,7 +1069,7 @@ function timeAgo(provided_date) {
 
         # create default
         with open(os.path.join(regzbot.WEBPAGEDIR, 'index.html'), 'w') as outputfile:
-             outputfile.write("<head><meta http-equiv='refresh' content='0; URL=mainline/'></head>")
+            outputfile.write("<head><meta http-equiv='refresh' content='0; URL=mainline/'></head>")
 
         if not regzbot.is_running_citesting():
             publishscript = os.path.join(pathlib.Path.home(), '.local/share/regzbot/', 'pusblishwebsites.sh')
@@ -1074,6 +1077,6 @@ function timeAgo(provided_date) {
                 os.system(publishscript)
 
         with open(os.path.join(regzbot.WEBPAGEDIR, 'regressions.json'), 'w') as jsonfile:
-             jsonfile.write(json.dumps(json_data))
+            jsonfile.write(json.dumps(json_data))
 
         logger.debug("[webpages] generated")

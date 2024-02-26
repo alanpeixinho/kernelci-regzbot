@@ -46,11 +46,14 @@ def cmd_recheck(cmdargs):
 def cmd_run(cmdargs):
     regzbot.run()
 
+
 def cmd_pages(cmdargs):
     regzbot.generate_web()
 
+
 def cmd_report(cmdargs):
     regzbot.report()
+
 
 def cmd_test(cmdargs):
     # which tests to run
@@ -137,7 +140,6 @@ def cmd():
     else:
         loghandler.setLevel(logging.INFO)
     logger.addHandler(loghandler)
-
 
     # go
     if 'func' not in cmdargs:

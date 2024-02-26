@@ -20,12 +20,13 @@ else:
     import logging
     logger = logging
     if False:
-    #if True:
+        # if True:
         logger.basicConfig(level=logging.DEBUG)
         logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 _CACHE_INSTANCES = {}
-_CACHE_PROJECTS ={}
+_CACHE_PROJECTS = {}
+
 
 class GlActivity(regzbot._repsources._trackers._activity):
     def __init__(self, gl_issue, *, comment=None, comment_number=None, commit=None, event=None):

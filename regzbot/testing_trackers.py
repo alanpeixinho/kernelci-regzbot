@@ -45,7 +45,7 @@ def run(resultfilename, tmpdir, _):
 
             if chk_git:
                 for gittree in regzbot.GitTree.getall():
-                      gittree.update()
+                    gittree.update()
 
             # write results
             resultfile.write('[%s_%s_%s]\n' %
@@ -71,43 +71,49 @@ def run(resultfilename, tmpdir, _):
 
 def trackertest_0_0(funcname):
     regzbot.ReportSource.add('regzbottesting-gitlab', 3,
-                 'https://gitlab.com/knurd42/linux',
-                 'gitlab', '<unused>',
-                 lastchked=int(datetime.datetime.fromisoformat('2023-11-20T00:00:00.000Z').timestamp()))
+                             'https://gitlab.com/knurd42/linux',
+                             'gitlab', '<unused>',
+                             lastchked=int(datetime.datetime.fromisoformat('2023-11-20T00:00:00.000Z').timestamp()))
     regzbot.ReportSource.add('regzbottesting-github', 3,
-                 'https://github.com/knurd/linux',
-                 'github', '<unused>',
-                      lastchked=int(datetime.datetime.fromisoformat('2022-03-15T00:00:00.000Z').timestamp()))
+                             'https://github.com/knurd/linux',
+                             'github', '<unused>',
+                             lastchked=int(datetime.datetime.fromisoformat('2022-03-15T00:00:00.000Z').timestamp()))
 
     regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T11:35:00.000Z')
 
     regzbot.checkout_url('https://gitlab.com/knurd42/linux/-/issues/11')
     return False, False
 
+
 def trackertest_0_1(funcname):
     regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T11:37:00.000Z')
     regzbot.checkout_url('https://gitlab.com/knurd42/linux/-/issues/11')
     return False, False
+
 
 def trackertest_0_2(funcname):
     regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T12:22:00.000Z')
     regzbot.checkout_url('https://gitlab.com/knurd42/linux/-/issues/11')
     return False, False
 
+
 def trackertest_0_3(funcname):
     regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T12:30:00.000Z')
     regzbot.checkout_url('https://gitlab.com/knurd42/linux/-/issues/11')
     return False, False
+
 
 def trackertest_0_4(funcname):
     regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T13:00:00.000Z')
     regzbot.checkout_url('https://gitlab.com/knurd42/linux/-/issues/11')
     return False, False
 
+
 def trackertest_0_5(funcname):
     regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T13:01:45.000Z')
     regzbot.checkout_url('https://gitlab.com/knurd42/linux/-/issues/11')
     return False, False
+
 
 def trackertest_0_6(funcname):
     regzbot._TESTING['until'] = datetime.datetime.fromisoformat('2023-11-20T13:02:45.000Z')

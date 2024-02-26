@@ -73,6 +73,7 @@ class PatchKind(IntFlag):
 
         return patchkind
 
+
 class RegzbotDbMeta():
     def db_create(version, dbcursor):
         logger.debug('Initializing new dbtable "RegzbotMeta"')
@@ -91,9 +92,8 @@ class RegzbotDbMeta():
 
         return dbconnection
 
-
     @staticmethod
-    def update( dbcursor=None):
+    def update(dbcursor=None):
         if dbcursor is None:
             dbcursor = DBCON.cursor()
 
@@ -107,7 +107,7 @@ class RegzbotDbMeta():
         dbresult = dbcursor.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name=(?)", (tablename, )).fetchone()
         if dbresult:
-           return True
+            return True
         return False
 
     @staticmethod
@@ -136,9 +136,8 @@ class RegzbotState():
         dbresult = dbcursor.execute(
             'SELECT value FROM RegzbotState WHERE attribute=(?)', (attribute, )).fetchone()
         if dbresult:
-           return dbresult[0]
+            return dbresult[0]
         return False
-
 
     @staticmethod
     def set(attribute, value, dbcursor=None):
@@ -146,8 +145,7 @@ class RegzbotState():
             dbcursor = DBCON.cursor()
         dbcursor.execute('''
             INSERT OR REPLACE INTO RegzbotState
-            VALUES(?, ?)''', (attribute, value ))
-
+            VALUES(?, ?)''', (attribute, value))
 
 
 class RecordProcessedMsgids():
@@ -207,11 +205,10 @@ class RecordProcessedMsgids():
         cutoff_gmtime = int(datetime.datetime.now(datetime.timezone.utc).timestamp()) - (cutoff_days * 86400)
         dbcursor.execute('''DELETE FROM msgidrecord
                             WHERE gmtime < (?)''',
-                            (cutoff_gmtime, ))
+                         (cutoff_gmtime, ))
         if dbcursor.rowcount > 0:
             logger.debug(
                 '[db msgidrecord] removed %s stale entries', dbcursor.rowcount)
-
 
 
 class GitBranch():
@@ -274,7 +271,6 @@ class GitBranch():
         else:
             return "%s/%s" % (gittreename, self.name)
 
-
     @staticmethod
     def get_by_id(gitbranchid):
         dbcursor = DBCON.cursor()
@@ -316,8 +312,8 @@ class GitBranch():
             repo = gittree.repo()
 
         try:
-             head = repo.git.rev_list('--first-parent', '--until="%s"' % gmtime, '-n 1', 'origin/%s' % self.name)
-             return repo.commit(head)
+            head = repo.git.rev_list('--first-parent', '--until="%s"' % gmtime, '-n 1', 'origin/%s' % self.name)
+            return repo.commit(head)
         except git.exc.GitCommandError as err:
             errmsg = err.args[2].decode("utf-8")
             print("GitCommandError: {0}".format(errmsg))
@@ -384,11 +380,12 @@ class GitBranch():
             mergebase = repo.git.merge_base('origin/master', self.lookupname)
 
         if mergebase:
-            iterrange='%s..%s' % (mergebase, self.lookupname)
+            iterrange = '%s..%s' % (mergebase, self.lookupname)
         else:
             if gittree.name != 'mainline':
-                logger.warning('GitBranch.subject_exists(): could not find a merge base for the tree %s branch %s', gittree.name, self.name)
-            iterrange=self.lookupname
+                logger.warning(
+                    'GitBranch.subject_exists(): could not find a merge base for the tree %s branch %s', gittree.name, self.name)
+            iterrange = self.lookupname
 
         # now search for a commit with the subject
         for commit in repo.iter_commits(iterrange):
@@ -457,9 +454,9 @@ class GitTree():
         repo = self.repo()
 
         if contains:
-           kind='--contains'
+            kind = '--contains'
         else:
-           kind='--tags'
+            kind = '--tags'
 
         try:
             # reminder: just relying on the exception is not enough here, as it will not fire
@@ -496,9 +493,9 @@ class GitTree():
     # commitdesc can be a tag or a hexsha
     def commit_find_new(hexsha=None, subject=None, ascending=True):
         if ascending:
-           sortorder='ORDER BY priority ASC'
+            sortorder = 'ORDER BY priority ASC'
         else:
-           sortorder='ORDER BY priority DESC'
+            sortorder = 'ORDER BY priority DESC'
 
         for gittree in GitTree.getall(FIXME=sortorder):
             repo = gittree.repo()
@@ -606,7 +603,7 @@ class GitTree():
         result = None
         since = "--since='Aug 15 0:0:0 UTC 2021'"
         if is_running_citesting('offline'):
-             since = "--since='Aug 15 0:0:0 UTC 2010'"
+            since = "--since='Aug 15 0:0:0 UTC 2010'"
 
         try:
             for result in repo.git.log('--pretty=%H', since, '--all', '--grep=%s' % pattern).splitlines():
@@ -623,9 +620,9 @@ class GitTree():
     @classmethod
     def search_references(cls, repsrc, regression, gmtime=None):
         def getregression(regression, regid):
-           if regressionfull:
-               return regressionfull
-           return RegressionFull.get_by_regid(regid)
+            if regressionfull:
+                return regressionfull
+            return RegressionFull.get_by_regid(regid)
 
         regressionfull = None
         for gittree in cls.getall(FIXME='ORDER BY priority ASC'):
@@ -635,14 +632,15 @@ class GitTree():
             logger.debug("[GitTree] Trying to find '%s' in gittree %s", searchstring, gittree.name)
             for commit_hexsha in gittree.greplogmsgs(searchstring):
                 for gitbranch in GitBranch.getall_by_gittreeid(gittree.gittreeid):
-                    logger.debug("[GitTree] Found '%s' in this tree, thus checking branch '%s' now" % (searchstring, gitbranch.describe(gittree.name)))
+                    logger.debug("[GitTree] Found '%s' in this tree, thus checking branch '%s' now" %
+                                 (searchstring, gitbranch.describe(gittree.name)))
                     if gitbranch.commit_exists(commit_hexsha, repo=gittree.repo()):
-                         logger.debug("[GitTree] Found %s in %s", commit_hexsha, gitbranch.describe(gittree.name))
-                         commit = gittree.commit(commit_hexsha)
-                         getregression(regressionfull, regression.regid).commitmention(gittree, gitbranch, commit)
+                        logger.debug("[GitTree] Found %s in %s", commit_hexsha, gitbranch.describe(gittree.name))
+                        commit = gittree.commit(commit_hexsha)
+                        getregression(regressionfull, regression.regid).commitmention(gittree, gitbranch, commit)
 
             if '..' in regression.introduced \
-                     or len(regression.introduced) < 11:
+                    or len(regression.introduced) < 11:
                 # we don't need to search for those
                 continue
 
@@ -650,7 +648,8 @@ class GitTree():
             logger.debug("[GitTree] Trying to find '%s' in gittree %s", searchstring, gittree.name)
             for commit_hexsha in gittree.greplogmsgs(searchstring):
                 for gitbranch in GitBranch.getall_by_gittreeid(gittree.gittreeid):
-                    logger.debug("[GitTree] Found '%s' in this tree, thus checking branch '%s' now" % (searchstring, gitbranch.describe(gittree.name)))
+                    logger.debug("[GitTree] Found '%s' in this tree, thus checking branch '%s' now" %
+                                 (searchstring, gitbranch.describe(gittree.name)))
                     if gitbranch.commit_exists(commit_hexsha, repo=gittree.repo()):
                         if RegHistory.present(commit_hexsha, regid=regression.regid):
                             # no need to add a second entry for commits that already were noticed as related,
@@ -665,9 +664,8 @@ class GitTree():
 
                         # no activity, only a history entry, as it might be about different bug in the same commit
                         RegHistory.event(regression.regid, mergedate, commit.hexsha, commit.summary, '%s' % commit.author,
-                                                 gitbranchid=gitbranch.gitbranchid, regzbotcmd="note: '%s' in '%s' contains a 'Fixes:' tag for the culprit of this regression"
-                                                 % (commit.hexsha[0:12], gitbranch.describe(gittree.name)))
-
+                                         gitbranchid=gitbranch.gitbranchid, regzbotcmd="note: '%s' in '%s' contains a 'Fixes:' tag for the culprit of this regression"
+                                         % (commit.hexsha[0:12], gitbranch.describe(gittree.name)))
 
     def update(self):
         # update
@@ -715,10 +713,10 @@ class GitTree():
                 for expected_fix in expected_fixes:
                     if (expected_fix['solved_entry'] and commit.hexsha.startswith(expected_fix['solved_entry'])) \
                             or (expected_fix['solved_subject'] and commit.summary == expected_fix['solved_subject']):
-                         regression = RegressionBasic.get_by_regid(expected_fix['regid'])
-                         if regression.fixedby_found(self, gitbranch, commit):
-                             # this was fixed, no need to look closer at the commit
-                             continue
+                        regression = RegressionBasic.get_by_regid(expected_fix['regid'])
+                        if regression.fixedby_found(self, gitbranch, commit):
+                            # this was fixed, no need to look closer at the commit
+                            continue
 
                 # does the commit link to a tracked regression?
                 for match in re_link.finditer(commit.message):
@@ -731,7 +729,6 @@ class GitTree():
                             "Saw link to %s, but not aware of any regressions about it", match.group(2))
                     else:
                         regression.commitmention(self, gitbranch, commit)
-
 
                 # now check if this commit contains a Fixed: tag that mentions a commit known to cause a regression
                 for match in re.finditer('^(Fixes: )([0-9,a-f]{12})( )', commit.message, re.MULTILINE):
@@ -754,8 +751,8 @@ class GitTree():
                         # no activity, only a history entry, as it might be about different bug in the same commit
                         mergedate = gitbranch.merge_date(commit.hexsha, self.repo())
                         RegHistory.event(regid, mergedate, commit.hexsha, commit.summary, '%s' % commit.author,
-                                                 gitbranchid=gitbranch.gitbranchid, regzbotcmd="note: '%s' in '%s' contains a 'Fixes:' tag for the culprit of this regression"
-                                                 % (commit.hexsha[0:12], gitbranch.describe(self.name)))
+                                         gitbranchid=gitbranch.gitbranchid, regzbotcmd="note: '%s' in '%s' contains a 'Fixes:' tag for the culprit of this regression"
+                                         % (commit.hexsha[0:12], gitbranch.describe(self.name)))
 
             # and we are done here
             gitbranch.set_lastchked(repobranch.commit.hexsha)
@@ -800,7 +797,7 @@ class RegActivityMonitor():
             patchkind=repact.patchkind,
             subentry=repact.id,
             actimonid=self.actimonid,
-            )
+        )
 
     @cached_property
     def repsrc(self):
@@ -849,10 +846,10 @@ class RegActivityMonitor():
                          (self.actimonid, ))
         if dbcursor.rowcount > 0:
             logger.debug('[db actmonitor] deleted (actimonid:%s, regid:%s, repsrcid:%s, entry:%s)',
-                self.actimonid, self.regid, self.repsrcid, self.entry)
+                         self.actimonid, self.regid, self.repsrcid, self.entry)
         else:
             logger.critical('[db actmonitor] failed to deleted entry (actimonid:%s, regid:%s, repsrcid:%s, entry:%s;)',
-                self.actimonid, self.regid, self.repsrcid, self.entry)
+                            self.actimonid, self.regid, self.repsrcid, self.entry)
 
     def remove(self):
         dbcursor = DBCON.cursor()
@@ -863,7 +860,6 @@ class RegActivityMonitor():
             self.actimonid, self.regid, self.repsrcid, self.entry, dbcursor.lastrowid))
         RegActivityEvent.remove(actimonid=self.actimonid)
         return True
-
 
     @staticmethod
     def get(actimonid):
@@ -885,7 +881,6 @@ class RegActivityMonitor():
         else:
             for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE regid=(?) AND repsrcid=(?) and entry=(?)', (regression.regid, reptrd.repsrc.id, reptrd.id)):
                 yield cls(*dbresult)
-
 
     @classmethod
     def get_by_regid(cls, regid, reports=None):
@@ -943,7 +938,6 @@ class RegActivityMonitor():
         if dbresult:
             return cls(*dbresult)
         return None
-
 
     @staticmethod
     def ismonitored(entry, regid=None, repsrcid=None):
@@ -1021,7 +1015,7 @@ class RegActivityEvent():
         if self._actimonid:
             dbcursor.execute('''DELETE FROM regactivity
                              WHERE gmtime=(?) AND entry=(?) AND subject=(?) AND actimonid=(?)''',
-                             (self.gmtime, self.entry, self.subject, self._actimonid ))
+                             (self.gmtime, self.entry, self.subject, self._actimonid))
         elif self._regid:
             dbcursor.execute('''DELETE FROM regactivity
                              WHERE gmtime=(?) AND entry=(?) AND subject=(?) AND regid=(?)''',
@@ -1029,11 +1023,10 @@ class RegActivityEvent():
 
         if dbcursor.rowcount > 0:
             logger.debug('[db regactivity] deleted (gmtime:%s, entry:"%s", subject:"%s", author:"%s", repsrcid:%s, gitbranchid:%s, actimonid:%s, regid:%s)',
-                self.gmtime, self.entry, self.subject, self.author, self.repsrcid, self.gitbranchid, self._actimonid, self._regid)
+                         self.gmtime, self.entry, self.subject, self.author, self.repsrcid, self.gitbranchid, self._actimonid, self._regid)
         else:
             logger.debug('[db regactivity] failed to deleted delete entry (gmtime:%s, entry:"%s", subject:"%s", author:"%s", repsrcid:%s, gitbranchid:%s, actimonid:%s, regid:%s)',
-                self.gmtime, self.entry, self.subject, self.author, self.repsrcid, self.gitbranchid, self._actimonid, self._regid)
-
+                         self.gmtime, self.entry, self.subject, self.author, self.repsrcid, self.gitbranchid, self._actimonid, self._regid)
 
     @staticmethod
     def event(gmtime, entry, subject, author=None, repsrcid=None, gitbranchid=None, actimonid=None, regid=None, patchkind=0, subentry=None):
@@ -1114,19 +1107,19 @@ class RegActivityEvent():
 
         dbcursor = DBCON.cursor()
         if actimonid:
-             if gitbranchid:
-                 dbresult = dbcursor.execute(
-                     'SELECT * FROM regactivity WHERE actimonid=(?) AND entry=(?) AND gitbranchid=(?)', (actimonid, entry, gitbranchid)).fetchone()
-             else:
-                 dbresult = dbcursor.execute(
-                     'SELECT * FROM regactivity WHERE actimonid=(?) AND entry=(?)', (actimonid, entry)).fetchone()
+            if gitbranchid:
+                dbresult = dbcursor.execute(
+                    'SELECT * FROM regactivity WHERE actimonid=(?) AND entry=(?) AND gitbranchid=(?)', (actimonid, entry, gitbranchid)).fetchone()
+            else:
+                dbresult = dbcursor.execute(
+                    'SELECT * FROM regactivity WHERE actimonid=(?) AND entry=(?)', (actimonid, entry)).fetchone()
         elif regid:
-             if gitbranchid:
-                 dbresult = dbcursor.execute(
-                     'SELECT * FROM regactivity WHERE regid=(?) AND entry=(?) AND gitbranchid=(?)', (regid, entry, gitbranchid)).fetchone()
-             else:
-                 dbresult = dbcursor.execute(
-                     'SELECT * FROM regactivity WHERE regid=(?) AND entry=(?)', (regid, entry)).fetchone()
+            if gitbranchid:
+                dbresult = dbcursor.execute(
+                    'SELECT * FROM regactivity WHERE regid=(?) AND entry=(?) AND gitbranchid=(?)', (regid, entry, gitbranchid)).fetchone()
+            else:
+                dbresult = dbcursor.execute(
+                    'SELECT * FROM regactivity WHERE regid=(?) AND entry=(?)', (regid, entry)).fetchone()
 
         if dbresult is None:
             return False
@@ -1151,6 +1144,7 @@ class RegActivityEvent():
         if self.repsrcid is None:
             return GitBranch.url_by_id(self.gitbranchid, self.entry)
         return ReportSource.url_by_id(self.repsrcid, self.entry, subentry=self.subentry)
+
 
 class RegBackburner():
     def __init__(self, regid, repsrcid, entry, gmtime, author, subject, timelimit):
@@ -1190,7 +1184,7 @@ class RegBackburner():
                             VALUES (?, ?, ?, ?, ?, ?)''',
                          (regid, repsrcid, entry, gmtime, author, subject))
         logger.debug('[db regbackburner] insert (regid:%s, repsrcid:%s, entry:%s, gmtime:%s, author:"%s", subject:"%s")',
-            regid, repsrcid, entry, gmtime, author, subject)
+                     regid, repsrcid, entry, gmtime, author, subject)
 
     @classmethod
     def get_by_regid(cls, regid):
@@ -1233,7 +1227,6 @@ class RegHistory():
         if not self.author:
             self.author = 'unknown'
 
-
     @staticmethod
     def db_create(version, dbcursor):
         logger.debug('Initializing new dbtable "reghistory"')
@@ -1263,11 +1256,11 @@ class RegHistory():
 
         if dbcursor.rowcount > 0:
             logger.debug('[db reghistory] deleted (regid:%s, gmtime:%s, entry:%s, subject:"%s", regzbotcmd:"%s", gitbranchid:%s, repsrcid:%s)',
-                self.regid, self.gmtime, self.entry, self.subject, self.regzbotcmd, self.gitbranchid, self.repsrcid)
+                         self.regid, self.gmtime, self.entry, self.subject, self.regzbotcmd, self.gitbranchid, self.repsrcid)
             return True
         else:
             logger.debug('[db reghistory] failed to deleted entry (regid:%s, gmtime:%s, entry:%s, subject:"%s", regzbotcmd:"%s", gitbranchid:%s, repsrcid:%s)',
-                self.regid, self.gmtime, self.entry, self.subject, self.regzbotcmd, self.gitbranchid, self.repsrcid)
+                         self.regid, self.gmtime, self.entry, self.subject, self.regzbotcmd, self.gitbranchid, self.repsrcid)
             return False
 
     @staticmethod
@@ -1322,13 +1315,16 @@ class RegHistory():
     @staticmethod
     def filed(regid):
         dbcursor = DBCON.cursor()
-        dbresult = dbcursor.execute('SELECT gmtime FROM reghistory WHERE regzbotcmd LIKE (?) AND regid=(?) ORDER BY gmtime', ('%%introduced: %%', regid)).fetchone()
+        dbresult = dbcursor.execute(
+            'SELECT gmtime FROM reghistory WHERE regzbotcmd LIKE (?) AND regid=(?) ORDER BY gmtime', ('%%introduced: %%', regid)).fetchone()
         # fallback, in case introduced command couldn't be found
         if not dbresult:
-            dbresult = dbcursor.execute('SELECT gmtime FROM reghistory WHERE regid=(?) ORDER BY gmtime', (regid, )).fetchone()
+            dbresult = dbcursor.execute(
+                'SELECT gmtime FROM reghistory WHERE regid=(?) ORDER BY gmtime', (regid, )).fetchone()
         # fallback, in case history entry was not created yet
         if not dbresult:
-            dbresult = dbcursor.execute('SELECT gmtime FROM actmonitor WHERE regid=(?) ORDER BY gmtime', (regid, )).fetchone()
+            dbresult = dbcursor.execute(
+                'SELECT gmtime FROM actmonitor WHERE regid=(?) ORDER BY gmtime', (regid, )).fetchone()
         return dbresult[0]
 
     @classmethod
@@ -1381,16 +1377,16 @@ class RegLink():
             dbcursor.execute('''UPDATE reglinks
                 SET gmtime = (?), author = (?), subject = (?)
                 WHERE regid=(?) AND repsrcid=(?) AND entry=(?)''',
-                 (gmtime, author, subject, regid, repsrcid, entry))
+                             (gmtime, author, subject, regid, repsrcid, entry))
             logger.debug('[db reglinks] updated (regid:%s, gmtime:%s, repsrcid:%s, entry:%s, subject:"%s", author:"%s" )' % (
-                regid, gmtime, repsrcid, entry, subject, author ))
+                regid, gmtime, repsrcid, entry, subject, author))
         else:
             dbcursor.execute('''INSERT INTO reglinks
                                 (regid, gmtime, repsrcid, entry, subject, author)
                                 VALUES (?, ?, ?, ?, ?, ?)''',
                              (regid, gmtime, repsrcid, entry, subject, author))
             logger.debug('[db reglinks] insert (regid:%s, gmtime:%s, repsrcid:%s, entry:%s, subject:"%s", author:"%s" )' % (
-                regid, gmtime, repsrcid, entry, subject, author ))
+                regid, gmtime, repsrcid, entry, subject, author))
 
     def remove(self):
         self.remove_entry(self.regid, self.repsrcid, self.entry)
@@ -1404,7 +1400,6 @@ class RegLink():
                              (regid, repsrcid, entry))
             logger.debug(
                 '[db reglinks] deleted (regid:%s, repsrcid:%s, entry:%s)' % (regid, repsrcid, entry))
-
 
     @classmethod
     def get_all(cls, regid, order='ASC'):
@@ -1486,14 +1481,15 @@ class RegressionBasic():
     def __create(cls, rgzcmd, reptrd, *, introduced=None, gitbranchid=None):
         if not introduced:
             introduced = rgzcmd.parameters
-        regression = cls.__create_obsolete(introduced, gitbranchid, reptrd.repsrc.id, reptrd.id, reptrd.gmtime, reptrd.summary, reptrd.realname, reptrd.username)
+        regression = cls.__create_obsolete(introduced, gitbranchid, reptrd.repsrc.id,
+                                           reptrd.id, reptrd.gmtime, reptrd.summary, reptrd.realname, reptrd.username)
 
         return regression
 
     def __duplicate(self, rgzcmd, other):
         if self.regid == other.regid:
             logger.warning('regression[%s, "%s"]: ignoring request to mark this regression as a duplicate of itself.',
-                    self.regid, self.subject)
+                           self.regid, self.subject)
             return
 
         if self.actimon.gmtime < other.actimon.gmtime:
@@ -1545,7 +1541,7 @@ class RegressionBasic():
             reptrd.username = rgzcmd.repact.realname
         regression_created = self.__create(rgzcmd, reptrd, introduced=self.introduced, gitbranchid=self.gitbranchid)
         regression_created.add_history_event(rgzcmd, cmdline="introduced: %s [implicit via duplicate]"
-                                                 % self.introduced)
+                                             % self.introduced)
         # for generic urls, take over the subject
         if reptrd.repsrc.kind == 'generic':
             regression_created.title(self.subject)
@@ -1554,7 +1550,7 @@ class RegressionBasic():
 
     def cmd_fix(self, rgzcmd, hexsha, summary):
         self.fixedby(rgzcmd.repact.gmtime, hexsha, summary, repsrcid=rgzcmd.repact.repsrc.repsrcid,
-                         repentry=rgzcmd.repact.reptrd.id)
+                     repentry=rgzcmd.repact.reptrd.id)
 
     def cmd_from(self, rgzcmd, realname, username):
         self.actimon.update_author(realname, username)
@@ -1566,7 +1562,7 @@ class RegressionBasic():
     @classmethod
     def cmd_introduced_new(cls, rgzcmd, hexsha):
         return cls.introduced_create(rgzcmd.reptrd.repsrc.id, rgzcmd.reptrd.id, rgzcmd.reptrd.summary, rgzcmd.reptrd.realname,
-                rgzcmd.reptrd.username, hexsha, rgzcmd.reptrd.gmtime)
+                                     rgzcmd.reptrd.username, hexsha, rgzcmd.reptrd.gmtime)
 
     def cmd_link(self, rgzcmd, url, description):
         reptrd = ReportThread.from_url(url, repact=rgzcmd.repact)
@@ -1585,7 +1581,8 @@ class RegressionBasic():
             return
         if not description:
             description = reptrd.summary
-        actimonid = RegActivityMonitor.add(self.regid, reptrd.repsrc.id, reptrd.id, reptrd.gmtime, description, reptrd.realname, reptrd.username)
+        actimonid = RegActivityMonitor.add(self.regid, reptrd.repsrc.id, reptrd.id,
+                                           reptrd.gmtime, description, reptrd.realname, reptrd.username)
         actimon = RegActivityMonitor.get(actimonid)
         RegLink.add_entry(
             self.regid, rgzcmd.reptrd.gmtime, description, reptrd.realname, reptrd.repsrc.id, reptrd.id)
@@ -1682,7 +1679,6 @@ class RegressionBasic():
                          self.regid, self.subject, self.introduced, self.gitbranchid)
             return False
 
-
     @classmethod
     def get_all(cls, order="regid", only_unsolved=False):
         dbcursor = DBCON.cursor()
@@ -1726,7 +1722,7 @@ class RegressionBasic():
             if actimon.regid:
                 return cls.get_by_regid(actimon.regid)
 
-    def get_dupes(self, *, recursion_count=-1) :
+    def get_dupes(self, *, recursion_count=-1):
         if recursion_count > 12:
             logger.critical("Aborting, recursion limit in RegActivityMonitor.__walk_duplicates() exceeded.")
             sys.exit(1)
@@ -1739,7 +1735,7 @@ class RegressionBasic():
             for duplicate in regression.get_dupes(recursion_count=recursion_count):
                 yield duplicate
 
-    def find_topmost(self, *, recursion_count=-1) :
+    def find_topmost(self, *, recursion_count=-1):
         if not self.solved_duplicateof:
             if recursion_count == -1:
                 # this regression is not a dup of another
@@ -1816,9 +1812,8 @@ class RegressionBasic():
         dbcursor = DBCON.cursor()
         pending = []
         for dbresult in dbcursor.execute('SELECT regid, solved_entry, solved_subject FROM regressions WHERE solved_reason=?', ('to_be_fixed',)):
-            pending.append( {"regid": dbresult[0], "solved_entry": dbresult[1], "solved_subject": dbresult[2]})
+            pending.append({"regid": dbresult[0], "solved_entry": dbresult[1], "solved_subject": dbresult[2]})
         return pending
-
 
     @classmethod
     def __introduced_precheck(cls, introduced, gmtime=None):
@@ -1850,7 +1845,7 @@ class RegressionBasic():
         dbcursor.execute('''UPDATE regressions
                             SET actimonid = (?)
                             WHERE regid = (?)''',
-                            (actimonid, regid))
+                         (actimonid, regid))
 
         logger.debug('[db regressions] inserted (regid:%s; subject:"%s"; introduced:%s; actimonid:%s; gitbranchid:%s)',
                      regid, subject, introduced, actimonid, gitbranchid)
@@ -1898,11 +1893,10 @@ class RegressionBasic():
         # create regression
         return self.__create_obsolete(self.introduced, self.gitbranchid, repsrc.repsrcid, entry, gmtime, subject, authorname, authormail)
 
-
     def _dupof_direct(self, regression_other, gmtime, msgid, msgsubject, authorname, repsrcid, *, history=True):
         if self.regid == regression_other.regid:
             logger.warning('regression[%s, "%s"]: request to mark this a as duplicate of ourselves; aborting',
-                    self.regid, self.subject)
+                           self.regid, self.subject)
             # FIXME properly
             sys.exit(1)
 
@@ -1939,7 +1933,8 @@ class RegressionBasic():
         regression_other = self.get_by_link(urldup)
         if not regression_other:
             regression_other = self.__create_dup(urldup, gmtime)
-            RegHistory.event(regression_other.regid, gmtime, msgid, msgsubject, authorname, repsrcid=repsrcid, regzbotcmd="introduced: %s [implicit, due to usage of 'dup-of']" % self.introduced)
+            RegHistory.event(regression_other.regid, gmtime, msgid, msgsubject, authorname, repsrcid=repsrcid,
+                             regzbotcmd="introduced: %s [implicit, due to usage of 'dup-of']" % self.introduced)
 
         self._dupof_direct(regression_other, gmtime, msgid, msgsubject, authorname, repsrcid)
 
@@ -1988,9 +1983,10 @@ class RegressionBasic():
         return True
 
     def lookup_fixedby_everywhere(self, commit_hexsha, subject, gmtime=None):
-        for gittree, gitbranch,commit_hexsha in GitTree.commit_find_new(hexsha=commit_hexsha, subject=subject, ascending=False):
-            _, culprit_gittree, _ , _ = self._gettree_n_branch(self.introduced)
-            logger.debug("[regression.fixedby] specified fix '%s' found in %s/%s", commit_hexsha[0:12], gittree.name, gitbranch.name)
+        for gittree, gitbranch, commit_hexsha in GitTree.commit_find_new(hexsha=commit_hexsha, subject=subject, ascending=False):
+            _, culprit_gittree, _, _ = self._gettree_n_branch(self.introduced)
+            logger.debug("[regression.fixedby] specified fix '%s' found in %s/%s",
+                         commit_hexsha[0:12], gittree.name, gitbranch.name)
             if culprit_gittree and gittree.priority > culprit_gittree.priority:
                 # this is a commit in a downstream repo we can ignore
                 continue
@@ -1999,12 +1995,12 @@ class RegressionBasic():
     def fixedby_found(self, gittree, gitbranch, commit_hexsha, culprit_gittree=None, gmtime=None):
         def add_activity(gittree, gitbranch, commit, mergedate, author):
             RegActivityEvent.event(mergedate, commit.hexsha, "%s, the fix specified through '#regzbot fix:' earlier landed in %s" % (
-                    commit.hexsha[0:12], gitbranch.describe(gittree.name)), gitbranchid=gitbranch.gitbranchid, regid=self.regid, author=author)
+                commit.hexsha[0:12], gitbranch.describe(gittree.name)), gitbranchid=gitbranch.gitbranchid, regid=self.regid, author=author)
 
         def add_history(gittree, gitbranch, commit, mergedate, regzbotcmd, author):
             RegHistory.event(self.regid, mergedate, commit.hexsha,
-                                 commit.summary, author, gitbranchid=gitbranch.gitbranchid,
-                                 regzbotcmd=regzbotcmd)
+                             commit.summary, author, gitbranchid=gitbranch.gitbranchid,
+                             regzbotcmd=regzbotcmd)
 
         def update_solved_data(gitbranch, commit, mergedate):
             self.solved_gitbranchid = gitbranch.gitbranchid
@@ -2014,7 +2010,7 @@ class RegressionBasic():
             self._db_update_solved()
 
         if not culprit_gittree:
-             _, culprit_gittree, _ , _ = self._gettree_n_branch(self.introduced)
+            _, culprit_gittree, _, _ = self._gettree_n_branch(self.introduced)
 
         commit = gittree.commit(commit_hexsha)
         author = '%s' % commit.author
@@ -2033,7 +2029,7 @@ class RegressionBasic():
             return True
 
         historytext_post = "'fix' commit '%s' now in '%s'" % (
-                          commit.hexsha[0:12], gitbranch.describe(gittree.name))
+            commit.hexsha[0:12], gitbranch.describe(gittree.name))
 
         if gmtime and gmtime > mergedate:
             # use gmtime instead of mergetime in this case, otherwise entries will show up in strange order
@@ -2056,7 +2052,6 @@ class RegressionBasic():
         add_history(gittree, gitbranch, commit, mergedate, historytext, author)
 
         return returnval
-
 
     def _solve_reason(self, reason, tagload, gmtime, msgid, repsrcid):
         self.solved_reason = reason
@@ -2082,7 +2077,6 @@ class RegressionBasic():
 
         self.author = author
         self.author = authormail
-
 
     def title(self, tagload):
         dbcursor = DBCON.cursor()
@@ -2217,11 +2211,11 @@ class RegressionFull(RegressionBasic):
         return report, datalist
 
     def _get_poked(self, histevents, actievents):
-       if len(histevents) > 0 and \
-               histevents[-1].regzbotcmd.startswith('poke') and \
-               ( len(actievents) > 0 and histevents[-1].gmtime > actievents[-1].gmtime ):
-           return histevents[-1]
-       return False
+        if len(histevents) > 0 and \
+                histevents[-1].regzbotcmd.startswith('poke') and \
+                (len(actievents) > 0 and histevents[-1].gmtime > actievents[-1].gmtime):
+            return histevents[-1]
+        return False
 
     def _get_presentable(self, gitref, gittree=None, getversionline=None):
         def iscommitid(commitid):
@@ -2280,7 +2274,7 @@ class RegressionFull(RegressionBasic):
 
             # while at it, update this:
             if point1 is None and point2pres:
-                 self.identified = True
+                self.identified = True
 
         # now find the versionline, if we need it
         if self.treename != 'mainline':
@@ -2307,11 +2301,11 @@ class RegressionFull(RegressionBasic):
             # 1) if range starts with the same version number
             # 2) if range starts with the number from the previous cycle (catches mainline and stable releases)
             if isdevcycle('indevelopment', point1) or \
-                   point1.startswith(LATEST_VERSIONS['latest']):
+                    point1.startswith(LATEST_VERSIONS['latest']):
                 return combine(point1, point2), 'indevelopment'
         if isdevcycle('latest', point2):
             if isdevcycle('latest', point1) or \
-                   point1.startswith(LATEST_VERSIONS['previous']):
+                    point1.startswith(LATEST_VERSIONS['previous']):
                 return combine(point1, point2), 'latest'
 
         # default: either its and older range or something doesn't match up, which can happen if user specifies odd ranges
@@ -2329,27 +2323,27 @@ class RegressionFull(RegressionBasic):
             self.fixed(
                 mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
             RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, author,
-                 gitbranchid=gitbranch.gitbranchid, regzbotcmd="fix: %s [implicit, due to a Link/Closes tag]" % commit.hexsha[0:12])
+                             gitbranchid=gitbranch.gitbranchid, regzbotcmd="fix: %s [implicit, due to a Link/Closes tag]" % commit.hexsha[0:12])
             for duplicate in self.find_topmost():
                 if self.regid != duplicate.regid:
                     duplicate.fixed(
                         mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid)
                     RegHistory.event(duplicate.regid, mergedate, commit.hexsha, commit.summary, author,
-                         gitbranchid=gitbranch.gitbranchid, regzbotcmd="fix: %s [implicit, due to a Link/Closes tag]" % commit.hexsha[0:12])
+                                     gitbranchid=gitbranch.gitbranchid, regzbotcmd="fix: %s [implicit, due to a Link/Closes tag]" % commit.hexsha[0:12])
         else:
             # downstream? then just add a note
             if self.gittree and gittree.priority > self.gittree.priority:
-                 RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, author,
-                     gitbranchid=gitbranch.gitbranchid, regzbotcmd='note: %s' % regzbotcmd)
-                 return
+                RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, author,
+                                 gitbranchid=gitbranch.gitbranchid, regzbotcmd='note: %s' % regzbotcmd)
+                return
             # upstream and already fixed? then just add a note
             elif self.solved_reason == 'fixed' and self.gittree and gittree.priority < self.gittree.priority:
-                 RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, author,
-                     gitbranchid=gitbranch.gitbranchid, regzbotcmd='note: %s' % regzbotcmd)
-                 return
+                RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, author,
+                                 gitbranchid=gitbranch.gitbranchid, regzbotcmd='note: %s' % regzbotcmd)
+                return
 
             RegHistory.event(self.regid, mergedate, commit.hexsha, commit.summary, author,
-                gitbranchid=gitbranch.gitbranchid, regzbotcmd='fix: %s' % regzbotcmd)
+                             gitbranchid=gitbranch.gitbranchid, regzbotcmd='fix: %s' % regzbotcmd)
             self.fixedby(
                 mergedate, commit.hexsha, commit.summary, gitbranch.gitbranchid, lookup=False)
 
@@ -2361,6 +2355,7 @@ class RegressionFull(RegressionBasic):
         if dbresult:
             return RegressionFull(*dbresult)
         return None
+
 
 class UnhandledEvent():
     def __init__(self, unhanid, link, note, gmtime, regid, subject, solved_gmtime, solved_link, solved_subject):
@@ -2539,7 +2534,7 @@ class ReportSource():
         dbresult = dbcursor.execute(
             'SELECT * FROM reportsources WHERE name LIKE (?)', (name, )).fetchone()
         if dbresult:
-             return ReportSource(*dbresult)
+            return ReportSource(*dbresult)
 
     @staticmethod
     def get_by_identifier(identifier):
@@ -2659,6 +2654,7 @@ class ReportActivity():
     def web_url(self, *, redirector=None, subentry=None):
         return self.repsrc.url(self.reptrd.id, subentry=self.id)
 
+
 class ReportThreadOffline():
     def __init__(self, repsrc, id):
         self.id = id
@@ -2676,6 +2672,7 @@ class ReportThreadOffline():
         # due to the yield after the return python will think this is a iterator
         return
         yield
+
 
 class ReportThread(ReportThreadOffline):
     def __init__(self):
@@ -2696,6 +2693,7 @@ class ReportThread(ReportThreadOffline):
                 reptrd.summary = repact.summary
                 reptrd.username = repact.username
         return reptrd
+
 
 class ReportSourceObsolete(ReportSource):
     def __init__(self, *args):
@@ -2740,6 +2738,7 @@ class ReportSourceObsolete(ReportSource):
 
 class RepDownloadError(Exception):
     pass
+
 
 def db_close():
     global DBCON
@@ -2809,16 +2808,17 @@ def db_dump(filehdl, order='regid'):
     import export_csv
 
     for data in export_csv.dumpall_csv(order=order):
-          filehdl.write(data)
+        filehdl.write(data)
+
 
 def db_diff(filehdl_old, filehdl_new, filedesc_old='before', filedesc_new='after'):
     diff = difflib.unified_diff(
-            filehdl_old.readlines(),
-            filehdl_new.readlines(),
-            fromfile="%s" % filedesc_old,
-            tofile="%s" % filedesc_new,
-            n=1,
-        )
+        filehdl_old.readlines(),
+        filehdl_new.readlines(),
+        fromfile="%s" % filedesc_old,
+        tofile="%s" % filedesc_new,
+        n=1,
+    )
 
     differences = False
     for line in diff:
@@ -2842,15 +2842,17 @@ def init_reposdir(directory):
 def days_delta(past):
     return (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(past, datetime.timezone.utc)).days
 
+
 def timendate_now():
     return datetime.datetime.now(datetime.timezone.utc)
+
 
 def timendate_dt_to_gmtime(dt):
     return int(dt.timestamp())
 
+
 def timendate_gmtime_to_dt(gmtime):
     return datetime.datetime.fromtimestamp(gmtime, tz=datetime.timezone.utc)
-
 
 
 def parse_link(url):
@@ -2868,11 +2870,11 @@ def parse_link(url):
         domain = 'lore.kernel.org'
         tmplist = tmpstring.split('/', maxsplit=2)
         if len(tmplist) <= 2:
-           logger.debug("Ignoring %s, failed to parse", url)
-           return None, None, None
+            logger.debug("Ignoring %s, failed to parse", url)
+            return None, None, None
 
         mlist = tmplist[1]
-        tmpstring  = tmplist[2]
+        tmpstring = tmplist[2]
 
         msgid, _, _ = tmpstring.partition('/')
 
@@ -2937,7 +2939,7 @@ def basicressources_gittrees_setup(gittreesdir):
 
 def basicressources_repsrces_setup():
     # these are required
-    ReportSource.add('generic', 99,'', 'generic', '')
+    ReportSource.add('generic', 99, '', 'generic', '')
     ReportSource.add('lore_all', 98, '', 'lore', 'https://lore.kernel.org/all/')
 
     ReportSource.add('bugzilla.kernel.org', 0,
@@ -2947,7 +2949,7 @@ def basicressources_repsrces_setup():
     # these are optional; maybe they should be in a config file
 
     # temproraily disabled while working on new bugzilla module
-    #ReportSource.add('bugzilla.kernel.org', 0,
+    # ReportSource.add('bugzilla.kernel.org', 0,
     #                 'https://bugzilla.kernel.org',
     #                 'bugzilla', 'https://bugzilla.kernel.org/show_bug.cgi?id=')
 
@@ -2975,7 +2977,6 @@ def basicressources_repsrces_setup():
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-arch',
                      'lore', 'https://lore.kernel.org/linux-arch/', identifiers='linux-arch@vger.kernel.org')
 
-
     # arch, mm, and virt
     ReportSource.add('arm', 3,
                      'nntp://nntp.lore.kernel.org/org.infradead.lists.linux-arm-kernel',
@@ -2992,7 +2993,6 @@ def basicressources_repsrces_setup():
     ReportSource.add('virtualization', 5,
                      'nntp://nntp.lore.kernel.org/org.linuxfoundation.lists.virtualization',
                      'lore', 'https://lore.kernel.org/virtualization/', identifiers='virtualization@lists.linux-foundation.org')
-
 
     # graphics
     ReportSource.add('dri', 3,
@@ -3031,7 +3031,6 @@ def basicressources_repsrces_setup():
                      'nntp://nntp.lore.kernel.org/org.osuosl.intel-wired-lan',
                      'lore', 'https://lore.kernel.org/intel-wired-lan/', identifiers='intel-wired-lan@lists.osuosl.org')
 
-
     # storage
     ReportSource.add('block', 3,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-block',
@@ -3068,7 +3067,6 @@ def basicressources_repsrces_setup():
     ReportSource.add('xfs', 4,
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-xfs',
                      'lore', 'https://lore.kernel.org/linux-xfs/', identifiers='linux-xfs@vger.kernel.org')
-
 
     # pci, pm, low-level, etc.
     ReportSource.add('crypto', 6,
@@ -3123,7 +3121,6 @@ def basicressources_repsrces_setup():
                      'lore', 'https://lore.kernel.org/linux-usb/', identifiers='linux-usb@vger.kernel.org')
 
 
-
 def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
     # constructs the directory paths
     # use default path, unless tmpdir if given; but even then use the default, if the variable is set to 'True'
@@ -3169,7 +3166,7 @@ def basicressources_setup(databasedir=None, gittreesdir=None, websitesdir=None, 
 def basicressources_init(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
     from random import randrange
 
-    configfile, databasedir, gittreesdir, websitesdir  = basicressources_get_dirs(
+    configfile, databasedir, gittreesdir, websitesdir = basicressources_get_dirs(
         databasedir, gittreesdir, websitesdir, tmpdir)
 
     global CONFIGURATION
@@ -3257,11 +3254,12 @@ def redo_regressions(msgids):
                 tmpfile_after.seek(0)
                 if db_diff(tmpfile_before, tmpfile_after):
                     answer = input(
-                       "Enter 'a' to abort, anything else to move on")
+                        "Enter 'a' to abort, anything else to move on")
                     if answer.lower() == 'a':
                         sys.exit(1)
 
     return regression
+
 
 def recheck(msgids):
     basicressources_init()
@@ -3272,6 +3270,7 @@ def recheck(msgids):
     RegExportWeb.compile()
 
     db_close()
+
 
 def run():
     basicressources_init()
@@ -3323,25 +3322,32 @@ def process_msg(msgid):
     repsrc, msg = download_msg(msgid)
     return mailin.process_msg(repsrc, msg)
 
+
 def process_thread(msgid, repsrcid=None):
     mailin.process_thread(msgid, repsrcid)
+
 
 def checkout_msgid(msgid):
     reptrd = ReportThread.from_url('https://lore.kernel.org/all/%s/' % msgid)
     reptrd.process_single()
 
+
 def checkout_url(url):
     reptrd = ReportThread.from_url(url)
     reptrd.update(None, None)
 
+
 def checksource(identifier):
     return lore.checksource(identifier)
+
 
 def urldecode(url):
     return urllib.parse.unquote(url)
 
+
 def urlencode(url):
     return urllib.parse.quote(url, safe='@=')
+
 
 def inspectobj(obj):
     for att in dir(obj):

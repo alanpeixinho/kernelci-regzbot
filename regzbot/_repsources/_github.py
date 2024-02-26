@@ -156,7 +156,7 @@ class GhProject():
     def __init__(self, gh_instance, ghpy_project):
         self.gh_instance = gh_instance
         self._ghpy_project = ghpy_project
-    
+
         self.name = self._ghpy_project.full_name
 
     @property
@@ -433,5 +433,3 @@ def __test():
 
 if __name__ == "__main__":
     __test()
-
-

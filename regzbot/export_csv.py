@@ -17,8 +17,8 @@ class RegLinkCSV(regzbot.RegLink):
         if self.repsrcid \
                 and self.entry \
                 and regzbot.RegActivityMonitor.ismonitored(
-                        self.entry, self.regid, self.repsrcid):
-             return "%s, %s [monitored]" % (self.subject, self.link)
+                    self.entry, self.regid, self.repsrcid):
+            return "%s, %s [monitored]" % (self.subject, self.link)
         return "%s, %s, %s, %s" % (self.subject, self.link, self.author, self.gmtime)
 
 
@@ -68,14 +68,14 @@ class RegressionFullCSV(regzbot.RegressionFull):
         if len(flags) == 0:
             flags.append('no flags')
         compiled.append("REGRESSION: %s, %s (%s), %s, %s, %s, %s: %s" %
-                       (self.subject, self._introduced_short, self._introduced_presentable,
-                           self._introduced_url, self.treename, self._branchname, self.versionline, ', '.join(flags)))
+                        (self.subject, self._introduced_short, self._introduced_presentable,
+                         self._introduced_url, self.treename, self._branchname, self.versionline, ', '.join(flags)))
 
         reportlist = list()
         for regression in self, *self._dupes:
             report = regression._actim_report
             content = ("%s, %s, %s, %s, %s" % (report.gmtime, report.subject, report.authorname,
-                        report.authormail, regzbot.ReportSource.get_by_id(report.repsrcid).url(report.entry)))
+                                               report.authormail, regzbot.ReportSource.get_by_id(report.repsrcid).url(report.entry)))
             if report == self._actim_report:
                 reportlist.insert(0, 'INITIAL_REPORT: %s' % content)
             else:
@@ -92,7 +92,7 @@ class RegressionFullCSV(regzbot.RegressionFull):
 
         if self.solved_reason or self.solved_duplicateof:
             compiled.append("SOLVED: %s, %s, %s, %s, %s%s" %
-                                (self.solved_reason, self.solved_gmtime, self._solved_entry_presentable, self.solved_url, self.solved_subject, duplicatetext))
+                            (self.solved_reason, self.solved_gmtime, self._solved_entry_presentable, self.solved_url, self.solved_subject, duplicatetext))
         return compiled
 
     def add_links(self, compiled):
@@ -125,13 +125,15 @@ class UnhandledEventCSV(regzbot.UnhandledEvent):
 
     def dump(self):
         return "UNHANDLED: %s, %s, %s, %s, %s, %s, %s, %s, %s\n" % (self.unhanid, self.link, self.note, self.gmtime, self.regid,
-                                                       self.subject, self.solved_gmtime, self.solved_link, self.solved_subject)
+                                                                    self.subject, self.solved_gmtime, self.solved_link, self.solved_subject)
+
 
 def dumpall_csv(order='regid'):
     for regression in RegressionFullCSV.get_all(order=order):
         yield regression.dump()
     for unhandled_event in UnhandledEventCSV.get_all():
         yield unhandled_event.dump()
+
 
 def main():
     for dumped_regression in dumpall_csv():

@@ -21,7 +21,7 @@ else:
     import logging
     logger = logging
     if False:
-    #if True:
+        # if True:
         logger.basicConfig(level=logging.DEBUG)
         logging.getLogger("bugzilla").setLevel(logging.WARNING)
         logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -74,7 +74,7 @@ class BzActivity(regzbot._repsources._trackers._activity):
             # this will set it:
             _ = self.summary
         return self._patchkind
-    
+
     @property
     def summary(self):
         def is_patch_in_attachment():
@@ -205,7 +205,8 @@ class BzProject():
 
     def search(self, pattern, since, *, until=None):
         if since:
-            logger.debug("[bugzilla] %s: searching for '%s' in comments updated after %s", self.web_url[8:], pattern, since)
+            logger.debug("[bugzilla] %s: searching for '%s' in comments updated after %s",
+                         self.web_url[8:], pattern, since)
         else:
             logger.debug("[bugzilla] %s: searching for '%s'", self.web_url[8:], pattern)
         query = self._pybz_bugzilla.build_query()
@@ -237,7 +238,8 @@ class BzProject():
 
     def updated_issues(self, since, until=None):
         if until:
-            logger.debug("[bugzilla] %s: retrieving list of issues updated between '%s' and '%s'", self.web_url[8:], since, until)
+            logger.debug("[bugzilla] %s: retrieving list of issues updated between '%s' and '%s'",
+                         self.web_url[8:], since, until)
         else:
             logger.debug("[bugzilla] %s: retrieving list of issues updated since '%s'", self.web_url[8:], since)
         query = self._pybz_bugzilla.build_query()
@@ -245,7 +247,7 @@ class BzProject():
         query["chfieldfrom"] = since.strftime("%Y-%m-%d-%H:%M:%S")
         if until:
             query["chfieldto"] = until.strftime("%Y-%m-%d-%H:%M:%S")
-        else:        
+        else:
             query["chfieldto"] = 'Now'
 
         for result in self._pybz_bugzilla.query(query):
@@ -346,6 +348,7 @@ def connect(instance_name, *, token=None):
             token = regzbot.CONFIGURATION[instance_name]['token']
         _CACHE_INSTANCES[instance_name] = BzInstance(instance_name, token)
     return _CACHE_INSTANCES[instance_name]
+
 
 def __test():
     # main issue used for testing (chosen without much thought): https://bugzilla.kernel.org/show_bug.cgi?id=217678

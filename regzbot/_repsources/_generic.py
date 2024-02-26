@@ -8,6 +8,7 @@ from regzbot import ReportSource
 from regzbot import ReportThread
 import datetime
 
+
 class GenRepSrc(ReportSource):
     def thread(self, *, url=None, id=None):
         # for a generic report they are identical

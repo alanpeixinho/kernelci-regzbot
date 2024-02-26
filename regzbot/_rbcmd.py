@@ -14,13 +14,14 @@ if __name__ != "__main__":
 else:
     import logging
     logger = logging
-    #if False:
+    # if False:
     if True:
         logger.basicConfig(level=logging.DEBUG)
 
 
 class RegressionCreatedException(Exception):
     pass
+
 
 class RbCmdSingleNew:
     def __init__(self, rbcmd_stack, cmd, parameters):
@@ -31,7 +32,7 @@ class RbCmdSingleNew:
         # handle frequent typos, alternatives, and renamed commands
         if self.cmd in ('backburner', 'back-burner'):
             self.cmd = 'backburn'
-        elif self.cmd in ('dup', 'dupof', 'dup-of', 'duplicate-of' ):
+        elif self.cmd in ('dup', 'dupof', 'dup-of', 'duplicate-of'):
             self.cmd = 'duplicate'
         elif self.cmd in ('fixedby', 'fixed-by'):
             self.cmd = 'fix'
@@ -43,7 +44,7 @@ class RbCmdSingleNew:
             self.cmd = 'resolve'
         elif self.cmd in ('subject', 'title'):
             self.cmd = 'summary'
-        elif self.cmd in ('unlink', 'unmonitor', 'unrelated' ):
+        elif self.cmd in ('unlink', 'unmonitor', 'unrelated'):
             self.cmd = 'unrelate'
         elif self.cmd in ('unback-burner', 'back-burner'):
             self.cmd = 'unbackburn'
@@ -162,7 +163,6 @@ class RbCmdSingleNew:
             regzbot.UnhandledEvent.add(
                 self.repact.web_url, "unable to unrelate thread %s, parsing failed" % url, gmtime=self.repact.gmtime, subject=self.repact.summary)
 
-
     def process(self, regression, regression_topmost_duplicate):
         regression_created = None
         succeeded = None
@@ -170,7 +170,7 @@ class RbCmdSingleNew:
         if self.cmd == 'ignore-activity':
             # this is a flag handled when processing activities, so nothing to do here
             return
-        elif self.cmd in ('poke', 'note') :
+        elif self.cmd in ('poke', 'note'):
             # nothing to do here, the entry in the history is enough
             pass
         elif self.cmd == 'duplicate' and not regression:
@@ -191,7 +191,7 @@ class RbCmdSingleNew:
                 'summary',
                 'unbackburn',
                 'unrelate',
-                ):
+        ):
             succeeded = getattr(self, '_cmd_%s' % self.cmd)(regression)
             if regression_topmost_duplicate and self.cmd not in ('relate', 'relatebrief', 'duplicate'):
                 # some command needs to act on topmost regression as well
@@ -233,7 +233,7 @@ class RbCmdStackNew:
             # this is here for backwards compatibility
             cmd = 'introduced'
             if self.repact.repsrc.kind == 'lore':
-                self._add_command ('report', '^')
+                self._add_command('report', '^')
         if cmd == 'introduced':
             # this is here for backwards compatibility, too
             split_parameters = parameters.split()
@@ -309,7 +309,7 @@ class RbCmdStackNew:
                 continue
             if not self.regression:
                 regzbot.UnhandledEvent.add(
-                     self.repact.web_url, "regzbot tag in a thread not associated with a regression", gmtime=self.repact.gmtime, subject=self.repact.summary)
+                    self.repact.web_url, "regzbot tag in a thread not associated with a regression", gmtime=self.repact.gmtime, subject=self.repact.summary)
                 continue
 
             single_command.process(self.regression, self.regression_topmost_duplicate)
@@ -323,6 +323,7 @@ class RbCmdStackNew:
         if regression_created:
             self.add_related_activities(self.reptrd, regression_created)
         return regression_created
+
 
 def _parse(cmd_section):
     # the following re has to deal with:
@@ -352,6 +353,7 @@ def _parse(cmd_section):
         splitted = re.split(r'^([\^\w-]+)(:?\n?\s+)?(.*)?$', cmd_line)
         yield(splitted[1], splitted[3])
 
+
 def process_activity(activity, *, triggering_repact=None, actimon=None):
     def _handle_activity(activity, actimon):
         regression = None
@@ -380,7 +382,7 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
         #  regzbot command might be right at its start or end.
         regression_created = None
         for cmd_section in re.finditer(r'^\r?\n#regzbot.*\r?\n\s*\r?\n$', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
-            cmd_stack = RbCmdStackNew(activity, regression )
+            cmd_stack = RbCmdStackNew(activity, regression)
             for command, parameter in _parse(cmd_section[0].replace('\r', '')):
                 cmd_stack._add_command(command, parameter)
             regression_created = cmd_stack.process_commands()
@@ -394,7 +396,8 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
                     # already monitored, nothing to do
                     return
             cmd_stack = RbCmdStackNew(activity, regression)
-            cmd_stack._add_command('relate', "%s %s [implicit, subject is expected]" % (activity.web_url, activity.subject))
+            cmd_stack._add_command('relate', "%s %s [implicit, subject is expected]" %
+                                   (activity.web_url, activity.subject))
             cmd_stack.process_commands()
 
     def _handle_msgs_linking_regressions(activity):
@@ -441,15 +444,15 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
                 # ignore
                 continue
 
-            if linktag is True :
+            if linktag is True:
                 cmd_stack = RbCmdStackNew(activity, regression)
-                cmd_stack._add_command('relate', "%s %s [implicit due to Link/Closes tag]" % (activity.web_url, activity.subject))
+                cmd_stack._add_command('relate', "%s %s [implicit due to Link/Closes tag]" %
+                                       (activity.web_url, activity.subject))
                 cmd_stack.process_commands()
             elif url:
                 cmd_stack = RbCmdStackNew(activity, regression)
                 cmd_stack._add_command('note', "%s %s [implicit due to link]" % (url, activity.summary))
                 cmd_stack.process_commands()
-
 
     def _handle_msgs_mentioning_culprits(activity):
         open_regressions = {}
@@ -494,11 +497,13 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
     if regression_created:
         raise RegressionCreatedException
 
+
 if __name__ == "__main__":
-    __TESTDATA=[]
-    #__TESTDATA.append("#regzbot introduced foo")
-    #__TESTDATA.append("#regzbot introduced foo\n#regzbot title bar")
-    __TESTDATA.append("#regzbot  introduced\nfoo bar \nand more for and bar; and foobar, too;\n#regzbot ignore; #regzbot title foo;\n#regzbot title: baz;")
+    __TESTDATA = []
+    # __TESTDATA.append("#regzbot introduced foo")
+    # __TESTDATA.append("#regzbot introduced foo\n#regzbot title bar")
+    __TESTDATA.append(
+        "#regzbot  introduced\nfoo bar \nand more for and bar; and foobar, too;\n#regzbot ignore; #regzbot title foo;\n#regzbot title: baz;")
     for i in __TESTDATA:
         print('#########')
         print('"""\n%s """' % i)

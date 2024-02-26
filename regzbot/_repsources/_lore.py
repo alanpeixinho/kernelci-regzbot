@@ -28,7 +28,7 @@ if __name__ != "__main__":
 else:
     import logging
     logger = logging
-    #if False:
+    # if False:
     if True:
         logger.basicConfig(level=logging.DEBUG)
 
@@ -55,8 +55,8 @@ class LoreNntp():
         return email.message_from_bytes(b'\n'.join(article.lines), policy=email.policy.default)
 
     def _group(self, groupname):
-        splitted  = groupname.split('/', maxsplit=4)
-        if len(splitted)>2:
+        splitted = groupname.split('/', maxsplit=4)
+        if len(splitted) > 2:
             groupname = splitted[3]
         else:
             groupname = splitted[0]
@@ -72,7 +72,7 @@ class LoreNntp():
 
 class LoreHttps():
     @staticmethod
-    def download_thread(msgid, *, repsrc = None):
+    def download_thread(msgid, *, repsrc=None):
         if regzbot.is_running_citesting('offline'):
             import os
             found_something = False
@@ -81,14 +81,14 @@ class LoreHttps():
                 if not os.path.isfile(filename):
                     continue
                 if not found_something:
-                    found_something= True
+                    found_something = True
                 for mboxmsg in mailbox.mbox(filename):
                     yield email.message_from_bytes(mboxmsg.as_bytes(), policy=email.policy.default)
             if not found_something:
                 raise regzbot.RepDownloadError
         else:
             with tempfile.NamedTemporaryFile() as tmpfile:
-                url='https://lore.kernel.org/all/%s/t.mbox.gz' % msgid
+                url = 'https://lore.kernel.org/all/%s/t.mbox.gz' % msgid
                 try:
                     logger.debug("[lore] downloading %s", url)
                     with urllib.request.urlopen(url) as response:
@@ -182,19 +182,23 @@ class LoActivity():
                 #  https://lore.kernel.org/all/20211005053239.3E8DEC4338F@smtp.codeaurora.org/raw
                 #  https://lore.kernel.org/all/20210925074531.10446-1-tomm.merciai@gmail.com/raw
                 # related: https://bugs.python.org/issue39100
-                logger.warning('Ignoring "%s" in %s due to and exception: "AttributeError: %s"', field, email_get_msgid(msg), err)
+                logger.warning('Ignoring "%s" in %s due to and exception: "AttributeError: %s"',
+                               field, email_get_msgid(msg), err)
             except ValueError as err:
                 # Workaround for https://lore.kernel.org/all/1634261360.fed2opbgxw.astroid@bobo.none/raw
                 #     -> "ValueError: invalid arguments; address parts cannot contain CR or LF"
-                logger.warning('Ignoring "%s" in %s due to and exception: "ValueError: %s"',  field, email_get_msgid(msg), err)
+                logger.warning('Ignoring "%s" in %s due to and exception: "ValueError: %s"',
+                               field, email_get_msgid(msg), err)
             except IndexError as err:
                 # workaround for the "=?utf-8?q?=2C?=linux-arm-msm@vger.kernel.org" in
                 # https://lore.kernel.org/linux-pci/166983076821.2517843.6476270112700027226.robh@kernel.org/raw
-                logger.warning('Ignoring "field" in %s due to an exception: "HeaderParseError: %s"', field, email_get_msgid(msg), err)
+                logger.warning('Ignoring "field" in %s due to an exception: "HeaderParseError: %s"',
+                               field, email_get_msgid(msg), err)
             except TypeError as err:
                 # workaround for the ".@3429e2599065" in
                 # https://lore.kernel.org/all/202312271450.C9YmLJn2-lkp@intel.com/
-                logger.warning('Ignoring "field" in %s due to an exception: "TypeError: %s"', field, email_get_msgid(msg), err)
+                logger.warning('Ignoring "field" in %s due to an exception: "TypeError: %s"',
+                               field, email_get_msgid(msg), err)
         return recipients
 
     @cached_property
@@ -280,7 +284,7 @@ class LoreThread():
             self._init_activity = {}
         elif msg and not msgid:
             loact = LoActivity(self, msg)
-            self._init_activity = { loact.id: loact, }
+            self._init_activity = {loact.id: loact, }
             self._id = loact.id
         else:
             raise RuntimeError
@@ -369,9 +373,10 @@ class LoRepAct(regzbot.ReportActivity):
 
         super().__init__()
 
+
 class LoRepSrc(ReportSource):
     def supports_url(self, url_lowered, url_parsed):
-        if url_parsed.netloc in ('lore.kernel.org', 'lkml.kernel.org') and (self.name == 'lore_all'  or regzbot.is_running_citesting('offline')):
+        if url_parsed.netloc in ('lore.kernel.org', 'lkml.kernel.org') and (self.name == 'lore_all' or regzbot.is_running_citesting('offline')):
             path_split = url_parsed.path.split('/', maxsplit=3)
             if len(path_split) < 3:
                 raise regzbot.RepDownloadError
@@ -405,7 +410,8 @@ class LoRepSrc(ReportSource):
 
     def update(self):
         if regzbot.is_running_citesting('offline'):
-            import pathlib, os
+            import pathlib
+            import os
             filenames = sorted(pathlib.Path(self.serverurl).iterdir(), key=os.path.getmtime)
             for file in filenames:
                 if os.path.islink(file):
@@ -439,8 +445,8 @@ class LoRepSrc(ReportSource):
                 msgid = LoActivity.validate_msgid(over['message-id'])
                 gmtime = email.utils.mktime_tz(email.utils.parsedate_tz(over['date']))
                 if regzbot.RecordProcessedMsgids.check_presence(msgid, gmtime):
-                   logger.debug('[lore] skipping "%s", we already encountered it it', msgid)
-                   continue
+                    logger.debug('[lore] skipping "%s", we already encountered it it', msgid)
+                    continue
 
                 msg = lorenntp._article(id)
                 if 'subject' in msg and msg['subject'].startswith(regzbot.REPORT_SUBJECT_PREFIX):
@@ -452,7 +458,6 @@ class LoRepSrc(ReportSource):
 
             # update database
             self.set_lastchked(id_last)
-
 
 
 class LoRepTrd(ReportThread):
@@ -518,6 +523,7 @@ class LoRepTrd(ReportThread):
             # there is nothing more for us to do here
             pass
 
+
 def _describe(obj, variable_names):
     content = []
     for variable_name in variable_names:
@@ -535,7 +541,6 @@ def _describe(obj, variable_names):
                 value = '%s…' % value[0:79]
         content.append("'%s': '%s'" % (variable_name, value))
     return str(obj.__class__) + ' => {' + ', '.join(content) + '}'
-
 
 
 def __test():
@@ -565,14 +570,12 @@ def __test():
         pass
     _testing_check_result('Subthread detection broken', count, 17)
 
-
     lore_nntp = LoreNntp()
     id_first, id_last = lore_nntp._group('org.kernel.vger.linux-kernel')
     print(LoreArticle(lore_nntp._article('CAHk-=wiOJOOyWvZOUsKppD068H3D=5dzQOJv5j2DU4rDPsJBBg@mail.gmail.com')))
     print(LoreArticle(lore_nntp._article('20231130-topic-ddr_sleep_stats-v1-1-5981c2e764b6@linaro.org')))
 
     sys.exit(1)
-
 
     # print last
     id_first, id_last = lore_nntp._group('nntp://nntp.lore.kernel.org/org.kernel.vger.linux-kernel')

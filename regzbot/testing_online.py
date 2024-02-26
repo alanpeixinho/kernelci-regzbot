@@ -44,7 +44,7 @@ def run(resultfilename, tmpdir, _):
 
             if chk_git:
                 for gittree in regzbot.GitTree.getall():
-                      gittree.update()
+                    gittree.update()
 
             # write results
             resultfile.write('[%s_%s_%s]\n' %
@@ -82,9 +82,12 @@ def onlntest_0_2(funcname):
     return False, False, False
 
 # the last mail in the thread will only find the report by walking the thread
+
+
 def onlntest_0_3(funcname):
     regzbot.checkout_msgid('5f445dab-a152-bcaa-4462-1665998c3e2e@gmail.com')
     return False, False, False
+
 
 def onlntest_1_0(funcname):
     # uses ^introduced for a report in 5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com

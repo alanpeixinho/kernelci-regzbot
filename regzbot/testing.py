@@ -21,12 +21,13 @@ import regzbot.testing_online
 import regzbot.testing_trackers
 
 SUPPORTED_TESTMODES = {
-        'offline': regzbot.testing_offline,
-        'online': regzbot.testing_online,
-        'trackers': regzbot.testing_trackers
-    }
+    'offline': regzbot.testing_offline,
+    'online': regzbot.testing_online,
+    'trackers': regzbot.testing_trackers
+}
 
 logger = regzbot.logger
+
 
 def __get_resultfiles(path_testdata, path_tmpdir):
     if not os.path.isdir(path_testdata):
