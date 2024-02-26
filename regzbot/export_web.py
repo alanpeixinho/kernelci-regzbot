@@ -13,7 +13,6 @@ import yattag
 
 import regzbot
 from regzbot import days_delta
-from regzbot import hours_delta
 from regzbot import PatchKind
 
 logger = regzbot.logger

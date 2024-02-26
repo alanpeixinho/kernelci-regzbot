@@ -486,11 +486,6 @@ class LoRepTrd(ReportThread):
     def repsrc(self):
         return self._lo_thread.best_repsrc
 
-    def reptrd_from_msgid(self, msgid):
-        lo_activity = self._lo_thread.activity(msgid=msgid)
-        lorepsrc = lo_activity.best_repsrc
-        return LoRepTrd(lorepsrc, self._lo_thread, lo_activity=lo_activity)
-
     def ancestors(self):
         if self._lo_activity.ancestors:
             for msgid in self._lo_activity.ancestors:
@@ -562,11 +557,13 @@ def __test():
                 print(" Aborting.")
                 sys.exit(1)
 
+    print('BROKEN')
+    sys.exit(1)
+
     # = setup =
     for count, act in enumerate(LoreThread(msgid='e2305642-55f1-4893-bea3-b170ac0a5348@linaro.org').activities(), start=1):
         pass
     _testing_check_result('Subthread detection broken', count, 17)
-    sys.exit(1)
 
 
     lore_nntp = LoreNntp()

@@ -802,13 +802,6 @@ class RegActivityMonitor():
             actimonid=self.actimonid,
             )
 
-    @staticmethod
-    def get_by_activity(activity):
-        dbcursor = DBCON.cursor()
-        for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE repsrcid=(?) AND entry=(?)', (activity.repsrc.id, activity.reptrd.id)):
-            yield RegActivityMonitor(*dbresult)
-
-
     @cached_property
     def repsrc(self):
         return ReportSourceObsolete.get_by_id_n_entry(self.repsrcid, self.entry)
@@ -923,18 +916,6 @@ class RegActivityMonitor():
         for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE entry=(?)', (entry, )):
             return RegActivityMonitor(*dbresult)
 
-    @staticmethod
-    def get_by_repsrc(repsrc):
-        dbcursor = DBCON.cursor()
-        for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE repsrcid=(?)', (repsrc.id,)):
-            yield RegActivityMonitor(*dbresult)
-
-    @staticmethod
-    def get_by_repsrc_n_entry(repsrc, entry):
-        dbcursor = DBCON.cursor()
-        for dbresult in dbcursor.execute('SELECT * FROM actmonitor WHERE repsrcid=(?) AND entry=(?)', (repsrc.repsrcid, entry)):
-            return RegActivityMonitor(*dbresult)
-
     @classmethod
     def get_by_reptrd(cls, reptrd):
         if reptrd.repsrc.kind != 'lore':
@@ -953,26 +934,6 @@ class RegActivityMonitor():
                     continue
                 actimonids_found.append(actimon.actimonid)
                 yield actimon
-
-    @staticmethod
-    def get_by_regid_n_entry(regid, entry):
-        dbcursor = DBCON.cursor()
-        dbresult = dbcursor.execute(
-            'SELECT * FROM actmonitor WHERE regid=(?) AND entry=(?)', (regid, entry, )).fetchone()
-        if dbresult is not None:
-            return RegActivityMonitor(*dbresult)
-        else:
-            return False
-
-    @staticmethod
-    def get_by_regid_n_repsrcid_n_entry(regid, repsrcid, entry):
-        dbcursor = DBCON.cursor()
-        dbresult = dbcursor.execute(
-            'SELECT * FROM actmonitor WHERE regid=(?) AND repsrcid=(?) AND entry=(?)', (regid, repsrcid, entry, )).fetchone()
-        if dbresult is not None:
-            return RegActivityMonitor(*dbresult)
-        else:
-            return False
 
     @classmethod
     def get_by_regactivity(cls, entry):
@@ -1141,30 +1102,6 @@ class RegActivityEvent():
         else:
             for dbresult in dbcursor.execute('SELECT %s FROM regactivity WHERE actimonid IN (%s) OR regid=(?) ORDER BY gmtime' % (RegActivityEvent.DBCOLS, placeholders), replacements):
                 yield cls(*dbresult)
-
-    @classmethod
-    def get_actimonid_by_entry(cls, entry):
-        dbcursor = DBCON.cursor()
-        dbresult = dbcursor.execute('SELECT actimonid FROM actmonitor WHERE entry=(?)', (entry, )).fetchone()
-        if dbresult is not None:
-            return dbresult[0]
-        dbresult = dbcursor.execute('SELECT actimonid FROM regactivity WHERE entry=(?) ORDER BY gmtime', (entry, )).fetchone()
-        if dbresult is not None:
-            return dbresult[0]
-
-    @staticmethod
-    def present_alt(repsrcid, entry, subentry):
-        dbcursor = DBCON.cursor()
-        if subentry:
-            dbresult = dbcursor.execute(
-               'SELECT * FROM regactivity WHERE repsrcid=(?) AND entry=(?) AND subentry=(?)', (repsrcid, entry, subentry)).fetchone()
-        else:
-            dbresult = dbcursor.execute(
-               'SELECT * FROM regactivity WHERE repsrcid=(?) AND entry=(?) AND subentry=(?)', (repsrcid, entry, subentry)).fetchone()
-        if dbresult is None:
-            return False
-        else:
-            return True
 
     @staticmethod
     def present(entry, actimonid=None, regid=None, gitbranchid=None, subentry=None):
@@ -1400,16 +1337,6 @@ class RegHistory():
         for dbresult in dbcursor.execute('SELECT * FROM reghistory WHERE regid=(?) ORDER BY gmtime', (regid, )):
             yield cls(*dbresult)
 
-    @staticmethod
-    def get_latest(regid):
-        dbcursor = DBCON.cursor()
-        dbresult = dbcursor.execute(
-            'SELECT * FROM reghistory WHERE regid=(?) ORDER BY gmtime DESC', (regid, )).fetchone()
-        if dbresult is not None:
-            return RegHistory(*dbresult)
-        else:
-            return False
-
     def url(self):
         if self.gitbranchid is not None:
             return GitBranch.url_by_id(self.gitbranchid, self.entry)
@@ -1478,63 +1405,6 @@ class RegLink():
             logger.debug(
                 '[db reglinks] deleted (regid:%s, repsrcid:%s, entry:%s)' % (regid, repsrcid, entry))
 
-
-    @staticmethod
-    def add_link(regid, gmtime, subject, author, link):
-        def add(dbcursor, regid, link, subject, gmtime):
-            dbcursor.execute('''INSERT INTO reglinks
-                            (regid, gmtime, link, subject, author)
-                            VALUES (?, ?, ?, ?, ?)''',
-                             (regid, gmtime, link, subject, author))
-            logger.debug('[db reglinks] insert (regid:%s, gmtime:%s, link:%s, subject:"%s", author:"%s")' % (
-                regid, gmtime, link, subject, author))
-
-        def update(dbcursor, regid, link, subject):
-            dbcursor.execute('''UPDATE reglinks
-                            SET link = (?), subject = (?)
-                            WHERE regid=(?)''',
-                             (link, subject, regid))
-            logger.debug(
-                '[db reglinks] update (regid:%s, link:%s)' % (regid, link))
-
-        domain, mlist, msgid = parse_link(link)
-
-        if domain == 'lore.kernel.org':
-            _, linkedmsg = lore.download_msg(msgid)
-            gmtime = mailin.email_get_gmtime(linkedmsg)
-            realauthor, realauthormail = mailin.email_get_from(linkedmsg)
-            if subject == link:
-                subject = mailin.email_get_subject(linkedmsg)
-                author = realauthor
-            else:
-                author = '%s; link later added and described by %s' % (realauthor, author)
-        else:
-             author = None
-
-        dbcursor = DBCON.cursor()
-        dbresult = dbcursor.execute(
-            'SELECT link FROM reglinks WHERE regid=(?) AND link=(?)', (regid, link)).fetchone()
-        if dbresult is None:
-            add(dbcursor, regid, link, subject, gmtime)
-            return False
-        else:
-            update(dbcursor, regid, link, subject)
-            return True
-        return None
-
-    @staticmethod
-    def del_link(regid, link):
-        dbcursor = DBCON.cursor()
-        dbresult = dbcursor.execute(
-            'SELECT link FROM reglinks WHERE regid=(?)', (regid,)).fetchone()
-        if dbresult is not None:
-            dbcursor.execute('''DELETE FROM reglinks
-                             WHERE regid=(?) AND link=(?)''',
-                             (regid, link))
-            logger.debug(
-                '[db reglinks] delete (regid:%s, link:%s)' % (regid, link))
-            return True
-        return False
 
     @classmethod
     def get_all(cls, regid, order='ASC'):
@@ -1856,16 +1726,6 @@ class RegressionBasic():
             if actimon.regid:
                 return cls.get_by_regid(actimon.regid)
 
-    @classmethod
-    def get_by_repsrc_n_entry(cls, repsrc, entry, dbcursor=None):
-        if not dbcursor:
-            dbcursor = DBCON.cursor()
-        dbresult = dbcursor.execute(
-            'SELECT %s FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.repsrcid=? AND actmonitor.entry=?' % RegressionBasic.DBCOLS, (repsrc.repsrcid, entry,)).fetchone()
-        if dbresult:
-            return cls(*dbresult)
-        return None
-
     def get_dupes(self, *, recursion_count=-1) :
         if recursion_count > 12:
             logger.critical("Aborting, recursion limit in RegActivityMonitor.__walk_duplicates() exceeded.")
@@ -1897,23 +1757,6 @@ class RegressionBasic():
         for regression in upper_regression.find_topmost(recursion_count=recursion_count):
             yield regression
             return
-
-    @classmethod
-    def getall_by_entry(cls, entry):
-        for primary_regression in cls.get_by_entry(entry):
-            yield primary_regression
-            for topmost_regression in primary_regression.find_topmost():
-                yield topmost_regression
-                for duplicate_regression in topmost_regression, topmost_regression.get_dupes():
-                    yield duplicate_regression
-
-    @classmethod
-    def get_duplicates(self):
-        for topmost_regression in self.find_topmost():
-            yield topmost_regression
-            for duplicate_regression in topmost_regression.get_dupes():
-                yield duplicate_regression
-            break
 
     @classmethod
     def get_by_regactivity(cls, entry):
@@ -1976,22 +1819,6 @@ class RegressionBasic():
             pending.append( {"regid": dbresult[0], "solved_entry": dbresult[1], "solved_subject": dbresult[2]})
         return pending
 
-
-    @classmethod
-    def activity_event_monitored(cls, repsrcid, gmtime, entry, subject, author, actimon, *, contains_patch=0):
-        regression = cls.get_by_regid(actimon.regid)
-        RegActivityEvent.event(
-            gmtime, entry, subject, author=author, repsrcid=repsrcid, actimonid=actimon.actimonid, patchkind=contains_patch)
-        logger.info('regression[%s, "%s"]: activity detected in %s")' % (
-            regression.regid, regression.subject, entry))
-
-    @classmethod
-    def activity_event_linked(cls, repsrcid, gmtime, entry, subject, author, regid):
-        regression = cls.get_by_regid(regid)
-        RegActivityEvent.event(
-            gmtime, entry, subject, author=author, repsrcid=repsrcid, regid=regid)
-        logger.info('regression[%s, "%s"]: link to this regression found in "%s" (%s)' % (
-            regid, regression.subject, subject, ReportSource.url_by_id(repsrcid, entry)))
 
     @classmethod
     def __introduced_precheck(cls, introduced, gmtime=None):
@@ -2071,22 +1898,6 @@ class RegressionBasic():
         # create regression
         return self.__create_obsolete(self.introduced, self.gitbranchid, repsrc.repsrcid, entry, gmtime, subject, authorname, authormail)
 
-
-    def obsolete_cmd_duplicate(self, tagload, gmtime, msgid, msgsubject, authorname, repsrcid):
-        def parse(tagload):
-            tagload = tagload.split(maxsplit=1)
-            url = tagload[0]
-            if len(tagload) > 1:
-                subject = tagload[1]
-            else:
-                subject = None
-            return url, subject
-
-        urldup, description = parse(tagload)
-
-        regression_other = self.__create_dup(urldup, gmtime)
-        RegHistory.event(regression_other.regid, gmtime, msgid, msgsubject, authorname, repsrcid=repsrcid, regzbotcmd="introduced: %s [implicit, due to usage of 'duplicate']" % self.introduced)
-        regression_other._dupof_direct(self, gmtime, msgid, msgsubject, authorname, repsrcid, history=False)
 
     def _dupof_direct(self, regression_other, gmtime, msgid, msgsubject, authorname, repsrcid, *, history=True):
         if self.regid == regression_other.regid:
@@ -2254,137 +2065,6 @@ class RegressionBasic():
         self.solved_repsrcid = repsrcid
         self.solved_repentry = msgid
         self._db_update_solved()
-
-    def resolve(self, tagload, gmtime, msgid, repsrcid):
-        return self._solve_reason('resolved', tagload, gmtime, msgid, repsrcid)
-
-    def inconclusive(self, tagload, gmtime, msgid, repsrcid):
-        return self._solve_reason('inconclusive', tagload, gmtime, msgid, repsrcid)
-
-    def backburner_add(self, repsrcid, entry, gmtime, author, subject ):
-        RegBackburner.add(self.regid, repsrcid, entry, gmtime, author, subject)
-
-    def backburner_remove(self):
-        return RegBackburner.remove(self.regid)
-
-    @staticmethod
-    def linkparse(tagload):
-        tagload = tagload.split(maxsplit=1)
-        link = tagload[0]
-        if len(tagload) > 1:
-            description = tagload[1]
-        else:
-            description = link.removeprefix("http://")
-        return link, description
-
-    def linkadd(self, tagload, gmtime, author):
-        link, description = self.linkparse(tagload)
-        self._linkadd(link, description, gmtime, author)
-
-    def _linkadd(self, link, description, gmtime, author):
-        updated = RegLink.add_link(
-            self.regid, gmtime, description, author, link)
-        if updated is False:
-            logger.info('regression[%s, "%s"]: added link to %s")' % (
-                self.regid, self.subject, link))
-        if updated is True:
-            logger.info('regression[%s, "%s"]: subject of link %s is now "%s"' % (
-                self.regid, self.subject, link, description))
-
-    def linkremove(self, tagload):
-        link, _ = self.linkparse(tagload)
-        RegLink.del_link(self.regid, link)
-        logger.info('regression[%s, "%s"]: removed link to %s' % (
-            self.regid, self.subject, link))
-
-    def monitoradd_direct(self, repsrcid, gmtime, msgid, description, author, authormail, contains_patch=0):
-        actimonid = RegActivityMonitor.add(self.regid, repsrcid, msgid, gmtime, description, author, authormail)
-        RegActivityEvent.event(
-            gmtime, msgid, description, author, repsrcid=repsrcid, actimonid=actimonid, patchkind=contains_patch)
-        RegLink.add_entry(
-            self.regid, gmtime, description, author, repsrcid, msgid)
-        logger.info('regression[%s, "%s"]: started to monitor %s' % (
-            self.regid, self.subject, msgid))
-
-    @staticmethod
-    def monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime):
-        if report_msg:
-            urltoreport = report_repsrc.url(report_msg['message-id'][1:-1])
-            UnhandledEvent.add(
-                urltoreport, errormsg, gmtime=gmtime, subject=report_msg['subject'])
-        else:
-            UnhandledEvent.add(
-                'unkown', errormsg, gmtime=gmtime)
-        return False
-
-    def monitoradd(self, tagload, gmtime, report_repsrc, report_msg):
-        def get_msg(target_msgid):
-            if not is_running_citesting('offline'):
-                return download_msg(target_msgid)
-            return None, None
-
-        link, description = self.linkparse(tagload)
-
-        domain, mailinglist, target_msgid = parse_link(link)
-        if not domain or not mailinglist or not target_msgid:
-            errormsg = "unable to monitor thread %s as URL could not be parsed" % link
-            logger.critical('regression[%s, "%s"]: %s' % (
-                self.regid, self.subject, errormsg))
-            return self.monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime)
-
-        target_repsrcraw, target_msg = get_msg(target_msgid)
-        if target_repsrcraw and target_msg:
-            target_gmtime = mailin.email_get_gmtime(target_msg)
-            target_subject = mailin.email_get_subject(target_msg)
-            target_author, target_authormail = mailin.email_get_from(target_msg)
-            self.monitoradd_direct(
-                target_repsrcraw.repsrcid, target_gmtime, target_msgid, target_subject, target_author, target_authormail)
-        else:
-            repsrc = ReportSource.get_byweburl(
-                '%%%s/%s%%' % (domain, mailinglist))
-            if repsrc is None:
-                errormsg = "unable to monitor thread %s, mailinglist unkown" % link
-                logger.critical('regression[%s, "%s"]: %s' % (
-                    self.regid, self.subject, errormsg))
-                return self.monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime)
-            self.monitoradd_direct(
-                repsrc.repsrcid, gmtime, target_msgid, description, None, None)
-
-        if not is_running_citesting('offline'):
-            lore.process_replies(target_msgid)
-        else:
-            target_repsrcraw, _ = ReportSource.get_by_url(link)
-
-        # check if a reference to this was mentioned in the git logs
-        target_repsrc = ReportSourceObsolete.get_by_id_n_entry(target_repsrcraw.repsrcid, target_msgid)
-        GitTree.search_references(target_repsrc, self)
-
-    def monitorremove(self, tagload, gmtime, report_repsrc, report_msg):
-        link, _ = self.linkparse(tagload)
-
-        domain, mailinglist, msgid = parse_link(link)
-        if not mailinglist or not msgid:
-            errormsg = 'unable to unmonitor thread %s as URL could not be parsed' % link
-            logger.critical('regression[%s, "%s"]: %s',
-                            self.regid, self.subject, errormsg)
-            return self.monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime)
-
-        repsrc = ReportSource.get_byweburl('%%%s/%s%%' % (domain, mailinglist))
-        if repsrc is None:
-            errormsg = "unable to unmonitor thread %s, mailinglist unkown" % link
-            logger.critical('regression[%s, "%s"]: %s',
-                            self.regid, self.subject, errormsg)
-            return self.monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime)
-
-        if RegActivityMonitor.remove(self.regid, repsrc.repsrcid, msgid):
-            logger.info('regression[%s, "%s"]: stopped monitoring %s' % (
-                self.regid, self.subject, ReportSource.url_by_id(repsrc.repsrcid, msgid)))
-            return True
-        else:
-            errormsg = "thread %s is not monitored, thus unable to unmonitor it" % link
-            logger.critical('regression[%s, "%s"]: %s',
-                            self.regid, self.subject, errormsg)
-            return self.monitorcommon_unhandled(errormsg, report_repsrc, report_msg, gmtime)
 
     def update_author(self, entry, tagload):
         from email.utils import parseaddr
@@ -2870,15 +2550,6 @@ class ReportSource():
             return ReportSource(*dbresult)
         return None
 
-    @staticmethod
-    def get_by_serverurl(serverurl):
-        dbcursor = DBCON.cursor()
-        dbresult = dbcursor.execute(
-            'SELECT * FROM reportsources WHERE serverurl LIKE (?)', (serverurl, )).fetchone()
-        if dbresult:
-            return ReportSource(*dbresult)
-        return None
-
     @classmethod
     def get_by_url(cls, url):
         # old code for classes not yet converted
@@ -3001,6 +2672,8 @@ class ReportThreadOffline():
                 return cls(repsrc, id)
 
     def ancestors(self):
+        # required to be able to pass ReportThreadOffline objects to functions that can handle ReportThread as well;
+        # due to the yield after the return python will think this is a iterator
         return
         yield
 
@@ -3023,14 +2696,6 @@ class ReportThread(ReportThreadOffline):
                 reptrd.summary = repact.summary
                 reptrd.username = repact.username
         return reptrd
-
-    @classmethod
-    def from_actimon(cls, actimon):
-        repsrc = ReportSource.get_by_id(actimon.repsrcid)
-        return repsrc.thread(id=actimon.entry)
-
-class ReportSourceUnsupported(Exception):
-    pass
 
 class ReportSourceObsolete(ReportSource):
     def __init__(self, *args):
@@ -3072,22 +2737,6 @@ class ReportSourceObsolete(ReportSource):
             "ReportSourceObsolete.get_searchpattern() doesn't yet known how to return a URL for %s", self.kind)
         return None
 
-
-class RbCmdOrigin:
-    def __init__(self, repsrc, entry, gmtime, authorname, authormail, subject, helper):
-        self.repsrc = repsrc
-        self.repsrcid = repsrc.repsrcid
-        self.entry = entry
-        self.gmtime = gmtime
-        self.authorname = authorname
-        self.authormail = authormail
-        self.subject = subject
-        self.helper = helper
-
-        self.ignore_activity = False
-
-    def ignore_activity(self):
-        self.ignore_activity = True
 
 class RepDownloadError(Exception):
     pass
@@ -3188,11 +2837,6 @@ def init_reposdir(directory):
     REPOSDIR = os.path.join(directory)
     GitTree.check_latest_versions()
     return REPOSDIR
-
-
-def hours_delta(past):
-    delta = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromtimestamp(past, datetime.timezone.utc))
-    return ((delta.days * 86400) + delta.seconds) // 3600
 
 
 def days_delta(past):

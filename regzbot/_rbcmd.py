@@ -150,7 +150,6 @@ class RbCmdSingleNew:
 
     def _cmd_unbackburn(self, regression):
         regression.cmd_unbackburn(self)
-        self.deprecated_historyevent = False
 
     def _cmd_unrelate(self, regression):
         url, _ = self._parse_link_and_description(self.parameters)
@@ -163,10 +162,6 @@ class RbCmdSingleNew:
             regzbot.UnhandledEvent.add(
                 self.repact.web_url, "unable to unrelate thread %s, parsing failed" % url, gmtime=self.repact.gmtime, subject=self.repact.summary)
 
-
-    def _cmd_unmonitor(self, regression):
-        raise NotImplementedError
-        url, _ = self._parse_link_and_description(self.parameters)
 
     def process(self, regression, regression_topmost_duplicate):
         regression_created = None
