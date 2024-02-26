@@ -301,6 +301,8 @@ class BzRepSrc(regzbot._repsources._trackers._repsrc):
             # there might be a comma or something else that might need to be removed:
             # https://lore.kernel.org/linux-wireless/170844096394.7.10031732457351764961.271076804@slmail.me/
             stripped = ''.join(filter(str.isdigit, url_parsed.query.removeprefix('id=')))
+            if not stripped:
+                return False
             return int(stripped)
 
     def updated_threads(self, since):
