@@ -4,8 +4,6 @@
 # Copyright (C) 2024 by Thorsten Leemhuis
 __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
-import argparse
-import datetime
 import email
 import email.policy
 import gzip
@@ -20,7 +18,6 @@ from regzbot import PatchKind
 from regzbot import ReportSource
 from regzbot import ReportThread
 from functools import cached_property
-from urllib.parse import urlparse
 
 if __name__ != "__main__":
     import regzbot
@@ -43,7 +40,7 @@ class LoreNntp():
 
     def __init__(self):
         global _NNTP_CONNECTION
-        if _NNTP_CONNECTION == None:
+        if not _NNTP_CONNECTION:
             logger.debug('[lore] connecting to nntp.lore.kernel.org')
             _NNTP_CONNECTION = nntplib.NNTP('nntp.lore.kernel.org')
         self._nntp_connection = _NNTP_CONNECTION
@@ -183,22 +180,22 @@ class LoActivity():
                 #  https://lore.kernel.org/all/20210925074531.10446-1-tomm.merciai@gmail.com/raw
                 # related: https://bugs.python.org/issue39100
                 logger.warning('Ignoring "%s" in %s due to and exception: "AttributeError: %s"',
-                               field, email_get_msgid(msg), err)
+                               field, self.validate_msgid(self._msg['message-id']), err)
             except ValueError as err:
                 # Workaround for https://lore.kernel.org/all/1634261360.fed2opbgxw.astroid@bobo.none/raw
                 #     -> "ValueError: invalid arguments; address parts cannot contain CR or LF"
                 logger.warning('Ignoring "%s" in %s due to and exception: "ValueError: %s"',
-                               field, email_get_msgid(msg), err)
+                               field, self.validate_msgid(self._msg['message-id']), err)
             except IndexError as err:
                 # workaround for the "=?utf-8?q?=2C?=linux-arm-msm@vger.kernel.org" in
                 # https://lore.kernel.org/linux-pci/166983076821.2517843.6476270112700027226.robh@kernel.org/raw
                 logger.warning('Ignoring "field" in %s due to an exception: "HeaderParseError: %s"',
-                               field, email_get_msgid(msg), err)
+                               field, self.validate_msgid(self._msg['message-id']), err)
             except TypeError as err:
                 # workaround for the ".@3429e2599065" in
                 # https://lore.kernel.org/all/202312271450.C9YmLJn2-lkp@intel.com/
                 logger.warning('Ignoring "field" in %s due to an exception: "TypeError: %s"',
-                               field, email_get_msgid(msg), err)
+                               field, self.validate_msgid(self._msg['message-id']), err)
         return recipients
 
     @cached_property
@@ -222,7 +219,7 @@ class LoActivity():
 
     @property
     def realname(self):
-        if self._realname == None:
+        if self._realname is None:
             self._headerparse_from()
         return self._realname
 
@@ -240,7 +237,7 @@ class LoActivity():
 
     @property
     def username(self):
-        if self._username == None:
+        if self._username is None:
             self._headerparse_from()
         return self._username
 
@@ -541,47 +538,3 @@ def _describe(obj, variable_names):
                 value = '%s…' % value[0:79]
         content.append("'%s': '%s'" % (variable_name, value))
     return str(obj.__class__) + ' => {' + ', '.join(content) + '}'
-
-
-def __test():
-    # main issue used for testing (chosen without much thought):
-    TESTDATA = {
-        'group': 'org.kernel.vger.linux-kernel',
-    }
-
-    def _testing_check_result(kind, value, expected):
-        if value == expected:
-            print(' %s' % kind, flush=True, end='')
-            return
-        elif not expected:
-            print(" %s (unknown, apparently '%s')" % (kind, value))
-            return
-        else:
-            print('\n%s: mismatch; expected vs retrieved view:\n%s\n%s' % (kind, expected, value))
-            if len(sys.argv) < 3 or sys.argv[2] != '--warn':
-                print(" Aborting.")
-                sys.exit(1)
-
-    print('BROKEN')
-    sys.exit(1)
-
-    # = setup =
-    for count, act in enumerate(LoreThread(msgid='e2305642-55f1-4893-bea3-b170ac0a5348@linaro.org').activities(), start=1):
-        pass
-    _testing_check_result('Subthread detection broken', count, 17)
-
-    lore_nntp = LoreNntp()
-    id_first, id_last = lore_nntp._group('org.kernel.vger.linux-kernel')
-    print(LoreArticle(lore_nntp._article('CAHk-=wiOJOOyWvZOUsKppD068H3D=5dzQOJv5j2DU4rDPsJBBg@mail.gmail.com')))
-    print(LoreArticle(lore_nntp._article('20231130-topic-ddr_sleep_stats-v1-1-5981c2e764b6@linaro.org')))
-
-    sys.exit(1)
-
-    # print last
-    id_first, id_last = lore_nntp._group('nntp://nntp.lore.kernel.org/org.kernel.vger.linux-kernel')
-    for id, over in lore_nntp._over(id_last - 10, id_last):
-        print('%s [%s]' % (over['subject'], over['message-id']))
-
-
-if __name__ == "__main__":
-    __test()

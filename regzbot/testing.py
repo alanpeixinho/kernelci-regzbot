@@ -9,7 +9,6 @@ __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 # * maybe: use more of pathlib and less of os and glob (or nothing at all)
 # * directly retrieve some mails from lore to see if everything works, once there are some on the list
 
-import difflib
 import glob
 import os
 import sys

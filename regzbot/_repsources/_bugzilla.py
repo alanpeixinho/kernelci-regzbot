@@ -286,7 +286,6 @@ class BzRepSrc(regzbot._repsources._trackers._repsrc):
     def _bz_project(self):
         parsed_url = urllib.parse.urlparse(self.serverurl)
         instance_name = parsed_url.netloc
-        project_name = parsed_url.path.strip("/")
 
         instance = connect(instance_name)
         project = instance.project()

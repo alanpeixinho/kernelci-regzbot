@@ -664,7 +664,8 @@ class GitTree():
 
                         # no activity, only a history entry, as it might be about different bug in the same commit
                         RegHistory.event(regression.regid, mergedate, commit.hexsha, commit.summary, '%s' % commit.author,
-                                         gitbranchid=gitbranch.gitbranchid, regzbotcmd="note: '%s' in '%s' contains a 'Fixes:' tag for the culprit of this regression"
+                                         gitbranchid=gitbranch.gitbranchid,
+                                         regzbotcmd="note: '%s' in '%s' contains a 'Fixes:' tag for the culprit of this regression"
                                          % (commit.hexsha[0:12], gitbranch.describe(gittree.name)))
 
     def update(self):
@@ -722,7 +723,7 @@ class GitTree():
                 for match in re_link.finditer(commit.message):
                     try:
                         regression = RegressionFull.get_by_url(match.group(2))
-                    except regzbot.RepDownloadError:
+                    except RepDownloadError:
                         regression = None
                     if not regression:
                         logger.debug(
@@ -735,7 +736,7 @@ class GitTree():
                     # only fill this now, as we only need it if we found a Fixes: tag
                     if len(open_regressions) == 0:
                         for regression in RegressionBasic.get_all(only_unsolved=True):
-                            if not '..' in regression.introduced:
+                            if '..' not in regression.introduced:
                                 open_regressions[regression.regid] = regression.introduced[0:12]
 
                     if not match.group(2) in open_regressions.values():
@@ -1902,9 +1903,6 @@ class RegressionBasic():
 
         if self.solved_subject is None:
             self.solved_subject = regression_other.subject
-        else:
-            # better a URL as subject than nothing at all:
-            self.solved_subject = urldup
 
         self.solved_gmtime = gmtime
         self.solved_duplicateof = regression_other.regid
@@ -2647,7 +2645,7 @@ class ReportActivity():
         _ = self.id
 
         assert self.reptrd
-        if not 'repsrc' in self.__dict__:
+        if 'repsrc' not in self.__dict__:
             self.repsrc = self.reptrd.repsrc
 
     @property
@@ -2677,7 +2675,7 @@ class ReportThreadOffline():
 class ReportThread(ReportThreadOffline):
     def __init__(self):
         _ = self.id
-        if not 'supports_relatives' in self.__dict__:
+        if 'supports_relatives' not in self.__dict__:
             self.supports_relatives = False
 
     @classmethod
@@ -2713,7 +2711,7 @@ class ReportSourceObsolete(ReportSource):
 
     @classmethod
     def get_by_url(cls, url):
-        cls, self.entryid = super().get_by_url(url)
+        cls, entryid = super().get_by_url(url)
         return cls
 
     def get_searchpattern(self):
@@ -3174,7 +3172,7 @@ def basicressources_init(databasedir=None, gittreesdir=None, websitesdir=None, t
     if os.path.exists(configfile):
         CONFIGURATION.read(configfile)
 
-    dbconnection = RegzbotDbMeta.init(databasedir)
+    RegzbotDbMeta.init(databasedir)
 
     # occational cleanup
     if randrange(500) == 250:
@@ -3244,7 +3242,7 @@ def redo_regressions(msgids):
             # recheck all msg found that had a entry in the history
             # to recreate the regression
             for msgid_to_check in msgids_to_recheck:
-                process_msg(msgid_to_check)
+                raise NotImplementedError
 
             db_dump(tmpfile_after, order='subject')
 
@@ -3314,19 +3312,6 @@ def report():
     return
 
 
-def download_msg(msgid):
-    return lore.download_msg(msgid)
-
-
-def process_msg(msgid):
-    repsrc, msg = download_msg(msgid)
-    return mailin.process_msg(repsrc, msg)
-
-
-def process_thread(msgid, repsrcid=None):
-    mailin.process_thread(msgid, repsrcid)
-
-
 def checkout_msgid(msgid):
     reptrd = ReportThread.from_url('https://lore.kernel.org/all/%s/' % msgid)
     reptrd.process_single()
@@ -3335,10 +3320,6 @@ def checkout_msgid(msgid):
 def checkout_url(url):
     reptrd = ReportThread.from_url(url)
     reptrd.update(None, None)
-
-
-def checksource(identifier):
-    return lore.checksource(identifier)
 
 
 def urldecode(url):

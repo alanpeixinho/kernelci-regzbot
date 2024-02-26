@@ -4,9 +4,7 @@
 # Copyright (C) 2022 by Thorsten Leemhuis
 __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
-import argparse
 import re
-from urllib.parse import urlparse
 
 if __name__ != "__main__":
     import regzbot
@@ -203,7 +201,7 @@ class RbCmdSingleNew:
             return
 
         # create the history event and let caller know if we created a regression
-        if succeeded != False:
+        if succeeded is not False:
             regression.add_history_event(self)
         return regression_created
 
@@ -357,7 +355,8 @@ def _parse(cmd_section):
 def process_activity(activity, *, triggering_repact=None, actimon=None):
     def _handle_activity(activity, actimon):
         regression = None
-        if re.search(r'((^|\n|;\s+)#regzbot\s+)(ignore-activity|poke)(?=(;?\n\s*$|;?\s+#regzbot))', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
+        if re.search(r'((^|\n|;\s+)#regzbot\s+)(ignore-activity|poke)(?=(;?\n\s*$|;?\s+#regzbot))', '\n' +
+                     activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
             ignore_activity = True
         else:
             ignore_activity = False
@@ -380,12 +379,11 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
         # The following loop locates sections with regzbot commands seperated by newlines;
         #  note, it adds a newline at the start and two at the end of the processed input, as the
         #  regzbot command might be right at its start or end.
-        regression_created = None
         for cmd_section in re.finditer(r'^\r?\n#regzbot.*\r?\n\s*\r?\n$', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
             cmd_stack = RbCmdStackNew(activity, regression)
             for command, parameter in _parse(cmd_section[0].replace('\r', '')):
                 cmd_stack._add_command(command, parameter)
-            regression_created = cmd_stack.process_commands()
+            cmd_stack.process_commands()
 
     def _handle_expected_threads(activity):
         if activity.repsrc.kind != 'lore':
@@ -437,13 +435,6 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
             if _already_monitored(activity, regression):
                 continue
 
-            # upgrade the object now that we know we need it
-            try:
-                reptrd_pointedto = regzbot.ReportThread.from_url(url)
-            except regzbot.RepDownloadError:
-                # ignore
-                continue
-
             if linktag is True:
                 cmd_stack = RbCmdStackNew(activity, regression)
                 cmd_stack._add_command('relate', "%s %s [implicit due to Link/Closes tag]" %
@@ -460,7 +451,7 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
             # only fill this now, as we only need it if we found a Fixes: tag
             if len(open_regressions) == 0:
                 for regression in regzbot.RegressionBasic.get_all(only_unsolved=True):
-                    if not '..' in regression.introduced:
+                    if '..' not in regression.introduced:
                         open_regressions[regression.regid] = regression.introduced[0:12]
 
             if not match.group(2) in open_regressions.values():
@@ -474,8 +465,9 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
                     continue
 
                 # no activity, only a history entry, as it might be about different bug in the same commit
-                regzbot.RegHistory.event(regid, activity.gmtime, activity.reptrd.id, activity.subject, activity.realname,
-                                         repsrcid=activity.repsrc.id, regzbotcmd='note: "%s" contains a \'Fixes:\' tag for the culprit of this regression' % activity.subject)
+                regzbot.RegHistory.event(regid, activity.gmtime, activity.reptrd.id, activity.subject,
+                                         activity.realname, repsrcid=activity.repsrc.id,
+                                         regzbotcmd='note: "%s" contains a \'Fixes:\' tag for the culprit of this regression' % activity.subject)
 
     if 'until' in regzbot._TESTING and activity.created_at >= regzbot._TESTING['until']:
         logger.debug('[rbcmd] skip processing %s', activity.web_url)
