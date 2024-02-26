@@ -133,7 +133,7 @@ class BzIssue(regzbot._repsources._trackers._issue):
         self._pybz_bug = _pybz_bug
 
         self.id = _pybz_bug.id
-        self.created_at = datetime.datetime.fromisoformat(_pybz_bug.creation_time)
+        self.created_at = datetime.datetime.fromisoformat(_pybz_bug.creation_time.replace("Z", "+00:00"))
         self.message = ''
         self.realname = self.bz_project.realname(_pybz_bug.creator, realname=_pybz_bug.creator_detail['real_name'])
         self.state = _pybz_bug.status
