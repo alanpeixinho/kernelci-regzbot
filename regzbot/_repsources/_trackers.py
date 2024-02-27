@@ -76,6 +76,11 @@ class _repsrc(regzbot.ReportSource):
         else:
             check_last = check_started - datetime.timedelta(days=90)
 
+        if self.mininterval:
+            earliest_check = regzbot.timendate_gmtime_to_dt(self.lastchked + self.mininterval)
+            if earliest_check > check_started:
+                return
+
         threads_processed = []
 
         # check if any tracked issues were updated

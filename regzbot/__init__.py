@@ -2404,7 +2404,7 @@ class UnhandledEvent():
 class ReportSource():
     __ids_lore = []
 
-    def __init__(self, repsrcid, priority, name, serverurl, kind, weburl, identifiers, lastchked):
+    def __init__(self, repsrcid, priority, name, serverurl, kind, weburl, identifiers, lastchked, mininterval):
         self.id = repsrcid
         self.repsrcid = repsrcid
         self.name = name
@@ -2414,6 +2414,7 @@ class ReportSource():
         self.identifiers = identifiers
         self.lastchked = lastchked
         self.priority = priority
+        self.mininterval = mininterval
 
     def __new__(cls, *args, **kwargs):
         if args[4] == 'bugzilla':
@@ -2447,7 +2448,8 @@ class ReportSource():
                 kind        STRING   NOT NULL,
                 weburl      STRING   NOT NULL,
                 identifiers STRING,
-                lastchked   STRING
+                lastchked   STRING,
+                mininterval INT
             )''')
 
     @staticmethod
