@@ -2452,16 +2452,41 @@ class ReportSource():
                 mininterval INT
             )''')
 
+    @classmethod
+    def add_or_modify(cls, name, priority, serverurl, kind, weburl, identifiers=None, lastchked=None, mininterval=None):
+        dbcursor = DBCON.cursor()
+        dbresult = dbcursor.execute(
+            'SELECT repsrcid, priority, serverurl, weburl, identifiers, mininterval FROM reportsources WHERE name LIKE (?) AND kind LIKE (?)', (name, kind)).fetchone()
+        if not dbresult:
+            cls.add(name, priority, serverurl, kind, weburl, identifiers, lastchked, mininterval)
+        else:
+            (db_repsrcid, db_priority, db_serverurl, db_weburl, db_identifiers, db_mininterval) = dbresult
+            if db_priority != priority or db_serverurl != serverurl or db_weburl != weburl or \
+                    db_identifiers != identifiers or db_mininterval != mininterval:
+                cls.update_entry(dbresult[0], name, priority, serverurl, kind, weburl, identifiers, mininterval)
+        return None
+
+
     @staticmethod
-    def add(name, priority, serverurl, kind, weburl, identifiers=None, lastchked=None):
+    def add(name, priority, serverurl, kind, weburl, identifiers=None, lastchked=None, mininterval=None):
         dbcursor = DBCON.cursor()
         dbcursor.execute('''INSERT INTO reportsources
-            (name, serverurl, kind, priority, weburl, identifiers,  lastchked)
-            VALUES (?, ?, ?, ?, ?, ?, ?)''',
-                         (name, serverurl, kind, priority, weburl, identifiers, lastchked))
-        logger.debug('[db reportsources] insert (repsrcid:%s, name:%s, serverurl:%s, kind:%s, priority:%s, weburl:%s, identifiers:%s, lastchked:%s)' % (
-            dbcursor.lastrowid, name, serverurl, kind, priority, weburl, identifiers, lastchked))
+            (name, serverurl, kind, priority, weburl, identifiers, lastchked, mininterval)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                         (name, serverurl, kind, priority, weburl, identifiers, lastchked, mininterval))
+        logger.debug('[db reportsources] insert (repsrcid:%s, name:%s, serverurl:%s, kind:%s, priority:%s, weburl:%s, identifiers:%s, lastchked:%s, mininterval:%s)' % (
+            dbcursor.lastrowid, name, serverurl, kind, priority, weburl, identifiers, lastchked, mininterval))
         return dbcursor.lastrowid
+
+    @staticmethod
+    def modify(repsrcid, name, priority, serverurl, kind, weburl, identifiers=None, mininterval=None):
+        dbcursor = DBCON.cursor()
+        dbcursor.execute('''UPDATE reportsources
+                            SET serverurl = (?), priority = (?), weburl = (?), identifiers = (?), mininterval  = (?)
+                            WHERE repsrcid=(?)''',
+                         (serverurl, priority, weburl, identifiers, mininterval, repsrcid))
+        logger.debug('[db reportsources] updated (repsrcid:%s, name:%s, serverurl:%s, kind:%s, priority:%s, weburl:%s, identifiers:%s, mininterval:%s)' % (
+            repsrcid, name, serverurl, kind, priority, weburl, identifiers, mininterval))
 
     def delete(self, dbcursor=None):
         if not dbcursor:
