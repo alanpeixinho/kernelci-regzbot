@@ -74,9 +74,9 @@ class _repsrc(regzbot.ReportSource):
         if self.lastchked:
             check_last = regzbot.timendate_gmtime_to_dt(self.lastchked)
         else:
-            check_last = check_started - datetime.timedelta(days=90)
+            check_last = check_started - datetime.timedelta(days=14)
 
-        if self.mininterval:
+        if self.lastchked and self.mininterval:
             earliest_check = regzbot.timendate_gmtime_to_dt(self.lastchked + self.mininterval)
             if earliest_check > check_started:
                 return

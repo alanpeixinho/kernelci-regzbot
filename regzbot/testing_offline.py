@@ -458,6 +458,8 @@ def run(resultfilename, tmpdir, testdatadir):
             if instructions:
                 if 'mailchk' in instructions:
                     for repsrc in regzbot.ReportSource.getall():
+                        if repsrc.kind != 'lore':
+                            continue
                         repsrc.update()
                 if 'gitchk' in instructions:
                     update_gittrees()

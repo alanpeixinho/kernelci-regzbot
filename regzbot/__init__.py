@@ -2463,7 +2463,7 @@ class ReportSource():
             (db_repsrcid, db_priority, db_serverurl, db_weburl, db_identifiers, db_mininterval) = dbresult
             if db_priority != priority or db_serverurl != serverurl or db_weburl != weburl or \
                     db_identifiers != identifiers or db_mininterval != mininterval:
-                cls.update_entry(dbresult[0], name, priority, serverurl, kind, weburl, identifiers, mininterval)
+                cls.modify(dbresult[0], name, priority, serverurl, kind, weburl, identifiers, mininterval)
         return None
 
 
@@ -3145,6 +3145,50 @@ def basicressources_repsrces_setup():
                      'nntp://nntp.lore.kernel.org/org.kernel.vger.linux-usb',
                      'lore', 'https://lore.kernel.org/linux-usb/', identifiers='linux-usb@vger.kernel.org')
 
+def basicressources_repsrces_add_or_modify():
+    ReportSource.add_or_modify('drm/amd', 16,
+                               'https://gitlab.freedesktop.org/drm/amd',
+                               'gitlab', '<unused>', mininterval=3600)
+
+    ReportSource.add_or_modify('drm/intel', 16,
+                               'https://gitlab.freedesktop.org/drm/intel',
+                               'gitlab', '<unused>', mininterval=3600)
+
+    ReportSource.add_or_modify('drm/misc', 16,
+                               'https://gitlab.freedesktop.org/drm/misc/kernel',
+                               'gitlab', '<unused>', mininterval=3600)
+
+    ReportSource.add_or_modify('drm/msm', 16,
+                               'https://gitlab.freedesktop.org/drm/msm',
+                               'gitlab', '<unused>', mininterval=43200)
+
+    ReportSource.add_or_modify('drm/nouveau', 16,
+                               'https://gitlab.freedesktop.org/drm/nouveau',
+                               'gitlab', '<unused>', mininterval=3600)
+
+    ReportSource.add_or_modify('drm/tegra', 16,
+                               'https://gitlab.freedesktop.org/drm/tegra',
+                               'gitlab', '<unused>', mininterval=43200)
+
+    ReportSource.add_or_modify('drm/xe', 16,
+                               'https://gitlab.freedesktop.org/drm/xe/kernel',
+                               'gitlab', '<unused>', mininterval=14400)
+
+    ReportSource.add_or_modify('v9fs', 16,
+                               'https://github.com/v9fs/linux',
+                               'github', '<unused>', mininterval=43200)
+
+    ReportSource.add_or_modify('AsahiLinux', 16,
+                               'https://github.com/AsahiLinux/linux',
+                               'github', '<unused>', mininterval=43200)
+
+    ReportSource.add_or_modify('ClangBuiltLinux', 16,
+                               'https://github.com/ClangBuiltLinux/linux',
+                               'github', '<unused>', mininterval=14400)
+
+    ReportSource.add_or_modify('thesofproject', 16,
+                               'https://github.com/thesofproject/linux',
+                               'github', '<unused>', mininterval=43200)
 
 def basicressources_get_dirs(databasedir=None, gittreesdir=None, websitesdir=None, tmpdir=None):
     # constructs the directory paths
@@ -3215,6 +3259,8 @@ def basicressources_init(databasedir=None, gittreesdir=None, websitesdir=None, t
 
     basicressource_checkdir_exists(websitesdir, create=True)
     basicressource_checkdir_exists(os.path.join(websitesdir, 'regression'), create=True)
+
+    basicressources_repsrces_add_or_modify()
 
     global WEBPAGEDIR
     WEBPAGEDIR = websitesdir
