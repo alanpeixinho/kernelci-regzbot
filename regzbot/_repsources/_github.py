@@ -250,7 +250,9 @@ class GhRepSrc(regzbot._repsources._trackers._repsrc):
 
         instance = connect(instance_name)
         project = instance.project(project_name)
-        assert self.serverurl == project.web_url
+        if self.serverurl != project.web_url:
+            logger.error("[github] self.serverurl (%s) and project.web_url (%s) do not match"  % (self.serverurl, project.web_url) )
+            raise AssertionError
         return project
 
     def search(self, pattern, since):
@@ -258,8 +260,9 @@ class GhRepSrc(regzbot._repsources._trackers._repsrc):
             yield searchresult
 
     def supports_url(self, url_lowered, url_parsed):
-        if url_lowered.startswith(self.serverurl):
-            id = url_lowered.removeprefix('%s/issues/' % self.serverurl)
+        if url_lowered.startswith('%s/issues/' % self.serverurl):
+            id = url.removeprefix('%s/issues/' % self.serverurl)
+            id = id.split('#', 1)[0]
             return int(id.strip('/'))
 
     def updated_threads(self, since):
