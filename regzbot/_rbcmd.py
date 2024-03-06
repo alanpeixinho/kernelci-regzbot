@@ -231,7 +231,12 @@ class RbCmdStackNew:
             # this is here for backwards compatibility
             cmd = 'introduced'
             if self.repact.repsrc.kind == 'lore':
-                self._add_command('report', '^')
+                try:
+                    self._parse_pointer('^')
+                    self._add_command('report', '^')
+                except TypeError:
+                    # just ignore
+                    pass
         if cmd == 'introduced':
             # this is here for backwards compatibility, too
             split_parameters = parameters.split()
@@ -262,15 +267,15 @@ class RbCmdStackNew:
                 self.regression_topmost_duplicate = duplicate
 
     def _parse_pointer(self, pointer):
-        if pointer == '^':
-            if self.reptrd.supports_relatives:
-                for msgid in self.reptrd.ancestors():
-                    return 'https://lore.kernel.org/all/%s/' % msgid
-        elif pointer in ('/', '~'):
-            if self.reptrd.supports_relatives:
-                return 'https://lore.kernel.org/all/%s/' % self.reptrd.root()
-        else:
+        if not pointer in ('^', '/', '~'):
             return pointer
+        if not self.reptrd.supports_relatives:
+            return self.reptrd.web_url
+        if pointer == '^':
+            for msgid in self.reptrd.ancestors():
+                return 'https://lore.kernel.org/all/%s/' % msgid
+        elif pointer in ('/', '~'):
+            return 'https://lore.kernel.org/all/%s/' % self.reptrd.root()
 
     # maybe the following is somewhat oddly placed here, but putting it in Regression class felt misplaced, too, as this
     # only should be executed in the contect of commands like duplicate and introduced; and in the latter case only
