@@ -161,7 +161,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -198,7 +198,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -240,7 +240,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -289,7 +289,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -339,7 +339,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -392,7 +392,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -445,7 +445,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -500,7 +500,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -557,7 +557,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -657,7 +657,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -760,7 +760,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -879,7 +879,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -1001,7 +1001,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -1129,7 +1129,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -1264,7 +1264,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -1406,7 +1406,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -1554,7 +1554,7 @@ HISTORY: test_0_3_1: Lorem ipsum dolor sit amet, 1546646400, Regzbot testingmail
 LATEST: test_0_3_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_3_1@example.com/, 1546646400, PatchKind(None)
 REGRESSION: test_0_6: Lorem ipsum dolor sit amet, v1.8..v1.9-rc1 (None), None, mainline, master, previous: no flags
 INITIAL_REPORT: 1546905600, test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/
-SOLVED: resolve, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
+SOLVED: resolved, 1547078400, None, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, some reason
 ACTIVITY: test_0_6: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6@example.com/, 1546905600, PatchKind(None)
 ACTIVITY: test_0_6_1: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_6_1@example.com/, 1546992000, PatchKind(None)
 ACTIVITY: test_0_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_0_7@example.com/, 1547078400, PatchKind(None)
@@ -3129,7 +3129,7 @@ HISTORY: test_4_4_7: Lorem ipsum dolor sit amet, 1548460800, Regzbot testingmail
 LATEST: test_4_4_7: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_4_7@example.com/, 1548460800, PatchKind(None)
 REGRESSION: test_4_4_8: Lorem ipsum dolor sit amet, v1.10..v1.11-rc1 (None), None, mainline, master, indevelopment: no flags
 INITIAL_REPORT: 1548547200, test_4_4_8: Lorem ipsum dolor sit amet, Regzbot testingmail, nobody@example.com, https://lore.kernel.org/regressions/regzbot-testing-test_4_4_8@example.com/
-SOLVED: resolve, 1548633600, None, https://lore.kernel.org/regressions/regzbot-testing-test_4_4_9@example.com/, some reason
+SOLVED: resolved, 1548633600, None, https://lore.kernel.org/regressions/regzbot-testing-test_4_4_9@example.com/, some reason
 ACTIVITY: test_4_4_8: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_4_8@example.com/, 1548547200, PatchKind(None)
 ACTIVITY: test_4_4_9: Lorem ipsum dolor sit amet, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_4_9@example.com/, 1548633600, PatchKind(None)
 HISTORY: test_4_4_8: Lorem ipsum dolor sit amet, 1548547200, Regzbot testingmail, https://lore.kernel.org/regressions/regzbot-testing-test_4_4_8@example.com/, introduced: v1.10..v1.11-rc1

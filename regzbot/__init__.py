@@ -1592,7 +1592,10 @@ class RegressionBasic():
             self.regid, self.subject, url))
 
     def cmd_resolve(self, rgzcmd, reason):
-        self._solve_reason(rgzcmd.cmd, reason, rgzcmd.repact.gmtime, rgzcmd.repact.reptrd.id, rgzcmd.repact.repsrc.id)
+        cmd = rgzcmd.cmd
+        if cmd == 'resolve':
+            cmd = 'resolved'
+        self._solve_reason(cmd, reason, rgzcmd.repact.gmtime, rgzcmd.repact.reptrd.id, rgzcmd.repact.repsrc.id)
 
     def cmd_unbackburn(self, rgzcmd):
         RegBackburner.remove(self.regid)
