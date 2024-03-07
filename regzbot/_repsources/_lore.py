@@ -4,6 +4,7 @@
 # Copyright (C) 2024 by Thorsten Leemhuis
 __author__ = 'Thorsten Leemhuis <linux@leemhuis.info>'
 
+import datetime
 import email
 import email.policy
 import gzip
@@ -147,7 +148,12 @@ class LoActivity():
 
     @cached_property
     def created_at(self):
-        return email.utils.parsedate_to_datetime(self._msg['Date'])
+        dt = email.utils.parsedate_to_datetime(self._msg['Date'])
+        # the following is needed to handle mails with -00.00 tz specifier, like
+        # https://lore.kernel.org/all/170979602040.580595.2365620815888707390@8e613ede5ea5/
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=datetime.timezone.utc)
+        return dt
 
     @cached_property
     def gmtime(self):
