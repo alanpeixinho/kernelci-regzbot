@@ -384,7 +384,7 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
         # The following loop locates sections with regzbot commands seperated by newlines;
         #  note, it adds a newline at the start and two at the end of the processed input, as the
         #  regzbot command might be right at its start or end.
-        for cmd_section in re.finditer(r'^\r?\n#regzbot.*\r?\n\s*\r?\n$', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
+        for cmd_section in re.finditer(r'^\r?\n#regzbot.*?\r?\n(?=\s*\r?\n)$', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
             cmd_stack = RbCmdStackNew(activity, regression)
             for command, parameter in _parse(cmd_section[0].replace('\r', '')):
                 cmd_stack._add_command(command, parameter)
