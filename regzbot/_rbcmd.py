@@ -20,6 +20,9 @@ else:
 class RegressionCreatedException(Exception):
     pass
 
+class RegressionNotFound(Exception):
+    pass
+
 
 class RbCmdSingleNew:
     def __init__(self, rbcmd_stack, cmd, parameters):
@@ -217,7 +220,12 @@ class RbCmdStackNew:
 
     def _add_command(self, cmd, parameters):
         if cmd == 'report':
-            self.reptrd = regzbot.ReportThread.from_url(self._parse_pointer(parameters), repact=self.repact)
+            try:
+                self.reptrd = regzbot.ReportThread.from_url(self._parse_pointer(parameters), repact=self.repact)
+            except regzbot.RepDownloadError:
+                regzbot.UnhandledEvent.add(
+                    self.repact.web_url, "unable to find a regression for %s", self._parse_pointer(parameters))
+                raise RegressionNotFound
             for actimon in regzbot.RegActivityMonitor.get_by_reptrd(self.reptrd):
                 if actimon.regid:
                     regression = regzbot.RegressionBasic.get_by_regid(actimon.regid)
@@ -386,8 +394,11 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
         #  regzbot command might be right at its start or end.
         for cmd_section in re.finditer(r'^\r?\n#regzbot.*?\r?\n(?=\s*\r?\n)$', '\n' + activity.message + '\n\n', re.MULTILINE | re.IGNORECASE | re.DOTALL):
             cmd_stack = RbCmdStackNew(activity, regression)
-            for command, parameter in _parse(cmd_section[0].replace('\r', '')):
-                cmd_stack._add_command(command, parameter)
+            try:
+                for command, parameter in _parse(cmd_section[0].replace('\r', '')):
+                    cmd_stack._add_command(command, parameter)
+            except RegressionNotFound:
+                continue
             cmd_stack.process_commands()
 
     def _handle_expected_threads(activity):
