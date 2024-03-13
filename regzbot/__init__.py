@@ -708,7 +708,7 @@ class GitTree():
 
             # now check new commits for links
             re_link = re.compile(
-                r'(^\s*Link:\s*|^\s*Closes:\s*)(http(.*))\s*\n', re.MULTILINE)
+                r'(^\s*Link:\s*|^\s*Closes:\s*)(http.*?)(\s.*)?\n', re.MULTILINE)
             for commit in repo.iter_commits(('--reverse', gitbranch.lastchked + '..' + repobranch.commit.hexsha)):
                 # is this a commit we are waiting for?
                 for expected_fix in expected_fixes:
@@ -2690,8 +2690,10 @@ class ReportThreadOffline():
 
     @classmethod
     def from_url(cls, url):
+        url_lowered = url.lower()
+        url_parsed = urllib.parse.urlparse(url)
         for repsrc in ReportSource.getall():
-            id = repsrc.supports_url(url.lower(), urllib.parse.urlparse(url))
+            id = repsrc.supports_url(url_lowered, url_parsed)
             if id:
                 return cls(repsrc, id)
 
