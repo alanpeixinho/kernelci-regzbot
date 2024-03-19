@@ -261,7 +261,7 @@ class GhRepSrc(regzbot._repsources._trackers._repsrc):
 
     def supports_url(self, url_lowered, url_parsed):
         if url_lowered.startswith('%s/issues/' % self.serverurl):
-            id = url.removeprefix('%s/issues/' % self.serverurl)
+            id = url_lowered.removeprefix('%s/issues/' % self.serverurl)
             id = id.split('#', 1)[0]
             return int(id.strip('/'))
 
