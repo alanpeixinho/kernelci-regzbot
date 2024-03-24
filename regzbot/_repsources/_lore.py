@@ -40,16 +40,25 @@ class LoreNntp():
     nntplib._MAXLINE = 65536
 
     def __init__(self):
+        self.__init_connection()
+
+    def __init_connection(self, forced_reconnect=False):
         global _NNTP_CONNECTION
-        if not _NNTP_CONNECTION:
+        if forced_reconnect or not _NNTP_CONNECTION:
             logger.debug('[lore] connecting to nntp.lore.kernel.org')
             _NNTP_CONNECTION = nntplib.NNTP('nntp.lore.kernel.org')
         self._nntp_connection = _NNTP_CONNECTION
 
-    def _article(self, id):
+    def _article(self, id, group):
         if isinstance(id, str) and id[0] != '<':
             id = '<%s>' % id
-        _, article = self._nntp_connection.article(id)
+        try:
+            _, article = self._nntp_connection.article(id)
+        except ConnectionResetError:
+            # reconnect and retry once
+            self.__init_connection(forced_reconnect=True)
+            self._group(group)
+            _, article = self._nntp_connection.article(id)
         return email.message_from_bytes(b'\n'.join(article.lines), policy=email.policy.default)
 
     def _group(self, groupname):
@@ -456,7 +465,7 @@ class LoRepSrc(ReportSource):
                     logger.debug('[lore] skipping "%s", we already encountered it it', msgid)
                     continue
 
-                msg = lorenntp._article(id)
+                msg = lorenntp._article(id, self.serverurl)
                 if 'subject' in msg and msg['subject'].startswith(regzbot.REPORT_SUBJECT_PREFIX):
                     logger.debug("[lore] skipping mail %s, as it's a report we send", msgid)
                     continue
