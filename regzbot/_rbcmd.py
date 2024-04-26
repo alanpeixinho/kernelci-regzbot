@@ -219,7 +219,7 @@ class RbCmdStackNew:
         self._set_regressions(regression)
 
     def _add_command(self, cmd, parameters):
-        if cmd == 'report':
+        if cmd in ('use', 'report'):
             try:
                 self.reptrd = regzbot.ReportThread.from_url(self._parse_pointer(parameters), repact=self.repact)
             except regzbot.RepDownloadError:
@@ -241,7 +241,7 @@ class RbCmdStackNew:
             if self.repact.repsrc.kind == 'lore':
                 try:
                     self._parse_pointer('^')
-                    self._add_command('report', '^')
+                    self._add_command('use', '^')
                 except TypeError:
                     # just ignore
                     pass
@@ -256,7 +256,7 @@ class RbCmdStackNew:
                 pointer = self._parse_pointer(pointer)
                 if pointer in ('^', '/', '~') or pointer.startswith('http'):
                     if self.reptrd == self.repact.reptrd:
-                        self._add_command('report', pointer)
+                        self._add_command('use', pointer)
                     else:
                         self._add_command('duplicate', pointer)
                 else:

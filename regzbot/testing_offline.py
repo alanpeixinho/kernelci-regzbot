@@ -729,7 +729,7 @@ def offltest_0_17(funcname):
 def offltest_0_18(funcname):
     logger.info('%s: creating a mainline regression for an arbitarily url' % funcname)
     emaildirs['primary'].create_email(
-        funcname, "#regzbot report https://bugzilla.example.com/show_bug.cgi?id=215744\n#regzbot introduced: v1.8..v1.9-rc1")
+        funcname, "#regzbot use https://bugzilla.example.com/show_bug.cgi?id=215744\n#regzbot introduced: v1.8..v1.9-rc1")
     return ['mailchk']
 
 
@@ -768,7 +768,7 @@ def offltest_0_21(funcname):
 
 def offltest_0_22(funcname):
     logger.info(
-        "%s: send a mail which serves as report for a regression created by a reply later using 'regzbot report'" % funcname)
+        "%s: send a mail which serves as report for a regression created by a reply later using 'regzbot use'" % funcname)
 
     subcounter = 0
     emaildirs['primary'].create_email(
@@ -781,14 +781,14 @@ def offltest_0_22(funcname):
 
     subcounter += 1
     emaildirs['secondary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzbot report https://lore.kernel.org/lkml/regzbot-testing-%s@example.com\n#regzbot introduced: v1.8..v1.9-rc1" % 'test_0_22_0',
+        "%s_%s" % (funcname, subcounter), "#regzbot use https://lore.kernel.org/lkml/regzbot-testing-%s@example.com\n#regzbot introduced: v1.8..v1.9-rc1" % 'test_0_22_0',
     )
     return ['mailchk']
 
 
 def offltest_0_23(funcname):
     logger.info(
-        "%s: send a mail which serves as report for a regression created by a reply later using 'regzbot report'" % funcname)
+        "%s: send a mail which serves as report for a regression created by a reply later using 'regzbot use'" % funcname)
 
     subcounter = 0
     emaildirs['primary'].create_email(
@@ -801,7 +801,7 @@ def offltest_0_23(funcname):
 
     subcounter += 1
     emaildirs['primary'].create_email(
-        "%s_%s" % (funcname, subcounter), "#regzbot report https://lore.kernel.org/lkml/regzbot-testing-%s@example.com\n#regzbot introduced: v1.8..v1.9-rc1" % 'test_0_23_0',
+        "%s_%s" % (funcname, subcounter), "#regzbot use https://lore.kernel.org/lkml/regzbot-testing-%s@example.com\n#regzbot introduced: v1.8..v1.9-rc1" % 'test_0_23_0',
         replyto="%s_%s" % (funcname, subcounter - 1))
 
     subcounter += 1
