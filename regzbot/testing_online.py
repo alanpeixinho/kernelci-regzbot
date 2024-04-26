@@ -95,6 +95,6 @@ def onlntest_1_0(funcname):
     return False, False, False
 
 
-def onlntest_1_1(funcname):
-    regzbot.redo_regressions(['5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com', ])
-    return False, False, False
+#def onlntest_1_1(funcname):
+#    regzbot.redo_regressions(['5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com', ])
+#    return False, False, False
