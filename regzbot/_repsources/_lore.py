@@ -469,6 +469,10 @@ class LoRepSrc(ReportSource):
                 if 'subject' in msg and msg['subject'].startswith(regzbot.REPORT_SUBJECT_PREFIX):
                     logger.debug("[lore] skipping mail %s, as it's a report we send", msgid)
                     continue
+                if 'from' in msg:
+                    if 'bugzilla-daemon@kernel.org' in msg['from'] or 'bugbot@kernel.org' in msg['from']:
+                        logger.debug("[lore] skipping mail %s, as it's a bugzilla mail", msgid)
+                        continue
                 lo_thread = LoreThread(msg=msg)
                 lo_retrd = LoRepTrd(self, lo_thread)
                 lo_retrd.process_single()
