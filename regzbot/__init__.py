@@ -3155,8 +3155,8 @@ def basicressources_repsrces_add_or_modify():
                                'https://gitlab.freedesktop.org/drm/amd',
                                'gitlab', '<unused>', mininterval=3600)
 
-    ReportSource.add_or_modify('drm/intel', 16,
-                               'https://gitlab.freedesktop.org/drm/intel',
+    ReportSource.add_or_modify('drm/i915/kernel', 16,
+                               'https://gitlab.freedesktop.org/drm/i915/kernel',
                                'gitlab', '<unused>', mininterval=3600)
 
     ReportSource.add_or_modify('drm/misc', 16,
