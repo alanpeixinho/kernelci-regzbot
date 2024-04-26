@@ -411,7 +411,7 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
                     return
             cmd_stack = RbCmdStackNew(activity, regression)
             cmd_stack._add_command('relate', "%s %s [implicit, subject is expected]" %
-                                   (activity.web_url, activity.subject))
+                                   (activity.web_url, activity.summary))
             cmd_stack.process_commands()
 
     def _handle_msgs_linking_regressions(activity):
@@ -454,7 +454,7 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
             if linktag is True:
                 cmd_stack = RbCmdStackNew(activity, regression)
                 cmd_stack._add_command('relate', "%s %s [implicit due to Link/Closes tag]" %
-                                       (activity.web_url, activity.subject))
+                                       (activity.web_url, activity.summary))
                 cmd_stack.process_commands()
             elif url:
                 cmd_stack = RbCmdStackNew(activity, regression)
@@ -481,9 +481,9 @@ def process_activity(activity, *, triggering_repact=None, actimon=None):
                     continue
 
                 # no activity, only a history entry, as it might be about different bug in the same commit
-                regzbot.RegHistory.event(regid, activity.gmtime, activity.reptrd.id, activity.subject,
+                regzbot.RegHistory.event(regid, activity.gmtime, activity.reptrd.id, activity.summary,
                                          activity.realname, repsrcid=activity.repsrc.id,
-                                         regzbotcmd='note: "%s" contains a \'Fixes:\' tag for the culprit of this regression' % activity.subject)
+                                         regzbotcmd='note: "%s" contains a \'Fixes:\' tag for the culprit of this regression' % activity.summary)
 
     if 'until' in regzbot._TESTING and activity.created_at >= regzbot._TESTING['until']:
         logger.debug('[rbcmd] skip processing %s', activity.web_url)
