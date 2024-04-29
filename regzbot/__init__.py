@@ -243,10 +243,11 @@ class GitBranch():
             dbcursor.lastrowid, gittree.gittreeid, branchname, lastchked))
         return dbcursor.lastrowid
 
-    def commit_exists(self, identifier, repo=None):
+    def commit_exists(self, identifier, repo=None, gittree=None):
         # this makes it possible to reuse the repo obj
-        if repo is None:
+        if gittree is None:
             gittree = GitTree.get_by_id(self.gittreeid)
+        if repo is None:
             repo = gittree.repo()
 
         try:
@@ -254,6 +255,9 @@ class GitBranch():
             # if the commit exists in the tree, but in another branch :-/
             result = repo.git.branch(
                 self.lookupname, '--all', '--contains', identifier)
+            if gittree.name == 'next':
+                # the commit or tag seems to be present, but not in the current branch -- but we do not care about that
+                return True
             if result:
                 return True
         except git.exc.GitCommandError as err:
@@ -485,7 +489,7 @@ class GitTree():
         for gittree in GitTree.getall():
             repo = gittree.repo()
             for gitbranch in GitBranch.getall_by_gittreeid(gittree.gittreeid):
-                if gitbranch.commit_exists(commitdesc, repo):
+                if gitbranch.commit_exists(commitdesc, repo, gittree):
                     return gittree, gitbranch
         return None, None
 
