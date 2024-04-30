@@ -2694,8 +2694,14 @@ class ReportThreadOffline():
 
     @classmethod
     def from_url(cls, url):
-        url_lowered = url.lower()
-        url_parsed = urllib.parse.urlparse(url)
+        try:
+            url_lowered = url.lower()
+            url_parsed = urllib.parse.urlparse(url)
+        except ValueError:
+            # this can happen when parsing fails, for example
+            # https://lore.kernel.org/linux-arm-kernel/8f777b2f-ab15-4df7-91e5-f779f408fd65@app.fastmail.com/
+            # leads to ValueError("Invalid IPv6 URL")
+            raise RepDownloadError
         for repsrc in ReportSource.getall():
             id = repsrc.supports_url(url_lowered, url_parsed)
             if id:
