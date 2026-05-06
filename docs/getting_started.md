@@ -3,6 +3,19 @@
 [[_TOC_]]
 
 
+## Background
+
+A **regression** is a change in the kernel that breaks something that previously
+worked — degraded performance, a feature that stops working, or hardware that is
+no longer recognized. Regressions are treated with higher urgency than ordinary
+bugs; see the kernel documentation on
+[reporting regressions](https://docs.kernel.org/admin-guide/reporting-regressions.html) and
+[handling regressions](https://docs.kernel.org/process/handling-regressions.html).
+
+This guide focuses on the `#regzbot` commands reporters and developers can use
+to add or update tracked regressions.
+
+
 ## Why and how to make regzbot track a Linux kernel regression
 
 When reporting a Linux kernel regression it is in your interest to make [regzbot](https://gitlab.com/knurd42/regzbot/) aware of the issue, as that ensures the report won't accidentally fall though the cracks; it also makes sure leading developers see the issue via the tracked regression website [or the weekly reports, which are not sent yet, but soon will be].
@@ -24,6 +37,18 @@ See below for a few other examples how to specify ranges, how to modify the vers
 Regzbot is designed to normally not create any additional chores for Linux kernel developers like you. But for that to work it's important you do something the [Linux kernel documentation specifies for a while already](https://www.kernel.org/doc/html/latest/process/submitting-patches.html): when fixing a regression, include a `Link:` tag with the URL to the report in the [mailing list archives on lore.kernel.org](https://lore.kernel.org/). This aspect is important for regzbot, as it allows the bot to connect the fix with the regression's report. That's needed so regzbot can do things automatically that otherwise would mean manual work for somebody — like marking the regression as resolved once the fix hits mainline.
 
 But sometimes you might want to do more with regzbot, like specifying a culprit exactly after a bisection or marking a regression as resolved. The text below explains how to do these and other things; the instructions there also will tell you how to use regzbot to track regressions for your own code or the subsystem you maintain, as that will make sure none fall through the cracks unnoticed.
+
+
+## How to help keep tracking accurate
+
+If a tracked issue turns out not to be a regression, if discussion moved
+elsewhere, or if important details such as the title or introduced range are
+wrong, please reply publicly and include the appropriate `#regzbot` command.
+That keeps the public record clear and helps regzbot show useful status.
+
+Developers do not need to CC individual regression trackers on every follow-up.
+Keep `regressions@lists.linux.dev` in the loop and use `Link:` or `Closes:`
+tags that point to the report when posting fixes.
 
 
 ## More regzbot features relevant for both reporters and developers
