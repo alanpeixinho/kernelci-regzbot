@@ -22,6 +22,7 @@ import sys
 import git
 import regzbot
 import regzbot.export_csv
+import regzbot.export_mail
 import regzbot.export_web
 import regzbot._repsources._lore
 
@@ -448,6 +449,12 @@ def init_mailsdir(path_tmpmail):
 def init(tmpdir, testdatadir):
     regzbot.set_citesting("offline")
 
+    regzbot._TESTING["mail_now"] = datetime.datetime.fromtimestamp(
+        Emaildir._startdate + 30 * 86400, datetime.timezone.utc
+    )
+    regzbot._TESTING["mail_lastreport_gmtime"] = Emaildir._startdate - 86400
+    regzbot._TESTING["mail_lastreport_msgid"] = "testing-lastreport@example.com"
+
     _, databasedir, gittreesdir, _ = regzbot.basicressources_get_dirs(
         tmpdir=tmpdir, databasedir=os.path.join(tmpdir, "db-offlinetsts")
     )
@@ -474,6 +481,9 @@ def run(resultfilename, tmpdir, testdatadir):
     resultfile = open(resultfilename, "a")
     testfuncprefix = "offltest"
     this = sys.modules[__name__]
+
+    mail_results = []
+    web_results = []
 
     outercount = 0
     while "%s_%s_0" % (testfuncprefix, outercount) in dir(this):
@@ -505,12 +515,21 @@ def run(resultfilename, tmpdir, testdatadir):
                     update_gittrees()
 
             # write results
-            resultfile.write("[%s_%s_%s]\n" % (testfuncprefix, outercount, innercount))
+            name = "%s_%s_%s" % (testfuncprefix, outercount, innercount)
+            resultfile.write("[%s]\n" % name)
             for data in regzbot.export_csv.dumpall_csv():
                 resultfile.write(data)
             resultfile.write("\n")
 
+            mail_results.append("-----BEGIN MAIL %s-----\n" % name)
+            mail_results.extend(regzbot.export_mail.dumpall_mail())
+            mail_results.append("-----END MAIL %s-----\n\n" % name)
+            web_results.append("-----BEGIN WEB %s-----\n" % name)
+            web_results.extend(regzbot.export_web.dumpall_web())
+            web_results.append("-----END WEB %s-----\n\n" % name)
+
             regzbot.export_web.RegExportWeb.compile()
+            regzbot.export_mail.RegExportMailReport.compile(interactive=False)
 
             if instructions and "wait" in instructions:
                 # regzbot.db_commit()
@@ -521,6 +540,15 @@ def run(resultfilename, tmpdir, testdatadir):
         # remove generated mails
         emaildirs_clear()
         outercount += 1
+
+    separator = "=" * 80 + "\n"
+    resultfile.write(separator + "= MAIL REPORTS\n" + separator)
+    for data in mail_results:
+        resultfile.write(data)
+    resultfile.write(separator + "= WEB REPORTS\n" + separator)
+    for data in web_results:
+        resultfile.write(data)
+
     resultfile.close()
     regzbot.db_commit()
     regzbot.db_close()
@@ -1845,3 +1873,31 @@ def offltest_5_2(funcname):
     )
 
     return ["mailchk"]
+
+
+def offltest_6_0(funcname):
+    logger.info("%s: create a regression with link, note, and reply for delete test" % funcname)
+
+    emaildirs["primary"].create_email(funcname, "#regzbot introduced: v1.8..v1.9-rc1")
+
+    subcounter = 1
+    emaildirs["primary"].create_email(
+        "%s_%s" % (funcname, subcounter),
+        "#regzbot relatebrief: https://www.kernel.org/releases.html Some link\n"
+        "#regzbot note: note before delete",
+        replyto=funcname,
+    )
+
+    subcounter += 2
+    emaildirs["primary"].create_email(
+        "%s_%s" % (funcname, subcounter), "a reply to generate activity", replyto=funcname
+    )
+
+    return ["mailchk"]
+
+
+def offltest_6_1(funcname):
+    logger.info("%s: delete the regression created in 6_0" % funcname)
+    for regression in regzbot.RegressionBasic.get_all():
+        regression.delete()
+    return []
