@@ -2249,23 +2249,6 @@ class RegressionBasic:
                 yield cls(*dbresult)
 
     @classmethod
-    def get_by_link(cls, link):
-        tmpstring = link
-        if tmpstring.startswith("https://"):
-            tmpstring = tmpstring.removeprefix("https://")
-        elif tmpstring.startswith("http://"):
-            tmpstring = tmpstring.removeprefix("http://")
-
-        if tmpstring.startswith("lore.kernel.org/"):
-            _, _, tmpstring = tmpstring.split("/", maxsplit=2)
-            msgid, _, _ = tmpstring.partition("/")
-            for regression in cls.get_by_entry(urldecode(msgid)):
-                return regression
-        else:
-            logger.warning("RegressionBasic.get_by_link(%s): unsupported domain ", link)
-        return None
-
-    @classmethod
     def get_by_url(cls, url):
         try:
             reptrd_pointedto = ReportThreadOffline.from_url(url)
@@ -2386,93 +2369,6 @@ class RegressionBasic:
             self.subject,
             self.introduced,
         )
-
-    def __create_dup(self, url, gmtime):
-        subject = self.subject
-        repsrc, entry = ReportSource.get_by_url(url)
-
-        # defaults that normally will be overridden
-        authorname = "Unknown"
-        authormail = None
-
-        # create regression
-        return self.__create_obsolete(
-            self.introduced,
-            self.gitbranchid,
-            repsrc.repsrcid,
-            entry,
-            gmtime,
-            subject,
-            authorname,
-            authormail,
-        )
-
-    def _dupof_direct(
-        self, regression_other, gmtime, msgid, msgsubject, authorname, repsrcid, *, history=True
-    ):
-        if self.regid == regression_other.regid:
-            logger.warning(
-                'regression[%s, "%s"]: request to mark this a as duplicate of ourselves; aborting',
-                self.regid,
-                self.subject,
-            )
-            # FIXME properly
-            sys.exit(1)
-
-        if self.solved_subject is None:
-            self.solved_subject = regression_other.subject
-
-        self.solved_gmtime = gmtime
-        self.solved_duplicateof = regression_other.regid
-
-        self._db_update_solved()
-
-        logger.info(
-            'regression[%s, "%s"]: marked as duplicate of regression Regression[%s, "%s"])',
-            self.regid,
-            self.subject,
-            regression_other.regid,
-            regression_other.subject,
-        )
-        if history:
-            # make sure this is mentioned in the other regression, too
-            RegHistory.event(
-                regression_other.regid,
-                gmtime,
-                msgid,
-                self.solved_subject,
-                authorname,
-                repsrcid=repsrcid,
-                regzbotcmd='dup: the regression "%s" was marked as duplicate of this'
-                % (self.subject),
-            )
-
-    def dupof(self, tagload, gmtime, msgid, msgsubject, authorname, repsrcid):
-        def parse(tagload):
-            tagload = tagload.split(maxsplit=1)
-            url = tagload[0]
-            if len(tagload) > 1:
-                subject = tagload[1]
-            else:
-                subject = None
-            return url, subject
-
-        urldup, self.solved_subject = parse(tagload)
-
-        regression_other = self.get_by_link(urldup)
-        if not regression_other:
-            regression_other = self.__create_dup(urldup, gmtime)
-            RegHistory.event(
-                regression_other.regid,
-                gmtime,
-                msgid,
-                msgsubject,
-                authorname,
-                repsrcid=repsrcid,
-                regzbotcmd="introduced: %s [implicit, due to usage of 'dup-of']" % self.introduced,
-            )
-
-        self._dupof_direct(regression_other, gmtime, msgid, msgsubject, authorname, repsrcid)
 
     def fixed(self, gmtime, commit_hexsha, commit_subject, gitbranchid):
         if self.solved_reason == "fixed":
@@ -2651,36 +2547,6 @@ class RegressionBasic:
         self.solved_repsrcid = repsrcid
         self.solved_repentry = msgid
         self._db_update_solved()
-
-    def update_author(self, entry, tagload):
-        from email.utils import parseaddr
-
-        author, authormail = parseaddr(tagload)
-
-        dbcursor = DBCON.cursor()
-        dbcursor.execute(
-            """UPDATE actmonitor
-                            SET authorname = (?), authormail = (?)
-                            WHERE regid=(?) and entry=(?)""",
-            (author, authormail, self.regid, entry),
-        )
-        logger.debug(
-            '[db regressions] author is now %s, authormail now %s (regid:%s; subject:"%s")',
-            author,
-            authormail,
-            self.regid,
-            self.subject,
-        )
-        logger.info(
-            'regression[%s, "%s"]: author is now %s, authormail now %s',
-            self.regid,
-            self.subject,
-            author,
-            authormail,
-        )
-
-        self.author = author
-        self.author = authormail
 
     def title(self, tagload):
         dbcursor = DBCON.cursor()
@@ -3508,7 +3374,6 @@ class RepDownloadError(Exception):
     pass
 
 
-
 def db_ensure_cursor(dbcursor=None):
     return DBCON.cursor() if dbcursor is None else dbcursor
 
@@ -3627,45 +3492,6 @@ def timendate_dt_to_gmtime(dt):
 
 def timendate_gmtime_to_dt(gmtime):
     return datetime.datetime.fromtimestamp(gmtime, tz=datetime.timezone.utc)
-
-
-def parse_link(url):
-    tmpstring = url
-
-    if tmpstring.startswith("https://"):
-        tmpstring = tmpstring.removeprefix("https://")
-    elif tmpstring.startswith("http://"):
-        tmpstring = tmpstring.removeprefix("http://")
-
-    domain = mlist = msgid = None
-    if tmpstring.startswith("lore.kernel.org") or tmpstring.startswith("lkml.kernel.org"):
-        domain = "lore.kernel.org"
-        tmplist = tmpstring.split("/", maxsplit=2)
-        if len(tmplist) <= 2:
-            logger.debug("Ignoring %s, failed to parse", url)
-            return None, None, None
-
-        mlist = tmplist[1]
-        tmpstring = tmplist[2]
-
-        msgid, _, _ = tmpstring.partition("/")
-
-        if mlist == "r":
-            if tmpstring.startswith("lkml.kernel.org"):
-                mlist = "lkml"
-            else:
-                # FIXMELATER: this is the lore redirector; for now just assume it redirecting to LKML, which likely needs fixing later
-                mlist = "lkml"
-    elif tmpstring.startswith("bugzilla.kernel.org"):
-        bugid = tmpstring.removeprefix("bugzilla.kernel.org/show_bug.cgi?id=")
-        if bugid.isnumeric():
-            msgid = bugid
-            domain = "bugzilla.kernel.org"
-        else:
-            logger.debug("Tried to get bugid from %s, but failed", url)
-    else:
-        logger.debug("Tried to get msgid from %s, but don't known how to handle that domain", url)
-    return domain, mlist, msgid
 
 
 def basicressource_checkdir_exists(directory, create=False):
