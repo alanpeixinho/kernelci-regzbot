@@ -94,16 +94,14 @@ class RegzbotDbMeta:
 
     @staticmethod
     def update(dbcursor=None):
-        if dbcursor is None:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
 
         if not RegzbotDbMeta.table_exists("RegzbotState", dbcursor):
             RegzbotState.db_create(1, dbcursor)
 
     @staticmethod
     def table_exists(tablename, dbcursor=None):
-        if dbcursor is None:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
         dbresult = dbcursor.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name=(?)", (tablename,)
         ).fetchone()
@@ -113,8 +111,7 @@ class RegzbotDbMeta:
 
     @staticmethod
     def set_tableversion(tablename, version, dbcursor=None):
-        if dbcursor is None:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
         dbcursor.execute(
             """
             INSERT INTO RegzbotMeta
@@ -135,8 +132,7 @@ class RegzbotState:
 
     @staticmethod
     def get(attribute, dbcursor=None):
-        if dbcursor is None:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
         dbresult = dbcursor.execute(
             "SELECT value FROM RegzbotState WHERE attribute=(?)", (attribute,)
         ).fetchone()
@@ -146,8 +142,7 @@ class RegzbotState:
 
     @staticmethod
     def set(attribute, value, dbcursor=None):
-        if dbcursor is None:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
         dbcursor.execute(
             """
             INSERT OR REPLACE INTO RegzbotState
@@ -173,8 +168,7 @@ class RecordProcessedMsgids:
 
     @staticmethod
     def add(msgid, gmtime, dbcursor=None):
-        if dbcursor is None:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
 
         dbcursor.execute(
             """INSERT INTO msgidrecord
@@ -186,8 +180,7 @@ class RecordProcessedMsgids:
 
     @staticmethod
     def check_presence(msgid, gmtime=None, dbcursor=None):
-        if dbcursor is None:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
 
         dbresult = dbcursor.execute(
             "SELECT * FROM msgidrecord WHERE msgid=(?)", (msgid,)
@@ -931,8 +924,7 @@ class RegActivityMonitor:
         return dbcursor.lastrowid
 
     def delete(self, dbcursor=None):
-        if not dbcursor:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
 
         # delete related activities
         for activity in RegActivityEvent.getall_by_actimonid(self.actimonid):
@@ -1157,8 +1149,7 @@ class RegActivityEvent:
             )""")
 
     def delete(self, dbcursor=None):
-        if not dbcursor:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
 
         # delete related activities
         if self.repsrcid and ReportSource.get_by_id(self.repsrcid, dbcursor).ismail():
@@ -1453,8 +1444,7 @@ class RegBackburner:
 
     @staticmethod
     def remove(regid, dbcursor=None):
-        if dbcursor is None:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
         dbresult = dbcursor.execute(
             "SELECT subject FROM regbackburner WHERE regid=(?)", (regid,)
         ).fetchone()
@@ -1502,8 +1492,7 @@ class RegHistory:
             )""")
 
     def delete(self, dbcursor=None):
-        if not dbcursor:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
 
         if self.repsrcid and ReportSource.get_by_id(self.repsrcid, dbcursor).ismail():
             RecordProcessedMsgids.delete(self.entry)
@@ -1757,8 +1746,7 @@ class RegLink:
                 yield cls(*dbresult)
 
     def delete(self, dbcursor=None):
-        if not dbcursor:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
 
         dbcursor.execute(
             """DELETE FROM reglinks
@@ -2092,8 +2080,7 @@ class RegressionBasic:
         )
 
     def delete(self, dbcursor=None):
-        if not dbcursor:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
 
         for activity in RegActivityEvent.get_all(self.regid, onlyonce=False):
             activity.delete(dbcursor=dbcursor)
@@ -2151,8 +2138,7 @@ class RegressionBasic:
 
     @classmethod
     def get_by_regid(cls, regid, dbcursor=None):
-        if not dbcursor:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
         dbresult = dbcursor.execute(
             "SELECT %s FROM regressions WHERE regid=?" % RegressionBasic.DBCOLS, (regid,)
         ).fetchone()
@@ -2162,8 +2148,7 @@ class RegressionBasic:
 
     @classmethod
     def get_by_entry(cls, entry, dbcursor=None):
-        if not dbcursor:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
 
         dbresult = dbcursor.execute(
             "SELECT %s FROM regressions INNER JOIN actmonitor ON actmonitor.regid = regressions.regid WHERE actmonitor.entry=?"
@@ -3225,8 +3210,7 @@ class ReportSource:
         )
 
     def delete(self, dbcursor=None):
-        if not dbcursor:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
         dbresult = dbcursor.execute(
             """DELETE FROM reportsources
                                     WHERE repsrcid=(?)""",
@@ -3255,8 +3239,7 @@ class ReportSource:
 
     @classmethod
     def get_by_id(cls, repsrcid, dbcursor=None):
-        if not dbcursor:
-            dbcursor = DBCON.cursor()
+        dbcursor = db_ensure_cursor(dbcursor)
 
         dbresult = dbcursor.execute(
             "SELECT * FROM reportsources WHERE repsrcid=(?)", (repsrcid,)
@@ -3523,6 +3506,11 @@ class ReportSourceObsolete(ReportSource):
 
 class RepDownloadError(Exception):
     pass
+
+
+
+def db_ensure_cursor(dbcursor=None):
+    return DBCON.cursor() if dbcursor is None else dbcursor
 
 
 def db_close():
