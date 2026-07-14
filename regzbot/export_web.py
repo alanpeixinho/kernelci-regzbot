@@ -17,6 +17,18 @@ from regzbot import PatchKind
 logger = regzbot.logger
 
 
+
+def _web_now():
+    mail_now = regzbot._TESTING.get("mail_now")
+    if mail_now is not None:
+        return mail_now
+    return regzbot.timendate_now()
+
+
+def _web_days_delta(past):
+    return (_web_now() - datetime.datetime.fromtimestamp(past, datetime.timezone.utc)).days
+
+
 class RegLinkWeb(regzbot.RegLink):
     def __init__(self, *args):
         super().__init__(*args)
@@ -718,7 +730,7 @@ class RegExportWeb:
             yattagdoc.text("[compiled by ")
             with yattagdoc.tag("a", href="https://linux-regtracking.leemhuis.info"):
                 yattagdoc.text("regzbot")
-            currenttime = datetime.datetime.now(datetime.timezone.utc)
+            currenttime = _web_now()
             yattagdoc.text(" on %s (UTC). " % currenttime.strftime("%Y-%m-%d %H:%M:%S"))
 
             yattagdoc.text("Wanna know more about regzbot? Then check out its ")
@@ -999,7 +1011,7 @@ function timeAgo(provided_date) {
         }
 
         for regression in regressionlist:
-            last_activity_days = regzbot.days_delta(regression.gmtime_activity)
+            last_activity_days = _web_days_delta(regression.gmtime_activity)
             if regression.solved_reason == "inconclusive":
                 categories["inconclusive"]["default"]["entries"].append(regression)
             elif regression.gmtime_solved:
@@ -1110,7 +1122,7 @@ function timeAgo(provided_date) {
         regressionslist = list()
         eventslist = list()
         events_gmtime_offset = (
-            int(datetime.datetime.now(datetime.timezone.utc).timestamp()) - 604800
+            int(_web_now().timestamp()) - 604800
         )
         if regzbot.is_running_citesting("offline"):
             events_gmtime_offset = 604800 * 52 * 10
@@ -1187,10 +1199,7 @@ function timeAgo(provided_date) {
         for regression in regressionslist:
             if regression.gmtime_solved:
                 continue
-            filed_days = (
-                datetime.datetime.now(datetime.timezone.utc)
-                - datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)
-            ).days
+            filed_days = _web_days_delta(regression.gmtime_filed)
             if filed_days < 7:
                 categories[regression.treename]["entries"].append(regression)
             else:
