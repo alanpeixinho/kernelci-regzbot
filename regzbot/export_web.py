@@ -1112,20 +1112,22 @@ function timeAgo(provided_date) {
         }
 
     @classmethod
+    def _events_gmtime_offset(cls):
+        events_gmtime_offset = int(_web_now().timestamp()) - 604800
+        if regzbot.is_running_citesting("offline"):
+            events_gmtime_offset = int(_web_now().timestamp()) - 604800 * 52 * 10
+        return events_gmtime_offset
+
+    @classmethod
     def prepare(cls):
         # these are the pages we are going to create
         htmlpages = ("next", "mainline", "stable", "new", "all", "resolved", "inconclusive")
         unhandled_count = len(list(UnhandledEventWeb.get_all()))
+        events_gmtime_offset = cls._events_gmtime_offset()
 
         # gather everything we need
         regressionslist = list()
         eventslist = list()
-        events_gmtime_offset = (
-            int(_web_now().timestamp()) - 604800
-        )
-        if regzbot.is_running_citesting("offline"):
-            events_gmtime_offset = 604800 * 52 * 10
-
         json_data = list()
         for regression in RegressionWeb.get_all():
             json_data.append(cls.regression_to_json(regression))
@@ -1250,3 +1252,19 @@ function timeAgo(provided_date) {
         logger.debug("[webpages] generating")
         cls.publish(cls.prepare())
         logger.debug("[webpages] generated")
+
+
+def dumpall_web():
+    prepared = RegExportWeb.prepare()
+    regressionslist = prepared["regressionslist"]
+    regressionslist.sort(key=lambda x: x.gmtime_activity, reverse=True)
+    categories = RegExportWeb.categorize(regressionslist)
+    mainline = categories.get("mainline", {})
+    if not any(section["entries"] for section in mainline.values()):
+        return
+
+    doc = RegExportWeb.build_compilation(
+        prepared["htmlpages"], prepared["unhandled_count"], mainline, "mainline"
+    )
+    yield yattag.indent(doc.getvalue())
+    yield "\n"
