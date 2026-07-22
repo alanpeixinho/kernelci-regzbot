@@ -1112,14 +1112,10 @@ function timeAgo(provided_date) {
         }
 
     @classmethod
-    def compile(cls):
-        logger.debug("[webpages] generating")
-
+    def prepare(cls):
         # these are the pages we are going to create
         htmlpages = ("next", "mainline", "stable", "new", "all", "resolved", "inconclusive")
-
-        # handle this page first, as we need something from it anyway
-        unhandled_count = cls.create_unhandled(regzbot.WEBPAGEDIR, htmlpages)
+        unhandled_count = len(list(UnhandledEventWeb.get_all()))
 
         # gather everything we need
         regressionslist = list()
@@ -1167,12 +1163,28 @@ function timeAgo(provided_date) {
                 )
             )
 
-        cls.create_scriptfile_reldate()
-
         eventslist.sort(key=lambda x: x["gmtime"], reverse=True)
+        return {
+            "htmlpages": htmlpages,
+            "unhandled_count": unhandled_count,
+            "regressionslist": regressionslist,
+            "json_data": json_data,
+            "eventslist": eventslist,
+        }
+
+    @classmethod
+    def publish(cls, prepared):
+        htmlpages = prepared["htmlpages"]
+        unhandled_count = prepared["unhandled_count"]
+        regressionslist = prepared["regressionslist"]
+        json_data = prepared["json_data"]
+        eventslist = prepared["eventslist"]
+
+        # handle this page first, as we need something from it anyway
+        cls.create_unhandled(regzbot.WEBPAGEDIR, htmlpages)
+        cls.create_scriptfile_reldate()
         cls.create_events(regzbot.WEBPAGEDIR, unhandled_count, htmlpages, eventslist)
         # we don't need this anymore now that we iterated over all regressions
-        eventslist = events_gmtime_offset = None
 
         # create the page listing all regressions, sorted by date
         regressionslist.sort(key=lambda x: x.gmtime_report, reverse=True)
@@ -1233,4 +1245,8 @@ function timeAgo(provided_date) {
         with open(os.path.join(regzbot.WEBPAGEDIR, "regressions.json"), "w") as jsonfile:
             jsonfile.write(json.dumps(json_data))
 
+    @classmethod
+    def compile(cls):
+        logger.debug("[webpages] generating")
+        cls.publish(cls.prepare())
         logger.debug("[webpages] generated")
