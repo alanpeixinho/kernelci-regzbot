@@ -273,7 +273,7 @@ class RegExportMailReport:
         return regressionslist
 
     @classmethod
-    def __create_mail(cls, content, treename):
+    def __create_mail(cls, content, treename, *, fixed_message_id=False):
         msg = EmailMessage()
         msg["To"] = (
             "LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Linux regressions mailing list <regressions@lists.linux.dev>"
@@ -284,22 +284,26 @@ class RegExportMailReport:
             _mail_now().date(),
         )
         msg["Date"] = email.utils.formatdate(timeval=_mail_now().timestamp(), localtime=True)
-        msg["Message-ID"] = email.utils.make_msgid(domain="leemhuis.info")
+        if fixed_message_id:
+            msg["Message-ID"] = "<regzbot-testing-mailreport@example.com>"
+        else:
+            msg["Message-ID"] = email.utils.make_msgid(domain="leemhuis.info")
         msg.set_content(content, cte="quoted-printable")
         return msg
 
     @classmethod
-    def pagecreate(cls, categories, treename, lastreport_msgid):
+    def pagecreate(cls, categories, treename, lastreport_msgid, *, interactive=True):
         def repintro(report, number_issues, treename):
             intro = list()
 
-            print("Enter/Paste your intro for %s and hit Ctrl-D to save it." % treename)
-            while True:
-                try:
-                    line = input()
-                except EOFError:
-                    break
-                intro.append(line)
+            if interactive:
+                print("Enter/Paste your intro for %s and hit Ctrl-D to save it." % treename)
+                while True:
+                    try:
+                        line = input()
+                    except EOFError:
+                        break
+                    intro.append(line)
             if report:
                 intro.append("\n---\n")
 
@@ -546,16 +550,23 @@ class RegExportMailReport:
         return categories
 
     @classmethod
-    def prepare_reports(cls, categories, lastreport_msgid):
+    def prepare_reports(cls, categories, lastreport_msgid, *, interactive=True):
         reports = dict()
         for treename in categories.keys():
-            reports[treename] = cls.pagecreate(categories[treename], treename, lastreport_msgid)
+            reports[treename] = cls.pagecreate(
+                categories[treename], treename, lastreport_msgid, interactive=interactive
+            )
         return reports
 
     @classmethod
     def lastreport(cls):
-        lastreport_msgid = regzbot.RegzbotState.get("lastreport_mainline_msgid")
-        lastreport_gmtime = regzbot.RegzbotState.get("lastreport_mainline_gmtime")
+        if regzbot.is_running_citesting("offline"):
+            lastreport_gmtime = regzbot._TESTING["mail_lastreport_gmtime"]
+            lastreport_msgid = regzbot._TESTING.get("mail_lastreport_msgid")
+        else:
+            lastreport_msgid = regzbot.RegzbotState.get("lastreport_mainline_msgid")
+            lastreport_gmtime = regzbot.RegzbotState.get("lastreport_mainline_gmtime")
+
         if lastreport_gmtime:
             lastreport_gmtime = int(lastreport_gmtime)
         else:
@@ -564,17 +575,17 @@ class RegExportMailReport:
         return lastreport_gmtime, lastreport_msgid
 
     @classmethod
-    def prepare(cls):
+    def prepare(cls, *, interactive=True):
         lastreport_gmtime, lastreport_msgid = cls.lastreport()
         logger.debug("[reportmail] lastreport was %s" % lastreport_gmtime)
 
         # gather everything we need
         categories = cls.categorize(cls.listed(lastreport_gmtime), lastreport_gmtime)
-        reports = cls.prepare_reports(categories, lastreport_msgid)
+        reports = cls.prepare_reports(categories, lastreport_msgid, interactive=interactive)
         return reports, categories
 
     @classmethod
-    def publish(cls, reports):
+    def publish(cls, reports, *, interactive=True):
         report_gmtime = int(_mail_now().timestamp())
         lastreport_msgid = None
         with tempfile.TemporaryDirectory() as tmpdirname:
@@ -585,16 +596,23 @@ class RegExportMailReport:
                     continue
 
                 filename = os.path.join(tmpdirname, "%s-regzbotreport-%s" % (counter, treename))
-                msg = cls.__create_mail(report, treename)
+                msg = cls.__create_mail(report, treename, fixed_message_id=not interactive)
                 lastreport_msgid = msg["Message-ID"].strip("<>")
-                print("#" * 120)
-                print("\n%s\n" % filename)
-                print("#" * 120)
-                print(report)
+                if interactive:
+                    print("#" * 120)
+                    print("\n%s\n" % filename)
+                    print("#" * 120)
+                    print(report)
                 with open(filename, "w") as out:
                     gen = email_generator.Generator(out)
                     gen.flatten(msg)
                 counter += 1
+
+            if counter == 0:
+                return
+
+            if not interactive:
+                return
 
             print("#" * 120)
             print(
@@ -604,13 +622,23 @@ class RegExportMailReport:
             answer = input("Enter c to confirm you sent the report, anything else to abort: ")
             if answer.lower() != "c":
                 return
+
             regzbot.RegzbotState.set("lastreport_mainline_gmtime", report_gmtime)
             regzbot.RegzbotState.set("lastreport_mainline_msgid", lastreport_msgid)
 
         logger.debug("[report] generated")
 
     @classmethod
-    def compile(cls):
+    def compile(cls, *, interactive=True):
         logger.debug("[reportmail] generating")
-        reports, _categories = cls.prepare()
-        cls.publish(reports)
+        reports, _categories = cls.prepare(interactive=interactive)
+        cls.publish(reports, interactive=interactive)
+
+
+def dumpall_mail():
+    reports, categories = RegExportMailReport.prepare(interactive=False)
+    if not any(category["entries"] for category in categories.get("mainline", {}).values()):
+        return
+
+    yield reports.get("mainline", "")
+    yield "\n"
