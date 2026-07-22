@@ -17,6 +17,17 @@ import regzbot
 logger = regzbot.logger
 
 
+def _mail_now():
+    mail_now = regzbot._TESTING.get("mail_now")
+    if mail_now is not None:
+        return mail_now
+    return regzbot.timendate_now()
+
+
+def _mail_days_delta(past):
+    return (_mail_now() - datetime.datetime.fromtimestamp(past, datetime.timezone.utc)).days
+
+
 class RegLinkMailReport(regzbot.RegLink):
     def __init__(self, *args):
         super().__init__(*args)
@@ -31,7 +42,7 @@ class RegLinkMailReport(regzbot.RegLink):
             ):
                 monitored = "; thread monitored."
             authored = "\n  %s days ago, by %s%s" % (
-                regzbot.days_delta(self.gmtime),
+                _mail_days_delta(self.gmtime),
                 self.author,
                 monitored,
             )
@@ -95,17 +106,17 @@ class RegressionMailReport(regzbot.RegressionFull):
                 statusline.append(", ")
 
         statusline.append("; ")
-        statusline.append(str(regzbot.days_delta(self.gmtime)))
+        statusline.append(str(_mail_days_delta(self.gmtime)))
         statusline.append(" days ago; ")
         statusline.append(str(len(self._actievents)))
         statusline.append(" activities")
         if len(self._actievents) > 0:
             statusline.append(", latest ")
-            statusline.append(str(regzbot.days_delta(self._actievents[-1].gmtime)))
+            statusline.append(str(_mail_days_delta(self._actievents[-1].gmtime)))
             statusline.append(" days ago")
 
         if self.poked:
-            statusline.append("; poked %s days ago" % regzbot.days_delta(self.poked.gmtime))
+            statusline.append("; poked %s days ago" % _mail_days_delta(self.poked.gmtime))
         statusline.append(".")
         report.append("".join(statusline))
 
@@ -166,7 +177,7 @@ class RegressionMailReport(regzbot.RegressionFull):
             report.append("* %s" % actievent.subject)
             report.append("  %s" % actievent.url())
             report.append(
-                "  %s days ago, by %s" % (regzbot.days_delta(actievent.gmtime), actievent.author)
+                "  %s days ago, by %s" % (_mail_days_delta(actievent.gmtime), actievent.author)
             )
 
             break
@@ -243,9 +254,9 @@ class RegExportMailReport:
         msg["Subject"] = "%s for %s [%s]" % (
             regzbot.REPORT_SUBJECT_PREFIX,
             treename,
-            datetime.date.today(),
+            _mail_now().date(),
         )
-        msg["Date"] = email.utils.localtime()
+        msg["Date"] = email.utils.formatdate(timeval=_mail_now().timestamp(), localtime=True)
         msg["Message-ID"] = email.utils.make_msgid(domain="leemhuis.info")
         msg.set_content(content, cte="quoted-printable")
         return msg
@@ -450,11 +461,7 @@ class RegExportMailReport:
         }
 
         for regression in regressionlist:
-            filed_days = (
-                datetime.datetime.now(datetime.timezone.utc)
-                - datetime.datetime.fromtimestamp(regression.gmtime_filed, datetime.timezone.utc)
-            ).days
-            last_activity_days = regzbot.days_delta(regression.gmtime_activity)
+            last_activity_days = _mail_days_delta(regression.gmtime_activity)
 
             if regression.backburner:
                 if lastreport_gmtime > regression.gmtime_activity:
@@ -520,7 +527,7 @@ class RegExportMailReport:
         if lastreport_gmtime:
             lastreport_gmtime = int(lastreport_gmtime)
         else:
-            lastreport_gmtime = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
+            lastreport_gmtime = int(_mail_now().timestamp())
 
         logger.debug("[reportmail] lastreport was %s" % lastreport_gmtime)
 
@@ -555,7 +562,7 @@ class RegExportMailReport:
         regressionslist.sort(key=lambda x: x.gmtime_activity, reverse=True)
         categories = cls.categorize(regressionslist, lastreport_gmtime)
 
-        report_gmtime = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
+        report_gmtime = int(_mail_now().timestamp())
         with tempfile.TemporaryDirectory() as tmpdirname:
             for counter, treename in enumerate(categories.keys()):
                 report = cls.pagecreate(categories[treename], treename, lastreport_msgid)
