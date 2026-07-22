@@ -17,7 +17,6 @@ from regzbot import PatchKind
 logger = regzbot.logger
 
 
-
 def _web_now():
     mail_now = regzbot._TESTING.get("mail_now")
     if mail_now is not None:
@@ -799,7 +798,7 @@ class RegExportWeb:
             )
 
     @classmethod
-    def createpage_compilation(cls, htmlpages, unhandled_count, categories, pagename):
+    def build_compilation(cls, htmlpages, unhandled_count, categories, pagename):
         tablecolumns = 3
         yattagdoc = yattag.Doc()
         cls.outpage_head(yattagdoc)
@@ -830,8 +829,12 @@ class RegExportWeb:
                                 with yattagdoc.tag("td", style="width: 100px;"):
                                     yattagdoc.text(regressionweb.treename)
             cls.outpage_footer(yattagdoc, unhandled_count)
+        return yattagdoc
 
-            cls.outpage_write(pagename, yattagdoc)
+    @classmethod
+    def createpage_compilation(cls, htmlpages, unhandled_count, categories, pagename):
+        yattagdoc = cls.build_compilation(htmlpages, unhandled_count, categories, pagename)
+        cls.outpage_write(pagename, yattagdoc)
 
     @classmethod
     def create_events(cls, directory, unhandled_count, htmlpages, eventslist):
