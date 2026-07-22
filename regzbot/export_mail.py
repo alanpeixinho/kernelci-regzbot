@@ -6,6 +6,7 @@ __author__ = "Thorsten Leemhuis <linux@leemhuis.info>"
 
 from collections import Counter
 import datetime
+from email import generator as email_generator
 from email.message import EmailMessage
 import email.utils
 import tempfile
@@ -244,6 +245,32 @@ class RegExportMailReport:
         self.backburner = backburner
         self.identified = identified
         self.reporttext = reporttext
+
+    @classmethod
+    def listed(cls, lastreport_gmtime):
+        regressionslist = list()
+        for regression in RegressionMailReport.get_all(only_unsolved=True):
+            # ignore some
+            if regression._actievents:
+                last_activity = regression._actievents[-1].gmtime
+            else:
+                last_activity = regression._histevents[-1].gmtime
+            regressionslist.append(
+                cls(
+                    regression._actim_report.entry,
+                    regression.gmtime,
+                    regression.gmtime_filed,
+                    last_activity,
+                    regression.treename,
+                    regression.versionline,
+                    regression.backburner,
+                    regression.identified,
+                    regression.mailreport(lastreport_gmtime),
+                )
+            )
+
+        regressionslist.sort(key=lambda x: x.gmtime_activity, reverse=True)
+        return regressionslist
 
     @classmethod
     def __create_mail(cls, content, treename):
@@ -519,9 +546,14 @@ class RegExportMailReport:
         return categories
 
     @classmethod
-    def compile(cls):
-        logger.debug("[reportmail] generating")
+    def prepare_reports(cls, categories, lastreport_msgid):
+        reports = dict()
+        for treename in categories.keys():
+            reports[treename] = cls.pagecreate(categories[treename], treename, lastreport_msgid)
+        return reports
 
+    @classmethod
+    def lastreport(cls):
         lastreport_msgid = regzbot.RegzbotState.get("lastreport_mainline_msgid")
         lastreport_gmtime = regzbot.RegzbotState.get("lastreport_mainline_gmtime")
         if lastreport_gmtime:
@@ -529,44 +561,25 @@ class RegExportMailReport:
         else:
             lastreport_gmtime = int(_mail_now().timestamp())
 
+        return lastreport_gmtime, lastreport_msgid
+
+    @classmethod
+    def prepare(cls):
+        lastreport_gmtime, lastreport_msgid = cls.lastreport()
         logger.debug("[reportmail] lastreport was %s" % lastreport_gmtime)
 
         # gather everything we need
-        regressionslist = list()
+        categories = cls.categorize(cls.listed(lastreport_gmtime), lastreport_gmtime)
+        reports = cls.prepare_reports(categories, lastreport_msgid)
+        return reports, categories
 
-        for regression in RegressionMailReport.get_all(only_unsolved=True):
-            # ignore some
-            if regression._actievents:
-                last_activity = regression._actievents[-1].gmtime
-            else:
-                last_activity = regression._histevents[-1].gmtime
-            last_activity_days = regzbot.days_delta(last_activity)
-            if regression._actievents:
-                last_activity = regression._actievents[-1].gmtime
-            else:
-                last_activity = regression._histevents[-1].gmtime
-            regressionslist.append(
-                cls(
-                    regression._actim_report.entry,
-                    regression.gmtime,
-                    regression.gmtime_filed,
-                    last_activity,
-                    regression.treename,
-                    regression.versionline,
-                    regression.backburner,
-                    regression.identified,
-                    regression.mailreport(lastreport_gmtime),
-                )
-            )
-
-        regressionslist.sort(key=lambda x: x.gmtime_activity, reverse=True)
-        categories = cls.categorize(regressionslist, lastreport_gmtime)
-
+    @classmethod
+    def publish(cls, reports):
         report_gmtime = int(_mail_now().timestamp())
+        lastreport_msgid = None
         with tempfile.TemporaryDirectory() as tmpdirname:
-            for counter, treename in enumerate(categories.keys()):
-                report = cls.pagecreate(categories[treename], treename, lastreport_msgid)
-
+            counter = 0
+            for treename, report in reports.items():
                 if not report:
                     logger.info("Nothing to report for %s" % treename)
                     continue
@@ -579,11 +592,11 @@ class RegExportMailReport:
                 print("#" * 120)
                 print(report)
                 with open(filename, "w") as out:
-                    gen = email.generator.Generator(out)
+                    gen = email_generator.Generator(out)
                     gen.flatten(msg)
+                counter += 1
 
             print("#" * 120)
-
             print(
                 "Review the reports in %s and sent them using \"git send-email --from='Regzbot (on behalf of Thorsten Leemhuis) <regressions@leemhuis.info>' --suppress-cc=self --to '' %s/*\""
                 % (tmpdirname, tmpdirname)
@@ -593,6 +606,11 @@ class RegExportMailReport:
                 return
             regzbot.RegzbotState.set("lastreport_mainline_gmtime", report_gmtime)
             regzbot.RegzbotState.set("lastreport_mainline_msgid", lastreport_msgid)
-            lastreport_msgid = regzbot.RegzbotState.get("lastreport_mainline_msgid")
 
         logger.debug("[report] generated")
+
+    @classmethod
+    def compile(cls):
+        logger.debug("[reportmail] generating")
+        reports, _categories = cls.prepare()
+        cls.publish(reports)
